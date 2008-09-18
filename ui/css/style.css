@@ -1,0 +1,98 @@
+body
+{
+	margin: 0;
+	padding: 0;
+	background-color: #FFF;
+	font-family: trebuchet ms, verdana, tahoma, arial;
+	font-size: 90%;
+	line-height: 200%;
+}
+
+img
+{
+	border: 0px;
+}
+
+body > #menu
+{
+	position: fixed;
+}
+
+a:active, a:visited, a:link
+{
+	color: #5E8E3E;
+	text-decoration: underline;
+}
+
+a:hover
+{
+	color: #000000;
+	text-decoration: none;
+}
+
+#menu
+{
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 200px;
+	height: 100%;
+	overflow: auto;
+	background-color: #555;
+	border-right:1px solid #000;
+}
+
+#menutop
+{
+	width: 200px;
+	height: 243px;
+	border-bottom:1px solid #808080;
+	background-color: #444;
+}
+
+#main
+{
+	width: 540px;
+	margin-left: 200px;
+	padding: 20px;
+}
+
+
+#main h1
+{
+	border-bottom: 1px solid #808080;
+	font-family: arial;
+	font-weight: 100;
+	letter-spacing: 4px;
+	font-size: 250%;
+	text-align: right;
+}
+#main h2
+{
+	border-bottom: 1px dashed #808080;
+	font-family: arial;
+	font-weight: 100;
+	letter-spacing: 3px;
+	font-size: 150%;
+	text-align: right;
+}
+
+#main pre
+{
+    line-height: 170%;
+	background-color: #ddb;
+    padding: .5em;
+    border: 1px dashed #555;
+    overflow: auto;
+}
+
+#main h3
+{
+    line-height: 100%;
+    margin: .5em 0 0 0;
+}
+
+#main code
+{
+	font-size: 120%;
+{

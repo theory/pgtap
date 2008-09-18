@@ -1,0 +1,240 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <!-- this template was designed by http://www.tristarwebdesign.co.uk - please visit for more templates & information - thank you. -->
+  <head>
+    <meta http-equiv="Content-Language" content="en-us" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf8" />
+    <title>pgTAP: Unit Testing for PostgreSQL</title>
+    <link rel="stylesheet" type="text/css" href="/ui/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="/ui/css/menu.css" />
+    <!--[if IE 6]>
+      <link rel="stylesheet" type="text/css" href="/ui/css/ie.css" />
+    <![endif]-->
+  </head>
+
+  <body>
+    <div id="menu">
+	  <div id="menutop">
+        <a title="pgTAP home" href="/"><img alt="home" src="/ui/img/tap.jpg" width="200" alt="tap" /></a>
+      </div>
+
+	  <div class="navcontainer">
+	    <ul class="navlist">
+		  <li><a title="pgTAP home" href="/" id="selected">home</a></li>
+		  <li><a title="Download pgTAP from pgFoundry" href="http://pgfoundry.org/frs/?group_id=1000389">download</a></li>
+		  <li><a title="Read the complete pgTAP documentation" href="/documentation.html">documentation</a></li>
+		  <li><a title="Subscribe to the pgTAP Mail Lists" href="http://pgfoundry.org/mail/?group_id=1000389">mail lists</a></li>
+		  <li><a title="The pgTAP Subversion Repository" href="https://svn.kineticode.com/pgtap/trunk/">subversion</a></li>
+	    </ul>
+	  </div>
+
+	  <br />
+
+	  <div class="navcontainer">
+	    <ul class="navlist">
+		  <li><a title="Just a Theory" href="http://justatheory.com/">code: david e. wheeler</a></li>
+		  <li><a title="derby web design" href="http://www.tristarwebdesign.co.uk">webdesign: tri-star</a></li>
+		  <li><a title="Courtland Whited's Flickr Photostream" href="http://flickr.com/photos/idreaminir/">photo: courtland whited</a></li>
+	    </ul>
+	  </div>
+    </div>
+
+    <div id="main">
+	  <h1>pgTAP</h1>
+
+	  <p>pgTAP is a suite of database functions that make it easy to write
+	    <a href="http://testanything.org/" title="Test Anything
+	    Protocol">TAP</a>-emitting unit tests in <code>psql</code> scripts
+	    suitable for harvesting, analysis, and reporting by a TAP harness,
+	    such as those used in Perl and PHP applications.</p>
+
+      <p>Why would you want to unit test your database? Well, there are a
+      couple of scenarios in which it can be useful</p>
+
+      <h2>Application Development</h2>
+
+      <p>So you write PostgreSQL-backed applications, maybe
+      in <a href="http://www.rubyonrails.org/" title="Ruby on
+      Rails">Rails</a>, or <a href="http://www.djangoproject.com/"
+      title="Django | The Web framework for perfectionists with deadlines">Django</a>,
+      or <a href="http://www.catalystframework.org/" title="Cataylst: The
+      elegant MVC framework">Catalyst</a>, and because you’re an
+        <a href="http://en.wikipedia.org/wiki/Agile_software_development"
+        title="Wikipedia: Agile software development">agile developer</a>, you
+        write lots of tests to make sure that your application works as you
+        practice iterative development. But, as one of the most important
+        parts of your application, should you not also test the database?
+        Sure, you write tests of your API, and the API covers the database,
+        but that’s not really Unit testing, is it?</p>
+
+      <p>pgTAP allows you to really test the database, not only verifying the
+        structure of your schema, but also by exercising any views,
+        procedures, functions, rules, or triggers you write. Of course you
+        could use your application’s unit-testing framework to test the
+        database, but by writing your tests with pgTAP, you can keep your
+        database tests simple. Consider these simple tests written
+        with <a href="http://search.cpan.org/perldoc/Test::More"
+        title="Test::More on CPAN">Test::More</a> and the
+        Perl <a href="http://search.cpan.org/perldoc/DBI" title="The Perl DBI
+        on CPAN">DBI</a> to test a custom database function:</p>
+
+      <pre><code>use Test::More tests => 3;
+use DBI;
+
+my $dbh = DBI->connect('dbi:Pg:dbname=try', 'postgres', '' );
+
+# Start a transaction.
+$dbh->begin;
+END { $dbh->rollback; $dbh->disconnect; }
+
+# Insert stuff.
+is $dbh->do(
+    'SELECT insert_stuff( ?, ?, ?, ?)',
+    undef, 'www.foo.com', [1, 2, 3], 1, 2
+), undef, 'Inserting some stuff should return undef';
+
+# Grab the stuff records.
+ok my $stuff = $dbh->selectall_arrayref(q{
+    SELECT domain_id, stuff_id
+      FROM domain_stuff
+     WHERE domain_id = ?
+       AND source_id = ?
+     ORDER BY stuff_id
+}, undef, $domain_id, 2), 'Fetch the domain stuff';
+
+# Make sure we have the right stuff.
+is_deeply $stuff, [
+    [ $domain_id, 1 ],
+    [ $domain_id, 2 ],
+    [ $domain_id, 3 ],
+], 'The rows should have the right stuff';</code></pre>
+
+      <p>The upshot is that you have to connect to the database, set up
+      transactions, execute the database functions, fetch back data into Perl
+      data structures, and then compare values. Now consider the equivalent
+      written with pgTAP:</p>
+
+      <pre><code>-- Start a transaction.
+BEGIN;
+SET client_min_messages = warning;
+SELECT plan( 2 );
+
+-- Insert stuff.
+SELECT is(
+   insert_stuff( 'www.foo.com', '{1,2,3}', 2, 1 ),
+    NULL,
+    'insert_stuff() should return null'
+);
+
+-- Check for domain stuff records.
+SELECT is(
+    ARRAY(
+        SELECT domain_id, stuff_id
+          FROM domain_stuff
+         WHERE domain_id = ?
+           AND source_id = ?
+         ORDER BY stuff_id
+    ),
+    ARRAY[
+        ARRAY[ last_insert_id(), 1 ],
+        ARRAY[ last_insert_id(), 2 ],
+        ARRAY[ last_insert_id(), 3 ],
+    ],
+    'The stuff should have been associated with the domain'
+);
+
+SELECT * FROM finish();
+ROLLBACK;</code></pre>
+
+      <p>Now isn’t that a lot easier to read? Unlike the Perl tests, the pgTAP
+      tests can just compare values directly in the database. There is no need
+      to do any extra work to get the database interface to talk to the
+      database, fetch data, convert it, etc. You just use SQL. And if you’re
+      working hard to keep SQL in the database and application code in the
+      application, why would you write database tests in Application code?
+      Just write them in SQL and be done with it!</p>
+
+      <h2>Module Development</h2>
+
+      <p>If you’re developing third-party modules for PostgreSQL, such
+      as <a href="http://pgfoundry.org/softwaremap/trove_list.php?form_cat=390"
+      title="Custom PostgreSQL data types on pgFoundry">custom data types</a>
+      or <a href="http://pgfoundry.org/softwaremap/trove_list.php?form_cat=314"
+      title="PosgreSQL database portability projects on pgFoundry">portability
+      functions</a>, you can of course use PostgreSQL’s standard regression test
+      architecture. But if you’re doing agile development, writing tests as you
+      go, which test output would you rather read? This:</p>
+
+      <pre><code>% psql -Xd try -f pg.sql
+CREATE TEMP TABLE srt (
+   name CITEXT
+);
+CREATE TABLE
+INSERT INTO srt (name)
+VALUES ('aardvark'),
+       ('AAA'),
+       ('aba'),
+       ('ABC'),
+       ('abd');
+INSERT 0 5
+SELECT LOWER(name) as aaa FROM srt WHERE name = 'AAA'::text;
+ aaa 
+-----
+ aaa
+(1 row)
+SELECT LOWER(name) as aaa FROM srt WHERE name = 'AAA'::varchar;
+ aaa 
+-----
+ aaa
+(1 row)
+
+SELECT LOWER(name) as aaa FROM srt WHERE name = 'AAA'::bpchar;
+ aaa 
+-----
+ aaa
+(1 row)
+
+SELECT LOWER(name) as aaa FROM srt WHERE name = 'AAA';
+ aaa 
+-----
+ aaa
+(1 row)</code></pre>
+
+    <p>Which tests pass? Which fail? Not only is it hard to tell, but
+    because <code>pg_regress</code> compares the output against an expected
+    output file, you also have to <em>maintain</em> that file!</p>
+
+    <p>In contrast, the output for the equivalent tests using pgTAP looks like
+    this:</p>
+
+    <pre><code>% pg_prove -d try pgtap.sql --verbose
+pgtap....
+1..4
+ok 1 - Should find "AAA"::text
+ok 2 - Should find "AAA"::varchar
+ok 3 - Should find "AAA"::bpchar
+ok 4 - Should find "AAA"
+ok
+All tests successful.
+Files=1, Tests=4,  0 wallclock secs ( 0.00 usr  0.00 sys +  0.01 cusr  0.00 csys =  0.01 CPU)
+Result: PASS
+    </code></pre>
+
+    <p><em>Now</em> can you tell what tests pass and fail? Can you tell what,
+    exactly, was tested? Yeah, so can I.</p>
+
+
+    <h2>Get Started</h2>
+
+    <p>So, what are you waiting
+      for? <a href="http://pgfoundry.org/frs/?group_id=1000389"
+      title="Download pgTAP from pgFoundry">Download the latest version of
+      pgTAP</a>, or grab the latest from the <a title="The pgTAP Subversion
+      Repository" href="https://svn.kineticode.com/pgtap/trunk/">subversion
+      repository</a>, read the <a href="/documentation.html" title="The
+      compmlete pgTAP documentation">documentation</a>, and get going with
+      those tests!</p>
+
+    </div>
+  </body>
+</html>

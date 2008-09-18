@@ -1,0 +1,39 @@
+.navcontainer { width: 200px; }
+
+.navcontainer ul
+{
+margin-left: 0;
+margin-top: 0;
+padding-left: 0;
+list-style-type: none;
+}
+
+.navcontainer a
+{
+display: block;
+padding: 3px 15px;
+width: 170px;
+background-color: #555;
+border-bottom: 1px dashed #999;
+}
+
+.navcontainer a:link, .navlist a:visited
+{
+color: #EEE;
+text-decoration: none;
+}
+
+.navcontainer a:hover
+{
+background-color: #444;
+color: #fff;
+}
+
+#topmenu
+{
+	border-top: 1px dashed #999;
+}
+
+#selected {
+background-color: #444;
+}
