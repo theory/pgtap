@@ -23,7 +23,14 @@
       below and follow along. Don't see your language here yet? If you figure
       out how to do it, please send us the instructions!</p>
 
-      <h2>Perl</h2>
+      <ul>
+        <li><a href="#perl" title="pgTAP Perl Integration">Perl</a></li>
+        <li><a href="#php" title="pgTAP Php Integration">PHP</a></li>
+        <li><a href="#python" title="pgTAP Python Integration">Python</a></li>
+        <li><a href="#postgresql" title="pgTAP Postgresql Integration">PostgreSQL</a></li>
+      </ul>
+
+      <h2 id="perl">Perl</h2>
 
       <p>Chances are, if you're writing Perl applications, you're already using
         <a href="http://search.cpan.org/perldoc/Test::More" title="Test::More
@@ -133,7 +140,7 @@ Result: PASS</code></pre>
         planned, as well. Just bug Schwern to commit the patch and release a
         new version!</p>
 
-      <h2>PHP</h2>
+      <h2 id="php">PHP</h2>
 
       <p>We're sure there's a way to integrate pgTAP tests
       with <a href="http://www.phpunit.de/" title="PHPUnit project page">PHPUnit</a>
@@ -143,7 +150,7 @@ Result: PASS</code></pre>
       title="Subscribe to pgtap-users">pgtap-users</a> mail list and we'll add
       them to this page!</p>
 
-      <h2>Python</h2>
+      <h2 id="python">Python</h2>
 
       <p>We're sure there's a way to integrate pgTAP tests
       with <a href="http://pyunit.sourceforge.net/" title="PyUnit - the standard unit testing framework for Python">PyUnit</a>. If you figure it out, send the
@@ -151,6 +158,124 @@ Result: PASS</code></pre>
       the <a href="http://lists.pgfoundry.org/mailman/listinfo/pgtap-users"
       title="Subscribe to pgtap-users">pgtap-users</a> mail list and we'll add
       them to this page!</p>
+
+      <h2 id="postgresql">PostgreSQL</h2>
+      <p>If you're developing an add-on module for PostgreSQL, it can be very
+      useful to do test-driven development with pgTAP
+      and <code>pg_prove</code>. But once things are working, it's also handy
+      to allow such tests to be run via <code>make installcheck</code>, which
+      uses <code>pg_regress</code> to run tests and to <code>diff</code> their
+      output to that found in expected output files. So here's how to do that
+      with pgTAP while keeping everything TAPish.</p>
+
+      <h3>Instructions</h3>
+      <ul>
+        <li>
+          <p>Copy <code>pgtap.sql</code> to the root of your project, so that
+          it can be loaded by the regression tests.</p>
+        </li>
+        <li>
+          <p>Add these lines to the <code>Makefile</code>:</p>
+
+          <pre>TESTS = $(wildcard sql/*.sql)
+REGRESS = $(patsubst sql/%.sql,%,$(TESTS))
+REGRESS_OPTS = --load-language plpgsql</pre>
+
+          <p>The first two lines are an easy way to find all of your test
+          files, which should all be <code>*.sql</code> files in
+          the <code>sql/</code> directory. The <code>REGRESS_OPTS</code>
+          variable ensures that PL/pgSQL will be loaded in the test database,
+          which is of course required by pgTAP.</p>
+
+          <p>If you want to allow a <code>make test</code> target that uses
+            <code>pg_prove</code> to run the tests, you can do so by adding
+            the following to the <code>Makefile</code>:</p>
+
+          <pre>test:
+	./bin/pg_prove --pset tuples_only=1 $(TESTS)</pre>
+
+          <p>If you're not familiar with how PostgreSQL module Makefiles are
+            constructed, it's actually quite simple to create a portable build
+            system using <code>pg_config</code> and <code>pg_xs</code>. See
+            the <a href="http://www.postgresql.org/docs/current/static/xfunc-c.html#XFUNC-C-PGXS"
+            title="PostgreSQL Extension Building Infrastructure">extension
+            building documentation</a> for details and the
+            simple <code>Makefile</code> in the
+            <a href="http://www.postgresql.org/docs/current/static/textsearch-parser-example.html"
+            title="PostgreSQL: Example of Creating a Parser">parser
+            example</a> in the PostgreSQL documentation.</p>
+        </li>
+        <li>
+          <p>In the root directory of your project, create a new file,
+          named <code>test_setup.sql</code>. Its contents should look like
+          this:</p>
+
+          <pre>\set QUIET 1
+
+-- Format the output for nice TAP.
+\pset format unaligned
+\pset tuples_only true
+\pset pager
+
+-- Keep things quiet.
+SET client_min_messages = warning;
+
+-- Revert all changes on failure.
+\set ON_ERROR_ROLLBACK 1
+\set ON_ERROR_STOP true
+
+-- Load the TAP functions.
+BEGIN;
+\i pgtap.sql</pre>
+
+          <p>These are all of the settings that are normally handled
+          by <code>pg_prove</code>, but not by <code>pg_regress</code>, so we
+          have to add them ourselves.</p>
+        </li>
+        <li>
+          <p>Each of your test files, <code>sql/*.sql</code> should look like
+          so:</p>
+
+          <pre>\unset ECHO
+\i test_setup.sql
+
+SELECT plan(1);
+SELECT pass('W00t!');
+SELECT * FROM finish();
+ROLLBACK;</pre>
+
+          <p>The <code>\unset ECHO</code> bit turns off the echoing of all
+          queries, which <code>pg_regress</code> enables by default. This is
+          annoying for TAP tests. Otherwise, all the tests do is load
+          the <code>test_setup.sql</code> file, which makes everything nice
+          and quiet and pretty for TAP, starts the transaction, and loads
+          pgTAP, and the do the actual testing. Be sure
+          to <code>finish()</code> and <code>ROLLBACK</code> at the end of the
+          test!</p>
+        </li>
+        <li>
+          <p>For each test file in the <code>sql/</code> directory, create a
+          corresponding file in the <code>expected</code> directory with the
+          same name as the test file, but with the extension “.out”. These
+          files should just have the line <code>\unset ECHO</code> at the top,
+          and then the TAP output from the test. For example, if the above
+          test had been named <code>sql/base.sql</code>, you'd create the
+          file <code>expected/base.out</code> looking like this:</p>
+
+          <pre>\unset ECHO
+1..1
+ok 1 - W00t!
+</pre>
+
+          <p>Alas, there seems to be no way to get rid of the <code>\unset
+          ECHO</code> line, but otherwise, you're golden with pure TAP.</p>
+        </li>
+        <li>
+          <p>And now you should be ready to go! You should be able to either
+            <code>make installcheck</code> as with any other PostgreSQL
+            module, as well as <code>make test</code>. Enjoy!</p>
+        </li>
+      </ul>
 
     </div>
     <div id="menu">
