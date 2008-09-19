@@ -11,7 +11,7 @@ list-style-type: none;
 .navcontainer a
 {
 display: block;
-padding: 3px 15px;
+padding: 0 15px;
 width: 170px;
 background-color: #555;
 border-bottom: 1px dashed #999;

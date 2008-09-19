@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <!-- this template was designed by http://www.tristarwebdesign.co.uk - please visit for more templates & information - thank you. -->
+  <head>
+    <meta http-equiv="Content-Language" content="en-us" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf8" />
+    <title>pgTAP: Integration</title>
+    <link rel="stylesheet" type="text/css" href="/ui/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="/ui/css/menu.css" />
+    <!--[if IE 6]>
+      <link rel="stylesheet" type="text/css" href="/ui/css/ie.css" />
+    <![endif]-->
+  </head>
+
+  <body>
+    <div id="main">
+
+      <h1>pgTAP Integration</h1>
+
+      <p>So you've caught the database testing bug and now you want to
+      integrate pgTAP tests into your project's test suite. Excellent. You've
+      come to the right place. Just find your favorite programming language
+      below and follow along. Don't see your language here yet? If you figure
+      out how to do it, please send us the instructions!</p>
+
+      <h2>Perl</h2>
+
+      <p>Chances are, if you're writing Perl applications, you're already using
+        <a href="http://search.cpan.org/perldoc/Test::More" title="Test::More
+        on CPAN">Test::More</a>
+        and <a href="http://search.cpan.org/perldoc/Test::More"
+        title="Test::Harness on CPAN">Test::Harness</a> to write and run your
+        tests. If you
+        use <a href="http://search.cpan.org/perldoc/Module::Build"
+        title="Test::More on CPAN">Module::Build</a> to build your
+        application, here's how to hook in pgTAP tests so that they run right
+        along with your Perl tests.</p>
+
+      <h3>Requirements</h3>
+      <ul>
+        <li><a href="http://search.cpan.org/perldoc/Module::Build"
+        title="Test::More on CPAN">Module::Build</a> 0.2808_02 or later</li>
+        <li><a href="http://search.cpan.org/perldoc/TAP::Harness"
+        title="Test::More on CPAN">TAP::Harness</a> 3.12 or later</li>
+      </ul>
+
+      <h3>Instructions</h3>
+      <ul>
+        <li>
+          <p>Put your tests in the <code>t/</code> directory of your project,
+            just like the Perl tests. Give them a suffix of “.s”, leaving your
+            Perl tests with a suffix of “.t”. You don't need to set any
+            special variables in the test scripts. They can be as simple as
+            this:</p>
+
+          <pre><code>BEGIN;
+SELECT plan( 1 );
+SELECT pass('W00t!');
+SELECT * FROM finish();
+ROLLBACK;</code></pre>
+        </li>
+
+        <li>
+          <p>In <code>Build.PL</code>, subclass Module::Build like so:</p>
+
+          <pre><code>my $class = Module::Build->subclass(code => <<'EOF');
+sub tap_harness_args {
+    return {
+        exec => sub {
+            my ( $harness, $test_file ) = @_;
+            # Let Perl tests run.
+            return undef if $test_file =~ /[.]t$/;
+            # Run pgTAP tests through psql.
+            return [qw(
+                psql
+                --username postgres
+                --database try
+                --quiet
+                --no-psqlrc
+                --no-align
+                --tuples-only
+                --set ON_ERROR_ROLLBACK=1
+                --set ON_ERROR_STOP=1
+                --file
+            ), $test_file ] if $test_file =~ /[.]s$/;
+        },
+    };
+}
+EOF
+$class->new(
+   # ...
+)->create_build_script;
+</code></pre>
+
+          <p>What this does is tell Module::Build to use TAP::Harness to run
+          tests, rather than Test::Harness, and it tells it to use <code>psql</code> to run
+          tests with file names ending in “.s”.</p>
+        </li>
+        <li>
+          <p>Tweak this as necessary to match your configuration. For example,
+          the database you connect to may not be “try”, and the user may not
+          be “postgres”. You might also need to specify a host name and port;
+          consult
+          the <a href="http://www.postgresql.org/docs/current/static/app-psql.html"
+          title="psql documentation"><code>psql</code> documentation</a> to
+          decide what other options you might need to specify. And of course,
+          you should fill in the proper parameters to <code>new()</code> (you
+          probably already have them).</p>
+        </li>
+
+        <li>
+          <p>Now you can run your tests as usual:</p>
+
+          <pre><code> ./Build test                                            
+t/perl.t......ok   
+t/pgtap.s.....ok   
+All tests successful.
+Files=2, Tests=6,  0 wallclock secs ( 0.03 usr  0.01 sys +  0.03 cusr  0.02 csys =  0.09 CPU)
+Result: PASS</code></pre>
+
+          <p>If you see a bunch of “NOTICE” messages output from PostgreSQL,
+          you can either add <code>client_min_messages = warning</code> to
+          your <code>postgresql.conf</code> file and restart PostgreSQL
+          (recommended), or just add <code>SET client_min_messages =
+          warning;</code> to the top of your pgTAP test scripts.</p>
+        </li>
+        <li><p>Profit. Have fun!</p></li>
+      </ul>
+
+      <p>Support for running pgTAP tests
+        with <a href="http://search.cpan.org/perldoc/ExtUtils::MakeMaker"
+        title="ExtUtils::MakeMaker on CPAN">ExtUtils::MakeMaker</a> is
+        planned, as well. Just bug Schwern to commit the patch and release a
+        new version!</p>
+
+      <h2>PHP</h2>
+
+      <p>We're sure there's a way to integrate pgTAP tests
+      with <a href="http://www.phpunit.de/" title="PHPUnit project page">PHPUnit</a>
+      or <a href="http://code.google.com/p/snaptest/" title="SnapTest project on Google Code">SnapTest</a>. If you figure it out, send the
+      instructions to
+      the <a href="http://lists.pgfoundry.org/mailman/listinfo/pgtap-users"
+      title="Subscribe to pgtap-users">pgtap-users</a> mail list and we'll add
+      them to this page!</p>
+
+      <h2>Python</h2>
+
+      <p>We're sure there's a way to integrate pgTAP tests
+      with <a href="http://pyunit.sourceforge.net/" title="PyUnit - the standard unit testing framework for Python">PyUnit</a>. If you figure it out, send the
+      instructions to
+      the <a href="http://lists.pgfoundry.org/mailman/listinfo/pgtap-users"
+      title="Subscribe to pgtap-users">pgtap-users</a> mail list and we'll add
+      them to this page!</p>
+
+    </div>
+    <div id="menu">
+	  <div id="menutop">
+        <a title="pgTAP home" href="/"><img alt="home" src="/ui/img/tap.jpg" width="200" alt="tap" /></a>
+      </div>
+
+	  <div class="navcontainer">
+	    <ul class="navlist">
+		  <li><a title="pgTAP home" href="/">home</a></li>
+		  <li><a title="Download pgTAP from pgFoundry" href="http://pgfoundry.org/frs/?group_id=1000389">download</a></li>
+		  <li><a title="Read the complete pgTAP documentation" href="/documentation.html">documentation</a></li>
+		  <li><a title="Integrate pgTAP into your test suite" href="/integration.html" id="selected">integration</a></li>
+		  <li><a title="Subscribe to the pgTAP Mail Lists" href="http://pgfoundry.org/mail/?group_id=1000389">mail lists</a></li>
+		  <li><a title="The pgTAP Subversion Repository" href="https://svn.kineticode.com/pgtap/trunk/">subversion</a></li>
+	    </ul>
+	  </div>
+
+	  <br />
+
+	  <div class="navcontainer">
+	    <ul class="navlist">
+		  <li><a title="Just a Theory" href="http://justatheory.com/">code: david e. wheeler</a></li>
+		  <li><a title="derby web design" href="http://www.tristarwebdesign.co.uk">webdesign: tri-star</a></li>
+		  <li><a title="Courtland Whited's Flickr Photostream" href="http://flickr.com/photos/idreaminir/">photo: courtland whited</a></li>
+	    </ul>
+	  </div>
+    </div>
+
+  </body>
+</html>

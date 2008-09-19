@@ -16,6 +16,7 @@ img
 body > #menu
 {
 	position: fixed;
+    font-size: 95%;
 }
 
 a:active, a:visited, a:link
