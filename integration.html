@@ -126,10 +126,12 @@ Files=2, Tests=6,  0 wallclock secs ( 0.03 usr  0.01 sys +  0.03 cusr  0.02 csys
 Result: PASS</code></pre>
 
           <p>If you see a bunch of “NOTICE” messages output from PostgreSQL,
-          you can either add <code>client_min_messages = warning</code> to
-          your <code>postgresql.conf</code> file and restart PostgreSQL
-          (recommended), or just add <code>SET client_min_messages =
-          warning;</code> to the top of your pgTAP test scripts.</p>
+          likely because your test is creating tables, you can either
+          add <code>client_min_messages = warning</code> to your
+          <code>postgresql.conf</code> file and restart PostgreSQL
+          (recommended), or just add
+          <code>SET client_min_messages = warning;</code>
+          to the top of your pgTAP test scripts.</p>
         </li>
         <li><p>Profit. Have fun!</p></li>
       </ul>
@@ -216,9 +218,6 @@ REGRESS_OPTS = --load-language plpgsql</pre>
 \pset format unaligned
 \pset tuples_only true
 \pset pager
-
--- Keep things quiet.
-SET client_min_messages = warning;
 
 -- Revert all changes on failure.
 \set ON_ERROR_ROLLBACK 1
