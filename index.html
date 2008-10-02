@@ -63,12 +63,12 @@ my $dbh = DBI->connect('dbi:Pg:dbname=try', 'postgres', '' );
 $dbh->begin;
 END { $dbh->rollback; $dbh->disconnect; }
 my $domain_id = 1;
-my $source_id = 2;
+my $src_id = 2;
 
 # Insert stuff.
 is $dbh->do(
     'SELECT insert_stuff( ?, ?, ?, ?)',
-    undef, 'www.foo.com', [1, 2, 3], $domain_id, $source_id
+    undef, 'www.foo.com', [1, 2, 3], $domain_id, $src_id
 ), undef, 'Inserting some stuff should return undef';
 
 # Grab the stuff records.
@@ -76,9 +76,9 @@ ok my $stuff = $dbh->selectall_arrayref(q{
     SELECT domain_id, stuff_id
       FROM domain_stuff
      WHERE domain_id = ?
-       AND source_id = $source_id
+       AND src_id = $src_id
      ORDER BY stuff_id
-}, undef, $domain_id, $source_id), 'Fetch the domain stuff';
+}, undef, $domain_id, $src_id), 'Fetch the domain stuff';
 
 # Make sure we have the right stuff.
 is_deeply $stuff, [
@@ -97,11 +97,11 @@ BEGIN;
 SET client_min_messages = warning;
 SELECT plan( 2 );
 \set domain_id 1
-\set source_id 1
+\set src_id 1
 
 -- Insert stuff.
 SELECT is(
-   insert_stuff( 'www.foo.com', '{1,2,3}', :domain_id, :source_id ),
+   insert_stuff( 'www.foo.com', '{1,2,3}', :domain_id, :src_id ),
     NULL,
     'insert_stuff() should return null'
 );
@@ -112,7 +112,7 @@ SELECT is(
         SELECT domain_id, stuff_id
           FROM domain_stuff
          WHERE domain_id = :domain_id
-           AND source_id = :source_id
+           AND src_id = :src_id
          ORDER BY stuff_id
     ),
     ARRAY[
