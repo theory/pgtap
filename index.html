@@ -109,7 +109,7 @@ SELECT is(
 -- Check for domain stuff records.
 SELECT is(
     ARRAY(
-        SELECT ARRAY[ domain_id, stuff_id ],
+        SELECT ARRAY[ domain_id, stuff_id ]
           FROM domain_stuff
          WHERE domain_id = :domain_id
            AND src_id = :src_id
