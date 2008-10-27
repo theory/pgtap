@@ -177,6 +177,17 @@ Result: PASS</code></pre>
           it can be loaded by the regression tests.</p>
         </li>
         <li>
+          <p>Comment-out the declaration of the <code>pg_typeof()</code>
+          function in this bundled copy <code>pgtap.sql</code>. Unfortunately,
+          this function is not (yet) included with PostgreSQL, and since it is
+          defined for pgTAP in C, you can't use it in an uninstalled copy of
+          pgTAP distributed with your module. Regrettably, this means that you
+          have to avoid <code>cmp_ok()</code> in your tests as well, as this
+          otherwise very useful test function relies
+          on <code>pg_typeof()</code>. This issue may be addressed in
+          PostgreSQL 8.4.</p>
+        </li>
+        <li>
           <p>Add these lines to the <code>Makefile</code>:</p>
 
           <pre>TESTS = $(wildcard sql/*.sql)
