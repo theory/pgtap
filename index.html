@@ -91,7 +91,6 @@ is_deeply $stuff, [ 1, 2, 3 ], 'The rows should have the right stuff';</code></p
 
       <pre><code>-- Start a transaction.
 BEGIN;
-SET client_min_messages = warning;
 SELECT plan( 2 );
 \set domain_id 1
 \set src_id 1
@@ -134,7 +133,6 @@ ROLLBACK;</code></pre>
       snap!:</p>
 
       <pre><code>BEGIN;
-SET client_min_messages = warning;
 SELECT plan( 18 );
 
 SELECT has_table( 'domains' );
