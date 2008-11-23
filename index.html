@@ -14,13 +14,14 @@
 
   <body>
     <div id="main">
-	  <h1>pgTAP</h1>
+      <h1>pgTAP</h1>
 
-	  <p>pgTAP is a suite of database functions that make it easy to write
-	    <a href="http://testanything.org/"title="Test Anything Protocol">TAP</a>-emitting
-        unit tests in <code>psql</code> scripts suitable for harvesting,
-	    analysis, and reporting by a TAP harness, such as those used in Perl
-	    and PHP applications.</p>
+      <p>pgTAP is a suite of database functions that make it easy to write
+      <a href="http://testanything.org/"
+      title="Test Anything Protocol">TAP</a>-emitting unit tests in
+      <code>psql</code> scripts suitable for harvesting, analysis, and
+      reporting by a TAP harness, such as those used in Perl and PHP
+      applications.</p>
 
       <p>Why would you want to unit test your database? Well, there are a
       couple of scenarios in which it can be useful</p>
@@ -43,16 +44,16 @@
       really Unit testing, is it?</p>
 
       <p>pgTAP allows you to really test the database, not only verifying the
-        structure of your schema, but also by exercising any views,
-        procedures, functions, rules, or triggers you write. Of course you
-        could use your application’s unit-testing framework to test the
-        database, but by writing your tests with pgTAP, you can keep your
-        database tests simple. Consider these simple tests written
-        with <a href="http://search.cpan.org/perldoc/Test::More"
-        title="Test::More on CPAN">Test::More</a> and the
-        Perl <a href="http://search.cpan.org/perldoc/DBI"
-        title="The Perl DBI on CPAN">DBI</a> to test a custom database
-        function:</p>
+      structure of your schema, but also by exercising any views, procedures,
+      functions, rules, or triggers you write. Of course you could use your
+      application’s unit-testing framework to test the database, but by
+      writing your tests with pgTAP, you can keep your database tests simple.
+      Consider these simple tests written
+      with <a href="http://search.cpan.org/perldoc/Test::More"
+      title="Test::More on CPAN">Test::More</a> and the
+      Perl <a href="http://search.cpan.org/perldoc/DBI"
+      title="The Perl DBI on CPAN">DBI</a> to test a custom database
+      function:</p>
 
       <pre><code>use Test::More tests => 3;
 use DBI;
@@ -209,7 +210,8 @@ Result: PASS
     <p>So, what are you waiting
       for? <a href="http://pgfoundry.org/frs/?group_id=1000389"
       title="Download pgTAP from pgFoundry">Download the latest version of
-      pgTAP</a>, or grab the latest from the <a title="The pgTAP Subversion Repository"
+      pgTAP</a>, or grab the latest from the
+      <a title="The pgTAP Subversion Repository"
       href="https://svn.kineticode.com/pgtap/trunk/">subversion
       repository</a>, read the <a href="/documentation.html"
       title="The complete pgTAP documentation">documentation</a>, and get
