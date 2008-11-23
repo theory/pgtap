@@ -24,7 +24,7 @@
       applications.</p>
 
       <p>Why would you want to unit test your database? Well, there are a
-      couple of scenarios in which it can be useful</p>
+      couple of scenarios in which it can be useful.</p>
 
       <h2>Application Development</h2>
 
@@ -41,14 +41,14 @@
       practice iterative development. But, as one of the most important parts
       of your application, should you not also test the database? Sure, you
       write tests of your API, and the API covers the database, but that’s not
-      really Unit testing, is it?</p>
+      really unit testing, is it?</p>
 
-      <p>pgTAP allows you to really test the database, not only verifying the
-      structure of your schema, but also by exercising any views, procedures,
-      functions, rules, or triggers you write. Of course you could use your
-      application’s unit-testing framework to test the database, but by
-      writing your tests with pgTAP, you can keep your database tests simple.
-      Consider these simple tests written
+      <p>pgTAP allows you to <em>really</em> test the database, not only
+      verifying the structure of your schema, but also by exercising any
+      views, procedures, functions, rules, or triggers you write. Of course
+      you could use your application’s unit-testing framework to test the
+      database, but by writing your tests with pgTAP, you can keep your
+      database tests simple. Consider these simple tests written
       with <a href="http://search.cpan.org/perldoc/Test::More"
       title="Test::More on CPAN">Test::More</a> and the
       Perl <a href="http://search.cpan.org/perldoc/DBI"
@@ -67,26 +67,22 @@ my $domain_id = 1;
 my $src_id = 2;
 
 # Insert stuff.
-is $dbh->do(
+ok $dbh->do(
     'SELECT insert_stuff( ?, ?, ?, ?)',
     undef, 'www.foo.com', [1, 2, 3], $domain_id, $src_id
-), undef, 'Inserting some stuff should return undef';
+), 'Inserting some stuff should return true;
 
 # Grab the stuff records.
 ok my $stuff = $dbh->selectall_arrayref(q{
-    SELECT domain_id, stuff_id
+    SELECT stuff_id
       FROM domain_stuff
      WHERE domain_id = ?
-       AND src_id = $src_id
+       AND src_id    = $src_id
      ORDER BY stuff_id
 }, undef, $domain_id, $src_id), 'Fetch the domain stuff';
 
 # Make sure we have the right stuff.
-is_deeply $stuff, [
-    [ $domain_id, 1 ],
-    [ $domain_id, 2 ],
-    [ $domain_id, 3 ],
-], 'The rows should have the right stuff';</code></pre>
+is_deeply $stuff, [ 1, 2, 3 ], 'The rows should have the right stuff';</code></pre>
 
       <p>The upshot is that you have to connect to the database, set up
       transactions, execute the database functions, fetch back data into Perl
@@ -101,26 +97,21 @@ SELECT plan( 2 );
 \set src_id 1
 
 -- Insert stuff.
-SELECT is(
+SELECT ok(
    insert_stuff( 'www.foo.com', '{1,2,3}', :domain_id, :src_id ),
-    NULL,
-    'insert_stuff() should return null'
+    'insert_stuff() should return true'
 );
 
 -- Check for domain stuff records.
 SELECT is(
     ARRAY(
-        SELECT ARRAY[ domain_id, stuff_id ]
+        SELECT stuff_id
           FROM domain_stuff
          WHERE domain_id = :domain_id
            AND src_id = :src_id
          ORDER BY stuff_id
     ),
-    ARRAY[
-        ARRAY[ :domain_id, 1 ],
-        ARRAY[ :domain_id, 2 ],
-        ARRAY[ :domain_id, 3 ],
-    ],
+    ARRAY[ 1, 2, 3 ],
     'The stuff should have been associated with the domain'
 );
 
@@ -134,6 +125,55 @@ ROLLBACK;</code></pre>
       working hard to keep SQL in the database and application code in the
       application, why would you write database tests in Application code?
       Just write them in SQL and be done with it!</p>
+
+      <h2>Schema Validation</h2>
+
+      <p>Even better is the scenario in which you need to test your database
+      schema objects, to make sure that everything is where it should be.
+      pgTAP provides a wealth of test functions that make schdma testing a
+      snap!:</p>
+
+      <pre><code>BEGIN;
+SET client_min_messages = warning;
+SELECT plan( 18 );
+
+SELECT has_table( 'domains' );
+SELECT has_table( 'stuff' );
+SELECT has_table( 'sources' );
+SELECT has_table( 'domain_stuff' );
+
+SELECT has_column( 'domains', 'id' );
+SELECT col_is_pk(  'domains', 'id' );
+SELECT has_column( 'domains', 'domain' );
+
+SELECT has_column( 'stuff',   'id' );
+SELECT col_is_pk(  'stuff', 'id' );
+SELECT has_column( 'stuff',   'name' );
+
+SELECT has_column( 'sources', 'id' );
+SELECT col_is_pk(  'sources', 'id' );
+SELECT has_column( 'sources', 'name' );
+
+SELECT has_column( 'domain_stuff', 'domain_id' );
+SELECT has_column( 'domain_stuff', 'source_id' );
+SELECT has_column( 'domain_stuff', 'stuff_id' );
+SELECT col_is_pk(
+    'domain_stuff',
+    ARRAY['domain_id', 'source_id', 'stuff_id']
+);
+
+SELECT can_ok(
+    'insert_stuff',
+    ARRAY[ 'text', 'integer[]', 'integer', 'integer' ]
+);
+
+SELECT * FROM finish();
+ROLLBACK;</code></pre>
+
+      <p>And there are many more testing functions to be had. Read
+      the <a href="documentation.html"
+      title="The complete pgTAP documentation">complete documentation</a> for
+      all the good stuff.</p>
 
       <h2>Module Development</h2>
 
@@ -183,7 +223,7 @@ SELECT LOWER(name) as aaa FROM srt WHERE name = 'AAA';
 
     <p>Which tests pass? Which fail? Not only is it hard to tell, but
     because <code>pg_regress</code> compares the output against an expected
-    output file, you also have to <em>maintain</em> that file!</p>
+    output file, you have to maintain that file, too. Too much work!</p>
 
     <p>In contrast, the output for the equivalent tests using pgTAP looks like
     this:</p>
