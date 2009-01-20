@@ -19,9 +19,9 @@
       <p>pgTAP is a suite of database functions that make it easy to write
       <a href="http://testanything.org/"
       title="Test Anything Protocol">TAP</a>-emitting unit tests in
-      <code>psql</code> scripts suitable for harvesting, analysis, and
-      reporting by a TAP harness, such as those used in Perl and PHP
-      applications.</p>
+      <code>psql</code> scripts or xUnit-style test functions. The TAP output
+      is suitable for harvesting, analysis, and reporting by a TAP harness,
+      such as those used in Perl applications.</p>
 
       <p>Why would you want to unit test your database? Well, there are a
       couple of scenarios in which it can be useful.</p>
@@ -41,7 +41,7 @@
       practice iterative development. But, as one of the most important parts
       of your application, should you not also test the database? Sure, you
       write tests of your API, and the API covers the database, but that’s not
-      really unit testing, is it?</p>
+      really unit testing the database itself, is it?</p>
 
       <p>pgTAP allows you to <em>really</em> test the database, not only
       verifying the structure of your schema, but also by exercising any
@@ -172,6 +172,42 @@ ROLLBACK;</code></pre>
       the <a href="documentation.html"
       title="The complete pgTAP documentation">complete documentation</a> for
       all the good stuff.</p>
+
+      <h2>xUnit-Style Testing</h2>
+
+      <p>In addition to the scripting-style of unit testing typical of TAP
+      test frameworks, pgTAP also supports xUnit-style testing of the
+      database, similar to the approach taken
+      by <a href="http://en.dklab.ru/lib/dklab_pgunit/" title="PGUnit: stored
+      procedures unit-test framework for PostgreSQL 8.3">PGUnit</a> and
+      <a href="http://www.epictest.org/" title="Epic: Epic, more full of fail
+      than any other testing tool">Epic</a>. It’s simple to use: Just write
+      your test functions in the schema of your choice and use the the pgTAP
+      assertion functions to do the tests:</p>
+
+      <pre><code>CREATE OR REPLACE FUNCTION mytest.testschema()
+RETURNS SETOF TEXT LANGUAGE plpgsql AS $$
+BEGIN
+    RETURN NEXT has_table( 'domains' );
+    RETURN NEXT has_table( 'stuff' );
+    RETURN NEXT has_table( 'sources' );
+    RETURN NEXT has_table( 'domain_stuff' );
+END;
+$$;</code></pre>
+
+      <p>Once you’ve created your test functions and installed them in your
+      database, you can run them at any time using the <code>runtests()</code>
+      function:</p>
+
+<pre><code>SELECT * FROM runtests('mytest'::name);</code></pre>
+
+      <p>And that’s it. The <code>runtests()</code> function will handle all
+      the particulars, including rolling back any changes made to the schema
+      during the running of each test. It also supports setup and teardown
+      functions, as well as startup and shutdown. Consult
+      the <a href="pgtap.html#`runtests(+schema,+match+)`"
+      title="Documentation of runtests()">complete documentation</a> for
+      details.</p>
 
       <h2>Module Development</h2>
 
