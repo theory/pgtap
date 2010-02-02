@@ -14,7 +14,357 @@
 
   <body>
     <div id="main">
-<!-- INSERT DOCS GENERATED FROM POD HERE -->
+<!-- DOCS GENERATED FROM POD HERE -->
+<h1 id="Name">Name</h1>
+
+<p>pg_prove - A command-line tool for running and harnessing pgTAP tests</p>
+
+<h1 id="Usage">Usage</h1>
+
+<pre><code>  pg_prove -d template1 test*.sql
+  pg_prove -d testdb -s testschema</code></pre>
+
+<h1 id="Description">Description</h1>
+
+<p><code>pg_prove</code> is a command-line application to run one or more pgTAP tests in a PostgreSQL database. The output of the tests is harvested and processed by <a href="http://search.cpan.org/perldoc?TAP::Harness">TAP::Harness</a> in order to summarize the results of the test.</p>
+
+<p>Tests can be written and run in one of two ways, as SQL scripts or as database functions.</p>
+
+<h2 id="Test-Scripts">Test Scripts</h2>
+
+<p>pgTAP test scripts should consist of a series of SQL statements that output TAP. Here&rsquo;s a simple example that assumes that the pgTAP functions have been installed in the database:</p>
+
+<pre><code>    -- Start transaction and plan the tests.
+    BEGIN;
+    SELECT plan(1);
+
+    -- Run the tests.
+    SELECT pass( &#39;My test passed, w00t!&#39; );
+
+    -- Finish the tests and clean up.
+    SELECT * FROM finish();
+    ROLLBACK;</code></pre>
+
+<p>Now run the tests by passing the list of SQL script names to <code>pg_prove</code>. Here&rsquo;s what it looks like when the pgTAP tests are run with <code>pg_prove</code></p>
+
+<pre><code>    % pg_prove -U postgres sql/*.sql
+    sql/coltap.....ok
+    sql/hastap.....ok
+    sql/moretap....ok
+    sql/pg73.......ok
+    sql/pktap......ok
+    All tests successful.
+    Files=5, Tests=216,  1 wallclock secs ( 0.06 usr  0.02 sys +  0.08 cusr  0.07 csys =  0.23 CPU)
+    Result: PASS</code></pre>
+
+<h2 id="xUnit-Test-Functions">xUnit Test Functions</h2>
+
+<p>pgTAP test functions should return a set of text, and then simply return the values returned by pgTAP functions, like so:</p>
+
+<pre><code>    CREATE OR REPLACE FUNCTION setup_insert(
+    ) RETURNS SETOF TEXT AS $$
+        RETURN NEXT is( MAX(nick), NULL, &#39;Should have no users&#39;) FROM users;
+        INSERT INTO users (nick) VALUES (&#39;theory&#39;);
+    $$ LANGUAGE plpgsql;
+
+    CREATE OR REPLACE FUNCTION test_user(
+    ) RETURNS SETOF TEXT AS $$
+        SELECT is( nick, &#39;theory&#39;, &#39;Should have nick&#39;) FROM users;
+    END;
+    $$ LANGUAGE sql;</code></pre>
+
+<p>Once you have these functions defined in your database, you can run them with <code>pg_prove</code> by using the <code>--runtests</code> option.</p>
+
+<pre><code>    % pg_prove -d myapp -r
+    runtests()....ok
+    All tests successful.
+    Files=1, Tests=32,  0 wallclock secs ( 0.02 usr  0.01 sys +  0.01 cusr  0.00 csys =  0.04 CPU)
+    Result: PASS</code></pre>
+
+<p>Be sure to pass the <code>--schema</code> option if your test functions are all in one schema, and the <code>--match</code> option if they have names that don&rsquo;t start with &ldquo;test&rdquo;. For example, if you have all of your test functions in &ldquo;test&rdquo; schema and <i>ending</i> with &ldquo;test,&rdquo; run the tests like so:</p>
+
+<pre><code>    pg_prove -d myapp --schema test --match &#39;test$&#39;</code></pre>
+
+<h1 id="Options">Options</h1>
+
+<pre><code>  -b --psql-bin PSQL        Location of the psql program.
+  -d --dbname DBNAME        Database to which to connect.
+  -U --username USERNAME    Username with which to connect.
+  -h --host HOST            Host to which to connect.
+  -p --port PORT            Port to which to connect.
+  -P --pset OPTION=VALUE    Set psql printing option.
+  -v --verbose              Display output of test scripts while running them.
+  -r --runtests             Run xUnit test using <code>runtests()</code>.
+  -s --schema               Schema in which to find xUnit tests.
+  -x --match                Regular expression to find xUnit tests.
+  -t --timer                Print elapsed time after each test file.
+  -c --color                Display colored test ouput.
+     --nocolor              Do not display colored test ouput.
+  -f --formatter FORMATTER  TAP::Formatter class to format output.
+  -a --archive FILENAME     Store the resulting TAP in an archive file.
+  -H --help                 Print a usage statement and exit.
+  -m --man                  Print the complete documentation and exit.
+  -V --version              Print the version number and exit.</code></pre>
+
+<h1 id="Options-Details">Options Details</h1>
+
+<dl>
+
+<dt><code>-b</code></dt>
+<dd>
+
+</dd>
+<dt><code>--psql-bin</code></dt>
+<dd>
+
+<pre><code>  pg_prove --psql-bin /usr/local/pgsql/bin/psql
+  pg_prove -b /usr/local/bin/psql</code></pre>
+
+<p>Path to the <code>psql</code> program, which will be used to actually run the tests. Defaults to <i>psql</i>.</p>
+
+</dd>
+<dt><code>-d</code></dt>
+<dd>
+
+</dd>
+<dt><code>--dbname</code></dt>
+<dd>
+
+<pre><code>  pg_prove --dbname try
+  pg_prove -d postgres</code></pre>
+
+<p>The name of database to which to connect. Defaults to the value of the <code>$PGDATABASE</code> environment variable or to the system username.</p>
+
+</dd>
+<dt><code>-U</code></dt>
+<dd>
+
+</dd>
+<dt><code>--username</code></dt>
+<dd>
+
+<pre><code>  pg_prove --username foo
+  pg_prove -U postgres</code></pre>
+
+<p>PostgreSQL user name to connect as. Defaults to the value of the <code>$PGUSER</code> environment variable or to the operating system name of the user running the application.</p>
+
+</dd>
+<dt><code>-h</code></dt>
+<dd>
+
+</dd>
+<dt><code>--host</code></dt>
+<dd>
+
+<pre><code>  pg_prove --host pg.example.com
+  pg_prove -h dev.local</code></pre>
+
+<p>Specifies the host name of the machine on which the server is running. If the value begins with a slash, it is used as the directory for the Unix-domain socket. Defaults to the value of the <code>$PGHOST</code> environment variable or localhost.</p>
+
+</dd>
+<dt><code>-p</code></dt>
+<dd>
+
+</dd>
+<dt><code>--port</code></dt>
+<dd>
+
+<pre><code>  pg_prove --port 1234
+  pg_prove -p 666</code></pre>
+
+<p>Specifies the TCP port or the local Unix-domain socket file extension on which the server is listening for connections. Defaults to the value of the <code>$PGPORT</code> environment variable or, if not set, to the port specified at compile time, usually 5432.</p>
+
+</dd>
+<dt><code>-P</code></dt>
+<dd>
+
+</dd>
+<dt><code>--pset</code></dt>
+<dd>
+
+<pre><code>  pg_prove --pset tuples_only=0
+  pg_prove -P null=[NULL]</code></pre>
+
+<p>Specifies printing options in the style of <code>\pset</code> in the <code>psql</code> program. See <a href="http://www.postgresql.org/docs/current/static/app-psql.html">http://www.postgresql.org/docs/current/static/app-psql.html</a> for details on the supported options.</p>
+
+</dd>
+<dt><code>-v</code></dt>
+<dd>
+
+</dd>
+<dt><code>--verbose</code></dt>
+<dd>
+
+<pre><code>  pg_prove --verbose
+  pg_prove -v</code></pre>
+
+<p>Display standard output of test scripts while running them. This behavior can also be triggered by setting the <code>$TEST_VERBOSE</code> environment variable to a true value.</p>
+
+</dd>
+<dt><code>-r</code></dt>
+<dd>
+
+</dd>
+<dt><code>--runtests</code></dt>
+<dd>
+
+<pre><code>  pg_prove --runtests
+  pg_prove -r</code></pre>
+
+<p>Don&rsquo;t run any test scripts, but just use the <code>runtests()</code> pgTAP function to run xUnit tests. This ends up looking like a single test script has been run, when in fact no test scripts have been run. Instead, <code>pg_prove</code> tells <code>psql</code> to run something like:</p>
+
+<pre><code>  psql --command &#39;SELECT * FROM runtests()&#39;</code></pre>
+
+<p>You should use this option when you&rsquo;ve written your tests in xUnit style, where they&rsquo;re all defined in test functions already loaded in the database.</p>
+
+</dd>
+<dt><code>-s</code></dt>
+<dd>
+
+</dd>
+<dt><code>--schema</code></dt>
+<dd>
+
+<pre><code>  pg_prove --schema test
+  pg_prove -s mytest</code></pre>
+
+<p>Used with <code>--runtests</code>, and, in fact, implicitly forces <code>--runtests</code> to be true. This option can be used to specify the name of a schema in which to find xUnit functions to run. Basically, it tells <code>psql</code> to run something like:</p>
+
+<pre><code>  psql --command &quot;SELECT * FROM runtests(&#39;test&#39;::name)&quot;</code></pre>
+
+</dd>
+<dt><code>-x</code></dt>
+<dd>
+
+</dd>
+<dt><code>--match</code></dt>
+<dd>
+
+<pre><code>  pg_prove --match &#39;test$&#39;
+  pg_prove -x _test_</code></pre>
+
+<p>Used with <code>--runtests</code>, and, in fact, implicitly forces <code>--runtests</code> to be true. This option can be used to specify a POSIX regular expression that will be used to search for xUnit functions to run. Basically, it tells <code>psql</code> to run something like:</p>
+
+<pre><code>  psql --command &quot;SELECT * FROM runtests(&#39;_test_&#39;::text)&quot;</code></pre>
+
+<p>This will run any visible functions with the string &ldquo;_test_&rdquo; in their names. This can be especially useful if you just want to run a single test in a given schema. For example, this:</p>
+
+<pre><code>  pg_prove --schema testing --match &#39;^test_widgets$&#39;</code></pre>
+
+<p>Will have <code>psql</code> execute the <code>runtests()</code> function like so:</p>
+
+<pre><code> SELECT * FROM runtests(&#39;testing&#39;::name, &#39;^test_widgets$&#39;::text);</code></pre>
+
+</dd>
+<dt><code>-t</code></dt>
+<dd>
+
+</dd>
+<dt><code>--timer</code></dt>
+<dd>
+
+<pre><code>  pg_prove --timer
+  pg_prove -t</code></pre>
+
+<p>Print elapsed time after each test file.</p>
+
+</dd>
+<dt><code>-t</code></dt>
+<dd>
+
+</dd>
+<dt><code>--color</code></dt>
+<dd>
+
+<pre><code>  pg_prove --color
+  pg_prove -c</code></pre>
+
+<p>Display test results in color. Colored test output is the default, but if output is not to a terminal, color is disabled.</p>
+
+<p>Requires <a href="http://search.cpan.org/perldoc?Term::ANSIColor">Term::ANSIColor</a> on Unix-like platforms and <a href="http://search.cpan.org/perldoc?Win32::Console">Win32::Console</a> on Windows. If the necessary module is not installed colored output will not be available.</p>
+
+</dd>
+<dt><code>--nocolor</code></dt>
+<dd>
+
+<p>Do not display test results in color.</p>
+
+</dd>
+<dt><code>-f</code></dt>
+<dd>
+
+</dd>
+<dt><code>--formatter</code></dt>
+<dd>
+
+<pre><code>  pg_prove --formatter TAP::Formatter::File
+  pg_prove -f TAP::Formatter::Console</code></pre>
+
+<p>The name of the class to use to format output. The default is <a href="http://search.cpan.org/perldoc?TAP::Formatter::Console">TAP::Formatter::Console</a>, or <a href="http://search.cpan.org/perldoc?TAP::Formatter::File">TAP::Formatter::File</a> if the output isn&rsquo;t a TTY.</p>
+
+</dd>
+<dt><code>-a</code></dt>
+<dd>
+
+</dd>
+<dt><code>--archive</code></dt>
+<dd>
+
+<pre><code>  pg_prove --archive tap.tar.gz
+  pg_prove -a test_output.tar</code></pre>
+
+<p>Send the TAP output to a TAP archive file as wel as to the normal output destination. The archive formats supported are <i>.tar</i> and <i>.tar.gz</i>.</p>
+
+</dd>
+<dt><code>-H</code></dt>
+<dd>
+
+</dd>
+<dt><code>--help</code></dt>
+<dd>
+
+<pre><code>  pg_prove --help
+  pg_prove -H</code></pre>
+
+<p>Outputs a brief description of the options supported by <code>pg_prove</code> and exits.</p>
+
+</dd>
+<dt><code>-m</code></dt>
+<dd>
+
+</dd>
+<dt><code>--man</code></dt>
+<dd>
+
+<pre><code>  pg_prove --man
+  pg_prove -m</code></pre>
+
+<p>Outputs this documentation and exits.</p>
+
+</dd>
+<dt><code>-V</code></dt>
+<dd>
+
+</dd>
+<dt><code>--version</code></dt>
+<dd>
+
+<pre><code>  pg_prove --version
+  pg_prove -V</code></pre>
+
+<p>Outputs the program name and version and exits.</p>
+
+</dd>
+</dl>
+
+<h1 id="Author">Author</h1>
+
+<p>David E. Wheeler &lt;david@kineticode.com&gt;</p>
+
+<h1 id="Copyright">Copyright</h1>
+
+<p>Copyright (c) 2008-2009 Kineticode, Inc. Some Rights Reserved.</p>
+<!-- END DOCS -->
     </div>
     <div id="menu">
       <div id="menutop">
