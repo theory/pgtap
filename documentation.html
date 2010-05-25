@@ -15,7 +15,7 @@
   <body>
     <div id="main">
       <!-- DOC INTRO HERE -->
-<h1 id="pgTAP+0.23">pgTAP 0.23</h1>
+<h1 id="pgTAP+0.24">pgTAP 0.24</h1>
 
 <p>pgTAP is a unit testing framework for PostgreSQL written in PL/pgSQL and
 PL/SQL. It includes a comprehensive collection of TAP-emitting assertion
@@ -36,176 +36,176 @@ frameworks. It can also be used in the xUnit testing style.</p>
 <li><a href="#What+a+sweet+unit!">What a sweet unit!</a></li>
 <li><a href="#Test+names">Test names</a></li>
 <li><a href="#I'm+ok,+you're+not+ok">I'm ok, you're not ok</a><ul>
-<li><a href="#`ok(+boolean,+description+)`"><code>ok()</code></a></li>
-<li><a href="#`is(+anyelement,+anyelement,+description+)`"><code>is()</code></a></li>
-<li><a href="#`isnt(+anyelement,+anyelement,+description+)`"><code>isnt()</code></a></li>
-<li><a href="#`matches(+anyelement,+regex,+description+)`"><code>matches()</code></a></li>
-<li><a href="#`imatches(+anyelement,+regex,+description+)`"><code>imatches()</code></a></li>
-<li><a href="#`doesnt_match(+anyelement,+regex,+description+)`"><code>doesnt_match()</code></a></li>
-<li><a href="#`doesnt_imatch(+anyelement,+regex,+description+)`"><code>doesnt_imatch()</code></a></li>
-<li><a href="#`alike(+anyelement,+pattern,+description+)`"><code>alike()</code></a></li>
-<li><a href="#`ialike(+anyelement,+pattern,+description+)`"><code>ialike()</code></a></li>
-<li><a href="#`unalike(+anyelement,+pattern,+description+)`"><code>unalike()</code></a></li>
-<li><a href="#`unialike(+anyelement,+pattern,+description+)`"><code>unialike()</code></a></li>
-<li><a href="#`cmp_ok(+anyelement,+operator,+anyelement,+description+)`"><code>cmp_ok()</code></a></li>
-<li><a href="#`pass(+description+)`"><code>pass()</code></a></li>
-<li><a href="#`fail(+description+)`"><code>fail()</code></a></li>
-<li><a href="#`isa_ok(+value,+regtype,+name+)`"><code>isa_ok()</code></a></li></ul></li></ul></li>
+<li><a href="#ok"><code>ok()</code></a></li>
+<li><a href="#is"><code>is()</code></a></li>
+<li><a href="#isnt"><code>isnt()</code></a></li>
+<li><a href="#matches"><code>matches()</code></a></li>
+<li><a href="#imatches"><code>imatches()</code></a></li>
+<li><a href="#doesnt_match"><code>doesnt_match()</code></a></li>
+<li><a href="#doesnt_imatch"><code>doesnt_imatch()</code></a></li>
+<li><a href="#alike"><code>alike()</code></a></li>
+<li><a href="#ialike"><code>ialike()</code></a></li>
+<li><a href="#unalike"><code>unalike()</code></a></li>
+<li><a href="#unialike"><code>unialike()</code></a></li>
+<li><a href="#cmp_ok"><code>cmp_ok()</code></a></li>
+<li><a href="#pass"><code>pass()</code></a></li>
+<li><a href="#fail"><code>fail()</code></a></li>
+<li><a href="#isa_ok"><code>isa_ok()</code></a></li></ul></li></ul></li>
 <li><a href="#Pursuing+Your+Query">Pursuing Your Query</a><ul>
 <li><a href="#To+Error+is+Human">To Error is Human</a><ul>
-<li><a href="#`throws_ok(+sql,+errcode,+errmsg,+description+)`"><code>throws_ok()</code></a></li>
-<li><a href="#`throws_like(+query,+pattern,+description+)`"><code>throws_like()</code></a></li>
-<li><a href="#`throws_ilike(+query,+pattern,+description+)`"><code>throws_ilike()</code></a></li>
-<li><a href="#`throws_matching(+query,+regex,+description+)`"><code>throws_matching()</code></a></li>
-<li><a href="#`throws_imatching(+query,+regex,+description+)`"><code>throws_imatching()</code></a></li>
-<li><a href="#`lives_ok(+query,+description+)`"><code>lives_ok()</code></a></li>
-<li><a href="#`performs_ok+(+sql,+milliseconds,+description+)`"><code>performs_ok ()</code></a></li></ul></li>
+<li><a href="#throws_ok"><code>throws_ok()</code></a></li>
+<li><a href="#throws_like"><code>throws_like()</code></a></li>
+<li><a href="#throws_ilike"><code>throws_ilike()</code></a></li>
+<li><a href="#throws_matching"><code>throws_matching()</code></a></li>
+<li><a href="#throws_imatching"><code>throws_imatching()</code></a></li>
+<li><a href="#lives_ok"><code>lives_ok()</code></a></li>
+<li><a href="#performs_ok"><code>performs_ok()</code></a></li></ul></li>
 <li><a href="#Can+You+Relate?">Can You Relate?</a><ul>
-<li><a href="#`results_eq(+sql,+sql,+description+)`"><code>results_eq()</code></a></li>
-<li><a href="#`results_ne(+sql,+sql,+description+)`"><code>results_ne()</code></a></li>
-<li><a href="#`set_eq(+sql,+sql,+description+)`"><code>set_eq()</code></a></li>
-<li><a href="#`set_ne(+sql,+sql,+description+)`"><code>set_ne()</code></a></li>
-<li><a href="#`set_has(+sql,+sql,+description+)`"><code>set_has()</code></a></li>
-<li><a href="#`set_hasnt(+sql,+sql,+description+)`"><code>set_hasnt()</code></a></li>
-<li><a href="#`bag_eq(+sql,+sql,+description+)`"><code>bag_eq()</code></a></li>
-<li><a href="#`bag_ne(+sql,+sql,+description+)`"><code>bag_ne()</code></a></li>
-<li><a href="#`bag_has(+sql,+sql,+description+)`"><code>bag_has()</code></a></li>
-<li><a href="#`bag_hasnt(+sql,+sql,+description+)`"><code>bag_hasnt()</code></a></li>
-<li><a href="#`is_empty(+sql,+description+)`"><code>is_empty()</code></a></li>
-<li><a href="#`row_eq(+sql,+record,+description+)`"><code>row_eq()</code></a></li></ul></li></ul></li>
+<li><a href="#results_eq"><code>results_eq()</code></a></li>
+<li><a href="#results_ne"><code>results_ne()</code></a></li>
+<li><a href="#set_eq"><code>set_eq()</code></a></li>
+<li><a href="#set_ne"><code>set_ne()</code></a></li>
+<li><a href="#set_has"><code>set_has()</code></a></li>
+<li><a href="#set_hasnt"><code>set_hasnt()</code></a></li>
+<li><a href="#bag_eq"><code>bag_eq()</code></a></li>
+<li><a href="#bag_ne"><code>bag_ne()</code></a></li>
+<li><a href="#bag_has"><code>bag_has()</code></a></li>
+<li><a href="#bag_hasnt"><code>bag_hasnt()</code></a></li>
+<li><a href="#is_empty"><code>is_empty()</code></a></li>
+<li><a href="#row_eq"><code>row_eq()</code></a></li></ul></li></ul></li>
 <li><a href="#The+Schema+Things">The Schema Things</a><ul>
 <li><a href="#I+Object!">I Object!</a><ul>
-<li><a href="#`tablespaces_are(+tablespaces,+description+)`"><code>tablespaces_are()</code></a></li>
-<li><a href="#`schemas_are(+schemas,+description+)`"><code>schemas_are()</code></a></li>
-<li><a href="#`tables_are(+schema,+tables,+description+)`"><code>tables_are()</code></a></li>
-<li><a href="#`views_are(+schema,+views,+description+)`"><code>views_are()</code></a></li>
-<li><a href="#`sequences_are(+schema,+sequences,+description+)`"><code>sequences_are()</code></a></li>
-<li><a href="#`columns_are(+schema,+table,+columns[],+description+)`"><code>columns_are()</code></a></li>
-<li><a href="#`indexes_are(+schema,+table,+indexes[],+description+)`"><code>indexes_are()</code></a></li>
-<li><a href="#`triggers_are(+schema,+table,+triggers[],+description+)`"><code>triggers_are()</code></a></li>
-<li><a href="#`functions_are(+schema,+functions[],+description+)`"><code>functions_are()</code></a></li>
-<li><a href="#`roles_are(+roles[],+description+)`"><code>roles_are()</code></a></li>
-<li><a href="#`users_are(+users[],+description+)`"><code>users_are()</code></a></li>
-<li><a href="#`groups_are(+groups[],+description+)`"><code>groups_are()</code></a></li>
-<li><a href="#`languages_are(+languages[],+description+)`"><code>languages_are()</code></a></li>
-<li><a href="#`opclasses_are(+schema,+opclasses[],+description+)`"><code>opclasses_are()</code></a></li>
-<li><a href="#`rules_are(+schema,+table,+rules[],+description+)`"><code>rules_are()</code></a></li>
-<li><a href="#`types_are(+schema,+types[],+description+)`"><code>types_are()</code></a></li>
-<li><a href="#`domains_are(+schema,+domains[],+description+)`"><code>domains_are()</code></a></li>
-<li><a href="#`enums_are(+schema,+enums[],+description+)`"><code>enums_are()</code></a></li>
-<li><a href="#`casts_are(+casts[],+description+)`"><code>casts_are()</code></a></li>
-<li><a href="#`operators_are(+schema,+operators[],+description+)`"><code>operators_are()</code></a></li></ul></li>
+<li><a href="#tablespaces_are"><code>tablespaces_are()</code></a></li>
+<li><a href="#schemas_are"><code>schemas_are()</code></a></li>
+<li><a href="#tables_are"><code>tables_are()</code></a></li>
+<li><a href="#views_are"><code>views_are()</code></a></li>
+<li><a href="#sequences_are"><code>sequences_are()</code></a></li>
+<li><a href="#columns_are"><code>columns_are()</code></a></li>
+<li><a href="#indexes_are"><code>indexes_are()</code></a></li>
+<li><a href="#triggers_are"><code>triggers_are()</code></a></li>
+<li><a href="#functions_are"><code>functions_are()</code></a></li>
+<li><a href="#roles_are"><code>roles_are()</code></a></li>
+<li><a href="#users_are"><code>users_are()</code></a></li>
+<li><a href="#groups_are"><code>groups_are()</code></a></li>
+<li><a href="#languages_are"><code>languages_are()</code></a></li>
+<li><a href="#opclasses_are"><code>opclasses_are()</code></a></li>
+<li><a href="#rules_are"><code>rules_are()</code></a></li>
+<li><a href="#types_are"><code>types_are()</code></a></li>
+<li><a href="#domains_are"><code>domains_are()</code></a></li>
+<li><a href="#enums_are"><code>enums_are()</code></a></li>
+<li><a href="#casts_are"><code>casts_are()</code></a></li>
+<li><a href="#operators_are"><code>operators_are()</code></a></li></ul></li>
 <li><a href="#To+Have+or+Have+Not">To Have or Have Not</a><ul>
-<li><a href="#`has_tablespace(+tablespace,+location,+description+)`"><code>has_tablespace()</code></a></li>
-<li><a href="#`hasnt_tablespace(+tablespace,+tablespace,+description+)`"><code>hasnt_tablespace()</code></a></li>
-<li><a href="#`has_schema(+schema,+description+)`"><code>has_schema()</code></a></li>
-<li><a href="#`hasnt_schema(+schema,+schema,+description+)`"><code>hasnt_schema()</code></a></li>
-<li><a href="#`has_table(+schema,+table,+description+)`"><code>has_table()</code></a></li>
-<li><a href="#`hasnt_table(+schema,+table,+description+)`"><code>hasnt_table()</code></a></li>
-<li><a href="#`has_view(+schema,+view,+description+)`"><code>has_view()</code></a></li>
-<li><a href="#`hasnt_view(+schema,+view,+description+)`"><code>hasnt_view()</code></a></li>
-<li><a href="#`has_sequence(+schema,+sequence,+description+)`"><code>has_sequence()</code></a></li>
-<li><a href="#`hasnt_sequence(+schema,+sequence,+description+)`"><code>hasnt_sequence()</code></a></li>
-<li><a href="#`has_type(+schema,+type,+description+)`"><code>has_type()</code></a></li>
-<li><a href="#`hasnt_type(+schema,+type,+description+)`"><code>hasnt_type()</code></a></li>
-<li><a href="#`has_domain(+schema,+domain,+description+)`"><code>has_domain()</code></a></li>
-<li><a href="#`hasnt_domain(+schema,+domain,+description+)`"><code>hasnt_domain()</code></a></li>
-<li><a href="#`has_enum(+schema,+enum,+description+)`"><code>has_enum()</code></a></li>
-<li><a href="#`hasnt_enum(+schema,+enum,+description+)`"><code>hasnt_enum()</code></a></li>
-<li><a href="#`has_index(+schema,+table,+index,+columns[],+description+)`"><code>has_index()</code></a></li>
-<li><a href="#`hasnt_index(+schema,+table,+index,+description+)`"><code>hasnt_index()</code></a></li>
-<li><a href="#`has_trigger(+schema,+table,+trigger,+description+)`"><code>has_trigger()</code></a></li>
-<li><a href="#`hasnt_trigger(+schema,+table,+trigger,+description+)`"><code>hasnt_trigger()</code></a></li>
-<li><a href="#`has_rule(+schema,+table,+rule,+description+)`"><code>has_rule()</code></a></li>
-<li><a href="#`hasnt_rule(+schema,+table,+rule,+description+)`"><code>hasnt_rule()</code></a></li>
-<li><a href="#`has_function(+schema,+function,+args[],+description+)`"><code>has_function()</code></a></li>
-<li><a href="#`hasnt_function(+schema,+function,+args[],+description+)`"><code>hasnt_function()</code></a></li>
-<li><a href="#`has_cast(+source_type,+target_type,+schema,+function,+description+)`"><code>has_cast()</code></a></li>
-<li><a href="#`hasnt_cast(+source_type,+target_type,+schema,+function,+description+)`"><code>hasnt_cast()</code></a></li>
-<li><a href="#`has_operator(+left_type,+schema,+name,+right_type,+return_type,+desc+)`"><code>has_operator()</code></a></li>
-<li><a href="#`has_leftop(+schema,+name,+right_type,+return_type,+desc+)`"><code>has_leftop()</code></a></li>
-<li><a href="#`has_rightop(+left_type,+schema,+name,+return_type,+desc+)`"><code>has_rightop()</code></a></li>
-<li><a href="#`has_opclass(+schema,+name,+description+)`"><code>has_opclass()</code></a></li>
-<li><a href="#`hasnt_opclass(+schema,+name,+description+)`"><code>hasnt_opclass()</code></a></li>
-<li><a href="#`has_role(+role,+desc+)`"><code>has_role()</code></a></li>
-<li><a href="#`hasnt_role(+role,+desc+)`"><code>hasnt_role()</code></a></li>
-<li><a href="#`has_user(+user,+desc+)`"><code>has_user()</code></a></li>
-<li><a href="#`hasnt_user(+user,+desc+)`"><code>hasnt_user()</code></a></li>
-<li><a href="#`has_group(+group,+desc+)`"><code>has_group()</code></a></li>
-<li><a href="#`hasnt_group(+group,+desc+)`"><code>hasnt_group()</code></a></li>
-<li><a href="#`has_language(+language,+desc+)`"><code>has_language()</code></a></li>
-<li><a href="#`hasnt_language(+language,+desc+)`"><code>hasnt_language()</code></a></li></ul></li>
+<li><a href="#has_tablespace"><code>has_tablespace()</code></a></li>
+<li><a href="#hasnt_tablespace"><code>hasnt_tablespace()</code></a></li>
+<li><a href="#has_schema"><code>has_schema()</code></a></li>
+<li><a href="#hasnt_schema"><code>hasnt_schema()</code></a></li>
+<li><a href="#has_table"><code>has_table()</code></a></li>
+<li><a href="#hasnt_table"><code>hasnt_table()</code></a></li>
+<li><a href="#has_view"><code>has_view()</code></a></li>
+<li><a href="#hasnt_view"><code>hasnt_view()</code></a></li>
+<li><a href="#has_sequence"><code>has_sequence()</code></a></li>
+<li><a href="#hasnt_sequence"><code>hasnt_sequence()</code></a></li>
+<li><a href="#has_type"><code>has_type()</code></a></li>
+<li><a href="#hasnt_type"><code>hasnt_type()</code></a></li>
+<li><a href="#has_domain"><code>has_domain()</code></a></li>
+<li><a href="#hasnt_domain"><code>hasnt_domain()</code></a></li>
+<li><a href="#has_enum"><code>has_enum()</code></a></li>
+<li><a href="#hasnt_enum"><code>hasnt_enum()</code></a></li>
+<li><a href="#has_index"><code>has_index()</code></a></li>
+<li><a href="#hasnt_index"><code>hasnt_index()</code></a></li>
+<li><a href="#has_trigger"><code>has_trigger()</code></a></li>
+<li><a href="#hasnt_trigger"><code>hasnt_trigger()</code></a></li>
+<li><a href="#has_rule"><code>has_rule()</code></a></li>
+<li><a href="#hasnt_rule"><code>hasnt_rule()</code></a></li>
+<li><a href="#has_function"><code>has_function()</code></a></li>
+<li><a href="#hasnt_function"><code>hasnt_function()</code></a></li>
+<li><a href="#has_cast"><code>has_cast()</code></a></li>
+<li><a href="#hasnt_cast"><code>hasnt_cast()</code></a></li>
+<li><a href="#has_operator"><code>has_operator()</code></a></li>
+<li><a href="#has_leftop"><code>has_leftop()</code></a></li>
+<li><a href="#has_rightop"><code>has_rightop()</code></a></li>
+<li><a href="#has_opclass"><code>has_opclass()</code></a></li>
+<li><a href="#hasnt_opclass"><code>hasnt_opclass()</code></a></li>
+<li><a href="#has_role"><code>has_role()</code></a></li>
+<li><a href="#hasnt_role"><code>hasnt_role()</code></a></li>
+<li><a href="#has_user"><code>has_user()</code></a></li>
+<li><a href="#hasnt_user"><code>hasnt_user()</code></a></li>
+<li><a href="#has_group"><code>has_group()</code></a></li>
+<li><a href="#hasnt_group"><code>hasnt_group()</code></a></li>
+<li><a href="#has_language"><code>has_language()</code></a></li>
+<li><a href="#hasnt_language"><code>hasnt_language()</code></a></li></ul></li>
 <li><a href="#Table+For+One">Table For One</a><ul>
-<li><a href="#`has_column(+schema,+table,+column,+description+)`"><code>has_column()</code></a></li>
-<li><a href="#`hasnt_column(+schema,+table,+column,+description+)`"><code>hasnt_column()</code></a></li>
-<li><a href="#`col_not_null(+schema,+table,+column,+description+)`"><code>col_not_null()</code></a></li>
-<li><a href="#`col_is_null(+schema,+table,+column,+description+)`"><code>col_is_null()</code></a></li>
-<li><a href="#`col_has_default(+schema,+table,+column,+description+)`"><code>col_has_default()</code></a></li>
-<li><a href="#`col_hasnt_default(+schema,+table,+column,+description+)`"><code>col_hasnt_default()</code></a></li>
-<li><a href="#`col_type_is(+schema,+table,+column,+schema,+type,+description+)`"><code>col_type_is()</code></a></li>
-<li><a href="#`col_default_is(+schema,+table,+column,+default,+description+)`"><code>col_default_is()</code></a></li>
-<li><a href="#`has_pk(+schema,+table,+description+)`"><code>has_pk()</code></a></li>
-<li><a href="#`hasnt_pk(+schema,+table,+description+)`"><code>hasnt_pk()</code></a></li>
-<li><a href="#`has_fk(+schema,+table,+description+)`"><code>has_fk()</code></a></li>
-<li><a href="#`hasnt_fk(+schema,+table,+description+)`"><code>hasnt_fk()</code></a></li>
-<li><a href="#`col_is_pk(+schema,+table,+column,+description+)`"><code>col_is_pk()</code></a></li>
-<li><a href="#`col_isnt_pk(+schema,+table,+column,+description+)`"><code>col_isnt_pk()</code></a></li>
-<li><a href="#`col_is_fk(+schema,+table,+column,+description+)`"><code>col_is_fk()</code></a></li>
-<li><a href="#`col_isnt_fk(+schema,+table,+column,+description+)`"><code>col_isnt_fk()</code></a></li>
-<li><a href="#`fk_ok(+fk_schema,+fk_table,+fk_column[],+pk_schema,+pk_table,+pk_column[],+description+)`"><code>fk_ok()</code></a></li>
-<li><a href="#`has_unique(+schema,+table,+description+)`"><code>has_unique()</code></a></li>
-<li><a href="#`col_is_unique(+schema,+table,+column,+description+)`"><code>col_is_unique()</code></a></li>
-<li><a href="#`has_check(+schema,+table,+description+)`"><code>has_check()</code></a></li>
-<li><a href="#`col_has_check(+schema,+table,+column,+description+)`"><code>col_has_check()</code></a></li>
-<li><a href="#`index_is_unique(+schema,+table,+index,+description+)`"><code>index_is_unique()</code></a></li>
-<li><a href="#`index_is_primary(+schema,+table,+index,+description+)`"><code>index_is_primary()</code></a></li>
-<li><a href="#`is_clustered(+schema,+table,+index,+description+)`"><code>is_clustered()</code></a></li>
-<li><a href="#`index_is_type(+schema,+table,+index,+type,+description+)`"><code>index_is_type()</code></a></li></ul></li>
+<li><a href="#has_column"><code>has_column()</code></a></li>
+<li><a href="#hasnt_column"><code>hasnt_column()</code></a></li>
+<li><a href="#col_not_null"><code>col_not_null()</code></a></li>
+<li><a href="#col_is_null"><code>col_is_null()</code></a></li>
+<li><a href="#col_has_default"><code>col_has_default()</code></a></li>
+<li><a href="#col_hasnt_default"><code>col_hasnt_default()</code></a></li>
+<li><a href="#col_type_is"><code>col_type_is()</code></a></li>
+<li><a href="#col_default_is"><code>col_default_is()</code></a></li>
+<li><a href="#has_pk"><code>has_pk()</code></a></li>
+<li><a href="#hasnt_pk"><code>hasnt_pk()</code></a></li>
+<li><a href="#has_fk"><code>has_fk()</code></a></li>
+<li><a href="#hasnt_fk"><code>hasnt_fk()</code></a></li>
+<li><a href="#col_is_pk"><code>col_is_pk()</code></a></li>
+<li><a href="#col_isnt_pk"><code>col_isnt_pk()</code></a></li>
+<li><a href="#col_is_fk"><code>col_is_fk()</code></a></li>
+<li><a href="#col_isnt_fk"><code>col_isnt_fk()</code></a></li>
+<li><a href="#fk_ok"><code>fk_ok()</code></a></li>
+<li><a href="#has_unique"><code>has_unique()</code></a></li>
+<li><a href="#col_is_unique"><code>col_is_unique()</code></a></li>
+<li><a href="#has_check"><code>has_check()</code></a></li>
+<li><a href="#col_has_check"><code>col_has_check()</code></a></li>
+<li><a href="#index_is_unique"><code>index_is_unique()</code></a></li>
+<li><a href="#index_is_primary"><code>index_is_primary()</code></a></li>
+<li><a href="#is_clustered"><code>is_clustered()</code></a></li>
+<li><a href="#index_is_type"><code>index_is_type()</code></a></li></ul></li>
 <li><a href="#Feeling+Funky">Feeling Funky</a><ul>
-<li><a href="#`can(+schema,+functions[],+description+)`"><code>can()</code></a></li>
-<li><a href="#`function_lang_is(+schema,+function,+args[],+language,+description+)`"><code>function_lang_is()</code></a></li>
-<li><a href="#`function_returns(+schema,+function,+args[],+type,+description+)`"><code>function_returns()</code></a></li>
-<li><a href="#`is_definer(+schema,+function,+args[],+description+)`"><code>is_definer()</code></a></li>
-<li><a href="#`is_strict(+schema,+function,+args[],+description+)`"><code>is_strict()</code></a></li>
-<li><a href="#`is_aggregate(+schema,+function,+args[],+description+)`"><code>is_aggregate()</code></a></li>
-<li><a href="#`volatility_is(+schema,+function,+args[],+volatility,+description+)`"><code>volatility_is()</code></a></li>
-<li><a href="#`trigger_is(+schema,+table,+trigger,+schema,+function,+description+)`"><code>trigger_is()</code></a></li></ul></li>
+<li><a href="#can"><code>can()</code></a></li>
+<li><a href="#function_lang_is"><code>function_lang_is()</code></a></li>
+<li><a href="#function_returns"><code>function_returns()</code></a></li>
+<li><a href="#is_definer"><code>is_definer()</code></a></li>
+<li><a href="#is_strict"><code>is_strict()</code></a></li>
+<li><a href="#is_aggregate"><code>is_aggregate()</code></a></li>
+<li><a href="#volatility_is"><code>volatility_is()</code></a></li>
+<li><a href="#trigger_is"><code>trigger_is()</code></a></li></ul></li>
 <li><a href="#Database+Deets">Database Deets</a><ul>
-<li><a href="#`language_is_trusted(+language,+description+)`"><code>language_is_trusted()</code></a></li>
-<li><a href="#`enum_has_labels(+schema,+enum,+labels,+desc+)`"><code>enum_has_labels()</code></a></li>
-<li><a href="#`domain_type_is(+schema,+domain,+schema,+type,+description+)`"><code>domain_type_is()</code></a></li>
-<li><a href="#`domain_type_isnt(+schema,+domain,+schema,+type,+description+)`"><code>domain_type_isnt()</code></a></li>
-<li><a href="#`cast_context_is(+source_type,+target_type,+context,+desc+)`"><code>cast_context_is()</code></a></li>
-<li><a href="#`is_superuser(+user,+desc+)`"><code>is_superuser()</code></a></li>
-<li><a href="#`isnt_superuser(+user,+desc+)`"><code>isnt_superuser()</code></a></li>
-<li><a href="#`is_member_of(+group,+users[],+desc+)`"><code>is_member_of()</code></a></li>
-<li><a href="#`rule_is_instead(+schema,+table,+rule,+description+)`"><code>rule_is_instead()</code></a></li>
-<li><a href="#`rule_is_on(+schema,+table,+rule,+event,+description+)`"><code>rule_is_on()</code></a></li></ul></li></ul></li>
+<li><a href="#language_is_trusted"><code>language_is_trusted()</code></a></li>
+<li><a href="#enum_has_labels"><code>enum_has_labels()</code></a></li>
+<li><a href="#domain_type_is"><code>domain_type_is()</code></a></li>
+<li><a href="#domain_type_isnt"><code>domain_type_isnt()</code></a></li>
+<li><a href="#cast_context_is"><code>cast_context_is()</code></a></li>
+<li><a href="#is_superuser"><code>is_superuser()</code></a></li>
+<li><a href="#isnt_superuser"><code>isnt_superuser()</code></a></li>
+<li><a href="#is_member_of"><code>is_member_of()</code></a></li>
+<li><a href="#rule_is_instead"><code>rule_is_instead()</code></a></li>
+<li><a href="#rule_is_on"><code>rule_is_on()</code></a></li></ul></li></ul></li>
 <li><a href="#No+Test+for+the+Wicked">No Test for the Wicked</a><ul>
 <li><a href="#Diagnostics">Diagnostics</a><ul>
-<li><a href="#`diag(+text+)`"><code>diag()</code></a></li></ul></li>
+<li><a href="#diag"><code>diag()</code></a></li></ul></li>
 <li><a href="#Conditional+Tests">Conditional Tests</a><ul>
-<li><a href="#`skip(+why,+how_many+)`"><code>skip()</code></a></li>
-<li><a href="#`todo(+why,+how_many+)`"><code>todo()</code></a></li>
-<li><a href="#`todo_start(+:why+)`"><code>todo_start()</code></a></li>
+<li><a href="#skip"><code>skip()</code></a></li>
+<li><a href="#todo"><code>todo()</code></a></li>
+<li><a href="#todo_start"><code>todo_start()</code></a></li>
 <li><a href="#todo_end()">todo_end()</a></li>
 <li><a href="#in_todo()">in_todo()</a></li></ul></li>
 <li><a href="#Utility+Functions">Utility Functions</a><ul>
-<li><a href="#`pgtap_version()`"><code>pgtap_version()</code></a></li>
-<li><a href="#`pg_version()`"><code>pg_version()</code></a></li>
-<li><a href="#`pg_version_num()`"><code>pg_version_num()</code></a></li>
-<li><a href="#`os_name()`"><code>os_name()</code></a></li>
-<li><a href="#`collect_tap(tap[])`"><code>collect_tap()</code></a></li>
-<li><a href="#`display_type(+schema,+type_oid,+typemod+)`"><code>display_type()</code></a></li>
-<li><a href="#`display_oper(+oper_name,+oper_oid+)`"><code>display_oper()</code></a></li>
-<li><a href="#`pg_typeof(any)`"><code>pg_typeof()</code></a></li>
-<li><a href="#`findfuncs(+schema,+pattern+)`"><code>findfuncs()</code></a></li></ul></li>
+<li><a href="#pgtap_version"><code>pgtap_version()</code></a></li>
+<li><a href="#pg_version"><code>pg_version()</code></a></li>
+<li><a href="#pg_version_num"><code>pg_version_num()</code></a></li>
+<li><a href="#os_name"><code>os_name()</code></a></li>
+<li><a href="#collect_tap"><code>collect_tap()</code></a></li>
+<li><a href="#display_type"><code>display_type()</code></a></li>
+<li><a href="#display_oper"><code>display_oper()</code></a></li>
+<li><a href="#pg_typeof"><code>pg_typeof()</code></a></li>
+<li><a href="#findfuncs"><code>findfuncs()</code></a></li></ul></li>
 <li><a href="#Tap+that+Batch">Tap that Batch</a><ul>
-<li><a href="#`do_tap(+schema,+pattern+)`"><code>do_tap()</code></a></li>
-<li><a href="#`runtests(+schema,+match+)`"><code>runtests()</code></a></li></ul></li></ul></li>
+<li><a href="#do_tap"><code>do_tap()</code></a></li>
+<li><a href="#runtests"><code>runtests()</code></a></li></ul></li></ul></li>
 <li><a href="#Compose+Yourself">Compose Yourself</a><ul>
 <li><a href="#Testing+Test+Functions">Testing Test Functions</a><ul>
-<li><a href="#`check_test(+test_output,+is_ok,+name,+want_description,+want_diag,+match_diag+)`"><code>check_test()</code></a></li></ul></li></ul></li>
+<li><a href="#check_test"><code>check_test()</code></a></li></ul></li></ul></li>
 <li><a href="#Compatibility">Compatibility</a><ul>
 <li><a href="#8.4+and+Up">8.4 and Up</a></li>
 <li><a href="#8.3+and+Down">8.3 and Down</a></li>
@@ -226,9 +226,9 @@ frameworks. It can also be used in the xUnit testing style.</p>
 
 <p>For the impatient, to install pgTAP into a PostgreSQL database, just do this:</p>
 
-<pre><code>make USE_PGXS=1
-make install USE_PGXS=1
-make installcheck USE_PGXS=1
+<pre><code>make
+make install
+make installcheck
 </code></pre>
 
 <p>If you encounter an error such as:</p>
@@ -239,9 +239,9 @@ make installcheck USE_PGXS=1
 <p>You need to use GNU make, which may well be installed on your system as
 &lsquo;gmake&rsquo;:</p>
 
-<pre><code>gmake USE_PGXS=1
-gmake install USE_PGXS=1
-gmake installcheck USE_PGXS=1
+<pre><code>gmake
+gmake install
+gmake installcheck
 </code></pre>
 
 <p>If you encounter an error such as:</p>
@@ -256,20 +256,18 @@ gmake installcheck USE_PGXS=1
 
 <p>Be sure that you have <code>pg_config</code> installed and in your path. If you used a
 package management system such as RPM to install PostgreSQL, be sure that the
-<code>-devel</code> package is also installed. If necessary, add the path to <code>pg_config</code>
-to your <code>$PATH</code> environment variable:</p>
+<code>-devel</code> package is also installed. If necessary tell the build process where
+to find it:</p>
 
-<pre><code>env PATH=$PATH:/path/to/pgsql/bin USE_PGXS=1 \
-make &amp;&amp; make install &amp;&amp; make installcheck
+<pre><code>env PG_CONFIG=/path/to/pg_config make &amp;&amp; make install &amp;&amp; make installcheck
 </code></pre>
 
-<p>And finally, if all that fails, copy the entire distribution directory to the
-<code>contrib/</code> subdirectory of the PostgreSQL source tree and try it there without
-the <code>$USE_PGXS</code> variable:</p>
+<p>And finally, if all that fails (and if you're on PostgreSQL 8.1 or lower, it
+likely will), copy the entire distribution directory to the <code>contrib/</code>
+subdirectory of the PostgreSQL source tree and try it there without
+<code>pg_config</code>:</p>
 
-<pre><code>make
-make install
-make installcheck
+<pre><code>env NO_PGXS=1 make &amp;&amp; make install &amp;&amp; make installcheck
 </code></pre>
 
 <p>If you encounter an error such as:</p>
@@ -313,11 +311,8 @@ PostgreSQL client environment variables:</p>
 
 <p>You can use it to run the test suite as a database super user like so:</p>
 
-<pre><code>make test USE_PGXS=1 PGUSER=postgres
+<pre><code>make test PGUSER=postgres
 </code></pre>
-
-<p>Of course, if you're running the tests from the <code>contrib/</code> directory, you
-should omit the <code>USE_PGXS</code> variable.</p>
 
 <h2 id="Adding+pgTAP+to+a+Database">Adding pgTAP to a Database</h2>
 
@@ -565,9 +560,9 @@ given test succeeded or failed. Everything else is just gravy.</p>
 <p>All of the following functions return &ldquo;ok&rdquo; or &ldquo;not ok&rdquo; depending on whether
 the test succeeded or failed.</p>
 
-<h3 id="`ok(+boolean,+description+)`"><code>ok( boolean, description )</code></h3>
+<h3 id="ok"><code>ok( boolean, description )</code></h3>
 
-<h3 id="`ok(+boolean+)`"><code>ok( boolean )</code></h3>
+<h3 id="ok1"><code>ok( boolean )</code></h3>
 
 <pre><code>SELECT ok( :this = :that, :description );
 </code></pre>
@@ -607,13 +602,13 @@ additional diagnostic:</p>
 #     (test result was NULL)
 </code></pre>
 
-<h3 id="`is(+anyelement,+anyelement,+description+)`"><code>is( anyelement, anyelement, description )</code></h3>
+<h3 id="is"><code>is( anyelement, anyelement, description )</code></h3>
 
-<h3 id="`is(+anyelement,+anyelement+)`"><code>is( anyelement, anyelement )</code></h3>
+<h3 id="is1"><code>is( anyelement, anyelement )</code></h3>
 
-<h3 id="`isnt(+anyelement,+anyelement,+description+)`"><code>isnt( anyelement, anyelement, description )</code></h3>
+<h3 id="isnt"><code>isnt( anyelement, anyelement, description )</code></h3>
 
-<h3 id="`isnt(+anyelement,+anyelement+)`"><code>isnt( anyelement, anyelement )</code></h3>
+<h3 id="isnt1"><code>isnt( anyelement, anyelement )</code></h3>
 
 <pre><code>SELECT is(   :this, :that, :description );
 SELECT isnt( :this, :that, :description );
@@ -670,9 +665,9 @@ can even use them to compar records in PostgreSQL 8.4 and later:</p>
  WHERE nick = 'theory'; 
 </code></pre>
 
-<h3 id="`matches(+anyelement,+regex,+description+)`"><code>matches( anyelement, regex, description )</code></h3>
+<h3 id="matches"><code>matches( anyelement, regex, description )</code></h3>
 
-<h3 id="`matches(+anyelement,+regex+)`"><code>matches( anyelement, regex )</code></h3>
+<h3 id="matches1"><code>matches( anyelement, regex )</code></h3>
 
 <pre><code>SELECT matches( :this, '^that', :description );
 </code></pre>
@@ -694,9 +689,9 @@ can even use them to compar records in PostgreSQL 8.4 and later:</p>
 <p>Its advantages over <code>ok()</code> are similar to that of <code>is()</code> and <code>isnt()</code>: Better
 diagnostics on failure.</p>
 
-<h3 id="`imatches(+anyelement,+regex,+description+)`"><code>imatches( anyelement, regex, description )</code></h3>
+<h3 id="imatches"><code>imatches( anyelement, regex, description )</code></h3>
 
-<h3 id="`imatches(+anyelement,+regex+)`"><code>imatches( anyelement, regex )</code></h3>
+<h3 id="imatches1"><code>imatches( anyelement, regex )</code></h3>
 
 <pre><code>SELECT imatches( :this, '^that', :description );
 </code></pre>
@@ -704,13 +699,13 @@ diagnostics on failure.</p>
 <p>These are just like <code>matches()</code> except that the regular expression is compared
 to <code>:this</code> case-insensitively.</p>
 
-<h3 id="`doesnt_match(+anyelement,+regex,+description+)`"><code>doesnt_match( anyelement, regex, description )</code></h3>
+<h3 id="doesnt_match"><code>doesnt_match( anyelement, regex, description )</code></h3>
 
-<h3 id="`doesnt_match(+anyelement,+regex+)`"><code>doesnt_match( anyelement, regex )</code></h3>
+<h3 id="doesnt_match1"><code>doesnt_match( anyelement, regex )</code></h3>
 
-<h3 id="`doesnt_imatch(+anyelement,+regex,+description+)`"><code>doesnt_imatch( anyelement, regex, description )</code></h3>
+<h3 id="doesnt_imatch"><code>doesnt_imatch( anyelement, regex, description )</code></h3>
 
-<h3 id="`doesnt_imatch(+anyelement,+regex+)`"><code>doesnt_imatch( anyelement, regex )</code></h3>
+<h3 id="doesnt_imatch1"><code>doesnt_imatch( anyelement, regex )</code></h3>
 
 <pre><code>SELECT doesnt_match( :this, '^that', :description );
 </code></pre>
@@ -718,13 +713,13 @@ to <code>:this</code> case-insensitively.</p>
 <p>These functions work exactly as <code>matches()</code> and <code>imatches()</code> do, only they
 check if <code>:this</code> <em>does not</em> match the given pattern.</p>
 
-<h3 id="`alike(+anyelement,+pattern,+description+)`"><code>alike( anyelement, pattern, description )</code></h3>
+<h3 id="alike"><code>alike( anyelement, pattern, description )</code></h3>
 
-<h3 id="`alike(+anyelement,+pattern+)`"><code>alike( anyelement, pattern )</code></h3>
+<h3 id="alike1"><code>alike( anyelement, pattern )</code></h3>
 
-<h3 id="`ialike(+anyelement,+pattern,+description+)`"><code>ialike( anyelement, pattern, description )</code></h3>
+<h3 id="ialike"><code>ialike( anyelement, pattern, description )</code></h3>
 
-<h3 id="`ialike(+anyelement,+pattern+)`"><code>ialike( anyelement, pattern )</code></h3>
+<h3 id="ialike1"><code>ialike( anyelement, pattern )</code></h3>
 
 <pre><code>SELECT alike( :this, 'that%', :description );
 </code></pre>
@@ -747,13 +742,13 @@ pattern &lsquo;that%&rsquo;. <code>ialike()</code> matches case-insensitively.</
 <p>Its advantages over <code>ok()</code> are similar to that of <code>is()</code> and <code>isnt()</code>: Better
 diagnostics on failure.</p>
 
-<h3 id="`unalike(+anyelement,+pattern,+description+)`"><code>unalike( anyelement, pattern, description )</code></h3>
+<h3 id="unalike"><code>unalike( anyelement, pattern, description )</code></h3>
 
-<h3 id="`unalike(+anyelement,+pattern+)`"><code>unalike( anyelement, pattern )</code></h3>
+<h3 id="unalike1"><code>unalike( anyelement, pattern )</code></h3>
 
-<h3 id="`unialike(+anyelement,+pattern,+description+)`"><code>unialike( anyelement, pattern, description )</code></h3>
+<h3 id="unialike"><code>unialike( anyelement, pattern, description )</code></h3>
 
-<h3 id="`unialike(+anyelement,+pattern+)`"><code>unialike( anyelement, pattern )</code></h3>
+<h3 id="unialike1"><code>unialike( anyelement, pattern )</code></h3>
 
 <pre><code>SELECT unalike( :this, 'that%', :description );
 </code></pre>
@@ -761,9 +756,9 @@ diagnostics on failure.</p>
 <p>Works exactly as <code>alike()</code>, only it checks if <code>:this</code> <em>does not</em> match the
 given pattern.</p>
 
-<h3 id="`cmp_ok(+anyelement,+operator,+anyelement,+description+)`"><code>cmp_ok( anyelement, operator, anyelement, description )</code></h3>
+<h3 id="cmp_ok"><code>cmp_ok( anyelement, operator, anyelement, description )</code></h3>
 
-<h3 id="`cmp_ok(+anyelement,+operator,+anyelement+)`"><code>cmp_ok( anyelement, operator, anyelement )</code></h3>
+<h3 id="cmp_ok1"><code>cmp_ok( anyelement, operator, anyelement )</code></h3>
 
 <pre><code>SELECT cmp_ok( :this, :op, :that, :description );
 </code></pre>
@@ -800,13 +795,13 @@ was, for example:</p>
 
 <p>But in that case, you should probably use <code>is()</code>, instead.</p>
 
-<h3 id="`pass(+description+)`"><code>pass( description )</code></h3>
+<h3 id="pass"><code>pass( description )</code></h3>
 
-<h3 id="`pass()`"><code>pass()</code></h3>
+<h3 id="pass1"><code>pass()</code></h3>
 
-<h3 id="`fail(+description+)`"><code>fail( description )</code></h3>
+<h3 id="fail"><code>fail( description )</code></h3>
 
-<h3 id="`fail()`"><code>fail()</code></h3>
+<h3 id="fail1"><code>fail()</code></h3>
 
 <pre><code>SELECT pass( :description );
 SELECT fail( :description );
@@ -819,9 +814,9 @@ you've got some complicated condition that is difficult to wedge into an
 
 <p>Use these functions very, very, very sparingly.</p>
 
-<h3 id="`isa_ok(+value,+regtype,+name+)`"><code>isa_ok( value, regtype, name )</code></h3>
+<h3 id="isa_ok"><code>isa_ok( value, regtype, name )</code></h3>
 
-<h3 id="`isa_ok(+value,+regtype+)`"><code>isa_ok( value, regtype )</code></h3>
+<h3 id="isa_ok1"><code>isa_ok( value, regtype )</code></h3>
 
 <pre><code>SELECT isa_ok( :value, :regtype, name );
 </code></pre>
@@ -860,7 +855,7 @@ an unnecessary PITA. Each of the query-executing functions in this section
 thus support an alternative to make your tests more SQLish: using prepared
 statements.</p>
 
-<p><a href="http://www.postgresql.org/docs/current/static/sql-prepare.html" title="PostgreSQL Documentation: `PREPARE`">Prepared statements</a> allow you to just write SQL and simply
+<p><a href="http://www.postgresql.org/docs/current/static/sql-prepare.html" title="PostgreSQL Documentation: PREPARE">Prepared statements</a> allow you to just write SQL and simply
 pass the prepared statement names to test functions. For example, the above
 example can be rewritten as:</p>
 
@@ -938,17 +933,17 @@ Or maybe you want to make sure a query <em>does not</em> trigger an error. For s
 cases, we provide a couple of test functions to make sure your queries are as
 error-prone as you think they should be.</p>
 
-<h3 id="`throws_ok(+sql,+errcode,+errmsg,+description+)`"><code>throws_ok( sql, errcode, errmsg, description )</code></h3>
+<h3 id="throws_ok"><code>throws_ok( sql, errcode, errmsg, description )</code></h3>
 
-<h3 id="`throws_ok(+sql,+errcode,+errmsg+)`"><code>throws_ok( sql, errcode, errmsg )</code></h3>
+<h3 id="throws_ok1"><code>throws_ok( sql, errcode, errmsg )</code></h3>
 
-<h3 id="`throws_ok(+sql,+errmsg,+description+)`"><code>throws_ok( sql, errmsg, description )</code></h3>
+<h3 id="throws_ok2"><code>throws_ok( sql, errmsg, description )</code></h3>
 
-<h3 id="`throws_ok(+sql,+errcode+)`"><code>throws_ok( sql, errcode )</code></h3>
+<h3 id="throws_ok3"><code>throws_ok( sql, errcode )</code></h3>
 
-<h3 id="`throws_ok(+sql,+errmsg+)`"><code>throws_ok( sql, errmsg )</code></h3>
+<h3 id="throws_ok4"><code>throws_ok( sql, errmsg )</code></h3>
 
-<h3 id="`throws_ok(+sql+)`"><code>throws_ok( sql )</code></h3>
+<h3 id="throws_ok5"><code>throws_ok( sql )</code></h3>
 
 <pre><code>PREPARE my_thrower AS INSERT INTO try (id) VALUES (1);
 SELECT throws_ok(
@@ -1001,9 +996,9 @@ example:</p>
 
 <p>Idea borrowed from the Test::Exception Perl module.</p>
 
-<h3 id="`throws_like(+query,+pattern,+description+)`"><code>throws_like( query, pattern, description )</code></h3>
+<h3 id="throws_like"><code>throws_like( query, pattern, description )</code></h3>
 
-<h3 id="`throws_like(+query,+pattern+)`"><code>throws_like( query, pattern )</code></h3>
+<h3 id="throws_like1"><code>throws_like( query, pattern )</code></h3>
 
 <pre><code>PREPARE my_thrower AS INSERT INTO try (tz) VALUES ('America/Moscow');
 SELECT throws_like(
@@ -1024,9 +1019,9 @@ example:</p>
 #     doesn't match: '%"timezone_check"'
 </code></pre>
 
-<h3 id="`throws_ilike(+query,+pattern,+description+)`"><code>throws_ilike( query, pattern, description )</code></h3>
+<h3 id="throws_ilike"><code>throws_ilike( query, pattern, description )</code></h3>
 
-<h3 id="`throws_ilike(+query,+pattern+)`"><code>throws_ilike( query, pattern )</code></h3>
+<h3 id="throws_ilike1"><code>throws_ilike( query, pattern )</code></h3>
 
 <pre><code>PREPARE my_thrower AS INSERT INTO try (tz) VALUES ('America/Moscow');
 SELECT throws_ilike(
@@ -1039,9 +1034,9 @@ SELECT throws_ilike(
 <p>Like <code>throws_like()</code>, but case-insensitively compares the exception message to
 the SQL <code>LIKE</code> pattern.</p>
 
-<h3 id="`throws_matching(+query,+regex,+description+)`"><code>throws_matching( query, regex, description )</code></h3>
+<h3 id="throws_matching"><code>throws_matching( query, regex, description )</code></h3>
 
-<h3 id="`throws_matching(+query,+regex+)`"><code>throws_matching( query, regex )</code></h3>
+<h3 id="throws_matching1"><code>throws_matching( query, regex )</code></h3>
 
 <pre><code>PREPARE my_thrower AS INSERT INTO try (tz) VALUES ('America/Moscow');
 SELECT throws_matching(
@@ -1062,9 +1057,9 @@ example:</p>
 #     doesn't match: '.+"timezone_check"'
 </code></pre>
 
-<h3 id="`throws_imatching(+query,+regex,+description+)`"><code>throws_imatching( query, regex, description )</code></h3>
+<h3 id="throws_imatching"><code>throws_imatching( query, regex, description )</code></h3>
 
-<h3 id="`throws_imatching(+query,+regex+)`"><code>throws_imatching( query, regex )</code></h3>
+<h3 id="throws_imatching1"><code>throws_imatching( query, regex )</code></h3>
 
 <pre><code>PREPARE my_thrower AS INSERT INTO try (tz) VALUES ('America/Moscow');
 SELECT throws_imatching(
@@ -1077,9 +1072,9 @@ SELECT throws_imatching(
 <p>Like <code>throws_matching()</code>, but case-insensitively compares the exception
 message to the regular expression.</p>
 
-<h3 id="`lives_ok(+query,+description+)`"><code>lives_ok( query, description )</code></h3>
+<h3 id="lives_ok"><code>lives_ok( query, description )</code></h3>
 
-<h3 id="`lives_ok(+query+)`"><code>lives_ok( query )</code></h3>
+<h3 id="lives_ok1"><code>lives_ok( query )</code></h3>
 
 <pre><code>SELECT lives_ok(
     'INSERT INTO try (id) VALUES (1)',
@@ -1102,9 +1097,9 @@ example:</p>
 
 <p>Idea borrowed from the Test::Exception Perl module.</p>
 
-<h3 id="`performs_ok+(+sql,+milliseconds,+description+)`"><code>performs_ok ( sql, milliseconds, description )</code></h3>
+<h3 id="performs_ok"><code>performs_ok( sql, milliseconds, description )</code></h3>
 
-<h3 id="`performs_ok+(+sql,+milliseconds+)`"><code>performs_ok ( sql, milliseconds )</code></h3>
+<h3 id="performs_ok1"><code>performs_ok( sql, milliseconds )</code></h3>
 
 <pre><code>PREPARE fast_query AS SELECT id FROM try WHERE name = 'Larry';
 SELECT performs_ok(
@@ -1152,29 +1147,29 @@ to ensure that a query is not <em>really</em> slow (think seconds).</p>
 Maybe you have some pretty hairy <code>SELECT</code> statements in views or functions to
 test? We've got your relation-testing functions right here.</p>
 
-<h3 id="`results_eq(+sql,+sql,+description+)`"><code>results_eq( sql, sql, description )</code></h3>
+<h3 id="results_eq"><code>results_eq( sql, sql, description )</code></h3>
 
-<h3 id="`results_eq(+sql,+sql+)`"><code>results_eq( sql, sql )</code></h3>
+<h3 id="results_eq1"><code>results_eq( sql, sql )</code></h3>
 
-<h3 id="`results_eq(+sql,+array,+description+)`"><code>results_eq( sql, array, description )</code></h3>
+<h3 id="results_eq2"><code>results_eq( sql, array, description )</code></h3>
 
-<h3 id="`results_eq(+sql,+array+)`"><code>results_eq( sql, array )</code></h3>
+<h3 id="results_eq3"><code>results_eq( sql, array )</code></h3>
 
-<h3 id="`results_eq(+cursor,+cursor,+description+)`"><code>results_eq( cursor, cursor, description )</code></h3>
+<h3 id="results_eq4"><code>results_eq( cursor, cursor, description )</code></h3>
 
-<h3 id="`results_eq(+cursor,+cursor+)`"><code>results_eq( cursor, cursor )</code></h3>
+<h3 id="results_eq5"><code>results_eq( cursor, cursor )</code></h3>
 
-<h3 id="`results_eq(+sql,+cursor,+description+)`"><code>results_eq( sql, cursor, description )</code></h3>
+<h3 id="results_eq6"><code>results_eq( sql, cursor, description )</code></h3>
 
-<h3 id="`results_eq(+sql,+cursor+)`"><code>results_eq( sql, cursor )</code></h3>
+<h3 id="results_eq7"><code>results_eq( sql, cursor )</code></h3>
 
-<h3 id="`results_eq(+cursor,+sql,+description+)`"><code>results_eq( cursor, sql, description )</code></h3>
+<h3 id="results_eq8"><code>results_eq( cursor, sql, description )</code></h3>
 
-<h3 id="`results_eq(+cursor,+sql+)`"><code>results_eq( cursor, sql )</code></h3>
+<h3 id="results_eq9"><code>results_eq( cursor, sql )</code></h3>
 
-<h3 id="`results_eq(+cursor,+array,+description+)`"><code>results_eq( cursor, array, description )</code></h3>
+<h3 id="results_eq10"><code>results_eq( cursor, array, description )</code></h3>
 
-<h3 id="`results_eq(+cursor,+array+)`"><code>results_eq( cursor, array )</code></h3>
+<h3 id="results_eq11"><code>results_eq( cursor, array )</code></h3>
 
 <pre><code>PREPARE users_test AS SELECT * FROM active_users();
 PREPARE users_expect AS
@@ -1328,29 +1323,29 @@ example, a <code>NULL</code> column will be equivalent to an empty string. The u
 read failure diagnostics carefully and pay attention to data types on 8.3 and
 down.</p>
 
-<h3 id="`results_ne(+sql,+sql,+description+)`"><code>results_ne( sql, sql, description )</code></h3>
+<h3 id="results_ne"><code>results_ne( sql, sql, description )</code></h3>
 
-<h3 id="`results_ne(+sql,+sql+)`"><code>results_ne( sql, sql )</code></h3>
+<h3 id="results_ne1"><code>results_ne( sql, sql )</code></h3>
 
-<h3 id="`results_ne(+sql,+array,+description+)`"><code>results_ne( sql, array, description )</code></h3>
+<h3 id="results_ne2"><code>results_ne( sql, array, description )</code></h3>
 
-<h3 id="`results_ne(+sql,+array+)`"><code>results_ne( sql, array )</code></h3>
+<h3 id="results_ne3"><code>results_ne( sql, array )</code></h3>
 
-<h3 id="`results_ne(+cursor,+cursor,+description+)`"><code>results_ne( cursor, cursor, description )</code></h3>
+<h3 id="results_ne4"><code>results_ne( cursor, cursor, description )</code></h3>
 
-<h3 id="`results_ne(+cursor,+cursor+)`"><code>results_ne( cursor, cursor )</code></h3>
+<h3 id="results_ne5"><code>results_ne( cursor, cursor )</code></h3>
 
-<h3 id="`results_ne(+sql,+cursor,+description+)`"><code>results_ne( sql, cursor, description )</code></h3>
+<h3 id="results_ne6"><code>results_ne( sql, cursor, description )</code></h3>
 
-<h3 id="`results_ne(+sql,+cursor+)`"><code>results_ne( sql, cursor )</code></h3>
+<h3 id="results_ne7"><code>results_ne( sql, cursor )</code></h3>
 
-<h3 id="`results_ne(+cursor,+sql,+description+)`"><code>results_ne( cursor, sql, description )</code></h3>
+<h3 id="results_ne8"><code>results_ne( cursor, sql, description )</code></h3>
 
-<h3 id="`results_ne(+cursor,+sql+)`"><code>results_ne( cursor, sql )</code></h3>
+<h3 id="results_ne9"><code>results_ne( cursor, sql )</code></h3>
 
-<h3 id="`results_ne(+cursor,+array,+description+)`"><code>results_ne( cursor, array, description )</code></h3>
+<h3 id="results_ne10"><code>results_ne( cursor, array, description )</code></h3>
 
-<h3 id="`results_ne(+cursor,+array+)`"><code>results_ne( cursor, array )</code></h3>
+<h3 id="results_ne11"><code>results_ne( cursor, array )</code></h3>
 
 <pre><code>PREPARE users_test AS SELECT * FROM active_users();
 PREPARE not_users AS
@@ -1371,13 +1366,13 @@ same!</p>
 <p>Note that the caveats for <code>results_ne()</code> on PostgreSQL 8.3 and down apply to
 <code>results_ne()</code> as well.</p>
 
-<h3 id="`set_eq(+sql,+sql,+description+)`"><code>set_eq( sql, sql, description )</code></h3>
+<h3 id="set_eq"><code>set_eq( sql, sql, description )</code></h3>
 
-<h3 id="`set_eq(+sql,+sql+)`"><code>set_eq( sql, sql )</code></h3>
+<h3 id="set_eq1"><code>set_eq( sql, sql )</code></h3>
 
-<h3 id="`set_eq(+sql,+array,+description+)`"><code>set_eq( sql, array, description )</code></h3>
+<h3 id="set_eq2"><code>set_eq( sql, array, description )</code></h3>
 
-<h3 id="`set_eq(+sql,+array+)`"><code>set_eq( sql, array )</code></h3>
+<h3 id="set_eq3"><code>set_eq( sql, array )</code></h3>
 
 <pre><code>PREPARE testq  AS SELECT * FROM users('a%');
 PREPARE expect AS SELECT * FROM USERS where name LIKE 'a%';
@@ -1429,13 +1424,13 @@ types of columns, pgTAP will tell you that, too:</p>
 #         want: (text,integer)
 </code></pre>
 
-<h3 id="`set_ne(+sql,+sql,+description+)`"><code>set_ne( sql, sql, description )</code></h3>
+<h3 id="set_ne"><code>set_ne( sql, sql, description )</code></h3>
 
-<h3 id="`set_ne(+sql,+sql+)`"><code>set_ne( sql, sql )</code></h3>
+<h3 id="set_ne1"><code>set_ne( sql, sql )</code></h3>
 
-<h3 id="`set_ne(+sql,+array,+description+)`"><code>set_ne( sql, array, description )</code></h3>
+<h3 id="set_ne2"><code>set_ne( sql, array, description )</code></h3>
 
-<h3 id="`set_ne(+sql,+array+)`"><code>set_ne( sql, array )</code></h3>
+<h3 id="set_ne3"><code>set_ne( sql, array )</code></h3>
 
 <pre><code>PREPARE testq  AS SELECT * FROM users('a%');
 PREPARE expect AS SELECT * FROM USERS where name LIKE 'b%';
@@ -1451,9 +1446,9 @@ comparable &mdash; that is, with the same number and types of columns in the sam
 orders. If it happens that the query you're testing returns a single column,
 the second argument may be an array.</p>
 
-<h3 id="`set_has(+sql,+sql,+description+)`"><code>set_has( sql, sql, description )</code></h3>
+<h3 id="set_has"><code>set_has( sql, sql, description )</code></h3>
 
-<h3 id="`set_has(+sql,+sql+)`"><code>set_has( sql, sql )</code></h3>
+<h3 id="set_has1"><code>set_has( sql, sql )</code></h3>
 
 <pre><code>PREPARE testq  AS SELECT * FROM users('a%');
 PREPARE subset AS SELECT * FROM USERS where name LIKE 'a%';
@@ -1485,9 +1480,9 @@ you're testing returns a single column, the second argument may be an array.</p>
 queries return incompatible columns. Internally, it uses an <code>EXCEPT</code> query to
 determine if there any any unexpectedly missing results.</p>
 
-<h3 id="`set_hasnt(+sql,+sql,+description+)`"><code>set_hasnt( sql, sql, description )</code></h3>
+<h3 id="set_hasnt"><code>set_hasnt( sql, sql, description )</code></h3>
 
-<h3 id="`set_hasnt(+sql,+sql+)`"><code>set_hasnt( sql, sql )</code></h3>
+<h3 id="set_hasnt1"><code>set_hasnt( sql, sql )</code></h3>
 
 <pre><code>PREPARE testq   AS SELECT * FROM users('a%');
 PREPARE exclude AS SELECT * FROM USERS where name LIKE 'b%';
@@ -1507,13 +1502,13 @@ Diagnostics are similarly useful:</p>
 <p>Internally, the function uses an <code>INTERSECT</code> query to determine if there is
 any unexpected overlap between the query results.</p>
 
-<h3 id="`bag_eq(+sql,+sql,+description+)`"><code>bag_eq( sql, sql, description )</code></h3>
+<h3 id="bag_eq"><code>bag_eq( sql, sql, description )</code></h3>
 
-<h3 id="`bag_eq(+sql,+sql+)`"><code>bag_eq( sql, sql )</code></h3>
+<h3 id="bag_eq1"><code>bag_eq( sql, sql )</code></h3>
 
-<h3 id="`bag_eq(+sql,+array,+description+)`"><code>bag_eq( sql, array, description )</code></h3>
+<h3 id="bag_eq2"><code>bag_eq( sql, array, description )</code></h3>
 
-<h3 id="`bag_eq(+sql,+array+)`"><code>bag_eq( sql, array )</code></h3>
+<h3 id="bag_eq3"><code>bag_eq( sql, array )</code></h3>
 
 <pre><code>PREPARE testq  AS SELECT * FROM users('a%');
 PREPARE expect AS SELECT * FROM USERS where name LIKE 'a%';
@@ -1530,13 +1525,13 @@ result set.</p>
 <p>Otherwise, this function behaves exactly like <code>set_eq()</code>, including the
 utility of its diagnostics.</p>
 
-<h3 id="`bag_ne(+sql,+sql,+description+)`"><code>bag_ne( sql, sql, description )</code></h3>
+<h3 id="bag_ne"><code>bag_ne( sql, sql, description )</code></h3>
 
-<h3 id="`bag_ne(+sql,+sql+)`"><code>bag_ne( sql, sql )</code></h3>
+<h3 id="bag_ne1"><code>bag_ne( sql, sql )</code></h3>
 
-<h3 id="`bag_ne(+sql,+array,+description+)`"><code>bag_ne( sql, array, description )</code></h3>
+<h3 id="bag_ne2"><code>bag_ne( sql, array, description )</code></h3>
 
-<h3 id="`bag_ne(+sql,+array+)`"><code>bag_ne( sql, array )</code></h3>
+<h3 id="bag_ne3"><code>bag_ne( sql, array )</code></h3>
 
 <pre><code>PREPARE testq  AS SELECT * FROM users('a%');
 PREPARE expect AS SELECT * FROM USERS where name LIKE 'b%';
@@ -1552,9 +1547,9 @@ comparable &mdash; that is, with the same number and types of columns in the sam
 orders. If it happens that the query you're testing returns a single column,
 the second argument may be an array.</p>
 
-<h3 id="`bag_has(+sql,+sql,+description+)`"><code>bag_has( sql, sql, description )</code></h3>
+<h3 id="bag_has"><code>bag_has( sql, sql, description )</code></h3>
 
-<h3 id="`bag_has(+sql,+sql+)`"><code>bag_has( sql, sql )</code></h3>
+<h3 id="bag_has1"><code>bag_has( sql, sql )</code></h3>
 
 <pre><code>PREPARE testq  AS SELECT * FROM users('a%');
 PREPARE subset AS SELECT * FROM USERS where name LIKE 'a%';
@@ -1567,9 +1562,9 @@ practice this means that you can use <code>bag_has()</code> to test result sets 
 order doesn&rsquo;t matter, but duplication does. Internally, it uses an <code>EXCEPT
 ALL</code> query to determine if there any any unexpectedly missing results.</p>
 
-<h3 id="`bag_hasnt(+sql,+sql,+description+)`"><code>bag_hasnt( sql, sql, description )</code></h3>
+<h3 id="bag_hasnt"><code>bag_hasnt( sql, sql, description )</code></h3>
 
-<h3 id="`bag_hasnt(+sql,+sql+)`"><code>bag_hasnt( sql, sql )</code></h3>
+<h3 id="bag_hasnt1"><code>bag_hasnt( sql, sql )</code></h3>
 
 <pre><code>PREPARE testq   AS SELECT * FROM users('a%');
 PREPARE exclude AS SELECT * FROM USERS where name LIKE 'b%';
@@ -1591,9 +1586,9 @@ is any unexpected overlap between the query results. This means that a
 duplicate row in the first query will appear twice in the diagnostics if it is
 also duplicated in the second query.</p>
 
-<h3 id="`is_empty(+sql,+description+)`"><code>is_empty( sql, description )</code></h3>
+<h3 id="is_empty"><code>is_empty( sql, description )</code></h3>
 
-<h3 id="`is_empty(+sql+)`"><code>is_empty( sql )</code></h3>
+<h3 id="is_empty1"><code>is_empty( sql )</code></h3>
 
 <pre><code>PREPARE emptyset  AS SELECT * FROM users(FALSE);
 SELECT is_empty( 'emptyset', 'Should have no inactive users' );
@@ -1610,9 +1605,9 @@ fails and the results are displayed in the failure diagnostics, like so:</p>
 #         (2,Emily,false)
 </code></pre>
 
-<h3 id="`row_eq(+sql,+record,+description+)`"><code>row_eq( sql, record, description )</code></h3>
+<h3 id="row_eq"><code>row_eq( sql, record, description )</code></h3>
 
-<h3 id="`row_eq(+sql,+record+)`"><code>row_eq( sql, record )</code></h3>
+<h3 id="row_eq1"><code>row_eq( sql, record )</code></h3>
 
 <pre><code>PREPARE testrow  AS SELECT * FROM users where nick = 'theory';
 SELECT row_eq('testrow', ROW(1, 'theory', 'David Wheeler')::users);
@@ -1724,9 +1719,9 @@ failure of schema change deployments.</p>
 <p>If you're more interested in the specifics of particular objects, skip to
 the next section.</p>
 
-<h3 id="`tablespaces_are(+tablespaces,+description+)`"><code>tablespaces_are( tablespaces, description )</code></h3>
+<h3 id="tablespaces_are"><code>tablespaces_are( tablespaces, description )</code></h3>
 
-<h3 id="`tablespaces_are(+tablespaces+)`"><code>tablespaces_are( tablespaces )</code></h3>
+<h3 id="tablespaces_are1"><code>tablespaces_are( tablespaces )</code></h3>
 
 <pre><code>SELECT tablespaces_are(
     ARRAY[ 'dbspace', 'indexspace' ],
@@ -1745,9 +1740,9 @@ diagnostics listing the extra and/or missing tablespaces, like so:</p>
 #         indexspace
 </code></pre>
 
-<h3 id="`schemas_are(+schemas,+description+)`"><code>schemas_are( schemas, description )</code></h3>
+<h3 id="schemas_are"><code>schemas_are( schemas, description )</code></h3>
 
-<h3 id="`schemas_are(+schemas+)`"><code>schemas_are( schemas )</code></h3>
+<h3 id="schemas_are1"><code>schemas_are( schemas )</code></h3>
 
 <pre><code>SELECT schemas_are(
     ARRAY[ 'public', 'contrib', 'tap' ],
@@ -1767,13 +1762,13 @@ missing schemas, like so:</p>
 #         someschema
 </code></pre>
 
-<h3 id="`tables_are(+schema,+tables,+description+)`"><code>tables_are( schema, tables, description )</code></h3>
+<h3 id="tables_are"><code>tables_are( schema, tables, description )</code></h3>
 
-<h3 id="`tables_are(+tables,+description+)`"><code>tables_are( tables, description )</code></h3>
+<h3 id="tables_are1"><code>tables_are( tables, description )</code></h3>
 
-<h3 id="`tables_are(+schema,+tables+)`"><code>tables_are( schema, tables )</code></h3>
+<h3 id="tables_are2"><code>tables_are( schema, tables )</code></h3>
 
-<h3 id="`tables_are(+tables+)`"><code>tables_are( tables )</code></h3>
+<h3 id="tables_are3"><code>tables_are( tables )</code></h3>
 
 <pre><code>SELECT tables_are(
     'myschema',
@@ -1800,13 +1795,13 @@ missing tables, like so:</p>
 #         widgets
 </code></pre>
 
-<h3 id="`views_are(+schema,+views,+description+)`"><code>views_are( schema, views, description )</code></h3>
+<h3 id="views_are"><code>views_are( schema, views, description )</code></h3>
 
-<h3 id="`views_are(+views,+description+)`"><code>views_are( views, description )</code></h3>
+<h3 id="views_are1"><code>views_are( views, description )</code></h3>
 
-<h3 id="`views_are(+schema,+views+)`"><code>views_are( schema, views )</code></h3>
+<h3 id="views_are2"><code>views_are( schema, views )</code></h3>
 
-<h3 id="`views_are(+views+)`"><code>views_are( views )</code></h3>
+<h3 id="views_are3"><code>views_are( views )</code></h3>
 
 <pre><code>SELECT views_are(
     'myschema',
@@ -1833,13 +1828,13 @@ missing views, like so:</p>
 #         eated
 </code></pre>
 
-<h3 id="`sequences_are(+schema,+sequences,+description+)`"><code>sequences_are( schema, sequences, description )</code></h3>
+<h3 id="sequences_are"><code>sequences_are( schema, sequences, description )</code></h3>
 
-<h3 id="`sequences_are(+sequences,+description+)`"><code>sequences_are( sequences, description )</code></h3>
+<h3 id="sequences_are1"><code>sequences_are( sequences, description )</code></h3>
 
-<h3 id="`sequences_are(+schema,+sequences+)`"><code>sequences_are( schema, sequences )</code></h3>
+<h3 id="sequences_are2"><code>sequences_are( schema, sequences )</code></h3>
 
-<h3 id="`sequences_are(+sequences+)`"><code>sequences_are( sequences )</code></h3>
+<h3 id="sequences_are3"><code>sequences_are( sequences )</code></h3>
 
 <pre><code>SELECT sequences_are(
     'myschema',
@@ -1866,13 +1861,13 @@ missing sequences, like so:</p>
 #         widgets_seq
 </code></pre>
 
-<h3 id="`columns_are(+schema,+table,+columns[],+description+)`"><code>columns_are( schema, table, columns[], description )</code></h3>
+<h3 id="columns_are"><code>columns_are( schema, table, columns[], description )</code></h3>
 
-<h3 id="`columns_are(+schema,+table,+columns[]+)`"><code>columns_are( schema, table, columns[] )</code></h3>
+<h3 id="columns_are1"><code>columns_are( schema, table, columns[] )</code></h3>
 
-<h3 id="`columns_are(+table,+columns[],+description+)`"><code>columns_are( table, columns[], description )</code></h3>
+<h3 id="columns_are2"><code>columns_are( table, columns[], description )</code></h3>
 
-<h3 id="`columns_are(+table,+columns[]+)`"><code>columns_are( table, columns[] )</code></h3>
+<h3 id="columns_are3"><code>columns_are( table, columns[] )</code></h3>
 
 <pre><code>SELECT columns_are(
     'myschema',
@@ -1899,13 +1894,13 @@ missing columns, like so:</p>
 #         name
 </code></pre>
 
-<h3 id="`indexes_are(+schema,+table,+indexes[],+description+)`"><code>indexes_are( schema, table, indexes[], description )</code></h3>
+<h3 id="indexes_are"><code>indexes_are( schema, table, indexes[], description )</code></h3>
 
-<h3 id="`indexes_are(+schema,+table,+indexes[]+)`"><code>indexes_are( schema, table, indexes[] )</code></h3>
+<h3 id="indexes_are1"><code>indexes_are( schema, table, indexes[] )</code></h3>
 
-<h3 id="`indexes_are(+table,+indexes[],+description+)`"><code>indexes_are( table, indexes[], description )</code></h3>
+<h3 id="indexes_are2"><code>indexes_are( table, indexes[], description )</code></h3>
 
-<h3 id="`indexes_are(+table,+indexes[]+)`"><code>indexes_are( table, indexes[] )</code></h3>
+<h3 id="indexes_are3"><code>indexes_are( table, indexes[] )</code></h3>
 
 <pre><code>SELECT indexes_are(
     'myschema',
@@ -1931,13 +1926,13 @@ missing indexes, like so:</p>
 #         idx_fou_name
 </code></pre>
 
-<h3 id="`triggers_are(+schema,+table,+triggers[],+description+)`"><code>triggers_are( schema, table, triggers[], description )</code></h3>
+<h3 id="triggers_are"><code>triggers_are( schema, table, triggers[], description )</code></h3>
 
-<h3 id="`triggers_are(+schema,+table,+triggers[]+)`"><code>triggers_are( schema, table, triggers[] )</code></h3>
+<h3 id="triggers_are1"><code>triggers_are( schema, table, triggers[] )</code></h3>
 
-<h3 id="`triggers_are(+table,+triggers[],+description+)`"><code>triggers_are( table, triggers[], description )</code></h3>
+<h3 id="triggers_are2"><code>triggers_are( table, triggers[], description )</code></h3>
 
-<h3 id="`triggers_are(+table,+triggers[]+)`"><code>triggers_are( table, triggers[] )</code></h3>
+<h3 id="triggers_are3"><code>triggers_are( table, triggers[] )</code></h3>
 
 <pre><code>SELECT triggers_are(
     'myschema',
@@ -1963,13 +1958,13 @@ missing triggers, like so:</p>
 #         set_users_pass
 </code></pre>
 
-<h3 id="`functions_are(+schema,+functions[],+description+)`"><code>functions_are( schema, functions[], description )</code></h3>
+<h3 id="functions_are"><code>functions_are( schema, functions[], description )</code></h3>
 
-<h3 id="`functions_are(+schema,+functions[]+)`"><code>functions_are( schema, functions[] )</code></h3>
+<h3 id="functions_are1"><code>functions_are( schema, functions[] )</code></h3>
 
-<h3 id="`functions_are(+functions[],+description+)`"><code>functions_are( functions[], description )</code></h3>
+<h3 id="functions_are2"><code>functions_are( functions[], description )</code></h3>
 
-<h3 id="`functions_are(+functions[]+)`"><code>functions_are( functions[] )</code></h3>
+<h3 id="functions_are3"><code>functions_are( functions[] )</code></h3>
 
 <pre><code>SELECT functions_are(
     'myschema',
@@ -1994,9 +1989,9 @@ missing functions, like so:</p>
 #         frobnitz
 </code></pre>
 
-<h3 id="`roles_are(+roles[],+description+)`"><code>roles_are( roles[], description )</code></h3>
+<h3 id="roles_are"><code>roles_are( roles[], description )</code></h3>
 
-<h3 id="`roles_are(+roles[]+)`"><code>roles_are( roles[] )</code></h3>
+<h3 id="roles_are1"><code>roles_are( roles[] )</code></h3>
 
 <pre><code>SELECT roles_are(
     ARRAY[ 'postgres', 'someone', 'root' ],
@@ -2016,9 +2011,9 @@ so:</p>
 #         bobby
 </code></pre>
 
-<h3 id="`users_are(+users[],+description+)`"><code>users_are( users[], description )</code></h3>
+<h3 id="users_are"><code>users_are( users[], description )</code></h3>
 
-<h3 id="`users_are(+users[]+)`"><code>users_are( users[] )</code></h3>
+<h3 id="users_are1"><code>users_are( users[] )</code></h3>
 
 <pre><code>SELECT users_are(
     ARRAY[ 'postgres', 'someone', 'root' ],
@@ -2037,9 +2032,9 @@ the extra and/or missing users, like so:</p>
 #         bobby
 </code></pre>
 
-<h3 id="`groups_are(+groups[],+description+)`"><code>groups_are( groups[], description )</code></h3>
+<h3 id="groups_are"><code>groups_are( groups[], description )</code></h3>
 
-<h3 id="`groups_are(+groups[]+)`"><code>groups_are( groups[] )</code></h3>
+<h3 id="groups_are1"><code>groups_are( groups[] )</code></h3>
 
 <pre><code>SELECT groups_are(
     ARRAY[ 'postgres', 'admins, 'l0s3rs' ],
@@ -2058,9 +2053,9 @@ listing the extra and/or missing groups, like so:</p>
 #         __howdy__
 </code></pre>
 
-<h3 id="`languages_are(+languages[],+description+)`"><code>languages_are( languages[], description )</code></h3>
+<h3 id="languages_are"><code>languages_are( languages[], description )</code></h3>
 
-<h3 id="`languages_are(+languages[]+)`"><code>languages_are( languages[] )</code></h3>
+<h3 id="languages_are1"><code>languages_are( languages[] )</code></h3>
 
 <pre><code>SELECT languages_are(
     ARRAY[ 'plpgsql', 'plperl', 'pllolcode' ],
@@ -2079,13 +2074,13 @@ diagnostics listing the extra and/or missing languages, like so:</p>
 #         plpgsql
 </code></pre>
 
-<h3 id="`opclasses_are(+schema,+opclasses[],+description+)`"><code>opclasses_are( schema, opclasses[], description )</code></h3>
+<h3 id="opclasses_are"><code>opclasses_are( schema, opclasses[], description )</code></h3>
 
-<h3 id="`opclasses_are(+schema,+opclasses[]+)`"><code>opclasses_are( schema, opclasses[] )</code></h3>
+<h3 id="opclasses_are1"><code>opclasses_are( schema, opclasses[] )</code></h3>
 
-<h3 id="`opclasses_are(+opclasses[],+description+)`"><code>opclasses_are( opclasses[], description )</code></h3>
+<h3 id="opclasses_are2"><code>opclasses_are( opclasses[], description )</code></h3>
 
-<h3 id="`opclasses_are(+opclasses[]+)`"><code>opclasses_are( opclasses[] )</code></h3>
+<h3 id="opclasses_are3"><code>opclasses_are( opclasses[] )</code></h3>
 
 <pre><code>SELECT opclasses_are(
     'myschema',
@@ -2111,13 +2106,13 @@ missing opclasses, like so:</p>
 #         custom_ops
 </code></pre>
 
-<h3 id="`rules_are(+schema,+table,+rules[],+description+)`"><code>rules_are( schema, table, rules[], description )</code></h3>
+<h3 id="rules_are"><code>rules_are( schema, table, rules[], description )</code></h3>
 
-<h3 id="`rules_are(+schema,+table,+rules[]+)`"><code>rules_are( schema, table, rules[] )</code></h3>
+<h3 id="rules_are1"><code>rules_are( schema, table, rules[] )</code></h3>
 
-<h3 id="`rules_are(+table,+rules[],+description+)`"><code>rules_are( table, rules[], description )</code></h3>
+<h3 id="rules_are2"><code>rules_are( table, rules[], description )</code></h3>
 
-<h3 id="`rules_are(+table,+rules[]+)`"><code>rules_are( table, rules[] )</code></h3>
+<h3 id="rules_are3"><code>rules_are( table, rules[] )</code></h3>
 
 <pre><code>SELECT rules_are(
     'myschema',
@@ -2143,13 +2138,13 @@ missing rules, like so:</p>
 #         on_delete
 </code></pre>
 
-<h3 id="`types_are(+schema,+types[],+description+)`"><code>types_are( schema, types[], description )</code></h3>
+<h3 id="types_are"><code>types_are( schema, types[], description )</code></h3>
 
-<h3 id="`types_are(+schema,+types[]+)`"><code>types_are( schema, types[] )</code></h3>
+<h3 id="types_are1"><code>types_are( schema, types[] )</code></h3>
 
-<h3 id="`types_are(+types[],+description+)`"><code>types_are( types[], description )</code></h3>
+<h3 id="types_are2"><code>types_are( types[], description )</code></h3>
 
-<h3 id="`types_are(+types[]+)`"><code>types_are( types[] )</code></h3>
+<h3 id="types_are3"><code>types_are( types[] )</code></h3>
 
 <pre><code>SELECT types_are(
     'myschema',
@@ -2175,13 +2170,13 @@ missing types, like so:</p>
 #         timezone
 </code></pre>
 
-<h3 id="`domains_are(+schema,+domains[],+description+)`"><code>domains_are( schema, domains[], description )</code></h3>
+<h3 id="domains_are"><code>domains_are( schema, domains[], description )</code></h3>
 
-<h3 id="`domains_are(+schema,+domains[]+)`"><code>domains_are( schema, domains[] )</code></h3>
+<h3 id="domains_are1"><code>domains_are( schema, domains[] )</code></h3>
 
-<h3 id="`domains_are(+domains[],+description+)`"><code>domains_are( domains[], description )</code></h3>
+<h3 id="domains_are2"><code>domains_are( domains[], description )</code></h3>
 
-<h3 id="`domains_are(+domains[]+)`"><code>domains_are( domains[] )</code></h3>
+<h3 id="domains_are3"><code>domains_are( domains[] )</code></h3>
 
 <pre><code>SELECT domains_are(
     'myschema',
@@ -2206,13 +2201,13 @@ missing domains, like so:</p>
 #         timezone
 </code></pre>
 
-<h3 id="`enums_are(+schema,+enums[],+description+)`"><code>enums_are( schema, enums[], description )</code></h3>
+<h3 id="enums_are"><code>enums_are( schema, enums[], description )</code></h3>
 
-<h3 id="`enums_are(+schema,+enums[]+)`"><code>enums_are( schema, enums[] )</code></h3>
+<h3 id="enums_are1"><code>enums_are( schema, enums[] )</code></h3>
 
-<h3 id="`enums_are(+enums[],+description+)`"><code>enums_are( enums[], description )</code></h3>
+<h3 id="enums_are2"><code>enums_are( enums[], description )</code></h3>
 
-<h3 id="`enums_are(+enums[]+)`"><code>enums_are( enums[] )</code></h3>
+<h3 id="enums_are3"><code>enums_are( enums[] )</code></h3>
 
 <pre><code>SELECT enums_are(
     'myschema',
@@ -2237,9 +2232,9 @@ missing enums, like so:</p>
 #         bug_status
 </code></pre>
 
-<h3 id="`casts_are(+casts[],+description+)`"><code>casts_are( casts[], description )</code></h3>
+<h3 id="casts_are"><code>casts_are( casts[], description )</code></h3>
 
-<h3 id="`casts_are(+casts[]+)`"><code>casts_are( casts[] )</code></h3>
+<h3 id="casts_are1"><code>casts_are( casts[] )</code></h3>
 
 <pre><code>SELECT casts_are(
     ARRAY[
@@ -2268,13 +2263,13 @@ missing casts, like so:</p>
 #         lseg AS integer
 </code></pre>
 
-<h3 id="`operators_are(+schema,+operators[],+description+)`"><code>operators_are( schema, operators[], description )</code></h3>
+<h3 id="operators_are"><code>operators_are( schema, operators[], description )</code></h3>
 
-<h3 id="`operators_are(+schema,+operators[]+)`"><code>operators_are( schema, operators[] )</code></h3>
+<h3 id="operators_are1"><code>operators_are( schema, operators[] )</code></h3>
 
-<h3 id="`operators_are(+operators[],+description+)`"><code>operators_are( operators[], description )</code></h3>
+<h3 id="operators_are2"><code>operators_are( operators[], description )</code></h3>
 
-<h3 id="`operators_are(+operators[]+)`"><code>operators_are( operators[] )</code></h3>
+<h3 id="operators_are3"><code>operators_are( operators[] )</code></h3>
 
 <pre><code>SELECT operators_are(
     'public',
@@ -2301,7 +2296,7 @@ The format is <code>:op(:leftop,:rightop) RETURNS :return_type</code>.</p>
 <p>For left operators the left argument type should be <code>NONE</code>. For right
 operators, the right argument type should be <code>NONE</code>. The example above shows
 one one of each of the operator types. <code>=(citext,citext)</code> is an infix
-operator, <code>-(bigint,NONE)</code> is a left operator, and `!(NONE,bigint)&lsquo; is a right
+operator, <code>-(bigint,NONE)</code> is a left operator, and <code>!(NONE,bigint)</code> is a right
 operator.</p>
 
 <p>In the event of a failure, you'll see diagnostics listing the extra and/or
@@ -2321,11 +2316,11 @@ database objects</a>. Perhaps you just need to make sure
 that certain objects exist (or that certain objects <em>don&rsquo;t</em> exist). You've
 come to the right place.</p>
 
-<h3 id="`has_tablespace(+tablespace,+location,+description+)`"><code>has_tablespace( tablespace, location, description )</code></h3>
+<h3 id="has_tablespace"><code>has_tablespace( tablespace, location, description )</code></h3>
 
-<h3 id="`has_tablespace(+tablespace,+description+)`"><code>has_tablespace( tablespace, description )</code></h3>
+<h3 id="has_tablespace1"><code>has_tablespace( tablespace, description )</code></h3>
 
-<h3 id="`has_tablespace(+tablespace+)`"><code>has_tablespace( tablespace )</code></h3>
+<h3 id="has_tablespace2"><code>has_tablespace( tablespace )</code></h3>
 
 <pre><code>SELECT has_tablespace(
     'sometablespace',
@@ -2340,11 +2335,11 @@ path for the database or a test description. If you specify a location path,
 you must pass a description as the third argument; otherwise, if you omit the
 test description, it will be set to &ldquo;Tablespace <code>:tablespace</code> should exist&rdquo;.</p>
 
-<h3 id="`hasnt_tablespace(+tablespace,+tablespace,+description+)`"><code>hasnt_tablespace( tablespace, tablespace, description )</code></h3>
+<h3 id="hasnt_tablespace"><code>hasnt_tablespace( tablespace, tablespace, description )</code></h3>
 
-<h3 id="`hasnt_tablespace(+tablespace,+description+)`"><code>hasnt_tablespace( tablespace, description )</code></h3>
+<h3 id="hasnt_tablespace1"><code>hasnt_tablespace( tablespace, description )</code></h3>
 
-<h3 id="`hasnt_tablespace(+tablespace+)`"><code>hasnt_tablespace( tablespace )</code></h3>
+<h3 id="hasnt_tablespace2"><code>hasnt_tablespace( tablespace )</code></h3>
 
 <pre><code>SELECT hasnt_tablespace(
     'sometablespace',
@@ -2355,9 +2350,9 @@ test description, it will be set to &ldquo;Tablespace <code>:tablespace</code> s
 <p>This function is the inverse of <code>has_tablespace()</code>. The test passes if the
 specified tablespace does <em>not</em> exist.</p>
 
-<h3 id="`has_schema(+schema,+description+)`"><code>has_schema( schema, description )</code></h3>
+<h3 id="has_schema"><code>has_schema( schema, description )</code></h3>
 
-<h3 id="`has_schema(+schema+)`"><code>has_schema( schema )</code></h3>
+<h3 id="has_schema1"><code>has_schema( schema )</code></h3>
 
 <pre><code>SELECT has_schema(
     'someschema',
@@ -2370,11 +2365,11 @@ argument is a schema name and the second is the test description. If you omit
 the schema, the schema must be visible in the search path. If you omit the
 test description, it will be set to &ldquo;Schema <code>:schema</code> should exist&rdquo;.</p>
 
-<h3 id="`hasnt_schema(+schema,+schema,+description+)`"><code>hasnt_schema( schema, schema, description )</code></h3>
+<h3 id="hasnt_schema"><code>hasnt_schema( schema, schema, description )</code></h3>
 
-<h3 id="`hasnt_schema(+schema,+description+)`"><code>hasnt_schema( schema, description )</code></h3>
+<h3 id="hasnt_schema1"><code>hasnt_schema( schema, description )</code></h3>
 
-<h3 id="`hasnt_schema(+schema+)`"><code>hasnt_schema( schema )</code></h3>
+<h3 id="hasnt_schema2"><code>hasnt_schema( schema )</code></h3>
 
 <pre><code>SELECT hasnt_schema(
     'someschema',
@@ -2385,11 +2380,11 @@ test description, it will be set to &ldquo;Schema <code>:schema</code> should ex
 <p>This function is the inverse of <code>has_schema()</code>. The test passes if the
 specified schema does <em>not</em> exist.</p>
 
-<h3 id="`has_table(+schema,+table,+description+)`"><code>has_table( schema, table, description )</code></h3>
+<h3 id="has_table"><code>has_table( schema, table, description )</code></h3>
 
-<h3 id="`has_table(+table,+description+)`"><code>has_table( table, description )</code></h3>
+<h3 id="has_table1"><code>has_table( table, description )</code></h3>
 
-<h3 id="`has_table(+table+)`"><code>has_table( table )</code></h3>
+<h3 id="has_table2"><code>has_table( table )</code></h3>
 
 <pre><code>SELECT has_table(
     'myschema',
@@ -2404,11 +2399,11 @@ test description. If you omit the schema, the table must be visible in the
 search path. If you omit the test description, it will be set to &ldquo;Table
 <code>:table</code> should exist&rdquo;.</p>
 
-<h3 id="`hasnt_table(+schema,+table,+description+)`"><code>hasnt_table( schema, table, description )</code></h3>
+<h3 id="hasnt_table"><code>hasnt_table( schema, table, description )</code></h3>
 
-<h3 id="`hasnt_table(+table,+description+)`"><code>hasnt_table( table, description )</code></h3>
+<h3 id="hasnt_table1"><code>hasnt_table( table, description )</code></h3>
 
-<h3 id="`hasnt_table(+table+)`"><code>hasnt_table( table )</code></h3>
+<h3 id="hasnt_table2"><code>hasnt_table( table )</code></h3>
 
 <pre><code>SELECT hasnt_table(
     'myschema',
@@ -2420,11 +2415,11 @@ search path. If you omit the test description, it will be set to &ldquo;Table
 <p>This function is the inverse of <code>has_table()</code>. The test passes if the
 specified table does <em>not</em> exist.</p>
 
-<h3 id="`has_view(+schema,+view,+description+)`"><code>has_view( schema, view, description )</code></h3>
+<h3 id="has_view"><code>has_view( schema, view, description )</code></h3>
 
-<h3 id="`has_view(+view,+description+)`"><code>has_view( view, description )</code></h3>
+<h3 id="has_view1"><code>has_view( view, description )</code></h3>
 
-<h3 id="`has_view(+view+)`"><code>has_view( view )</code></h3>
+<h3 id="has_view2"><code>has_view( view )</code></h3>
 
 <pre><code>SELECT has_view(
     'myschema',
@@ -2435,11 +2430,11 @@ specified table does <em>not</em> exist.</p>
 
 <p>Just like <code>has_table()</code>, only it tests for the existence of a view.</p>
 
-<h3 id="`hasnt_view(+schema,+view,+description+)`"><code>hasnt_view( schema, view, description )</code></h3>
+<h3 id="hasnt_view"><code>hasnt_view( schema, view, description )</code></h3>
 
-<h3 id="`hasnt_view(+view,+description+)`"><code>hasnt_view( view, description )</code></h3>
+<h3 id="hasnt_view1"><code>hasnt_view( view, description )</code></h3>
 
-<h3 id="`hasnt_view(+view+)`"><code>hasnt_view( view )</code></h3>
+<h3 id="hasnt_view2"><code>hasnt_view( view )</code></h3>
 
 <pre><code>SELECT hasnt_view(
     'myschema',
@@ -2451,11 +2446,11 @@ specified table does <em>not</em> exist.</p>
 <p>This function is the inverse of <code>has_view()</code>. The test passes if the specified
 view does <em>not</em> exist.</p>
 
-<h3 id="`has_sequence(+schema,+sequence,+description+)`"><code>has_sequence( schema, sequence, description )</code></h3>
+<h3 id="has_sequence"><code>has_sequence( schema, sequence, description )</code></h3>
 
-<h3 id="`has_sequence(+sequence,+description+)`"><code>has_sequence( sequence, description )</code></h3>
+<h3 id="has_sequence1"><code>has_sequence( sequence, description )</code></h3>
 
-<h3 id="`has_sequence(+sequence+)`"><code>has_sequence( sequence )</code></h3>
+<h3 id="has_sequence2"><code>has_sequence( sequence )</code></h3>
 
 <pre><code>SELECT has_sequence(
     'myschema',
@@ -2466,11 +2461,11 @@ view does <em>not</em> exist.</p>
 
 <p>Just like <code>has_table()</code>, only it tests for the existence of a sequence.</p>
 
-<h3 id="`hasnt_sequence(+schema,+sequence,+description+)`"><code>hasnt_sequence( schema, sequence, description )</code></h3>
+<h3 id="hasnt_sequence"><code>hasnt_sequence( schema, sequence, description )</code></h3>
 
-<h3 id="`hasnt_sequence(+sequence,+description+)`"><code>hasnt_sequence( sequence, description )</code></h3>
+<h3 id="hasnt_sequence1"><code>hasnt_sequence( sequence, description )</code></h3>
 
-<h3 id="`hasnt_sequence(+sequence+)`"><code>hasnt_sequence( sequence )</code></h3>
+<h3 id="hasnt_sequence2"><code>hasnt_sequence( sequence )</code></h3>
 
 <pre><code>SELECT hasnt_sequence(
     'myschema',
@@ -2482,13 +2477,13 @@ view does <em>not</em> exist.</p>
 <p>This function is the inverse of <code>has_sequence()</code>. The test passes if the
 specified sequence does <em>not</em> exist.</p>
 
-<h3 id="`has_type(+schema,+type,+description+)`"><code>has_type( schema, type, description )</code></h3>
+<h3 id="has_type"><code>has_type( schema, type, description )</code></h3>
 
-<h3 id="`has_type(+schema,+type+)`"><code>has_type( schema, type )</code></h3>
+<h3 id="has_type1"><code>has_type( schema, type )</code></h3>
 
-<h3 id="`has_type(+type,+description+)`"><code>has_type( type, description )</code></h3>
+<h3 id="has_type2"><code>has_type( type, description )</code></h3>
 
-<h3 id="`has_type(+type+)`"><code>has_type( type )</code></h3>
+<h3 id="has_type3"><code>has_type( type )</code></h3>
 
 <pre><code>SELECT has_type(
     'myschema',
@@ -2515,13 +2510,13 @@ SELECT has_column( 'foo', 'id' );
 SELECT col_type_is( 'foo', 'id', 'integer' );
 </code></pre>
 
-<h3 id="`hasnt_type(+schema,+type,+description+)`"><code>hasnt_type( schema, type, description )</code></h3>
+<h3 id="hasnt_type"><code>hasnt_type( schema, type, description )</code></h3>
 
-<h3 id="`hasnt_type(+schema,+type+)`"><code>hasnt_type( schema, type )</code></h3>
+<h3 id="hasnt_type1"><code>hasnt_type( schema, type )</code></h3>
 
-<h3 id="`hasnt_type(+type,+description+)`"><code>hasnt_type( type, description )</code></h3>
+<h3 id="hasnt_type2"><code>hasnt_type( type, description )</code></h3>
 
-<h3 id="`hasnt_type(+type+)`"><code>hasnt_type( type )</code></h3>
+<h3 id="hasnt_type3"><code>hasnt_type( type )</code></h3>
 
 <pre><code>SELECT hasnt_type(
     'myschema',
@@ -2533,13 +2528,13 @@ SELECT col_type_is( 'foo', 'id', 'integer' );
 <p>This function is the inverse of <code>has_type()</code>. The test passes if the specified
 type does <em>not</em> exist.</p>
 
-<h3 id="`has_domain(+schema,+domain,+description+)`"><code>has_domain( schema, domain, description )</code></h3>
+<h3 id="has_domain"><code>has_domain( schema, domain, description )</code></h3>
 
-<h3 id="`has_domain(+schema,+domain+)`"><code>has_domain( schema, domain )</code></h3>
+<h3 id="has_domain1"><code>has_domain( schema, domain )</code></h3>
 
-<h3 id="`has_domain(+domain,+description+)`"><code>has_domain( domain, description )</code></h3>
+<h3 id="has_domain2"><code>has_domain( domain, description )</code></h3>
 
-<h3 id="`has_domain(+domain+)`"><code>has_domain( domain )</code></h3>
+<h3 id="has_domain3"><code>has_domain( domain )</code></h3>
 
 <pre><code>SELECT has_domain(
     'myschema',
@@ -2556,13 +2551,13 @@ the search path. If you omit the test description, it will be set to &ldquo;Doma
 domain and description, be sure to cast the arguments to <code>name</code> values so that
 your domain name doesn&rsquo;t get treated as a description.</p>
 
-<h3 id="`hasnt_domain(+schema,+domain,+description+)`"><code>hasnt_domain( schema, domain, description )</code></h3>
+<h3 id="hasnt_domain"><code>hasnt_domain( schema, domain, description )</code></h3>
 
-<h3 id="`hasnt_domain(+schema,+domain+)`"><code>hasnt_domain( schema, domain )</code></h3>
+<h3 id="hasnt_domain1"><code>hasnt_domain( schema, domain )</code></h3>
 
-<h3 id="`hasnt_domain(+domain,+description+)`"><code>hasnt_domain( domain, description )</code></h3>
+<h3 id="hasnt_domain2"><code>hasnt_domain( domain, description )</code></h3>
 
-<h3 id="`hasnt_domain(+domain+)`"><code>hasnt_domain( domain )</code></h3>
+<h3 id="hasnt_domain3"><code>hasnt_domain( domain )</code></h3>
 
 <pre><code>SELECT hasnt_domain(
     'myschema',
@@ -2574,13 +2569,13 @@ your domain name doesn&rsquo;t get treated as a description.</p>
 <p>This function is the inverse of <code>has_domain()</code>. The test passes if the
 specified domain does <em>not</em> exist.</p>
 
-<h3 id="`has_enum(+schema,+enum,+description+)`"><code>has_enum( schema, enum, description )</code></h3>
+<h3 id="has_enum"><code>has_enum( schema, enum, description )</code></h3>
 
-<h3 id="`has_enum(+schema,+enum+)`"><code>has_enum( schema, enum )</code></h3>
+<h3 id="has_enum1"><code>has_enum( schema, enum )</code></h3>
 
-<h3 id="`has_enum(+enum,+description+)`"><code>has_enum( enum, description )</code></h3>
+<h3 id="has_enum2"><code>has_enum( enum, description )</code></h3>
 
-<h3 id="`has_enum(+enum+)`"><code>has_enum( enum )</code></h3>
+<h3 id="has_enum3"><code>has_enum( enum )</code></h3>
 
 <pre><code>SELECT has_enum(
     'myschema',
@@ -2598,13 +2593,13 @@ passing a schema and enum rather than enum and description, be sure to cast
 the arguments to <code>name</code> values so that your enum name doesn&rsquo;t get treated as a
 description.</p>
 
-<h3 id="`hasnt_enum(+schema,+enum,+description+)`"><code>hasnt_enum( schema, enum, description )</code></h3>
+<h3 id="hasnt_enum"><code>hasnt_enum( schema, enum, description )</code></h3>
 
-<h3 id="`hasnt_enum(+schema,+enum+)`"><code>hasnt_enum( schema, enum )</code></h3>
+<h3 id="hasnt_enum1"><code>hasnt_enum( schema, enum )</code></h3>
 
-<h3 id="`hasnt_enum(+enum,+description+)`"><code>hasnt_enum( enum, description )</code></h3>
+<h3 id="hasnt_enum2"><code>hasnt_enum( enum, description )</code></h3>
 
-<h3 id="`hasnt_enum(+enum+)`"><code>hasnt_enum( enum )</code></h3>
+<h3 id="hasnt_enum3"><code>hasnt_enum( enum )</code></h3>
 
 <pre><code>SELECT hasnt_enum(
     'myschema',
@@ -2616,29 +2611,29 @@ description.</p>
 <p>This function is the inverse of <code>has_enum()</code>. The test passes if the specified
 enum does <em>not</em> exist.</p>
 
-<h3 id="`has_index(+schema,+table,+index,+columns[],+description+)`"><code>has_index( schema, table, index, columns[], description )</code></h3>
+<h3 id="has_index"><code>has_index( schema, table, index, columns[], description )</code></h3>
 
-<h3 id="`has_index(+schema,+table,+index,+columns[]+)`"><code>has_index( schema, table, index, columns[] )</code></h3>
+<h3 id="has_index1"><code>has_index( schema, table, index, columns[] )</code></h3>
 
-<h3 id="`has_index(+schema,+table,+index,+column/expression,+description+)`"><code>has_index( schema, table, index, column/expression, description )</code></h3>
+<h3 id="has_index2"><code>has_index( schema, table, index, column/expression, description )</code></h3>
 
-<h3 id="`has_index(+schema,+table,+index,+columns/expression+)`"><code>has_index( schema, table, index, columns/expression )</code></h3>
+<h3 id="has_index3"><code>has_index( schema, table, index, columns/expression )</code></h3>
 
-<h3 id="`has_index(+table,+index,+columns[],+description+)`"><code>has_index( table, index, columns[], description )</code></h3>
+<h3 id="has_index4"><code>has_index( table, index, columns[], description )</code></h3>
 
-<h3 id="`has_index(+table,+index,+columns[],+description+)`"><code>has_index( table, index, columns[], description )</code></h3>
+<h3 id="has_index5"><code>has_index( table, index, columns[], description )</code></h3>
 
-<h3 id="`has_index(+table,+index,+column/expression,+description+)`"><code>has_index( table, index, column/expression, description )</code></h3>
+<h3 id="has_index6"><code>has_index( table, index, column/expression, description )</code></h3>
 
-<h3 id="`has_index(+schema,+table,+index,+column/expression+)`"><code>has_index( schema, table, index, column/expression )</code></h3>
+<h3 id="has_index7"><code>has_index( schema, table, index, column/expression )</code></h3>
 
-<h3 id="`has_index(+table,+index,+column/expression+)`"><code>has_index( table, index, column/expression )</code></h3>
+<h3 id="has_index8"><code>has_index( table, index, column/expression )</code></h3>
 
-<h3 id="`has_index(+schema,+table,+index+)`"><code>has_index( schema, table, index )</code></h3>
+<h3 id="has_index9"><code>has_index( schema, table, index )</code></h3>
 
-<h3 id="`has_index(+table,+index,+description+)`"><code>has_index( table, index, description )</code></h3>
+<h3 id="has_index10"><code>has_index( table, index, description )</code></h3>
 
-<h3 id="`has_index(+table,+index+)`"><code>has_index( table, index )</code></h3>
+<h3 id="has_index11"><code>has_index( table, index )</code></h3>
 
 <pre><code>SELECT has_index(
     'myschema',
@@ -2680,13 +2675,13 @@ incorrect, the diagnostics will look more like this:</p>
 #       want: "idx_baz" ON public.sometab(lower(lname))
 </code></pre>
 
-<h3 id="`hasnt_index(+schema,+table,+index,+description+)`"><code>hasnt_index( schema, table, index, description )</code></h3>
+<h3 id="hasnt_index"><code>hasnt_index( schema, table, index, description )</code></h3>
 
-<h3 id="`hasnt_index(+schema,+table,+index+)`"><code>hasnt_index( schema, table, index )</code></h3>
+<h3 id="hasnt_index1"><code>hasnt_index( schema, table, index )</code></h3>
 
-<h3 id="`hasnt_index(+table,+index,+description+)`"><code>hasnt_index( table, index, description )</code></h3>
+<h3 id="hasnt_index2"><code>hasnt_index( table, index, description )</code></h3>
 
-<h3 id="`hasnt_index(+table,+index+)`"><code>hasnt_index( table, index )</code></h3>
+<h3 id="hasnt_index3"><code>hasnt_index( table, index )</code></h3>
 
 <pre><code>SELECT hasnt_index(
     'myschema',
@@ -2699,13 +2694,13 @@ incorrect, the diagnostics will look more like this:</p>
 <p>This function is the inverse of <code>has_index()</code>. The test passes if the
 specified index does <em>not</em> exist.</p>
 
-<h3 id="`has_trigger(+schema,+table,+trigger,+description+)`"><code>has_trigger( schema, table, trigger, description )</code></h3>
+<h3 id="has_trigger"><code>has_trigger( schema, table, trigger, description )</code></h3>
 
-<h3 id="`has_trigger(+schema,+table,+trigger+)`"><code>has_trigger( schema, table, trigger )</code></h3>
+<h3 id="has_trigger1"><code>has_trigger( schema, table, trigger )</code></h3>
 
-<h3 id="`has_trigger(+table,+trigger,+description+)`"><code>has_trigger( table, trigger, description )</code></h3>
+<h3 id="has_trigger2"><code>has_trigger( table, trigger, description )</code></h3>
 
-<h3 id="`has_trigger(+table,+trigger+)`"><code>has_trigger( table, trigger )</code></h3>
+<h3 id="has_trigger3"><code>has_trigger( table, trigger )</code></h3>
 
 <pre><code>SELECT has_trigger(
     'myschema',
@@ -2721,13 +2716,13 @@ SELECT has_trigger( 'sometable', 'sometrigger' );
 is optional, and if the schema is omitted, the table with which the trigger is
 associated must be visible in the search path.</p>
 
-<h3 id="`hasnt_trigger(+schema,+table,+trigger,+description+)`"><code>hasnt_trigger( schema, table, trigger, description )</code></h3>
+<h3 id="hasnt_trigger"><code>hasnt_trigger( schema, table, trigger, description )</code></h3>
 
-<h3 id="`hasnt_trigger(+schema,+table,+trigger+)`"><code>hasnt_trigger( schema, table, trigger )</code></h3>
+<h3 id="hasnt_trigger1"><code>hasnt_trigger( schema, table, trigger )</code></h3>
 
-<h3 id="`hasnt_trigger(+table,+trigger,+description+)`"><code>hasnt_trigger( table, trigger, description )</code></h3>
+<h3 id="hasnt_trigger2"><code>hasnt_trigger( table, trigger, description )</code></h3>
 
-<h3 id="`hasnt_trigger(+table,+trigger+)`"><code>hasnt_trigger( table, trigger )</code></h3>
+<h3 id="hasnt_trigger3"><code>hasnt_trigger( table, trigger )</code></h3>
 
 <pre><code>SELECT hasnt_trigger(
     'myschema',
@@ -2740,13 +2735,13 @@ associated must be visible in the search path.</p>
 <p>This function is the inverse of <code>has_trigger()</code>. The test passes if the
 specified trigger does <em>not</em> exist.</p>
 
-<h3 id="`has_rule(+schema,+table,+rule,+description+)`"><code>has_rule( schema, table, rule, description )</code></h3>
+<h3 id="has_rule"><code>has_rule( schema, table, rule, description )</code></h3>
 
-<h3 id="`has_rule(+schema,+table,+rule+)`"><code>has_rule( schema, table, rule )</code></h3>
+<h3 id="has_rule1"><code>has_rule( schema, table, rule )</code></h3>
 
-<h3 id="`has_rule(+table,+rule,+description+)`"><code>has_rule( table, rule, description )</code></h3>
+<h3 id="has_rule2"><code>has_rule( table, rule, description )</code></h3>
 
-<h3 id="`has_rule(+table,+rule+)`"><code>has_rule( table, rule )</code></h3>
+<h3 id="has_rule3"><code>has_rule( table, rule )</code></h3>
 
 <pre><code>SELECT has_rule(
     'myschema',
@@ -2762,13 +2757,13 @@ SELECT has_rule( 'sometable', 'somerule' );
 optional, and if the schema is omitted, the table with which the trigger is
 associated must be visible in the search path.</p>
 
-<h3 id="`hasnt_rule(+schema,+table,+rule,+description+)`"><code>hasnt_rule( schema, table, rule, description )</code></h3>
+<h3 id="hasnt_rule"><code>hasnt_rule( schema, table, rule, description )</code></h3>
 
-<h3 id="`hasnt_rule(+schema,+table,+rule+)`"><code>hasnt_rule( schema, table, rule )</code></h3>
+<h3 id="hasnt_rule1"><code>hasnt_rule( schema, table, rule )</code></h3>
 
-<h3 id="`hasnt_rule(+table,+rule,+description+)`"><code>hasnt_rule( table, rule, description )</code></h3>
+<h3 id="hasnt_rule2"><code>hasnt_rule( table, rule, description )</code></h3>
 
-<h3 id="`hasnt_rule(+table,+rule+)`"><code>hasnt_rule( table, rule )</code></h3>
+<h3 id="hasnt_rule3"><code>hasnt_rule( table, rule )</code></h3>
 
 <pre><code>SELECT hasnt_rule( 'sometable', 'somerule' );
 </code></pre>
@@ -2776,21 +2771,21 @@ associated must be visible in the search path.</p>
 <p>This function is the inverse of <code>has_rule()</code>. The test passes if the specified
 rule does <em>not</em> exist.</p>
 
-<h3 id="`has_function(+schema,+function,+args[],+description+)`"><code>has_function( schema, function, args[], description )</code></h3>
+<h3 id="has_function"><code>has_function( schema, function, args[], description )</code></h3>
 
-<h3 id="`has_function(+schema,+function,+args[]+)`"><code>has_function( schema, function, args[] )</code></h3>
+<h3 id="has_function1"><code>has_function( schema, function, args[] )</code></h3>
 
-<h3 id="`has_function(+schema,+function,+description+)`"><code>has_function( schema, function, description )</code></h3>
+<h3 id="has_function2"><code>has_function( schema, function, description )</code></h3>
 
-<h3 id="`has_function(+schema,+function+)`"><code>has_function( schema, function )</code></h3>
+<h3 id="has_function3"><code>has_function( schema, function )</code></h3>
 
-<h3 id="`has_function(+function,+args[],+description+)`"><code>has_function( function, args[], description )</code></h3>
+<h3 id="has_function4"><code>has_function( function, args[], description )</code></h3>
 
-<h3 id="`has_function(+function,+args[]+)`"><code>has_function( function, args[] )</code></h3>
+<h3 id="has_function5"><code>has_function( function, args[] )</code></h3>
 
-<h3 id="`has_function(+function,+description+)`"><code>has_function( function, description )</code></h3>
+<h3 id="has_function6"><code>has_function( function, description )</code></h3>
 
-<h3 id="`has_function(+function+)`"><code>has_function( function )</code></h3>
+<h3 id="has_function7"><code>has_function( function )</code></h3>
 
 <pre><code>SELECT has_function(
     'pg_catalog',
@@ -2816,10 +2811,10 @@ have a numeric column with a precision of 8, you should specify
 <code>ARRAY['numeric']</code>&ldquo;. If you created a <code>varchar(64)</code> column, you should pass
 the <code>:args[]</code> argument as <code>ARRAY['character varying']</code>.</p>
 
-<p>If you wish to use the two-argument form of <code>has_function()</code>, specifying only the
-schema and the function name, you must cast the <code>:function</code> argument to
+<p>If you wish to use the two-argument form of <code>has_function()</code>, specifying only
+the schema and the function name, you must cast the <code>:function</code> argument to
 <code>:name</code> in order to disambiguate it from from the
-<code>has_function(</code>:function<code>,</code>:description)` form. If you neglect to do so, your
+<code>has_function(:function, :description)</code> form. If you neglect to do so, your
 results will be unexpected.</p>
 
 <p>Also, if you use the string form to specify the <code>:args[]</code> array, be sure to
@@ -2832,21 +2827,21 @@ cast it to <code>name[]</code> to disambiguate it from a text string:</p>
 still available, but emits a warning when called. It will be removed in a
 future version of pgTAP.</p>
 
-<h3 id="`hasnt_function(+schema,+function,+args[],+description+)`"><code>hasnt_function( schema, function, args[], description )</code></h3>
+<h3 id="hasnt_function"><code>hasnt_function( schema, function, args[], description )</code></h3>
 
-<h3 id="`hasnt_function(+schema,+function,+args[]+)`"><code>hasnt_function( schema, function, args[] )</code></h3>
+<h3 id="hasnt_function1"><code>hasnt_function( schema, function, args[] )</code></h3>
 
-<h3 id="`hasnt_function(+schema,+function,+description+)`"><code>hasnt_function( schema, function, description )</code></h3>
+<h3 id="hasnt_function2"><code>hasnt_function( schema, function, description )</code></h3>
 
-<h3 id="`hasnt_function(+schema,+function+)`"><code>hasnt_function( schema, function )</code></h3>
+<h3 id="hasnt_function3"><code>hasnt_function( schema, function )</code></h3>
 
-<h3 id="`hasnt_function(+function,+args[],+description+)`"><code>hasnt_function( function, args[], description )</code></h3>
+<h3 id="hasnt_function4"><code>hasnt_function( function, args[], description )</code></h3>
 
-<h3 id="`hasnt_function(+function,+args[]+)`"><code>hasnt_function( function, args[] )</code></h3>
+<h3 id="hasnt_function5"><code>hasnt_function( function, args[] )</code></h3>
 
-<h3 id="`hasnt_function(+function,+description+)`"><code>hasnt_function( function, description )</code></h3>
+<h3 id="hasnt_function6"><code>hasnt_function( function, description )</code></h3>
 
-<h3 id="`hasnt_function(+function+)`"><code>hasnt_function( function )</code></h3>
+<h3 id="hasnt_function7"><code>hasnt_function( function )</code></h3>
 
 <pre><code>SELECT hasnt_function(
     'pg_catalog',
@@ -2863,17 +2858,17 @@ SELECT hasnt_function( 'bogus', ARRAY['numeric'] );
 <p>This function is the inverse of <code>has_function()</code>. The test passes if the
 specified function (optionally with the specified signature) does <em>not</em> exist.</p>
 
-<h3 id="`has_cast(+source_type,+target_type,+schema,+function,+description+)`"><code>has_cast( source_type, target_type, schema, function, description )</code></h3>
+<h3 id="has_cast"><code>has_cast( source_type, target_type, schema, function, description )</code></h3>
 
-<h3 id="`has_cast(+source_type,+target_type,+schema,+function+)`"><code>has_cast( source_type, target_type, schema, function )</code></h3>
+<h3 id="has_cast1"><code>has_cast( source_type, target_type, schema, function )</code></h3>
 
-<h3 id="`has_cast(+source_type,+target_type,+function,+description+)`"><code>has_cast( source_type, target_type, function, description )</code></h3>
+<h3 id="has_cast2"><code>has_cast( source_type, target_type, function, description )</code></h3>
 
-<h3 id="`has_cast(+source_type,+target_type,+function+)`"><code>has_cast( source_type, target_type, function )</code></h3>
+<h3 id="has_cast3"><code>has_cast( source_type, target_type, function )</code></h3>
 
-<h3 id="`has_cast(+source_type,+target_type,+description+)`"><code>has_cast( source_type, target_type, description )</code></h3>
+<h3 id="has_cast4"><code>has_cast( source_type, target_type, description )</code></h3>
 
-<h3 id="`has_cast(+source_type,+target_type+)`"><code>has_cast( source_type, target_type )</code></h3>
+<h3 id="has_cast5"><code>has_cast( source_type, target_type )</code></h3>
 
 <pre><code>SELECT has_cast(
     'integer',
@@ -2895,17 +2890,17 @@ the function name as a description. For example:</p>
 
 <p>pgTAP will generate a useful description if you don&rsquo;t provide one.</p>
 
-<h3 id="`hasnt_cast(+source_type,+target_type,+schema,+function,+description+)`"><code>hasnt_cast( source_type, target_type, schema, function, description )</code></h3>
+<h3 id="hasnt_cast"><code>hasnt_cast( source_type, target_type, schema, function, description )</code></h3>
 
-<h3 id="`hasnt_cast(+source_type,+target_type,+schema,+function+)`"><code>hasnt_cast( source_type, target_type, schema, function )</code></h3>
+<h3 id="hasnt_cast1"><code>hasnt_cast( source_type, target_type, schema, function )</code></h3>
 
-<h3 id="`hasnt_cast(+source_type,+target_type,+function,+description+)`"><code>hasnt_cast( source_type, target_type, function, description )</code></h3>
+<h3 id="hasnt_cast2"><code>hasnt_cast( source_type, target_type, function, description )</code></h3>
 
-<h3 id="`hasnt_cast(+source_type,+target_type,+function+)`"><code>hasnt_cast( source_type, target_type, function )</code></h3>
+<h3 id="hasnt_cast3"><code>hasnt_cast( source_type, target_type, function )</code></h3>
 
-<h3 id="`hasnt_cast(+source_type,+target_type,+description+)`"><code>hasnt_cast( source_type, target_type, description )</code></h3>
+<h3 id="hasnt_cast4"><code>hasnt_cast( source_type, target_type, description )</code></h3>
 
-<h3 id="`hasnt_cast(+source_type,+target_type+)`"><code>hasnt_cast( source_type, target_type )</code></h3>
+<h3 id="hasnt_cast5"><code>hasnt_cast( source_type, target_type )</code></h3>
 
 <pre><code>SELECT hasnt_cast( 'integer', 'circle' );
 </code></pre>
@@ -2913,17 +2908,17 @@ the function name as a description. For example:</p>
 <p>This function is the inverse of <code>has_cast()</code>. The test passes if the specified
 cast does <em>not</em> exist.</p>
 
-<h3 id="`has_operator(+left_type,+schema,+name,+right_type,+return_type,+desc+)`"><code>has_operator( left_type, schema, name, right_type, return_type, desc )</code></h3>
+<h3 id="has_operator"><code>has_operator( left_type, schema, name, right_type, return_type, desc )</code></h3>
 
-<h3 id="`has_operator(+left_type,+schema,+name,+right_type,+return_type+)`"><code>has_operator( left_type, schema, name, right_type, return_type )</code></h3>
+<h3 id="has_operator1"><code>has_operator( left_type, schema, name, right_type, return_type )</code></h3>
 
-<h3 id="`has_operator(+left_type,+name,+right_type,+return_type,+desc+)`"><code>has_operator( left_type, name, right_type, return_type, desc )</code></h3>
+<h3 id="has_operator2"><code>has_operator( left_type, name, right_type, return_type, desc )</code></h3>
 
-<h3 id="`has_operator(+left_type,+name,+right_type,+return_type+)`"><code>has_operator( left_type, name, right_type, return_type )</code></h3>
+<h3 id="has_operator3"><code>has_operator( left_type, name, right_type, return_type )</code></h3>
 
-<h3 id="`has_operator(+left_type,+name,+right_type,+desc+)`"><code>has_operator( left_type, name, right_type, desc )</code></h3>
+<h3 id="has_operator4"><code>has_operator( left_type, name, right_type, desc )</code></h3>
 
-<h3 id="`has_operator(+left_type,+name,+right_type+)`"><code>has_operator( left_type, name, right_type )</code></h3>
+<h3 id="has_operator5"><code>has_operator( left_type, name, right_type )</code></h3>
 
 <pre><code>SELECT has_operator(
     'integer',
@@ -2942,17 +2937,17 @@ the test description, pgTAP will generate a reasonable one for you. The return
 value is also optional. If you need to test for a left or right unary
 operator, use <code>has_leftop()</code> or <code>has_rightop()</code> instead.</p>
 
-<h3 id="`has_leftop(+schema,+name,+right_type,+return_type,+desc+)`"><code>has_leftop( schema, name, right_type, return_type, desc )</code></h3>
+<h3 id="has_leftop"><code>has_leftop( schema, name, right_type, return_type, desc )</code></h3>
 
-<h3 id="`has_leftop(+schema,+name,+right_type,+return_type+)`"><code>has_leftop( schema, name, right_type, return_type )</code></h3>
+<h3 id="has_leftop1"><code>has_leftop( schema, name, right_type, return_type )</code></h3>
 
-<h3 id="`has_leftop(+name,+right_type,+return_type,+desc+)`"><code>has_leftop( name, right_type, return_type, desc )</code></h3>
+<h3 id="has_leftop2"><code>has_leftop( name, right_type, return_type, desc )</code></h3>
 
-<h3 id="`has_leftop(+name,+right_type,+return_type+)`"><code>has_leftop( name, right_type, return_type )</code></h3>
+<h3 id="has_leftop3"><code>has_leftop( name, right_type, return_type )</code></h3>
 
-<h3 id="`has_leftop(+name,+right_type,+desc+)`"><code>has_leftop( name, right_type, desc )</code></h3>
+<h3 id="has_leftop4"><code>has_leftop( name, right_type, desc )</code></h3>
 
-<h3 id="`has_leftop(+name,+right_type+)`"><code>has_leftop( name, right_type )</code></h3>
+<h3 id="has_leftop5"><code>has_leftop( name, right_type )</code></h3>
 
 <pre><code>SELECT has_leftop(
     'pg_catalog', '!!',
@@ -2969,17 +2964,17 @@ name, then the operator must be visible in the search path. If you omit the
 test description, pgTAP will generate a reasonable one for you. The return
 value is also optional.</p>
 
-<h3 id="`has_rightop(+left_type,+schema,+name,+return_type,+desc+)`"><code>has_rightop( left_type, schema, name, return_type, desc )</code></h3>
+<h3 id="has_rightop"><code>has_rightop( left_type, schema, name, return_type, desc )</code></h3>
 
-<h3 id="`has_rightop(+left_type,+schema,+name,+return_type+)`"><code>has_rightop( left_type, schema, name, return_type )</code></h3>
+<h3 id="has_rightop1"><code>has_rightop( left_type, schema, name, return_type )</code></h3>
 
-<h3 id="`has_rightop(+left_type,+name,+return_type,+desc+)`"><code>has_rightop( left_type, name, return_type, desc )</code></h3>
+<h3 id="has_rightop2"><code>has_rightop( left_type, name, return_type, desc )</code></h3>
 
-<h3 id="`has_rightop(+left_type,+name,+return_type+)`"><code>has_rightop( left_type, name, return_type )</code></h3>
+<h3 id="has_rightop3"><code>has_rightop( left_type, name, return_type )</code></h3>
 
-<h3 id="`has_rightop(+left_type,+name,+desc+)`"><code>has_rightop( left_type, name, desc )</code></h3>
+<h3 id="has_rightop4"><code>has_rightop( left_type, name, desc )</code></h3>
 
-<h3 id="`has_rightop(+left_type,+name+)`"><code>has_rightop( left_type, name )</code></h3>
+<h3 id="has_rightop5"><code>has_rightop( left_type, name )</code></h3>
 
 <pre><code>SELECT has_rightop(
     'bigint',
@@ -2996,13 +2991,13 @@ name, then the operator must be visible in the search path. If you omit the
 test description, pgTAP will generate a reasonable one for you. The return
 value is also optional.</p>
 
-<h3 id="`has_opclass(+schema,+name,+description+)`"><code>has_opclass( schema, name, description )</code></h3>
+<h3 id="has_opclass"><code>has_opclass( schema, name, description )</code></h3>
 
-<h3 id="`has_opclass(+schema,+name+)`"><code>has_opclass( schema, name )</code></h3>
+<h3 id="has_opclass1"><code>has_opclass( schema, name )</code></h3>
 
-<h3 id="`has_opclass(+name,+description+)`"><code>has_opclass( name, description )</code></h3>
+<h3 id="has_opclass2"><code>has_opclass( name, description )</code></h3>
 
-<h3 id="`has_opclass(+name+)`"><code>has_opclass( name )</code></h3>
+<h3 id="has_opclass3"><code>has_opclass( name )</code></h3>
 
 <pre><code>SELECT has_opclass(
     'myschema',
@@ -3016,13 +3011,13 @@ the operator must be visible in the search path. If you omit the test
 description, pgTAP will generate a reasonable one for you. The return value is
 also optional.</p>
 
-<h3 id="`hasnt_opclass(+schema,+name,+description+)`"><code>hasnt_opclass( schema, name, description )</code></h3>
+<h3 id="hasnt_opclass"><code>hasnt_opclass( schema, name, description )</code></h3>
 
-<h3 id="`hasnt_opclass(+schema,+name+)`"><code>hasnt_opclass( schema, name )</code></h3>
+<h3 id="hasnt_opclass1"><code>hasnt_opclass( schema, name )</code></h3>
 
-<h3 id="`hasnt_opclass(+name,+description+)`"><code>hasnt_opclass( name, description )</code></h3>
+<h3 id="hasnt_opclass2"><code>hasnt_opclass( name, description )</code></h3>
 
-<h3 id="`hasnt_opclass(+name+)`"><code>hasnt_opclass( name )</code></h3>
+<h3 id="hasnt_opclass3"><code>hasnt_opclass( name )</code></h3>
 
 <pre><code>SELECT hasnt_opclass(
     'myschema',
@@ -3034,9 +3029,9 @@ also optional.</p>
 <p>This function is the inverse of <code>has_opclass()</code>. The test passes if the
 specified operator class does <em>not</em> exist.</p>
 
-<h3 id="`has_role(+role,+desc+)`"><code>has_role( role, desc )</code></h3>
+<h3 id="has_role"><code>has_role( role, desc )</code></h3>
 
-<h3 id="`has_role(+role+)`"><code>has_role( role )</code></h3>
+<h3 id="has_role1"><code>has_role( role )</code></h3>
 
 <pre><code>SELECT has_role( 'theory', 'Role "theory" should exist' );
 </code></pre>
@@ -3044,9 +3039,9 @@ specified operator class does <em>not</em> exist.</p>
 <p>Checks to ensure that a database role exists. If the description is omitted,
 it will default to &ldquo;Role <code>:role</code> should exist&rdquo;.</p>
 
-<h3 id="`hasnt_role(+role,+desc+)`"><code>hasnt_role( role, desc )</code></h3>
+<h3 id="hasnt_role"><code>hasnt_role( role, desc )</code></h3>
 
-<h3 id="`hasnt_role(+role+)`"><code>hasnt_role( role )</code></h3>
+<h3 id="hasnt_role1"><code>hasnt_role( role )</code></h3>
 
 <pre><code>SELECT hasnt_role( 'theory', 'Role "theory" should not exist' );
 </code></pre>
@@ -3054,9 +3049,9 @@ it will default to &ldquo;Role <code>:role</code> should exist&rdquo;.</p>
 <p>The inverse of <code>has_role()</code>, this function tests for the <em>absence</em> of a
 database role.</p>
 
-<h3 id="`has_user(+user,+desc+)`"><code>has_user( user, desc )</code></h3>
+<h3 id="has_user"><code>has_user( user, desc )</code></h3>
 
-<h3 id="`has_user(+user+)`"><code>has_user( user )</code></h3>
+<h3 id="has_user1"><code>has_user( user )</code></h3>
 
 <pre><code>SELECT has_user( 'theory', 'User "theory" should exist' );
 </code></pre>
@@ -3064,9 +3059,9 @@ database role.</p>
 <p>Checks to ensure that a database user exists. If the description is omitted,
 it will default to &ldquo;User <code>:user</code> should exist&rdquo;.</p>
 
-<h3 id="`hasnt_user(+user,+desc+)`"><code>hasnt_user( user, desc )</code></h3>
+<h3 id="hasnt_user"><code>hasnt_user( user, desc )</code></h3>
 
-<h3 id="`hasnt_user(+user+)`"><code>hasnt_user( user )</code></h3>
+<h3 id="hasnt_user1"><code>hasnt_user( user )</code></h3>
 
 <pre><code>SELECT hasnt_user( 'theory', 'User "theory" should not exist' );
 </code></pre>
@@ -3074,9 +3069,9 @@ it will default to &ldquo;User <code>:user</code> should exist&rdquo;.</p>
 <p>The inverse of <code>has_user()</code>, this function tests for the <em>absence</em> of a
 database user.</p>
 
-<h3 id="`has_group(+group,+desc+)`"><code>has_group( group, desc )</code></h3>
+<h3 id="has_group"><code>has_group( group, desc )</code></h3>
 
-<h3 id="`has_group(+group+)`"><code>has_group( group )</code></h3>
+<h3 id="has_group1"><code>has_group( group )</code></h3>
 
 <pre><code>SELECT has_group( 'sweeties, 'Group "sweeties" should exist' );
 </code></pre>
@@ -3084,9 +3079,9 @@ database user.</p>
 <p>Checks to ensure that a database group exists. If the description is omitted,
 it will default to &ldquo;Group <code>:group</code> should exist&rdquo;.</p>
 
-<h3 id="`hasnt_group(+group,+desc+)`"><code>hasnt_group( group, desc )</code></h3>
+<h3 id="hasnt_group"><code>hasnt_group( group, desc )</code></h3>
 
-<h3 id="`hasnt_group(+group+)`"><code>hasnt_group( group )</code></h3>
+<h3 id="hasnt_group1"><code>hasnt_group( group )</code></h3>
 
 <pre><code>SELECT hasnt_group( 'meanies, 'Group meaines should not exist' );
 </code></pre>
@@ -3094,9 +3089,9 @@ it will default to &ldquo;Group <code>:group</code> should exist&rdquo;.</p>
 <p>The inverse of <code>has_group()</code>, this function tests for the <em>absence</em> of a
 database group.</p>
 
-<h3 id="`has_language(+language,+desc+)`"><code>has_language( language, desc )</code></h3>
+<h3 id="has_language"><code>has_language( language, desc )</code></h3>
 
-<h3 id="`has_language(+language+)`"><code>has_language( language )</code></h3>
+<h3 id="has_language1"><code>has_language( language )</code></h3>
 
 <pre><code>SELECT has_language( 'plpgsql', 'Language "plpgsql" should exist' );
 </code></pre>
@@ -3104,9 +3099,9 @@ database group.</p>
 <p>Checks to ensure that a procedural language exists. If the description is
 omitted, it will default to &ldquo;Procedural language <code>:language</code> should exist&rdquo;.</p>
 
-<h3 id="`hasnt_language(+language,+desc+)`"><code>hasnt_language( language, desc )</code></h3>
+<h3 id="hasnt_language"><code>hasnt_language( language, desc )</code></h3>
 
-<h3 id="`hasnt_language(+language+)`"><code>hasnt_language( language )</code></h3>
+<h3 id="hasnt_language1"><code>hasnt_language( language )</code></h3>
 
 <pre><code>SELECT hasnt_language( 'plpgsql', 'Language "plpgsql" should not exist' );
 </code></pre>
@@ -3122,11 +3117,11 @@ look at tables. There are a lot of ways to look at tables, to make sure that
 they have all the columns, indexes, constraints, keys, and indexes they need.
 So we have the assertions to validate &lsquo;em.</p>
 
-<h3 id="`has_column(+schema,+table,+column,+description+)`"><code>has_column( schema, table, column, description )</code></h3>
+<h3 id="has_column"><code>has_column( schema, table, column, description )</code></h3>
 
-<h3 id="`has_column(+table,+column,+description+)`"><code>has_column( table, column, description )</code></h3>
+<h3 id="has_column1"><code>has_column( table, column, description )</code></h3>
 
-<h3 id="`has_column(+table,+column+)`"><code>has_column( table, column )</code></h3>
+<h3 id="has_column2"><code>has_column( table, column )</code></h3>
 
 <pre><code>SELECT has_column(
     'myschema',
@@ -3143,11 +3138,11 @@ is omitted, the table must be visible in the search path. If the test
 description is omitted, it will be set to &ldquo;Column <code>:table.:column</code> should
 exist&rdquo;.</p>
 
-<h3 id="`hasnt_column(+schema,+table,+column,+description+)`"><code>hasnt_column( schema, table, column, description )</code></h3>
+<h3 id="hasnt_column"><code>hasnt_column( schema, table, column, description )</code></h3>
 
-<h3 id="`hasnt_column(+table,+column,+description+)`"><code>hasnt_column( table, column, description )</code></h3>
+<h3 id="hasnt_column1"><code>hasnt_column( table, column, description )</code></h3>
 
-<h3 id="`hasnt_column(+table,+column+)`"><code>hasnt_column( table, column )</code></h3>
+<h3 id="hasnt_column2"><code>hasnt_column( table, column )</code></h3>
 
 <pre><code>SELECT hasnt_column(
     'myschema',
@@ -3161,11 +3156,11 @@ exist&rdquo;.</p>
 specified column does <em>not</em> exist in the specified table, view, or composite
 type.</p>
 
-<h3 id="`col_not_null(+schema,+table,+column,+description+)`"><code>col_not_null( schema, table, column, description )</code></h3>
+<h3 id="col_not_null"><code>col_not_null( schema, table, column, description )</code></h3>
 
-<h3 id="`col_not_null(+table,+column,+description+)`"><code>col_not_null( table, column, description )</code></h3>
+<h3 id="col_not_null1"><code>col_not_null( table, column, description )</code></h3>
 
-<h3 id="`col_not_null(+table,+column+)`"><code>col_not_null( table, column )</code></h3>
+<h3 id="col_not_null2"><code>col_not_null( table, column )</code></h3>
 
 <pre><code>SELECT col_not_null(
     'myschema',
@@ -3184,11 +3179,11 @@ test will fail with a useful diagnostic message if the table or column in
 question does not exist. But use <code>has_column()</code> to make sure the column exists
 first, eh?</p>
 
-<h3 id="`col_is_null(+schema,+table,+column,+description+)`"><code>col_is_null( schema, table, column, description )</code></h3>
+<h3 id="col_is_null"><code>col_is_null( schema, table, column, description )</code></h3>
 
-<h3 id="`col_is_null(+table,+column,+description+)`"><code>col_is_null( table, column, description )</code></h3>
+<h3 id="col_is_null1"><code>col_is_null( table, column, description )</code></h3>
 
-<h3 id="`col_is_null(+table,+column+)`"><code>col_is_null( table, column )</code></h3>
+<h3 id="col_is_null2"><code>col_is_null( table, column )</code></h3>
 
 <pre><code>SELECT col_is_null(
     'myschema',
@@ -3207,11 +3202,11 @@ the search path. If the test description is omitted, it will be set to &ldquo;Co
 useful diagnostic message if the table or column in question does not exist.
 But use <code>has_column()</code> to make sure the column exists first, eh?</p>
 
-<h3 id="`col_has_default(+schema,+table,+column,+description+)`"><code>col_has_default( schema, table, column, description )</code></h3>
+<h3 id="col_has_default"><code>col_has_default( schema, table, column, description )</code></h3>
 
-<h3 id="`col_has_default(+table,+column,+description+)`"><code>col_has_default( table, column, description )</code></h3>
+<h3 id="col_has_default1"><code>col_has_default( table, column, description )</code></h3>
 
-<h3 id="`col_has_default(+table,+column+)`"><code>col_has_default( table, column )</code></h3>
+<h3 id="col_has_default2"><code>col_has_default( table, column )</code></h3>
 
 <pre><code>SELECT col_has_default(
     'myschema',
@@ -3229,11 +3224,11 @@ useful diagnostics to let you know:</p>
 #     Column public.sometab.__asdfasdfs__ does not exist
 </code></pre>
 
-<h3 id="`col_hasnt_default(+schema,+table,+column,+description+)`"><code>col_hasnt_default( schema, table, column, description )</code></h3>
+<h3 id="col_hasnt_default"><code>col_hasnt_default( schema, table, column, description )</code></h3>
 
-<h3 id="`col_hasnt_default(+table,+column,+description+)`"><code>col_hasnt_default( table, column, description )</code></h3>
+<h3 id="col_hasnt_default1"><code>col_hasnt_default( table, column, description )</code></h3>
 
-<h3 id="`col_hasnt_default(+table,+column+)`"><code>col_hasnt_default( table, column )</code></h3>
+<h3 id="col_hasnt_default2"><code>col_hasnt_default( table, column )</code></h3>
 
 <pre><code>SELECT col_hasnt_default(
     'myschema',
@@ -3247,17 +3242,17 @@ useful diagnostics to let you know:</p>
 specified column does <em>not</em> have a default. It will still fail if the column
 does not exist, and emit useful diagnostics to let you know.</p>
 
-<h3 id="`col_type_is(+schema,+table,+column,+schema,+type,+description+)`"><code>col_type_is( schema, table, column, schema, type, description )</code></h3>
+<h3 id="col_type_is"><code>col_type_is( schema, table, column, schema, type, description )</code></h3>
 
-<h3 id="`col_type_is(+schema,+table,+column,+schema,+type+)`"><code>col_type_is( schema, table, column, schema, type )</code></h3>
+<h3 id="col_type_is1"><code>col_type_is( schema, table, column, schema, type )</code></h3>
 
-<h3 id="`col_type_is(+schema,+table,+column,+type,+description+)`"><code>col_type_is( schema, table, column, type, description )</code></h3>
+<h3 id="col_type_is2"><code>col_type_is( schema, table, column, type, description )</code></h3>
 
-<h3 id="`col_type_is(+schema,+table,+column,+type+)`"><code>col_type_is( schema, table, column, type )</code></h3>
+<h3 id="col_type_is3"><code>col_type_is( schema, table, column, type )</code></h3>
 
-<h3 id="`col_type_is(+table,+column,+type,+description+)`"><code>col_type_is( table, column, type, description )</code></h3>
+<h3 id="col_type_is4"><code>col_type_is( table, column, type, description )</code></h3>
 
-<h3 id="`col_type_is(+table,+column,+type+)`"><code>col_type_is( table, column, type )</code></h3>
+<h3 id="col_type_is5"><code>col_type_is( table, column, type )</code></h3>
 
 <pre><code>SELECT col_type_is(
     'myschema',
@@ -3299,11 +3294,11 @@ varying(64)&rdquo;.</p>
 actually has no default. But use <code>has_column()</code> to make sure the column exists
 first, eh?</p>
 
-<h3 id="`col_default_is(+schema,+table,+column,+default,+description+)`"><code>col_default_is( schema, table, column, default, description )</code></h3>
+<h3 id="col_default_is"><code>col_default_is( schema, table, column, default, description )</code></h3>
 
-<h3 id="`col_default_is(+table,+column,+default,+description+)`"><code>col_default_is( table, column, default, description )</code></h3>
+<h3 id="col_default_is1"><code>col_default_is( table, column, default, description )</code></h3>
 
-<h3 id="`col_default_is(+table,+column,+type+)`"><code>col_default_is( table, column, type )</code></h3>
+<h3 id="col_default_is2"><code>col_default_is( table, column, type )</code></h3>
 
 <pre><code>SELECT col_default_is(
     'myschema',
@@ -3366,11 +3361,11 @@ the diagnostics will tell you that, too. But you use <code>has_column()</code> a
 <code>col_has_default()</code> to test those conditions before you call
 <code>col_default_is()</code>, right? <em>Right???</em> Yeah, good, I thought so.</p>
 
-<h3 id="`has_pk(+schema,+table,+description+)`"><code>has_pk( schema, table, description )</code></h3>
+<h3 id="has_pk"><code>has_pk( schema, table, description )</code></h3>
 
-<h3 id="`has_pk(+table,+description+)`"><code>has_pk( table, description )</code></h3>
+<h3 id="has_pk1"><code>has_pk( table, description )</code></h3>
 
-<h3 id="`has_pk(+table+)`"><code>has_pk( table )</code></h3>
+<h3 id="has_pk2"><code>has_pk( table )</code></h3>
 
 <pre><code>SELECT has_pk(
     'myschema',
@@ -3386,11 +3381,11 @@ test description is omitted, it will be set to &ldquo;Table <code>:table</code> 
 primary key&rdquo;. Note that this test will fail if the table in question does not
 exist.</p>
 
-<h3 id="`hasnt_pk(+schema,+table,+description+)`"><code>hasnt_pk( schema, table, description )</code></h3>
+<h3 id="hasnt_pk"><code>hasnt_pk( schema, table, description )</code></h3>
 
-<h3 id="`hasnt_pk(+table,+description+)`"><code>hasnt_pk( table, description )</code></h3>
+<h3 id="hasnt_pk1"><code>hasnt_pk( table, description )</code></h3>
 
-<h3 id="`hasnt_pk(+table+)`"><code>hasnt_pk( table )</code></h3>
+<h3 id="hasnt_pk2"><code>hasnt_pk( table )</code></h3>
 
 <pre><code>SELECT hasnt_pk(
     'myschema',
@@ -3402,11 +3397,11 @@ exist.</p>
 <p>This function is the inverse of <code>has_pk()</code>. The test passes if the specified
 primary key does <em>not</em> exist.</p>
 
-<h3 id="`has_fk(+schema,+table,+description+)`"><code>has_fk( schema, table, description )</code></h3>
+<h3 id="has_fk"><code>has_fk( schema, table, description )</code></h3>
 
-<h3 id="`has_fk(+table,+description+)`"><code>has_fk( table, description )</code></h3>
+<h3 id="has_fk1"><code>has_fk( table, description )</code></h3>
 
-<h3 id="`has_fk(+table+)`"><code>has_fk( table )</code></h3>
+<h3 id="has_fk2"><code>has_fk( table )</code></h3>
 
 <pre><code>SELECT has_fk(
     'myschema',
@@ -3422,11 +3417,11 @@ path. If the test description is omitted, it will be set to &ldquo;Table <code>:
 should have a foreign key constraint&rdquo;. Note that this test will fail if the
 table in question does not exist.</p>
 
-<h3 id="`hasnt_fk(+schema,+table,+description+)`"><code>hasnt_fk( schema, table, description )</code></h3>
+<h3 id="hasnt_fk"><code>hasnt_fk( schema, table, description )</code></h3>
 
-<h3 id="`hasnt_fk(+table,+description+)`"><code>hasnt_fk( table, description )</code></h3>
+<h3 id="hasnt_fk1"><code>hasnt_fk( table, description )</code></h3>
 
-<h3 id="`hasnt_fk(+table+)`"><code>hasnt_fk( table )</code></h3>
+<h3 id="hasnt_fk2"><code>hasnt_fk( table )</code></h3>
 
 <pre><code>SELECT hasnt_fk(
     'myschema',
@@ -3438,17 +3433,17 @@ table in question does not exist.</p>
 <p>This function is the inverse of <code>has_fk()</code>. The test passes if the specified
 foreign key does <em>not</em> exist.</p>
 
-<h3 id="`col_is_pk(+schema,+table,+column,+description+)`"><code>col_is_pk( schema, table, column, description )</code></h3>
+<h3 id="col_is_pk"><code>col_is_pk( schema, table, column, description )</code></h3>
 
-<h3 id="`col_is_pk(+schema,+table,+column[],+description+)`"><code>col_is_pk( schema, table, column[], description )</code></h3>
+<h3 id="col_is_pk1"><code>col_is_pk( schema, table, column[], description )</code></h3>
 
-<h3 id="`col_is_pk(+table,+column,+description+)`"><code>col_is_pk( table, column, description )</code></h3>
+<h3 id="col_is_pk2"><code>col_is_pk( table, column, description )</code></h3>
 
-<h3 id="`col_is_pk(+table,+column[],+description+)`"><code>col_is_pk( table, column[], description )</code></h3>
+<h3 id="col_is_pk3"><code>col_is_pk( table, column[], description )</code></h3>
 
-<h3 id="`col_is_pk(+table,+column+)`"><code>col_is_pk( table, column )</code></h3>
+<h3 id="col_is_pk4"><code>col_is_pk( table, column )</code></h3>
 
-<h3 id="`col_is_pk(+table,+column[]+)`"><code>col_is_pk( table, column[] )</code></h3>
+<h3 id="col_is_pk5"><code>col_is_pk( table, column[] )</code></h3>
 
 <pre><code>SELECT col_is_pk(
     'myschema',
@@ -3484,17 +3479,17 @@ will fail if the table or column in question does not exist.</p>
 #         want: {id}
 </code></pre>
 
-<h3 id="`col_isnt_pk(+schema,+table,+column,+description+)`"><code>col_isnt_pk( schema, table, column, description )</code></h3>
+<h3 id="col_isnt_pk"><code>col_isnt_pk( schema, table, column, description )</code></h3>
 
-<h3 id="`col_isnt_pk(+schema,+table,+column[],+description+)`"><code>col_isnt_pk( schema, table, column[], description )</code></h3>
+<h3 id="col_isnt_pk1"><code>col_isnt_pk( schema, table, column[], description )</code></h3>
 
-<h3 id="`col_isnt_pk(+table,+column,+description+)`"><code>col_isnt_pk( table, column, description )</code></h3>
+<h3 id="col_isnt_pk2"><code>col_isnt_pk( table, column, description )</code></h3>
 
-<h3 id="`col_isnt_pk(+table,+column[],+description+)`"><code>col_isnt_pk( table, column[], description )</code></h3>
+<h3 id="col_isnt_pk3"><code>col_isnt_pk( table, column[], description )</code></h3>
 
-<h3 id="`col_isnt_pk(+table,+column+)`"><code>col_isnt_pk( table, column )</code></h3>
+<h3 id="col_isnt_pk4"><code>col_isnt_pk( table, column )</code></h3>
 
-<h3 id="`col_isnt_pk(+table,+column[]+)`"><code>col_isnt_pk( table, column[] )</code></h3>
+<h3 id="col_isnt_pk5"><code>col_isnt_pk( table, column[] )</code></h3>
 
 <pre><code>SELECT col_isnt_pk(
     'myschema',
@@ -3512,17 +3507,17 @@ SELECT col_isnt_pk(
 <p>This function is the inverse of <code>col_is_pk()</code>. The test passes if the
 specified column or columns are not a primary key.</p>
 
-<h3 id="`col_is_fk(+schema,+table,+column,+description+)`"><code>col_is_fk( schema, table, column, description )</code></h3>
+<h3 id="col_is_fk"><code>col_is_fk( schema, table, column, description )</code></h3>
 
-<h3 id="`col_is_fk(+schema,+table,+column[],+description+)`"><code>col_is_fk( schema, table, column[], description )</code></h3>
+<h3 id="col_is_fk1"><code>col_is_fk( schema, table, column[], description )</code></h3>
 
-<h3 id="`col_is_fk(+table,+column,+description+)`"><code>col_is_fk( table, column, description )</code></h3>
+<h3 id="col_is_fk2"><code>col_is_fk( table, column, description )</code></h3>
 
-<h3 id="`col_is_fk(+table,+column[],+description+)`"><code>col_is_fk( table, column[], description )</code></h3>
+<h3 id="col_is_fk3"><code>col_is_fk( table, column[], description )</code></h3>
 
-<h3 id="`col_is_fk(+table,+column+)`"><code>col_is_fk( table, column )</code></h3>
+<h3 id="col_is_fk4"><code>col_is_fk( table, column )</code></h3>
 
-<h3 id="`col_is_fk(+table,+column[]+)`"><code>col_is_fk( table, column[] )</code></h3>
+<h3 id="col_is_fk5"><code>col_is_fk( table, column[] )</code></h3>
 
 <pre><code>SELECT col_is_fk(
     'myschema',
@@ -3547,17 +3542,17 @@ simply list all of the foreign key constraint columns, like so:</p>
 #        {surname,given_name}
 </code></pre>
 
-<h3 id="`col_isnt_fk(+schema,+table,+column,+description+)`"><code>col_isnt_fk( schema, table, column, description )</code></h3>
+<h3 id="col_isnt_fk"><code>col_isnt_fk( schema, table, column, description )</code></h3>
 
-<h3 id="`col_isnt_fk(+schema,+table,+column[],+description+)`"><code>col_isnt_fk( schema, table, column[], description )</code></h3>
+<h3 id="col_isnt_fk1"><code>col_isnt_fk( schema, table, column[], description )</code></h3>
 
-<h3 id="`col_isnt_fk(+table,+column,+description+)`"><code>col_isnt_fk( table, column, description )</code></h3>
+<h3 id="col_isnt_fk2"><code>col_isnt_fk( table, column, description )</code></h3>
 
-<h3 id="`col_isnt_fk(+table,+column[],+description+)`"><code>col_isnt_fk( table, column[], description )</code></h3>
+<h3 id="col_isnt_fk3"><code>col_isnt_fk( table, column[], description )</code></h3>
 
-<h3 id="`col_isnt_fk(+table,+column+)`"><code>col_isnt_fk( table, column )</code></h3>
+<h3 id="col_isnt_fk4"><code>col_isnt_fk( table, column )</code></h3>
 
-<h3 id="`col_isnt_fk(+table,+column[]+)`"><code>col_isnt_fk( table, column[] )</code></h3>
+<h3 id="col_isnt_fk5"><code>col_isnt_fk( table, column[] )</code></h3>
 
 <pre><code>SELECT col_isnt_fk(
     'myschema',
@@ -3575,21 +3570,21 @@ SELECT col_isnt_fk(
 <p>This function is the inverse of <code>col_is_fk()</code>. The test passes if the
 specified column or columns are not a foreign key.</p>
 
-<h3 id="`fk_ok(+fk_schema,+fk_table,+fk_column[],+pk_schema,+pk_table,+pk_column[],+description+)`"><code>fk_ok( fk_schema, fk_table, fk_column[], pk_schema, pk_table, pk_column[], description )</code></h3>
+<h3 id="fk_ok"><code>fk_ok( fk_schema, fk_table, fk_column[], pk_schema, pk_table, pk_column[], description )</code></h3>
 
-<h3 id="`fk_ok(+fk_schema,+fk_table,+fk_column[],+fk_schema,+pk_table,+pk_column[]+)`"><code>fk_ok( fk_schema, fk_table, fk_column[], fk_schema, pk_table, pk_column[] )</code></h3>
+<h3 id="fk_ok1"><code>fk_ok( fk_schema, fk_table, fk_column[], fk_schema, pk_table, pk_column[] )</code></h3>
 
-<h3 id="`fk_ok(+fk_table,+fk_column[],+pk_table,+pk_column[],+description+)`"><code>fk_ok( fk_table, fk_column[], pk_table, pk_column[], description )</code></h3>
+<h3 id="fk_ok2"><code>fk_ok( fk_table, fk_column[], pk_table, pk_column[], description )</code></h3>
 
-<h3 id="`fk_ok(+fk_table,+fk_column[],+pk_table,+pk_column[]+)`"><code>fk_ok( fk_table, fk_column[], pk_table, pk_column[] )</code></h3>
+<h3 id="fk_ok3"><code>fk_ok( fk_table, fk_column[], pk_table, pk_column[] )</code></h3>
 
-<h3 id="`fk_ok(+fk_schema,+fk_table,+fk_column,+pk_schema,+pk_table,+pk_column,+description+)`"><code>fk_ok( fk_schema, fk_table, fk_column, pk_schema, pk_table, pk_column, description )</code></h3>
+<h3 id="fk_ok4"><code>fk_ok( fk_schema, fk_table, fk_column, pk_schema, pk_table, pk_column, description )</code></h3>
 
-<h3 id="`fk_ok(+fk_schema,+fk_table,+fk_column,+pk_schema,+pk_table,+pk_column+)`"><code>fk_ok( fk_schema, fk_table, fk_column, pk_schema, pk_table, pk_column )</code></h3>
+<h3 id="fk_ok5"><code>fk_ok( fk_schema, fk_table, fk_column, pk_schema, pk_table, pk_column )</code></h3>
 
-<h3 id="`fk_ok(+fk_table,+fk_column,+pk_table,+pk_column,+description+)`"><code>fk_ok( fk_table, fk_column, pk_table, pk_column, description )</code></h3>
+<h3 id="fk_ok6"><code>fk_ok( fk_table, fk_column, pk_table, pk_column, description )</code></h3>
 
-<h3 id="`fk_ok(+fk_table,+fk_column,+pk_table,+pk_column+)`"><code>fk_ok( fk_table, fk_column, pk_table, pk_column )</code></h3>
+<h3 id="fk_ok7"><code>fk_ok( fk_table, fk_column, pk_table, pk_column )</code></h3>
 
 <pre><code>SELECT fk_ok(
     'myschema',
@@ -3637,11 +3632,11 @@ should reference <code>:pk_column.pk_table(:pk_column)</code>.</p>
 #         want: contacts(person_nick) REFERENCES persons(nick)"
 </code></pre>
 
-<h3 id="`has_unique(+schema,+table,+description+)`"><code>has_unique( schema, table, description )</code></h3>
+<h3 id="has_unique"><code>has_unique( schema, table, description )</code></h3>
 
-<h3 id="`has_unique(+table,+description+)`"><code>has_unique( table, description )</code></h3>
+<h3 id="has_unique1"><code>has_unique( table, description )</code></h3>
 
-<h3 id="`has_unique(+table+)`"><code>has_unique( table )</code></h3>
+<h3 id="has_unique2"><code>has_unique( table )</code></h3>
 
 <pre><code>SELECT has_unique(
     'myschema',
@@ -3657,17 +3652,17 @@ path. If the test description is omitted, it will be set to &ldquo;Table <code>:
 should have a unique constraint&rdquo;. Note that this test will fail if the table
 in question does not exist.</p>
 
-<h3 id="`col_is_unique(+schema,+table,+column,+description+)`"><code>col_is_unique( schema, table, column, description )</code></h3>
+<h3 id="col_is_unique"><code>col_is_unique( schema, table, column, description )</code></h3>
 
-<h3 id="`col_is_unique(+schema,+table,+column[],+description+)`"><code>col_is_unique( schema, table, column[], description )</code></h3>
+<h3 id="col_is_unique1"><code>col_is_unique( schema, table, column[], description )</code></h3>
 
-<h3 id="`col_is_unique(+table,+column,+description+)`"><code>col_is_unique( table, column, description )</code></h3>
+<h3 id="col_is_unique2"><code>col_is_unique( table, column, description )</code></h3>
 
-<h3 id="`col_is_unique(+table,+column[],+description+)`"><code>col_is_unique( table, column[], description )</code></h3>
+<h3 id="col_is_unique3"><code>col_is_unique( table, column[], description )</code></h3>
 
-<h3 id="`col_is_unique(+table,+column+)`"><code>col_is_unique( table, column )</code></h3>
+<h3 id="col_is_unique4"><code>col_is_unique( table, column )</code></h3>
 
-<h3 id="`col_is_unique(+table,+column[]+)`"><code>col_is_unique( table, column[] )</code></h3>
+<h3 id="col_is_unique5"><code>col_is_unique( table, column[] )</code></h3>
 
 <pre><code>SELECT col_is_unique(
     'myschema',
@@ -3685,11 +3680,11 @@ SELECT col_is_unique(
 <p>Just like <code>col_is_pk()</code>, except that it test that the column or array of
 columns have a unique constraint on them.</p>
 
-<h3 id="`has_check(+schema,+table,+description+)`"><code>has_check( schema, table, description )</code></h3>
+<h3 id="has_check"><code>has_check( schema, table, description )</code></h3>
 
-<h3 id="`has_check(+table,+description+)`"><code>has_check( table, description )</code></h3>
+<h3 id="has_check1"><code>has_check( table, description )</code></h3>
 
-<h3 id="`has_check(+table+)`"><code>has_check( table )</code></h3>
+<h3 id="has_check2"><code>has_check( table )</code></h3>
 
 <pre><code>SELECT has_check(
     'myschema',
@@ -3705,17 +3700,17 @@ test description is omitted, it will be set to &ldquo;Table <code>:table</code> 
 check constraint&rdquo;. Note that this test will fail if the table in question does
 not exist.</p>
 
-<h3 id="`col_has_check(+schema,+table,+column,+description+)`"><code>col_has_check( schema, table, column, description )</code></h3>
+<h3 id="col_has_check"><code>col_has_check( schema, table, column, description )</code></h3>
 
-<h3 id="`col_has_check(+schema,+table,+column[],+description+)`"><code>col_has_check( schema, table, column[], description )</code></h3>
+<h3 id="col_has_check1"><code>col_has_check( schema, table, column[], description )</code></h3>
 
-<h3 id="`col_has_check(+table,+column,+description+)`"><code>col_has_check( table, column, description )</code></h3>
+<h3 id="col_has_check2"><code>col_has_check( table, column, description )</code></h3>
 
-<h3 id="`col_has_check(+table,+column[],+description+)`"><code>col_has_check( table, column[], description )</code></h3>
+<h3 id="col_has_check3"><code>col_has_check( table, column[], description )</code></h3>
 
-<h3 id="`col_has_check(+table,+column+)`"><code>col_has_check( table, column )</code></h3>
+<h3 id="col_has_check4"><code>col_has_check( table, column )</code></h3>
 
-<h3 id="`col_has_check(+table,+column[]+)`"><code>col_has_check( table, column[] )</code></h3>
+<h3 id="col_has_check5"><code>col_has_check( table, column[] )</code></h3>
 
 <pre><code>SELECT col_has_check(
     'myschema',
@@ -3733,13 +3728,13 @@ SELECT col_has_check(
 <p>Just like <code>col_is_pk()</code>, except that it test that the column or array of
 columns have a check constraint on them.</p>
 
-<h3 id="`index_is_unique(+schema,+table,+index,+description+)`"><code>index_is_unique( schema, table, index, description )</code></h3>
+<h3 id="index_is_unique"><code>index_is_unique( schema, table, index, description )</code></h3>
 
-<h3 id="`index_is_unique(+schema,+table,+index+)`"><code>index_is_unique( schema, table, index )</code></h3>
+<h3 id="index_is_unique1"><code>index_is_unique( schema, table, index )</code></h3>
 
-<h3 id="`index_is_unique(+table,+index+)`"><code>index_is_unique( table, index )</code></h3>
+<h3 id="index_is_unique2"><code>index_is_unique( table, index )</code></h3>
 
-<h3 id="`index_is_unique(+index+)`"><code>index_is_unique( index )</code></h3>
+<h3 id="index_is_unique3"><code>index_is_unique( index )</code></h3>
 
 <pre><code>SELECT index_is_unique(
     'myschema',
@@ -3753,13 +3748,13 @@ SELECT index_is_unique( 'sometable', 'myindex' );
 
 <p>Tests whether an index is unique.</p>
 
-<h3 id="`index_is_primary(+schema,+table,+index,+description+)`"><code>index_is_primary( schema, table, index, description )</code></h3>
+<h3 id="index_is_primary"><code>index_is_primary( schema, table, index, description )</code></h3>
 
-<h3 id="`index_is_primary(+schema,+table,+index+)`"><code>index_is_primary( schema, table, index )</code></h3>
+<h3 id="index_is_primary1"><code>index_is_primary( schema, table, index )</code></h3>
 
-<h3 id="`index_is_primary(+table,+index+)`"><code>index_is_primary( table, index )</code></h3>
+<h3 id="index_is_primary2"><code>index_is_primary( table, index )</code></h3>
 
-<h3 id="`index_is_primary(+index+)`"><code>index_is_primary( index )</code></h3>
+<h3 id="index_is_primary3"><code>index_is_primary( index )</code></h3>
 
 <pre><code>SELECT index_is_primary(
     'myschema',
@@ -3773,13 +3768,13 @@ SELECT index_is_primary( 'sometable', 'myindex' );
 
 <p>Tests whether an index is on a primary key.</p>
 
-<h3 id="`is_clustered(+schema,+table,+index,+description+)`"><code>is_clustered( schema, table, index, description )</code></h3>
+<h3 id="is_clustered"><code>is_clustered( schema, table, index, description )</code></h3>
 
-<h3 id="`is_clustered(+schema,+table,+index+)`"><code>is_clustered( schema, table, index )</code></h3>
+<h3 id="is_clustered1"><code>is_clustered( schema, table, index )</code></h3>
 
-<h3 id="`is_clustered(+table,+index+)`"><code>is_clustered( table, index )</code></h3>
+<h3 id="is_clustered2"><code>is_clustered( table, index )</code></h3>
 
-<h3 id="`is_clustered(+index+)`"><code>is_clustered( index )</code></h3>
+<h3 id="is_clustered3"><code>is_clustered( index )</code></h3>
 
 <pre><code>SELECT is_clustered(
     'myschema',
@@ -3796,13 +3791,13 @@ an index when the SQL command <code>CLUSTER TABLE INDEXNAME</code> has been exec
 Clustering reorganizes the table tuples so that they are stored on disk in the
 order defined by the index.</p>
 
-<h3 id="`index_is_type(+schema,+table,+index,+type,+description+)`"><code>index_is_type( schema, table, index, type, description )</code></h3>
+<h3 id="index_is_type"><code>index_is_type( schema, table, index, type, description )</code></h3>
 
-<h3 id="`index_is_type(+schema,+table,+index,+type+)`"><code>index_is_type( schema, table, index, type )</code></h3>
+<h3 id="index_is_type1"><code>index_is_type( schema, table, index, type )</code></h3>
 
-<h3 id="`index_is_type(+table,+index,+type+)`"><code>index_is_type( table, index, type )</code></h3>
+<h3 id="index_is_type2"><code>index_is_type( table, index, type )</code></h3>
 
-<h3 id="`index_is_type(+index,+type+)`"><code>index_is_type( index, type )</code></h3>
+<h3 id="index_is_type3"><code>index_is_type( index, type )</code></h3>
 
 <pre><code>SELECT index_is_type(
     'myschema',
@@ -3842,13 +3837,13 @@ clients to interact with the database, making sure that they work will save
 you time in the long run. So check out these assertions to maintain your
 sanity.</p>
 
-<h3 id="`can(+schema,+functions[],+description+)`"><code>can( schema, functions[], description )</code></h3>
+<h3 id="can"><code>can( schema, functions[], description )</code></h3>
 
-<h3 id="`can(+schema,+functions[]+)`"><code>can( schema, functions[] )</code></h3>
+<h3 id="can1"><code>can( schema, functions[] )</code></h3>
 
-<h3 id="`can(+functions[],+description+)`"><code>can( functions[], description )</code></h3>
+<h3 id="can2"><code>can( functions[], description )</code></h3>
 
-<h3 id="`can(+functions[]+)`"><code>can( functions[] )</code></h3>
+<h3 id="can3"><code>can( functions[] )</code></h3>
 
 <pre><code>SELECT can( 'pg_catalog', ARRAY['upper', 'lower'] );
 </code></pre>
@@ -3872,21 +3867,21 @@ diagnostics will output a list of the functions that are missing, like so:</p>
 #     pg_catalog.bar() missing
 </code></pre>
 
-<h3 id="`function_lang_is(+schema,+function,+args[],+language,+description+)`"><code>function_lang_is( schema, function, args[], language, description )</code></h3>
+<h3 id="function_lang_is"><code>function_lang_is( schema, function, args[], language, description )</code></h3>
 
-<h3 id="`function_lang_is(+schema,+function,+args[],+language+)`"><code>function_lang_is( schema, function, args[], language )</code></h3>
+<h3 id="function_lang_is1"><code>function_lang_is( schema, function, args[], language )</code></h3>
 
-<h3 id="`function_lang_is(+schema,+function,+language,+description+)`"><code>function_lang_is( schema, function, language, description )</code></h3>
+<h3 id="function_lang_is2"><code>function_lang_is( schema, function, language, description )</code></h3>
 
-<h3 id="`function_lang_is(+schema,+function,+language+)`"><code>function_lang_is( schema, function, language )</code></h3>
+<h3 id="function_lang_is3"><code>function_lang_is( schema, function, language )</code></h3>
 
-<h3 id="`function_lang_is(+function,+args[],+language,+description+)`"><code>function_lang_is( function, args[], language, description )</code></h3>
+<h3 id="function_lang_is4"><code>function_lang_is( function, args[], language, description )</code></h3>
 
-<h3 id="`function_lang_is(+function,+args[],+language+)`"><code>function_lang_is( function, args[], language )</code></h3>
+<h3 id="function_lang_is5"><code>function_lang_is( function, args[], language )</code></h3>
 
-<h3 id="`function_lang_is(+function,+language,+description+)`"><code>function_lang_is( function, language, description )</code></h3>
+<h3 id="function_lang_is6"><code>function_lang_is( function, language, description )</code></h3>
 
-<h3 id="`function_lang_is(+function,+language+)`"><code>function_lang_is( function, language )</code></h3>
+<h3 id="function_lang_is7"><code>function_lang_is( function, language )</code></h3>
 
 <pre><code>SELECT function_lang_is(
     'myschema',
@@ -3926,21 +3921,21 @@ wrong, for example:</p>
 
 <p>But then you check with <code>has_function()</code> first, right?</p>
 
-<h3 id="`function_returns(+schema,+function,+args[],+type,+description+)`"><code>function_returns( schema, function, args[], type, description )</code></h3>
+<h3 id="function_returns"><code>function_returns( schema, function, args[], type, description )</code></h3>
 
-<h3 id="`function_returns(+schema,+function,+args[],+type+)`"><code>function_returns( schema, function, args[], type )</code></h3>
+<h3 id="function_returns1"><code>function_returns( schema, function, args[], type )</code></h3>
 
-<h3 id="`function_returns(+schema,+function,+type,+description+)`"><code>function_returns( schema, function, type, description )</code></h3>
+<h3 id="function_returns2"><code>function_returns( schema, function, type, description )</code></h3>
 
-<h3 id="`function_returns(+schema,+function,+type+)`"><code>function_returns( schema, function, type )</code></h3>
+<h3 id="function_returns3"><code>function_returns( schema, function, type )</code></h3>
 
-<h3 id="`function_returns(+function,+args[],+type,+description+)`"><code>function_returns( function, args[], type, description )</code></h3>
+<h3 id="function_returns4"><code>function_returns( function, args[], type, description )</code></h3>
 
-<h3 id="`function_returns(+function,+args[],+type+)`"><code>function_returns( function, args[], type )</code></h3>
+<h3 id="function_returns5"><code>function_returns( function, args[], type )</code></h3>
 
-<h3 id="`function_returns(+function,+type,+description+)`"><code>function_returns( function, type, description )</code></h3>
+<h3 id="function_returns6"><code>function_returns( function, type, description )</code></h3>
 
-<h3 id="`function_returns(+function,+type+)`"><code>function_returns( function, type )</code></h3>
+<h3 id="function_returns7"><code>function_returns( function, type )</code></h3>
 
 <pre><code>SELECT function_returns(
     'myschema',
@@ -3985,21 +3980,21 @@ wrong, for example:</p>
 
 <p>But then you check with <code>has_function()</code> first, right?</p>
 
-<h3 id="`is_definer(+schema,+function,+args[],+description+)`"><code>is_definer( schema, function, args[], description )</code></h3>
+<h3 id="is_definer"><code>is_definer( schema, function, args[], description )</code></h3>
 
-<h3 id="`is_definer(+schema,+function,+args[]+)`"><code>is_definer( schema, function, args[] )</code></h3>
+<h3 id="is_definer1"><code>is_definer( schema, function, args[] )</code></h3>
 
-<h3 id="`is_definer(+schema,+function,+description+)`"><code>is_definer( schema, function, description )</code></h3>
+<h3 id="is_definer2"><code>is_definer( schema, function, description )</code></h3>
 
-<h3 id="`is_definer(+schema,+function+)`"><code>is_definer( schema, function )</code></h3>
+<h3 id="is_definer3"><code>is_definer( schema, function )</code></h3>
 
-<h3 id="`is_definer(+function,+args[],+description+)`"><code>is_definer( function, args[], description )</code></h3>
+<h3 id="is_definer4"><code>is_definer( function, args[], description )</code></h3>
 
-<h3 id="`is_definer(+function,+args[]+)`"><code>is_definer( function, args[] )</code></h3>
+<h3 id="is_definer5"><code>is_definer( function, args[] )</code></h3>
 
-<h3 id="`is_definer(+function,+description+)`"><code>is_definer( function, description )</code></h3>
+<h3 id="is_definer6"><code>is_definer( function, description )</code></h3>
 
-<h3 id="`is_definer(+function+)`"><code>is_definer( function )</code></h3>
+<h3 id="is_definer7"><code>is_definer( function )</code></h3>
 
 <pre><code>SELECT is_definer(
     'myschema',
@@ -4029,21 +4024,21 @@ will be created.</p>
 
 <p>But then you check with <code>has_function()</code> first, right?</p>
 
-<h3 id="`is_strict(+schema,+function,+args[],+description+)`"><code>is_strict( schema, function, args[], description )</code></h3>
+<h3 id="is_strict"><code>is_strict( schema, function, args[], description )</code></h3>
 
-<h3 id="`is_strict(+schema,+function,+args[]+)`"><code>is_strict( schema, function, args[] )</code></h3>
+<h3 id="is_strict1"><code>is_strict( schema, function, args[] )</code></h3>
 
-<h3 id="`is_strict(+schema,+function,+description+)`"><code>is_strict( schema, function, description )</code></h3>
+<h3 id="is_strict2"><code>is_strict( schema, function, description )</code></h3>
 
-<h3 id="`is_strict(+schema,+function+)`"><code>is_strict( schema, function )</code></h3>
+<h3 id="is_strict3"><code>is_strict( schema, function )</code></h3>
 
-<h3 id="`is_strict(+function,+args[],+description+)`"><code>is_strict( function, args[], description )</code></h3>
+<h3 id="is_strict4"><code>is_strict( function, args[], description )</code></h3>
 
-<h3 id="`is_strict(+function,+args[]+)`"><code>is_strict( function, args[] )</code></h3>
+<h3 id="is_strict5"><code>is_strict( function, args[] )</code></h3>
 
-<h3 id="`is_strict(+function,+description+)`"><code>is_strict( function, description )</code></h3>
+<h3 id="is_strict6"><code>is_strict( function, description )</code></h3>
 
-<h3 id="`is_strict(+function+)`"><code>is_strict( function )</code></h3>
+<h3 id="is_strict7"><code>is_strict( function )</code></h3>
 
 <pre><code>SELECT is_strict(
     'myschema',
@@ -4073,21 +4068,21 @@ reasonable substitute will be created.</p>
 
 <p>But then you check with <code>has_function()</code> first, right?</p>
 
-<h3 id="`is_aggregate(+schema,+function,+args[],+description+)`"><code>is_aggregate( schema, function, args[], description )</code></h3>
+<h3 id="is_aggregate"><code>is_aggregate( schema, function, args[], description )</code></h3>
 
-<h3 id="`is_aggregate(+schema,+function,+args[]+)`"><code>is_aggregate( schema, function, args[] )</code></h3>
+<h3 id="is_aggregate1"><code>is_aggregate( schema, function, args[] )</code></h3>
 
-<h3 id="`is_aggregate(+schema,+function,+description+)`"><code>is_aggregate( schema, function, description )</code></h3>
+<h3 id="is_aggregate2"><code>is_aggregate( schema, function, description )</code></h3>
 
-<h3 id="`is_aggregate(+schema,+function+)`"><code>is_aggregate( schema, function )</code></h3>
+<h3 id="is_aggregate3"><code>is_aggregate( schema, function )</code></h3>
 
-<h3 id="`is_aggregate(+function,+args[],+description+)`"><code>is_aggregate( function, args[], description )</code></h3>
+<h3 id="is_aggregate4"><code>is_aggregate( function, args[], description )</code></h3>
 
-<h3 id="`is_aggregate(+function,+args[]+)`"><code>is_aggregate( function, args[] )</code></h3>
+<h3 id="is_aggregate5"><code>is_aggregate( function, args[] )</code></h3>
 
-<h3 id="`is_aggregate(+function,+description+)`"><code>is_aggregate( function, description )</code></h3>
+<h3 id="is_aggregate6"><code>is_aggregate( function, description )</code></h3>
 
-<h3 id="`is_aggregate(+function+)`"><code>is_aggregate( function )</code></h3>
+<h3 id="is_aggregate7"><code>is_aggregate( function )</code></h3>
 
 <pre><code>SELECT is_aggregate(
     'myschema',
@@ -4116,21 +4111,21 @@ If the <code>:description</code> is omitted, a reasonable substitute will be cre
 
 <p>But then you check with <code>has_function()</code> first, right?</p>
 
-<h3 id="`volatility_is(+schema,+function,+args[],+volatility,+description+)`"><code>volatility_is( schema, function, args[], volatility, description )</code></h3>
+<h3 id="volatility_is"><code>volatility_is( schema, function, args[], volatility, description )</code></h3>
 
-<h3 id="`volatility_is(+schema,+function,+args[],+volatility+)`"><code>volatility_is( schema, function, args[], volatility )</code></h3>
+<h3 id="volatility_is1"><code>volatility_is( schema, function, args[], volatility )</code></h3>
 
-<h3 id="`volatility_is(+schema,+function,+volatility,+description+)`"><code>volatility_is( schema, function, volatility, description )</code></h3>
+<h3 id="volatility_is2"><code>volatility_is( schema, function, volatility, description )</code></h3>
 
-<h3 id="`volatility_is(+schema,+function,+volatility+)`"><code>volatility_is( schema, function, volatility )</code></h3>
+<h3 id="volatility_is3"><code>volatility_is( schema, function, volatility )</code></h3>
 
-<h3 id="`volatility_is(+function,+args[],+volatility,+description+)`"><code>volatility_is( function, args[], volatility, description )</code></h3>
+<h3 id="volatility_is4"><code>volatility_is( function, args[], volatility, description )</code></h3>
 
-<h3 id="`volatility_is(+function,+args[],+volatility+)`"><code>volatility_is( function, args[], volatility )</code></h3>
+<h3 id="volatility_is5"><code>volatility_is( function, args[], volatility )</code></h3>
 
-<h3 id="`volatility_is(+function,+volatility,+description+)`"><code>volatility_is( function, volatility, description )</code></h3>
+<h3 id="volatility_is6"><code>volatility_is( function, volatility, description )</code></h3>
 
-<h3 id="`volatility_is(+function,+volatility+)`"><code>volatility_is( function, volatility )</code></h3>
+<h3 id="volatility_is7"><code>volatility_is( function, volatility )</code></h3>
 
 <pre><code>SELECT volatility_is(
     'myschema',
@@ -4172,13 +4167,13 @@ wrong, for example:</p>
 
 <p>But then you check with <code>has_function()</code> first, right?</p>
 
-<h3 id="`trigger_is(+schema,+table,+trigger,+schema,+function,+description+)`"><code>trigger_is( schema, table, trigger, schema, function, description )</code></h3>
+<h3 id="trigger_is"><code>trigger_is( schema, table, trigger, schema, function, description )</code></h3>
 
-<h3 id="`trigger_is(+schema,+table,+trigger,+schema,+function+)`"><code>trigger_is( schema, table, trigger, schema, function )</code></h3>
+<h3 id="trigger_is1"><code>trigger_is( schema, table, trigger, schema, function )</code></h3>
 
-<h3 id="`trigger_is(+table,+trigger,+function,+description+)`"><code>trigger_is( table, trigger, function, description )</code></h3>
+<h3 id="trigger_is2"><code>trigger_is( table, trigger, function, description )</code></h3>
 
-<h3 id="`trigger_is(+table,+trigger,+function+)`"><code>trigger_is( table, trigger, function )</code></h3>
+<h3 id="trigger_is3"><code>trigger_is( table, trigger, function )</code></h3>
 
 <pre><code>SELECT trigger_is(
     'myschema',
@@ -4204,9 +4199,9 @@ a useful diagnostic:</p>
 know. These assertions close the gap by letting you test the attributes of
 other database objects.</p>
 
-<h3 id="`language_is_trusted(+language,+description+)`"><code>language_is_trusted( language, description )</code></h3>
+<h3 id="language_is_trusted"><code>language_is_trusted( language, description )</code></h3>
 
-<h3 id="`language_is_trusted(+language+)`"><code>language_is_trusted( language )</code></h3>
+<h3 id="language_is_trusted1"><code>language_is_trusted( language )</code></h3>
 
 <pre><code>SELECT language_is_trusted( 'plperl', 'PL/Perl should be trusted' );
 </code></pre>
@@ -4227,13 +4222,13 @@ fact, like so:</p>
 <p>But you really ought to call <code>has_language()</code> first so that you never get that
 far.</p>
 
-<h3 id="`enum_has_labels(+schema,+enum,+labels,+desc+)`"><code>enum_has_labels( schema, enum, labels, desc )</code></h3>
+<h3 id="enum_has_labels"><code>enum_has_labels( schema, enum, labels, desc )</code></h3>
 
-<h3 id="`enum_has_labels(+schema,+enum,+labels+)`"><code>enum_has_labels( schema, enum, labels )</code></h3>
+<h3 id="enum_has_labels1"><code>enum_has_labels( schema, enum, labels )</code></h3>
 
-<h3 id="`enum_has_labels(+enum,+labels,+desc+)`"><code>enum_has_labels( enum, labels, desc )</code></h3>
+<h3 id="enum_has_labels2"><code>enum_has_labels( enum, labels, desc )</code></h3>
 
-<h3 id="`enum_has_labels(+enum,+labels+)`"><code>enum_has_labels( enum, labels )</code></h3>
+<h3 id="enum_has_labels3"><code>enum_has_labels( enum, labels )</code></h3>
 
 <pre><code>SELECT enum_has_labels(
     'myschema',
@@ -4250,17 +4245,17 @@ fourth a description. If you omit the schema, the enum must be visible in the
 search path. If you omit the test description, it will be set to &ldquo;Enum <code>:enum</code>
 should have labels (<code>:labels</code>)&rdquo;.</p>
 
-<h3 id="`domain_type_is(+schema,+domain,+schema,+type,+description+)`"><code>domain_type_is( schema, domain, schema, type, description )</code></h3>
+<h3 id="domain_type_is"><code>domain_type_is( schema, domain, schema, type, description )</code></h3>
 
-<h3 id="`domain_type_is(+schema,+domain,+schema,+type+)`"><code>domain_type_is( schema, domain, schema, type )</code></h3>
+<h3 id="domain_type_is1"><code>domain_type_is( schema, domain, schema, type )</code></h3>
 
-<h3 id="`domain_type_is(+schema,+domain,+type,+description+)`"><code>domain_type_is( schema, domain, type, description )</code></h3>
+<h3 id="domain_type_is2"><code>domain_type_is( schema, domain, type, description )</code></h3>
 
-<h3 id="`domain_type_is(+schema,+domain,+type+)`"><code>domain_type_is( schema, domain, type )</code></h3>
+<h3 id="domain_type_is3"><code>domain_type_is( schema, domain, type )</code></h3>
 
-<h3 id="`domain_type_is(+domain,+type,+description+)`"><code>domain_type_is( domain, type, description )</code></h3>
+<h3 id="domain_type_is4"><code>domain_type_is( domain, type, description )</code></h3>
 
-<h3 id="`domain_type_is(+domain,+type+)`"><code>domain_type_is( domain, type )</code></h3>
+<h3 id="domain_type_is5"><code>domain_type_is( domain, type )</code></h3>
 
 <pre><code>SELECT domain_type_is(
     'public', 'us_postal_code',
@@ -4292,17 +4287,17 @@ diagnostics that tell you so:</p>
 #    Domain public.zip_code does not exist
 </code></pre>
 
-<h3 id="`domain_type_isnt(+schema,+domain,+schema,+type,+description+)`"><code>domain_type_isnt( schema, domain, schema, type, description )</code></h3>
+<h3 id="domain_type_isnt"><code>domain_type_isnt( schema, domain, schema, type, description )</code></h3>
 
-<h3 id="`domain_type_isnt(+schema,+domain,+schema,+type+)`"><code>domain_type_isnt( schema, domain, schema, type )</code></h3>
+<h3 id="domain_type_isnt1"><code>domain_type_isnt( schema, domain, schema, type )</code></h3>
 
-<h3 id="`domain_type_isnt(+schema,+domain,+type,+description+)`"><code>domain_type_isnt( schema, domain, type, description )</code></h3>
+<h3 id="domain_type_isnt2"><code>domain_type_isnt( schema, domain, type, description )</code></h3>
 
-<h3 id="`domain_type_isnt(+schema,+domain,+type+)`"><code>domain_type_isnt( schema, domain, type )</code></h3>
+<h3 id="domain_type_isnt3"><code>domain_type_isnt( schema, domain, type )</code></h3>
 
-<h3 id="`domain_type_isnt(+domain,+type,+description+)`"><code>domain_type_isnt( domain, type, description )</code></h3>
+<h3 id="domain_type_isnt4"><code>domain_type_isnt( domain, type, description )</code></h3>
 
-<h3 id="`domain_type_isnt(+domain,+type+)`"><code>domain_type_isnt( domain, type )</code></h3>
+<h3 id="domain_type_isnt5"><code>domain_type_isnt( domain, type )</code></h3>
 
 <pre><code>SELECT domain_type_isnt(
     'public', 'us_postal_code',
@@ -4316,9 +4311,9 @@ diagnostics that tell you so:</p>
 should probably extned the <code>text</code> type, not <code>integer</code>, since leading 0s are
 valid and required. The arguments are the same as for <code>domain_type_is()</code>.</p>
 
-<h3 id="`cast_context_is(+source_type,+target_type,+context,+desc+)`"><code>cast_context_is( source_type, target_type, context, desc )</code></h3>
+<h3 id="cast_context_is"><code>cast_context_is( source_type, target_type, context, desc )</code></h3>
 
-<h3 id="`cast_context_is(+source_type,+target_type,+context+)`"><code>cast_context_is( source_type, target_type, context )</code></h3>
+<h3 id="cast_context_is1"><code>cast_context_is( source_type, target_type, context )</code></h3>
 
 <pre><code>SELECT cast_context_is( 'integer', 'bigint', 'implicit' );
 </code></pre>
@@ -4350,9 +4345,9 @@ don&rsquo;t supply a test description, pgTAP will create a reasonable one for yo
 
 <p>But you've already used <code>has_cast()</code> to make sure of that, right?</p>
 
-<h3 id="`is_superuser(+user,+desc+)`"><code>is_superuser( user, desc )</code></h3>
+<h3 id="is_superuser"><code>is_superuser( user, desc )</code></h3>
 
-<h3 id="`is_superuser(+user+)`"><code>is_superuser( user )</code></h3>
+<h3 id="is_superuser1"><code>is_superuser( user )</code></h3>
 
 <pre><code>SELECT is_superuser( 'theory', 'User "theory" should be a super user' );
 </code></pre>
@@ -4361,9 +4356,9 @@ don&rsquo;t supply a test description, pgTAP will create a reasonable one for yo
 will default to &ldquo;User <code>:user</code> should be a super user&rdquo;. If the user does not
 exist in the database, the diagnostics will say so.</p>
 
-<h3 id="`isnt_superuser(+user,+desc+)`"><code>isnt_superuser( user, desc )</code></h3>
+<h3 id="isnt_superuser"><code>isnt_superuser( user, desc )</code></h3>
 
-<h3 id="`isnt_superuser(+user+)`"><code>isnt_superuser( user )</code></h3>
+<h3 id="isnt_superuser1"><code>isnt_superuser( user )</code></h3>
 
 <pre><code>SELECT is_superuser(
     'dr_evil',
@@ -4376,13 +4371,13 @@ exist in the database, the diagnostics will say so.</p>
 database, the test is still considered a failure, and the diagnostics will say
 so.</p>
 
-<h3 id="`is_member_of(+group,+users[],+desc+)`"><code>is_member_of( group, users[], desc )</code></h3>
+<h3 id="is_member_of"><code>is_member_of( group, users[], desc )</code></h3>
 
-<h3 id="`is_member_of(+group,+users[]+)`"><code>is_member_of( group, users[] )</code></h3>
+<h3 id="is_member_of1"><code>is_member_of( group, users[] )</code></h3>
 
-<h3 id="`is_member_of(+group,+users,+desc+)`"><code>is_member_of( group, users, desc )</code></h3>
+<h3 id="is_member_of2"><code>is_member_of( group, user, desc )</code></h3>
 
-<h3 id="`is_member_of(+group,+users+)`"><code>is_member_of( group, users )</code></h3>
+<h3 id="is_member_of3"><code>is_member_of( group, user )</code></h3>
 
 <pre><code>SELECT is_member_of( 'sweeties', 'anna' 'Anna should be a sweetie' );
 SELECT is_member_of( 'meanies', ARRAY['dr_evil', 'dr_no' ] );
@@ -4403,13 +4398,13 @@ missing users, like so:</p>
 you use <code>has_group()</code> to make sure the group exists before you check its
 members, don&rsquo;t you? Of course you do.</p>
 
-<h3 id="`rule_is_instead(+schema,+table,+rule,+description+)`"><code>rule_is_instead( schema, table, rule, description )</code></h3>
+<h3 id="rule_is_instead"><code>rule_is_instead( schema, table, rule, description )</code></h3>
 
-<h3 id="`rule_is_instead(+schema,+table,+rule+)`"><code>rule_is_instead( schema, table, rule )</code></h3>
+<h3 id="rule_is_instead1"><code>rule_is_instead( schema, table, rule )</code></h3>
 
-<h3 id="`rule_is_instead(+table,+rule,+description+)`"><code>rule_is_instead( table, rule, description )</code></h3>
+<h3 id="rule_is_instead2"><code>rule_is_instead( table, rule, description )</code></h3>
 
-<h3 id="`rule_is_instead(+table,+rule+)`"><code>rule_is_instead( table, rule )</code></h3>
+<h3 id="rule_is_instead3"><code>rule_is_instead( table, rule )</code></h3>
 
 <pre><code>SELECT rule_is_instead(
     'public',
@@ -4432,13 +4427,13 @@ appropriate diagnostic such as:</p>
 #     Rule on_insert does not exist
 </code></pre>
 
-<h3 id="`rule_is_on(+schema,+table,+rule,+event,+description+)`"><code>rule_is_on( schema, table, rule, event, description )</code></h3>
+<h3 id="rule_is_on"><code>rule_is_on( schema, table, rule, event, description )</code></h3>
 
-<h3 id="`rule_is_on(+schema,+table,+rule,+event+)`"><code>rule_is_on( schema, table, rule, event )</code></h3>
+<h3 id="rule_is_on1"><code>rule_is_on( schema, table, rule, event )</code></h3>
 
-<h3 id="`rule_is_on(+table,+rule,+event,+description+)`"><code>rule_is_on( table, rule, event, description )</code></h3>
+<h3 id="rule_is_on2"><code>rule_is_on( table, rule, event, description )</code></h3>
 
-<h3 id="`rule_is_on(+table,+rule,+event+)`"><code>rule_is_on( table, rule, event )</code></h3>
+<h3 id="rule_is_on3"><code>rule_is_on( table, rule, event )</code></h3>
 
 <pre><code>SELECT rule_is_on(
     'public',
@@ -4485,7 +4480,7 @@ went wrong when it failed. But sometimes it doesn&rsquo;t work out that way. So 
 we have ways for you to write your own diagnostic messages which are safer
 than just <code>\echo</code> or <code>SELECT foo</code>.</p>
 
-<h3 id="`diag(+text+)`"><code>diag( text )</code></h3>
+<h3 id="diag"><code>diag( text )</code></h3>
 
 <p>Returns a diagnostic message which is guaranteed not to interfere with
 test output. Handy for this sort of thing:</p>
@@ -4517,13 +4512,13 @@ procedural language), or a contrib module isn&rsquo;t available. In these cases 
 necessary to skip tests, or declare that they are supposed to fail but will
 work in the future (a todo test).</p>
 
-<h3 id="`skip(+why,+how_many+)`"><code>skip( why, how_many )</code></h3>
+<h3 id="skip"><code>skip( why, how_many )</code></h3>
 
-<h3 id="`skip(+how_many,+why+)`"><code>skip( how_many, why )</code></h3>
+<h3 id="skip1"><code>skip( how_many, why )</code></h3>
 
-<h3 id="`skip(+why+)`"><code>skip( why )</code></h3>
+<h3 id="skip2"><code>skip( why )</code></h3>
 
-<h3 id="`skip(+how_many+)`"><code>skip( how_many )</code></h3>
+<h3 id="skip3"><code>skip( how_many )</code></h3>
 
 <p>Outputs SKIP test results. Use it in a conditional expression within a
 <code>SELECT</code> statement to replace the output of a test that you otherwise would
@@ -4565,18 +4560,18 @@ multiple rows:</p>
 <p>This will cause it to skip the same number of rows as would have been tested
 had the <code>WHEN</code> condition been true.</p>
 
-<h3 id="`todo(+why,+how_many+)`"><code>todo( why, how_many )</code></h3>
+<h3 id="todo"><code>todo( why, how_many )</code></h3>
 
-<h3 id="`todo(+how_many,+why+)`"><code>todo( how_many, why )</code></h3>
+<h3 id="todo1"><code>todo( how_many, why )</code></h3>
 
-<h3 id="`todo(+how_many+)`"><code>todo( how_many )</code></h3>
+<h3 id="todo2"><code>todo( how_many )</code></h3>
 
-<h3 id="`todo(+why+)`"><code>todo( why )</code></h3>
+<h3 id="todo3"><code>todo( why )</code></h3>
 
 <p>Declares a series of tests that you expect to fail and why. Perhaps it&rsquo;s
 because you haven&rsquo;t fixed a bug or haven&rsquo;t finished a new feature:</p>
 
-<pre><code>todo('URIGeller not finished', 2);
+<pre><code>SELECT todo('URIGeller not finished', 2);
 
 \set card '\'' Eight of clubs '\''
 SELECT is( URIGeller.yourCard(), :card, 'Is THIS your card?' );
@@ -4595,9 +4590,9 @@ tests, is that they're like a programmatic todo list. You know how much work
 is left to be done, you're aware of what bugs there are, and you'll know
 immediately when they're fixed.</p>
 
-<h3 id="`todo_start(+:why+)`"><code>todo_start( :why )</code></h3>
+<h3 id="todo_start"><code>todo_start( :why )</code></h3>
 
-<h3 id="`todo_start(+)`"><code>todo_start( )</code></h3>
+<h3 id="todo_start1"><code>todo_start( )</code></h3>
 
 <p>This function allows you declare all subsequent tests as TODO tests, up until
 the <code>todo_end()</code> function is called.</p>
@@ -4650,7 +4645,7 @@ preceding <code>todo_start()</code> method call.</p>
 <p>Along with the usual array of testing, planning, and diagnostic functions,
 pTAP provides a few extra functions to make the work of testing more pleasant.</p>
 
-<h3 id="`pgtap_version()`"><code>pgtap_version()</code></h3>
+<h3 id="pgtap_version"><code>pgtap_version()</code></h3>
 
 <pre><code>SELECT pgtap_version();
 </code></pre>
@@ -4664,7 +4659,7 @@ and thus suitable for comparing to a decimal value:</p>
     END;
 </code></pre>
 
-<h3 id="`pg_version()`"><code>pg_version()</code></h3>
+<h3 id="pg_version"><code>pg_version()</code></h3>
 
 <pre><code>SELECT pg_version();
 </code></pre>
@@ -4680,7 +4675,7 @@ the stringified version number displayed in the first part of the core
 (1 row)
 </code></pre>
 
-<h3 id="`pg_version_num()`"><code>pg_version_num()</code></h3>
+<h3 id="pg_version_num"><code>pg_version_num()</code></h3>
 
 <pre><code>SELECT pg_version_num();
 </code></pre>
@@ -4709,7 +4704,7 @@ PostgreSQL 8.0:</p>
  80304           |          80304
 </code></pre>
 
-<h3 id="`os_name()`"><code>os_name()</code></h3>
+<h3 id="os_name"><code>os_name()</code></h3>
 
 <pre><code>SELECT os_name();
 </code></pre>
@@ -4726,7 +4721,7 @@ appreciated.</p>
 <p><strong>NOTE:</strong> The values returned by this function may change in the future,
 depending on how good the pgTAP build process gets at detecting a OS.</p>
 
-<h3 id="`collect_tap(tap[])`"><code>collect_tap(tap[])</code></h3>
+<h3 id="collect_tap"><code>collect_tap(tap[])</code></h3>
 
 <pre><code>SELECT collect_tap(
     ok(true, 'This should pass'),
@@ -4758,9 +4753,9 @@ when used in combination with <code>skip()</code>:</p>
 ]);
 </code></pre>
 
-<h3 id="`display_type(+schema,+type_oid,+typemod+)`"><code>display_type( schema, type_oid, typemod )</code></h3>
+<h3 id="display_type"><code>display_type( schema, type_oid, typemod )</code></h3>
 
-<h3 id="`display_type(+type_oid,+typemod+)`"><code>display_type( type_oid, typemod )</code></h3>
+<h3 id="display_type1"><code>display_type( type_oid, typemod )</code></h3>
 
 <pre><code>SELECT display_type('public', 'varchar'::regtype, NULL );
 SELECT display_type('numeric'::regtype, 196612 );
@@ -4770,7 +4765,7 @@ SELECT display_type('numeric'::regtype, 196612 );
 prepended with the schema name unless it is passed as the first argument. Used
 internally by pgTAP to compare type names, but may be more generally useful.</p>
 
-<h3 id="`display_oper(+oper_name,+oper_oid+)`"><code>display_oper( oper_name, oper_oid )</code></h3>
+<h3 id="display_oper"><code>display_oper( oper_name, oper_oid )</code></h3>
 
 <pre><code>SELECT display_type(oprname, oid ) FROM pg_operator;
 </code></pre>
@@ -4779,7 +4774,7 @@ internally by pgTAP to compare type names, but may be more generally useful.</p>
 included in the display. Used internally by pgTAP to compare operators, but
 may be more generally useful.</p>
 
-<h3 id="`pg_typeof(any)`"><code>pg_typeof(any)</code></h3>
+<h3 id="pg_typeof"><code>pg_typeof(any)</code></h3>
 
 <pre><code>SELECT pg_typeof(:value);
 </code></pre>
@@ -4799,9 +4794,9 @@ because it&rsquo;s in core in 8.4. You only need to worry about this if you depe
 on the function being in particular schema. It will always be in <code>pg_catalog</code>
 in 8.4 and higher.</p>
 
-<h3 id="`findfuncs(+schema,+pattern+)`"><code>findfuncs( schema, pattern )</code></h3>
+<h3 id="findfuncs"><code>findfuncs( schema, pattern )</code></h3>
 
-<h3 id="`findfuncs(+pattern+)`"><code>findfuncs( pattern )</code></h3>
+<h3 id="findfuncs1"><code>findfuncs( pattern )</code></h3>
 
 <pre><code>SELECT findfuncs('myschema', '^test' );
 </code></pre>
@@ -4840,13 +4835,13 @@ SELECT * FROM my_tests();
 SELECT * FROM finish();
 </code></pre>
 
-<h3 id="`do_tap(+schema,+pattern+)`"><code>do_tap( schema, pattern )</code></h3>
+<h3 id="do_tap"><code>do_tap( schema, pattern )</code></h3>
 
-<h3 id="`do_tap(+schema+)`"><code>do_tap( schema )</code></h3>
+<h3 id="do_tap1"><code>do_tap( schema )</code></h3>
 
-<h3 id="`do_tap(+pattern+)`"><code>do_tap( pattern )</code></h3>
+<h3 id="do_tap2"><code>do_tap( pattern )</code></h3>
 
-<h3 id="`do_tap()`"><code>do_tap()</code></h3>
+<h3 id="do_tap3"><code>do_tap()</code></h3>
 
 <pre><code>SELECT plan(32);
 SELECT * FROM do_tap('testschema'::name);
@@ -4884,13 +4879,13 @@ ok 4 - that simple 2
 <p>Which will make it much easier to tell what functions need to be examined for
 failing tests.</p>
 
-<h3 id="`runtests(+schema,+match+)`"><code>runtests( schema, match )</code></h3>
+<h3 id="runtests"><code>runtests( schema, match )</code></h3>
 
-<h3 id="`runtests(+schema+)`"><code>runtests( schema )</code></h3>
+<h3 id="runtests1"><code>runtests( schema )</code></h3>
 
-<h3 id="`runtests(+match+)`"><code>runtests( match )</code></h3>
+<h3 id="runtests2"><code>runtests( match )</code></h3>
 
-<h3 id="`runtests(+)`"><code>runtests( )</code></h3>
+<h3 id="runtests3"><code>runtests( )</code></h3>
 
 <pre><code>SELECT * FROM runtests( 'testschema', '^test' );
 </code></pre>
@@ -4992,15 +4987,15 @@ output.</p>
 <p>Now you've written your test function. So how do you test it? Why, with this
 handy-dandy test function!</p>
 
-<h3 id="`check_test(+test_output,+is_ok,+name,+want_description,+want_diag,+match_diag+)`"><code>check_test( test_output, is_ok, name, want_description, want_diag, match_diag )</code></h3>
+<h3 id="check_test"><code>check_test( test_output, is_ok, name, want_description, want_diag, match_diag )</code></h3>
 
-<h3 id="`check_test(+test_output,+is_ok,+name,+want_description,+want_diag+)`"><code>check_test( test_output, is_ok, name, want_description, want_diag )</code></h3>
+<h3 id="check_test1"><code>check_test( test_output, is_ok, name, want_description, want_diag )</code></h3>
 
-<h3 id="`check_test(+test_output,+is_ok,+name,+want_description+)`"><code>check_test( test_output, is_ok, name, want_description )</code></h3>
+<h3 id="check_test2"><code>check_test( test_output, is_ok, name, want_description )</code></h3>
 
-<h3 id="`check_test(+test_output,+is_ok,+name+)`"><code>check_test( test_output, is_ok, name )</code></h3>
+<h3 id="check_test3"><code>check_test( test_output, is_ok, name )</code></h3>
 
-<h3 id="`check_test(+test_output,+is_ok+)`"><code>check_test( test_output, is_ok )</code></h3>
+<h3 id="check_test4"><code>check_test( test_output, is_ok )</code></h3>
 
 <pre><code>SELECT * FROM check_test(
     lc_eq('This', 'THAT', 'not eq'),
@@ -5230,6 +5225,23 @@ added to increase compatibility. The casts are:
 <h2 id="To+Do">To Do</h2>
 
 <ul>
+<li>Add <code>schema, table, colname</code> variations of the table-checking functions
+(<code>table_has_column()</code>, <code>col_type_is()</code>, etc.). That is, allow the
+description to be optional if the schema is included in the function call.</li>
+<li>Add functions to test for object ownership.
+
+<ul>
+<li><code>db_owner_is()</code></li>
+<li><code>table_owner_is()</code></li>
+<li><code>view_owner_is()</code></li>
+<li><code>sequence_owner_is()</code></li>
+<li><code>function_owner_is()</code></li>
+<li>etc.</li>
+</ul>
+</li>
+<li>Add some sort of tests for permisions. Something like:
+<code>table_privs_are(:table, :user, :privs[])</code>, and would have variations for
+database, sequence, function, language, schema, and tablespace.</li>
 <li>Have <code>has_function()</code> manage OUT, INOUT, and VARIADIC arguments.</li>
 <li>Useful schema testing functions to consider adding:
 
@@ -5242,6 +5254,14 @@ added to increase compatibility. The casts are:
 </li>
 <li>Useful result testing function to consider adding (but might require C
 code): <code>rowtype_is()</code></li>
+<li>Split test functions into separate files (and maybe distributions?):
+
+<ul>
+<li>One with scalar comparison functions: <code>ok()</code>, <code>is()</code>, <code>like()</code>, etc.</li>
+<li>One with relation comparison functions: <code>set_eq()</code>, <code>results_eq()</code>, etc.</li>
+<li>One with schema testing functions: <code>has_table()</code>, <code>tables_are()</code>, etc.</li>
+</ul>
+</li>
 </ul>
 
 
@@ -5250,13 +5270,12 @@ code): <code>rowtype_is()</code></li>
 <p>pgTAP has been tested on the following builds of PostgreSQL:</p>
 
 <ul>
-<li>PostgreSQL 8.5devel on i386-apple-darwin10.2.0</li>
-<li>PostgreSQL 8.4.0 on i386-apple-darwin9.7.0</li>
-<li>PostgreSQL 8.3.9 on i386-apple-darwin10.2.0</li>
-<li>PostgreSQL 8.3.6 on i386-redhat-linux-gnu</li>
-<li>PostgreSQL 8.2.15 on i386-apple-darwin10.2.0</li>
-<li>PostgreSQL 8.1.19 on i686-apple-darwin10.2.0</li>
-<li>PostgreSQL 8.0.23 on i686-apple-darwin10.2.0</li>
+<li>PostgreSQL 9.0beta1 on x86_64-apple-darwin10.3.0</li>
+<li>PostgreSQL 8.4.4 on i386-apple-darwin10.3.0</li>
+<li>PostgreSQL 8.3.11 on i386-apple-darwin10.3.0</li>
+<li>PostgreSQL 8.2.17 on i386-apple-darwin10.3.0</li>
+<li>PostgreSQL 8.1.21 on i686-apple-darwin10.3.0</li>
+<li>PostgreSQL 8.0.25 on i686-apple-darwin10.3.0</li>
 </ul>
 
 
@@ -5266,7 +5285,7 @@ code): <code>rowtype_is()</code></li>
 <h2 id="Public+Repository">Public Repository</h2>
 
 <p>The source code for pgTAP is available on
-<a href="http://github.com/theory/pgtap/">GitHub</a>. Please feel free to fork and
+<a href="http://github.com/theory/pgtap/tree/">GitHub</a>. Please feel free to fork and
 contribute!</p>
 
 <h2 id="Mail+List">Mail List</h2>
