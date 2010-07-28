@@ -77,7 +77,7 @@ ok my $stuff = $dbh->selectall_arrayref(q{
     SELECT stuff_id
       FROM domain_stuff
      WHERE domain_id = ?
-       AND src_id    = $src_id
+       AND src_id    = ?
      ORDER BY stuff_id
 }, undef, $domain_id, $src_id), 'Fetch the domain stuff';
 
