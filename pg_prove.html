@@ -21,9 +21,9 @@
 
 <h1 id="Usage">Usage</h1>
 
-<pre><code>  pg_prove tests/
-  pg_prove --dbname template1 test*.sql
-  pg_prove -d testdb --runtests</code></pre>
+<pre><code>pg_prove tests/
+pg_prove --dbname template1 test*.sql
+pg_prove -d testdb --runtests</code></pre>
 
 <h1 id="Description">Description</h1>
 
@@ -35,103 +35,103 @@
 
 <p>pgTAP test scripts should consist of a series of SQL statements that output TAP. Here&rsquo;s a simple example that assumes that the pgTAP functions have been installed in the database:</p>
 
-<pre><code>    -- Start transaction and plan the tests.
-    BEGIN;
-    SELECT plan(1);
+<pre><code>-- Start transaction and plan the tests.
+BEGIN;
+SELECT plan(1);
 
-    -- Run the tests.
-    SELECT pass( &#39;My test passed, w00t!&#39; );
+-- Run the tests.
+SELECT pass( &#39;My test passed, w00t!&#39; );
 
-    -- Finish the tests and clean up.
-    SELECT * FROM finish();
-    ROLLBACK;</code></pre>
+-- Finish the tests and clean up.
+SELECT * FROM finish();
+ROLLBACK;</code></pre>
 
 <p>Now run the tests by passing the list of SQL script names or the name of a test directory to <code>pg_prove</code>. Here&rsquo;s what it looks like when the pgTAP tests are run with <code>pg_prove</code></p>
 
-<pre><code>    % pg_prove -U postgres tests/
-    tests/coltap.....ok
-    tests/hastap.....ok
-    tests/moretap....ok
-    tests/pg73.......ok
-    tests/pktap......ok
-    All tests successful.
-    Files=5, Tests=216,  1 wallclock secs ( 0.06 usr  0.02 sys +  0.08 cusr  0.07 csys =  0.23 CPU)
-    Result: PASS</code></pre>
+<pre><code>% pg_prove -U postgres tests/
+tests/coltap.....ok
+tests/hastap.....ok
+tests/moretap....ok
+tests/pg73.......ok
+tests/pktap......ok
+All tests successful.
+Files=5, Tests=216,  1 wallclock secs ( 0.06 usr  0.02 sys +  0.08 cusr  0.07 csys =  0.23 CPU)
+Result: PASS</code></pre>
 
 <h2 id="xUnit-Test-Functions">xUnit Test Functions</h2>
 
 <p>pgTAP test functions should return a set of text, and then simply return the values returned by pgTAP functions, like so:</p>
 
-<pre><code>    CREATE OR REPLACE FUNCTION setup_insert(
-    ) RETURNS SETOF TEXT AS $$
-        RETURN NEXT is( MAX(nick), NULL, &#39;Should have no users&#39;) FROM users;
-        INSERT INTO users (nick) VALUES (&#39;theory&#39;);
-    $$ LANGUAGE plpgsql;
+<pre><code>CREATE OR REPLACE FUNCTION setup_insert(
+) RETURNS SETOF TEXT AS $$
+    RETURN NEXT is( MAX(nick), NULL, &#39;Should have no users&#39;) FROM users;
+    INSERT INTO users (nick) VALUES (&#39;theory&#39;);
+$$ LANGUAGE plpgsql;
 
-    Create OR REPLACE FUNCTION test_user(
-    ) RETURNS SETOF TEXT AS $$
-        SELECT is( nick, &#39;theory&#39;, &#39;Should have nick&#39;) FROM users;
-    END;
-    $$ LANGUAGE sql;</code></pre>
+Create OR REPLACE FUNCTION test_user(
+) RETURNS SETOF TEXT AS $$
+    SELECT is( nick, &#39;theory&#39;, &#39;Should have nick&#39;) FROM users;
+END;
+$$ LANGUAGE sql;</code></pre>
 
 <p>Once you have these functions defined in your database, you can run them with <code>pg_prove</code> by using the <code>--runtests</code> option.</p>
 
-<pre><code>    % pg_prove --dbname mydb --runtests
-    runtests()....ok
-    All tests successful.
-    Files=1, Tests=32,  0 wallclock secs ( 0.02 usr  0.01 sys +  0.01 cusr  0.00 csys =  0.04 CPU)
-    Result: PASS</code></pre>
+<pre><code>% pg_prove --dbname mydb --runtests
+runtests()....ok
+All tests successful.
+Files=1, Tests=32,  0 wallclock secs ( 0.02 usr  0.01 sys +  0.01 cusr  0.00 csys =  0.04 CPU)
+Result: PASS</code></pre>
 
 <p>Be sure to pass the <code>--schema</code> option if your test functions are all in one schema, and the <code>--match</code> option if they have names that don&rsquo;t start with &ldquo;test&rdquo;. For example, if you have all of your test functions in the &ldquo;test&rdquo; schema and <i>ending</i> with &ldquo;test,&rdquo; run the tests like so:</p>
 
-<pre><code>    pg_prove --dbname mydb --schema test --match &#39;test$&#39;</code></pre>
+<pre><code>pg_prove --dbname mydb --schema test --match &#39;test$&#39;</code></pre>
 
 <h1 id="Options">Options</h1>
 
-<pre><code> -b   --psql-bin PSQL        Location of the <code>psql</code> client.
- -d,  --dbname DBNAME        Database to which to connect.
- -U,  --username USERNAME    User with which to connect.
- -h,  --host HOST            Host to which to connect.
- -p,  --port PORT            Port to which to connect.
- -P,  --pset OPTION=VALUE    Set psql key/value printing option.
- -R   --runtests             Run xUnit test using <code>runtests()</code>.
- -s,  --schema SCHEMA        Schema in which to find xUnit tests.
- -x,  --match REGEX          Regular expression to find xUnit tests.
+<pre><code>-b   --psql-bin PSQL        Location of the <code>psql</code> client.
+-d,  --dbname DBNAME        Database to which to connect.
+-U,  --username USERNAME    User with which to connect.
+-h,  --host HOST            Host to which to connect.
+-p,  --port PORT            Port to which to connect.
+-P,  --pset OPTION=VALUE    Set psql key/value printing option.
+-R   --runtests             Run xUnit test using <code>runtests()</code>.
+-s,  --schema SCHEMA        Schema in which to find xUnit tests.
+-x,  --match REGEX          Regular expression to find xUnit tests.
 
-      --ext                  Set the extension for tests (default <i>.pg</i>)
- -r,  --recurse              Recursively descend into directories.
-      --ignore-exit          Ignore exit status from test scripts.
-      --trap                 Trap <code>Ctrl-C</code> and print summary on interrupt.
-      --harness              Define test harness to use.
- -j,  --jobs N               Run N test jobs in parallel (try 9.)
-      --rc RCFILE            Process options from rcfile
-      --norc                 Don&#39;t process default <i>.proverc</i>
-      --state OPTION=VALUE   Set persistent state options.
+     --ext                  Set the extension for tests (default <i>.pg</i>)
+-r,  --recurse              Recursively descend into directories.
+     --ignore-exit          Ignore exit status from test scripts.
+     --trap                 Trap <code>Ctrl-C</code> and print summary on interrupt.
+     --harness              Define test harness to use.
+-j,  --jobs N               Run N test jobs in parallel (try 9.)
+     --rc RCFILE            Process options from rcfile
+     --norc                 Don&#39;t process default <i>.proverc</i>
+     --state OPTION=VALUE   Set persistent state options.
 
- -v,  --verbose              Print all test lines.
- -f,  --failures             Show failed tests.
- -o,  --comments             Show comments and diagnostics.
-      --directives           Only show results with TODO or SKIP directives.
- -q,  --quiet                Suppress some test output while running tests.
- -Q,  --QUIET                Only print summary results.
-      --parse                Show full list of TAP parse errors, if any.
-      --normalize            Normalize TAP output in verbose output
- -D   --dry                  Dry run. Show test that would have run.
-      --merge                Merge test scripts&#39; <code>STDERR</code> and <code>STDOUT</code>.
-      --timer                Print elapsed time after each test.
- -c,  --color                Colored test output (default).
-      --nocolor              Do not color test output.
-      --shuffle              Run the tests in random order.
-      --reverse              Run the tests in reverse order.
- -a,  --archive FILENAME     Store the resulting TAP in an archive file.
-      --formatter            Result formatter to use.
-      --count                Show X/Y test count when not verbose (default)
-      --nocount              Disable the X/Y test count.
+-v,  --verbose              Print all test lines.
+-f,  --failures             Show failed tests.
+-o,  --comments             Show comments and diagnostics.
+     --directives           Only show results with TODO or SKIP directives.
+-q,  --quiet                Suppress some test output while running tests.
+-Q,  --QUIET                Only print summary results.
+     --parse                Show full list of TAP parse errors, if any.
+     --normalize            Normalize TAP output in verbose output
+-D   --dry                  Dry run. Show test that would have run.
+     --merge                Merge test scripts&#39; <code>STDERR</code> and <code>STDOUT</code>.
+     --timer                Print elapsed time after each test.
+-c,  --color                Colored test output (default).
+     --nocolor              Do not color test output.
+     --shuffle              Run the tests in random order.
+     --reverse              Run the tests in reverse order.
+-a,  --archive FILENAME     Store the resulting TAP in an archive file.
+     --formatter            Result formatter to use.
+     --count                Show X/Y test count when not verbose (default)
+     --nocount              Disable the X/Y test count.
 
- -H,  --help                 Print a usage statement and exit.
- -?,                         Print a usage statement and exit.
- -m,  --man                  Print the complete documentation and exit.
- -V,  --version              Print the version number and exit.</code></pre>
+-H,  --help                 Print a usage statement and exit.
+-?,                         Print a usage statement and exit.
+-m,  --man                  Print the complete documentation and exit.
+-V,  --version              Print the version number and exit.</code></pre>
 
 <h1 id="Options-Details">Options Details</h1>
 
@@ -146,8 +146,8 @@
 <dt><code>--psql-bin</code></dt>
 <dd>
 
-<pre><code>  pg_prove --psql-bin /usr/local/pgsql/bin/psql
-  pg_prove -b /usr/local/bin/psql</code></pre>
+<pre><code>pg_prove --psql-bin /usr/local/pgsql/bin/psql
+pg_prove -b /usr/local/bin/psql</code></pre>
 
 <p>Path to the <code>psql</code> program, which will be used to actually run the tests. Defaults to <i>psql</i>, which should work well, when it is in your path.</p>
 
@@ -159,8 +159,8 @@
 <dt><code>--dbname</code></dt>
 <dd>
 
-<pre><code>  pg_prove --dbname try
-  pg_prove -d postgres</code></pre>
+<pre><code>pg_prove --dbname try
+pg_prove -d postgres</code></pre>
 
 <p>The name of database to which to connect. Defaults to the value of the <code>$PGDATABASE</code> environment variable or to the system username.</p>
 
@@ -172,8 +172,8 @@
 <dt><code>--username</code></dt>
 <dd>
 
-<pre><code>  pg_prove --username foo
-  pg_prove -U postgres</code></pre>
+<pre><code>pg_prove --username foo
+pg_prove -U postgres</code></pre>
 
 <p>PostgreSQL user name to connect as. Defaults to the value of the <code>$PGUSER</code> environment variable or to the operating system name of the user running the application.</p>
 
@@ -185,8 +185,8 @@
 <dt><code>--host</code></dt>
 <dd>
 
-<pre><code>  pg_prove --host pg.example.com
-  pg_prove -h dev.local</code></pre>
+<pre><code>pg_prove --host pg.example.com
+pg_prove -h dev.local</code></pre>
 
 <p>Specifies the host name of the machine on which the server is running. If the value begins with a slash, it is used as the directory for the Unix-domain socket. Defaults to the value of the <code>$PGHOST</code> environment variable or localhost.</p>
 
@@ -198,8 +198,8 @@
 <dt><code>--port</code></dt>
 <dd>
 
-<pre><code>  pg_prove --port 1234
-  pg_prove -p 666</code></pre>
+<pre><code>pg_prove --port 1234
+pg_prove -p 666</code></pre>
 
 <p>Specifies the TCP port or the local Unix-domain socket file extension on which the server is listening for connections. Defaults to the value of the <code>$PGPORT</code> environment variable or, if not set, to the port specified at compile time, usually 5432.</p>
 
@@ -211,8 +211,8 @@
 <dt><code>--pset</code></dt>
 <dd>
 
-<pre><code>  pg_prove --pset tuples_only=0
-  pg_prove -P null=[NULL]</code></pre>
+<pre><code>pg_prove --pset tuples_only=0
+pg_prove -P null=[NULL]</code></pre>
 
 <p>Specifies printing options in the style of <code>\pset</code> in the <code>psql</code> program. See <a href="http://www.postgresql.org/docs/current/static/app-psql.html">http://www.postgresql.org/docs/current/static/app-psql.html</a> for details on the supported options.</p>
 
@@ -220,12 +220,12 @@
 <dt><code>--runtests</code></dt>
 <dd>
 
-<pre><code>  pg_prove --runtests
-  pg_prove -r</code></pre>
+<pre><code>pg_prove --runtests
+pg_prove -r</code></pre>
 
 <p>Don&rsquo;t run any test scripts, but just use the <code>runtests()</code> pgTAP function to run xUnit tests. This ends up looking like a single test script has been run, when in fact no test scripts have been run. Instead, <code>pg_prove</code> tells <code>psql</code> to run something like:</p>
 
-<pre><code>  psql --command &#39;SELECT * FROM runtests()&#39;</code></pre>
+<pre><code>psql --command &#39;SELECT * FROM runtests()&#39;</code></pre>
 
 <p>You should use this option when you&#39;ve written your tests in xUnit style, where they&rsquo;re all defined in test functions already loaded in the database.</p>
 
@@ -237,12 +237,12 @@
 <dt><code>--schema</code></dt>
 <dd>
 
-<pre><code>  pg_prove --schema test
-  pg_prove -s mytest</code></pre>
+<pre><code>pg_prove --schema test
+pg_prove -s mytest</code></pre>
 
 <p>Used with <code>--runtests</code>, and, in fact, implicitly forces <code>--runtests</code> to be true. This option can be used to specify the name of a schema in which to find xUnit functions to run. Basically, it tells <code>psql</code> to run something like:</p>
 
-<pre><code>  psql --command &quot;SELECT * FROM runtests(&#39;test&#39;::name)&quot;</code></pre>
+<pre><code>psql --command &quot;SELECT * FROM runtests(&#39;test&#39;::name)&quot;</code></pre>
 
 </dd>
 <dt><code>-x</code></dt>
@@ -252,20 +252,20 @@
 <dt><code>--match</code></dt>
 <dd>
 
-<pre><code>  pg_prove --match &#39;test$&#39;
-  pg_prove -x _test_</code></pre>
+<pre><code>pg_prove --match &#39;test$&#39;
+pg_prove -x _test_</code></pre>
 
 <p>Used with <code>--runtests</code>, and, in fact, implicitly forces <code>--runtests</code> to be true. This option can be used to specify a POSIX regular expression that will be used to search for xUnit functions to run. Basically, it tells <code>psql</code> to run something like:</p>
 
-<pre><code>  psql --command &quot;SELECT * FROM runtests(&#39;_test_&#39;::text)&quot;</code></pre>
+<pre><code>psql --command &quot;SELECT * FROM runtests(&#39;_test_&#39;::text)&quot;</code></pre>
 
 <p>This will run any visible functions with the string &ldquo;_test_&rdquo; in their names. This can be especially useful if you just want to run a single test in a given schema. For example, this:</p>
 
-<pre><code>  pg_prove --schema testing --match &#39;^test_widgets$&#39;</code></pre>
+<pre><code>pg_prove --schema testing --match &#39;^test_widgets$&#39;</code></pre>
 
 <p>Will have <code>psql</code> execute the <code>runtests()</code> function like so:</p>
 
-<pre><code> SELECT * FROM runtests(&#39;testing&#39;::name, &#39;^test_widgets$&#39;::text);</code></pre>
+<pre><code>SELECT * FROM runtests(&#39;testing&#39;::name, &#39;^test_widgets$&#39;::text);</code></pre>
 
 </dd>
 </dl>
@@ -277,11 +277,11 @@
 <dt><code>--ext</code></dt>
 <dd>
 
-<pre><code>  pg_prove --ext .sql tests/</code></pre>
+<pre><code>pg_prove --ext .sql tests/</code></pre>
 
 <p>Set the extension for test files (default <i>.pg</i>). May be specified multiple times if you have test scripts with multiple extensions:</p>
 
-<pre><code>  pg_prove --ext .sql --ext .pg --ext .pgt</code></pre>
+<pre><code>pg_prove --ext .sql --ext .pg --ext .pgt</code></pre>
 
 </dd>
 <dt><code>-r</code></dt>
@@ -291,8 +291,8 @@
 <dt><code>--recurse</code></dt>
 <dd>
 
-<pre><code>  pg_prove --recurse tests/
-  pg_prove --recurse sql/</code></pre>
+<pre><code>pg_prove --recurse tests/
+pg_prove --recurse sql/</code></pre>
 
 <p>Recursively descend into directories when searching for tests. Not relevant with <code>--runtests</code>.</p>
 
@@ -300,7 +300,7 @@
 <dt><code>--ignore-exit</code></dt>
 <dd>
 
-<pre><code>  pg_prove --ignore-exit</code></pre>
+<pre><code>pg_prove --ignore-exit</code></pre>
 
 <p>Ignore exit status from test scripts. Normally if a script triggers a database exception, <code>psql</code> will exit with an error code and, even if all tests passed, the test will be considered a failure. Use <code>--ignore-exit</code> to ignore such situations (at your own peril).</p>
 
@@ -308,7 +308,7 @@
 <dt><code>--trap</code></dt>
 <dd>
 
-<pre><code>  pg_prove --trap</code></pre>
+<pre><code>pg_prove --trap</code></pre>
 
 <p>Trap <code>Ctrl-C</code> and print a summary on interrupt.</p>
 
@@ -316,7 +316,7 @@
 <dt><code>--harness</code></dt>
 <dd>
 
-<pre><code>  pg_prove --harness TAP::Harness::Color</code></pre>
+<pre><code>pg_prove --harness TAP::Harness::Color</code></pre>
 
 <p>Specify a subclass of <a href="http://search.cpan.org/perldoc?TAP::Harness">TAP::Harness</a> to use for the test harness. Defaults to TAP::Harness (unless <code>--archive</code> is specified, in which case it uses <a href="http://search.cpan.org/perldoc?TAP::Harness::Archive">TAP::Harness::Archive</a>).</p>
 
@@ -334,15 +334,15 @@
 <dt><code>--rc</code></dt>
 <dd>
 
-<pre><code>  pg_prove --rc pg_prove.rc</code></pre>
+<pre><code>pg_prove --rc pg_prove.rc</code></pre>
 
 <p>Process options from the specified configuration file.</p>
 
 <p>If <code>--rc</code> is not specified and <i>./.proverc</i> or <i>~/.proverc</i> exist, they will be read and any options they contain processed before the command line options. Options in configuration files are specified in the same way as command line options:</p>
 
-<pre><code>           # .proverc
-           --state=hot,fast,save
-           -j9</code></pre>
+<pre><code># .proverc
+--state=hot,fast,save
+-j9</code></pre>
 
 <p>Under Windows and VMS the option file is named <i>_proverc</i> rather than <i>.proverc</i> and is sought only in the current directory.</p>
 
@@ -367,11 +367,11 @@
 
 <p>Run the same tests as the last time the state was saved. This makes it possible, for example, to recreate the ordering of a shuffled test.</p>
 
-<pre><code>    # Run all tests in random order
-    pg_prove --state save --shuffle
+<pre><code># Run all tests in random order
+pg_prove --state save --shuffle
 
-    # Run them again in the same order
-    pg_prove --state last</code></pre>
+# Run them again in the same order
+pg_prove --state last</code></pre>
 
 </dd>
 <dt><code>failed</code></dt>
@@ -379,16 +379,16 @@
 
 <p>Run only the tests that failed on the last run.</p>
 
-<pre><code>    # Run all tests
-    pg_prove --state save
+<pre><code># Run all tests
+pg_prove --state save
 
-    # Run failures
-    pg_prove --state failed</code></pre>
+# Run failures
+pg_prove --state failed</code></pre>
 
 <p>If you also specify the <code>save</code> option newly passing tests will be excluded from subsequent runs.</p>
 
-<pre><code>    # Repeat until no more failures
-    pg_prove --state failed,save</code></pre>
+<pre><code># Repeat until no more failures
+pg_prove --state failed,save</code></pre>
 
 </dd>
 <dt><code>passed</code></dt>
@@ -402,7 +402,7 @@
 
 <p>Run all tests in normal order. Multiple options may be specified, so to run all tests with the failures from last time first:</p>
 
-<pre><code>    pg_prove --state failed,all,save</code></pre>
+<pre><code>pg_prove --state failed,all,save</code></pre>
 
 </dd>
 <dt><code>hot</code></dt>
@@ -410,15 +410,15 @@
 
 <p>Run the tests that most recently failed first. The last failure time of each test is stored. The <code>hot</code> option causes tests to be run in most-recent- failure order.</p>
 
-<pre><code>    pg_prove --state hot,save</code></pre>
+<pre><code>pg_prove --state hot,save</code></pre>
 
 <p>Tests that have never failed will not be selected. To run all tests with the most recently failed first use</p>
 
-<pre><code>    pg_prove --state hot,all,save</code></pre>
+<pre><code>pg_prove --state hot,all,save</code></pre>
 
 <p>This combination of options may also be specified thus</p>
 
-<pre><code>    pg_prove --state adrian</code></pre>
+<pre><code>pg_prove --state adrian</code></pre>
 
 </dd>
 <dt><code>todo</code></dt>
@@ -432,7 +432,7 @@
 
 <p>Run the tests in slowest to fastest order. This is useful in conjunction with the <code>-j</code> parallel testing switch to ensure that your slowest tests start running first.</p>
 
-<pre><code>    pg_prove --state slow -j9</code></pre>
+<pre><code>pg_prove --state slow -j9</code></pre>
 
 </dd>
 <dt><code>fast</code></dt>
@@ -469,7 +469,7 @@
 
 <p>The <code>--state</code> switch may be used more than once.</p>
 
-<pre><code>    pg_prove --state hot --state all,save</code></pre>
+<pre><code>pg_prove --state hot --state all,save</code></pre>
 
 </dd>
 </dl>
@@ -485,8 +485,8 @@
 <dt><code>--verbose</code></dt>
 <dd>
 
-<pre><code>  pg_prove --verbose
-  pg_prove -v</code></pre>
+<pre><code>pg_prove --verbose
+pg_prove -v</code></pre>
 
 <p>Display standard output of test scripts while running them. This behavior can also be triggered by setting the <code>$TEST_VERBOSE</code> environment variable to a true value.</p>
 
@@ -498,8 +498,8 @@
 <dt><code>--failures</code></dt>
 <dd>
 
-<pre><code>  pg_prove --failures
-  pg_prove -f</code></pre>
+<pre><code>pg_prove --failures
+pg_prove -f</code></pre>
 
 <p>Show failed tests.</p>
 
@@ -517,7 +517,7 @@
 <dt><code>--directives</code></dt>
 <dd>
 
-<pre><code>  pg_prove --directives</code></pre>
+<pre><code>pg_prove --directives</code></pre>
 
 <p>Only show results with TODO or SKIP directives.</p>
 
@@ -529,8 +529,8 @@
 <dt><code>--quiet</code></dt>
 <dd>
 
-<pre><code>  pg_prove --quiet
-  pg_prove -q</code></pre>
+<pre><code>pg_prove --quiet
+pg_prove -q</code></pre>
 
 <p>Suppress some test output while running tests.</p>
 
@@ -542,8 +542,8 @@
 <dt><code>--QUIET</code></dt>
 <dd>
 
-<pre><code>  pg_prove --QUIET
-  pg_prove -Q</code></pre>
+<pre><code>pg_prove --QUIET
+pg_prove -Q</code></pre>
 
 <p>Only print summary results.</p>
 
@@ -551,7 +551,7 @@
 <dt><code>--parse</code></dt>
 <dd>
 
-<pre><code>  pg_prove --parse</code></pre>
+<pre><code>pg_prove --parse</code></pre>
 
 <p>Enables the display of any TAP parsing errors as tests run. Useful for debugging new TAP emitters.</p>
 
@@ -559,7 +559,7 @@
 <dt><code>--normalize</code></dt>
 <dd>
 
-<pre><code>  pg_prove --normalize</code></pre>
+<pre><code>pg_prove --normalize</code></pre>
 
 <p>Normalize TAP output in verbose output. Errors in the harnessed TAP corrected by the parser will be corrected.</p>
 
@@ -571,8 +571,8 @@
 <dt><code>-D</code></dt>
 <dd>
 
-<pre><code>  pg_prove --dry tests/
-  pg_prove -D</code></pre>
+<pre><code>pg_prove --dry tests/
+pg_prove -D</code></pre>
 
 <p>Dry run. Just outputs a list of the tests that would have been run.</p>
 
@@ -590,8 +590,8 @@
 <dt><code>--timer</code></dt>
 <dd>
 
-<pre><code>  pg_prove --timer
-  pg_prove -t</code></pre>
+<pre><code>pg_prove --timer
+pg_prove -t</code></pre>
 
 <p>Print elapsed time after each test file.</p>
 
@@ -603,8 +603,8 @@
 <dt><code>--color</code></dt>
 <dd>
 
-<pre><code>  pg_prove --color
-  pg_prove -c</code></pre>
+<pre><code>pg_prove --color
+pg_prove -c</code></pre>
 
 <p>Display test results in color. Colored test output is the default, but if output is not to a terminal, color is disabled.</p>
 
@@ -620,7 +620,7 @@
 <dt><code>--shuffle</code></dt>
 <dd>
 
-<pre><code>  pg_prove --shuffle tests/</code></pre>
+<pre><code>pg_prove --shuffle tests/</code></pre>
 
 <p>Test scripts are normally run in alphabetical order. Use <code>--reverse</code> to run them in in random order. Not relevant when used with <code>--runtests</code>.</p>
 
@@ -628,7 +628,7 @@
 <dt><code>--reverse</code></dt>
 <dd>
 
-<pre><code>  pg_prove --reverse tests/</code></pre>
+<pre><code>pg_prove --reverse tests/</code></pre>
 
 <p>Test scripts are normally run in alphabetical order. Use <code>--reverse</code> to run them in reverse order. Not relevant when used with <code>--runtests</code>.</p>
 
@@ -640,8 +640,8 @@
 <dt><code>--archive</code></dt>
 <dd>
 
-<pre><code>  pg_prove --archive tap.tar.gz
-  pg_prove -a test_output.tar</code></pre>
+<pre><code>pg_prove --archive tap.tar.gz
+pg_prove -a test_output.tar</code></pre>
 
 </dd>
 <dt><code>-f</code></dt>
@@ -651,8 +651,8 @@
 <dt><code>--formatter</code></dt>
 <dd>
 
-<pre><code>  pg_prove --formatter TAP::Formatter::File
-  pg_prove -f TAP::Formatter::Console</code></pre>
+<pre><code>pg_prove --formatter TAP::Formatter::File
+pg_prove -f TAP::Formatter::Console</code></pre>
 
 <p>The name of the class to use to format output. The default is <a href="http://search.cpan.org/perldoc?TAP::Formatter::Console">TAP::Formatter::Console</a>, or <a href="http://search.cpan.org/perldoc?TAP::Formatter::File">TAP::Formatter::File</a> if the output isn&#39;t a TTY.</p>
 
@@ -660,7 +660,7 @@
 <dt><code>--count</code></dt>
 <dd>
 
-<pre><code>  pg_prove --count</code></pre>
+<pre><code>pg_prove --count</code></pre>
 
 <p>Show the X/Y test count as tests run when not verbose (default).</p>
 
@@ -668,7 +668,7 @@
 <dt><code>--nocount</code></dt>
 <dd>
 
-<pre><code>  pg_prove --nocount</code></pre>
+<pre><code>pg_prove --nocount</code></pre>
 
 <p>Disable the display of the X/Y test count as tests run.</p>
 
@@ -692,8 +692,8 @@
 <dt><code>--help</code></dt>
 <dd>
 
-<pre><code>  pg_prove --help
-  pg_prove -H</code></pre>
+<pre><code>pg_prove --help
+pg_prove -H</code></pre>
 
 <p>Outputs a brief description of the options supported by <code>pg_prove</code> and exits.</p>
 
@@ -705,8 +705,8 @@
 <dt><code>--man</code></dt>
 <dd>
 
-<pre><code>  pg_prove --man
-  pg_prove -m</code></pre>
+<pre><code>pg_prove --man
+pg_prove -m</code></pre>
 
 <p>Outputs this documentation and exits.</p>
 
@@ -718,8 +718,8 @@
 <dt><code>--version</code></dt>
 <dd>
 
-<pre><code>  pg_prove --version
-  pg_prove -V</code></pre>
+<pre><code>pg_prove --version
+pg_prove -V</code></pre>
 
 <p>Outputs the program name and version and exits.</p>
 
