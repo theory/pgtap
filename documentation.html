@@ -15,17 +15,19 @@
   <body>
     <div id="main">
       <!-- DOC INTRO HERE -->
-<h1 id="pgTAP+0.24">pgTAP 0.24</h1>
+<h1 id="pgTAP+0.26.0">pgTAP 0.26.0</h1>
 
 <p>pgTAP is a unit testing framework for PostgreSQL written in PL/pgSQL and
-PL/SQL. It includes a comprehensive collection of TAP-emitting assertion
-functions, as well as the ability to integrate with other TAP-emitting test
-frameworks. It can also be used in the xUnit testing style.</p>
+PL/SQL. It includes a comprehensive collection of
+<a href="http://testanything.org">TAP</a>-emitting assertion functions, as well as the
+ability to integrate with other TAP-emitting test frameworks. It can also be
+used in the xUnit testing style.</p>
       <!-- END DOC INTRO HERE -->
       <div id="toc">
         <!-- TOC SANS "pgTAP x.xx" -->
 <h1>Contents</h1>
 <ul>
+<li><a href="#Synopsis">Synopsis</a></li>
 <li><a href="#Installation">Installation</a><ul>
 <li><a href="#Testing+pgTAP+with+pgTAP">Testing pgTAP with pgTAP</a></li>
 <li><a href="#Adding+pgTAP+to+a+Database">Adding pgTAP to a Database</a></li></ul></li>
@@ -35,7 +37,7 @@ frameworks. It can also be used in the xUnit testing style.</p>
 <li><a href="#I+love+it+when+a+plan+comes+together">I love it when a plan comes together</a></li>
 <li><a href="#What+a+sweet+unit!">What a sweet unit!</a></li>
 <li><a href="#Test+names">Test names</a></li>
-<li><a href="#I'm+ok,+you're+not+ok">I'm ok, you're not ok</a><ul>
+<li><a href="#I'm+ok,+you're+not+ok">I&rsquo;m ok, you&rsquo;re not ok</a><ul>
 <li><a href="#ok"><code>ok()</code></a></li>
 <li><a href="#is"><code>is()</code></a></li>
 <li><a href="#isnt"><code>isnt()</code></a></li>
@@ -211,8 +213,8 @@ frameworks. It can also be used in the xUnit testing style.</p>
 <li><a href="#8.3+and+Down">8.3 and Down</a></li>
 <li><a href="#8.2+and+Down">8.2 and Down</a></li>
 <li><a href="#8.0">8.0</a></li>
-<li><a href="#To+Do">To Do</a></li>
-<li><a href="#Supported+Versions">Supported Versions</a></li>
+<li><a href="#To+Do">To Do</a></li></ul></li>
+<li><a href="#Metadata">Metadata</a><ul>
 <li><a href="#Public+Repository">Public Repository</a></li>
 <li><a href="#Mail+List">Mail List</a></li>
 <li><a href="#Author">Author</a></li>
@@ -222,6 +224,45 @@ frameworks. It can also be used in the xUnit testing style.</p>
         <!-- END TOC -->
       </div>
       <!-- DOCS HERE, WITH INTRO MOVED ABOVE -->
+<h1 id="Synopsis">Synopsis</h1>
+
+<pre><code>SELECT plan( 23 );
+-- or SELECT * from no_plan();
+
+-- Various ways to say "ok"
+SELECT ok( :have = :want, :test_description );
+
+SELECT is(   :have, :want, $test_description );
+SELECT isnt( :have, :want, $test_description );
+
+-- Rather than \echo # here's what went wrong
+SELECT diag( 'here''s what went wrong' );
+
+-- Compare values with LIKE or regular expressions.
+SELECT alike(   :have, :like_expression, $test_description );
+SELECT unalike( :have, :like_expression, $test_description );
+
+SELECT matches(      :have, :regex, $test_description );
+SELECT doesnt_match( :have, :regex, $test_description );
+
+SELECT cmp_ok(:have, '=', :want, $test_description );
+
+-- Skip tests based on runtime conditions.
+SELECT CASE WHEN :some_feature THEN collect_tap(
+    ok( foo(),       :test_description),
+    is( foo(42), 23, :test_description)
+) ELSE skip(:why, :how_many ) END;
+
+-- Mark some tests as to-do tests.
+SELECT todo(:why, :how_many);
+SELECT ok( foo(),       :test_description);
+SELECT is( foo(42), 23, :test_description);
+
+-- Simple pass/fail.
+SELECT pass(:test_description);
+SELECT fail(:test_description);
+</code></pre>
+
 <h1 id="Installation">Installation</h1>
 
 <p>For the impatient, to install pgTAP into a PostgreSQL database, just do this:</p>
@@ -262,7 +303,7 @@ to find it:</p>
 <pre><code>env PG_CONFIG=/path/to/pg_config make &amp;&amp; make install &amp;&amp; make installcheck
 </code></pre>
 
-<p>And finally, if all that fails (and if you're on PostgreSQL 8.1 or lower, it
+<p>And finally, if all that fails (and if you&rsquo;re on PostgreSQL 8.1 or lower, it
 likely will), copy the entire distribution directory to the <code>contrib/</code>
 subdirectory of the PostgreSQL source tree and try it there without
 <code>pg_config</code>:</p>
@@ -283,7 +324,7 @@ subdirectory of the PostgreSQL source tree and try it there without
 
 <p>If you want to schema-qualify pgTAP (that is, install all of its functions
 into their own schema), set the <code>$TAPSCHEMA</code> variable to the name of the
-schema you'd like to be created, for example:</p>
+schema you&rsquo;d like to be created, for example:</p>
 
 <pre><code>make TAPSCHEMA=tap
 make install
@@ -293,11 +334,11 @@ make installcheck
 <h2 id="Testing+pgTAP+with+pgTAP">Testing pgTAP with pgTAP</h2>
 
 <p>In addition to the PostgreSQL-standard <code>installcheck</code> target, the <code>test</code>
-target uses the included <code>pg_prove</code> Perl program to do its testing, which
-requires that TAP::Harness, included in
-<a href="http://search.cpan.org/dist/Test-Harness/" title="Test::Harness on
-CPAN">Test::Harness</a> 3.x. You'll need to make sure that you use a database with PL/pgSQL
-loaded, or else the tests won&rsquo;t work. <code>pg_prove</code> supports a number of
+target uses the <code>pg_prove</code> Perl program to do its testing, which will be
+installed with the
+<a href="http://search.cpan.org/dist/TAP-Parser-SourceHandler-pgTAP">TAP::Parser::SourceHandler::pgTAP</a>
+CPAN distribution. You&rsquo;ll need to make sure that you use a database with
+PL/pgSQL loaded, or else the tests won&rsquo;t work. <code>pg_prove</code> supports a number of
 environment variables that you might need to use, including all the usual
 PostgreSQL client environment variables:</p>
 
@@ -340,7 +381,7 @@ directory output by <code>pg_config --sharedir</code>. So you can always do this
 <pre><code>psql -d template1 -f `pg_config --sharedir`/contrib/pgtap.sql
 </code></pre>
 
-<p>But do be aware that, if you've specified a schema using <code>$TAPSCHEMA</code>, that
+<p>But do be aware that, if you&rsquo;ve specified a schema using <code>$TAPSCHEMA</code>, that
 schema will always be created and the pgTAP functions placed in it.</p>
 
 <h1 id="pgTAP+Test+Scripts">pgTAP Test Scripts</h1>
@@ -385,30 +426,31 @@ ROLLBACK;
 you should skip <code>\i pgtap.sql</code> at the beginning of the script.</p>
 
 <p>The only other limitation is that the <code>pg_typoeof()</code> function, which is
-written in C, will not be available in 8.3 and lower. You'll want to
+written in C, will not be available in 8.3 and lower. You&rsquo;ll want to
 comment-out its declaration in the bundled copy of <code>pgtap.sql</code> and then avoid
 using <code>cmp_ok()</code>, since that function relies on <code>pg_typeof()</code>. Note that
 <code>pg_typeof()</code> is included in PostgreSQL 8.4, so ou won&rsquo;t need to avoid it on
 that version or higher.</p>
 
-<p>Now you're ready to run your test script!</p>
+<p>Now you&rsquo;re ready to run your test script!</p>
 
 <pre><code>% psql -d try -Xf test.sql
 1..1
 ok 1 - My test passed, w00t!
 </code></pre>
 
-<p>You'll need to have all of those variables in the script to ensure that the
+<p>You&rsquo;ll need to have all of those variables in the script to ensure that the
 output is proper TAP and that all changes are rolled back &mdash; including the
 loading of the test functions &mdash; in the event of an uncaught exception.</p>
 
 <h2 id="Using+`pg_prove`">Using <code>pg_prove</code></h2>
 
 <p>Or save yourself some effort &mdash; and run a batch of tests scripts or all of
-your xUnit test functions at once &mdash; by using <code>pg_prove</code>. If you're not
-relying on <code>installcheck</code>, your test scripts can be a lot less verbose; you
-don&rsquo;t need to set all the extra variables, because <code>pg_prove</code> takes care of
-that for you:</p>
+your xUnit test functions at once &mdash; by using <code>pg_prove</code>, available in the
+<a href="http://search.cpan.org/dist/TAP-Parser-SourceHandler-pgTAP">TAP::Parser::SourceHandler::pgTAP</a>
+CPAN distribution . If you&rsquo;re not relying on <code>installcheck</code>, your test scripts
+can be a lot less verbose; you don&rsquo;t need to set all the extra variables,
+because <code>pg_prove</code> takes care of that for you:</p>
 
 <pre><code>-- Start transaction and plan the tests.
 BEGIN;
@@ -436,7 +478,7 @@ Files=5, Tests=216,  1 wallclock secs ( 0.06 usr  0.02 sys +  0.08 cusr  0.07 cs
 Result: PASS
 </code></pre>
 
-<p>If you're using xUnit tests and just want to have <code>pg_prove</code> run them all
+<p>If you&rsquo;re using xUnit tests and just want to have <code>pg_prove</code> run them all
 through the <code>runtests()</code> function, just tell it to do so:</p>
 
 <pre><code>% pg_prove -d myapp --runtests
@@ -478,7 +520,7 @@ script is going to run. In this case, you can declare that you have no plan.
 <pre><code>SELECT * FROM no_plan();
 </code></pre>
 
-<p>Often, though, you'll be able to calculate the number of tests, like so:</p>
+<p>Often, though, you&rsquo;ll be able to calculate the number of tests, like so:</p>
 
 <pre><code>SELECT plan( COUNT(*) )
   FROM foo;
@@ -493,7 +535,7 @@ discrepancy between the planned number of tests and the number actually run:</p>
 
 <h2 id="What+a+sweet+unit!">What a sweet unit!</h2>
 
-<p>If you're used to xUnit testing frameworks and using PostgreSQL 8.1 or higher,
+<p>If you&rsquo;re used to xUnit testing frameworks and using PostgreSQL 8.1 or higher,
 you can collect all of your tests into database functions and run them all at
 once with <code>runtests()</code>. This is similar to how
 <a href="http://en.dklab.ru/lib/dklab_pgunit/">PGUnit</a> and
@@ -516,7 +558,7 @@ END;
 $$ LANGUAGE sql;
 </code></pre>
 
-<p>See below for details on the pgTAP assertion functions. Once you've defined
+<p>See below for details on the pgTAP assertion functions. Once you&rsquo;ve defined
 your unit testing functions, you can run your tests at any time using the
 <code>runtests()</code> function:</p>
 
@@ -551,7 +593,7 @@ the test in your script, simply search for &ldquo;simple exponential&rdquo;.</p>
 <p>All test functions take a name argument. It&rsquo;s optional, but highly suggested
 that you use it.</p>
 
-<h2 id="I'm+ok,+you're+not+ok">I'm ok, you're not ok</h2>
+<h2 id="I'm+ok,+you're+not+ok">I&rsquo;m ok, you&rsquo;re not ok</h2>
 
 <p>The basic purpose of pgTAP&mdash;and of any TAP-emitting test framework, for that
 matter&mdash;is to print out either &ldquo;ok #&rdquo; or &ldquo;not ok #&rdquo;, depending on whether a
@@ -643,8 +685,8 @@ are not treated as unknowns by <code>is()</code> or <code>isnt()</code>. That is
 <code>is()</code> and <code>isnt()</code> know what the test was and why it failed. For example this
 test:</p>
 
-<pre><code>\set foo '\'' waffle '\''
-\set bar '\'' yarblokos '\''
+<pre><code>\set foo '\'waffle\''
+\set bar '\'yarblokos\''
 SELECT is( :foo::text, :bar::text, 'Is foo the same as bar?' );
 </code></pre>
 
@@ -776,7 +818,7 @@ SELECT cmp_ok( :this, '&gt;=, 'this &gt;= that' );
 SELECT cmp_ok( :this, '&amp;&amp;', :that, 'this &amp;&amp; that' );
 </code></pre>
 
-<p>Its advantage over <code>ok()</code> is that when the test fails you'll know what <code>:this</code>
+<p>Its advantage over <code>ok()</code> is that when the test fails you&rsquo;ll know what <code>:this</code>
 and <code>:that</code> were:</p>
 
 <pre><code>not ok 1
@@ -808,7 +850,7 @@ SELECT fail( :description );
 </code></pre>
 
 <p>Sometimes you just want to say that the tests have passed. Usually the case is
-you've got some complicated condition that is difficult to wedge into an
+you&rsquo;ve got some complicated condition that is difficult to wedge into an
 <code>ok()</code>. In this case, you can simply use <code>pass()</code> (to declare the test ok) or
 <code>fail()</code> (for not ok). They are synonyms for <code>ok(1)</code> and <code>ok(0)</code>.</p>
 
@@ -822,9 +864,9 @@ you've got some complicated condition that is difficult to wedge into an
 </code></pre>
 
 <p>Checks to see if the given value is of a particular type. The description and
-diagnostics of this test normally just refer to &ldquo;the value&rdquo;. If you'd like
+diagnostics of this test normally just refer to &ldquo;the value&rdquo;. If you&rsquo;d like
 them to be more specific, you can supply a <code>:name</code>. For example you might say
-&ldquo;the return value&rdquo; when yo're examing the result of a function call:</p>
+&ldquo;the return value&rdquo; when yo&rsquo;re examing the result of a function call:</p>
 
 <pre><code>SELECT isa_ok( length('foo'), 'integer', 'The return value from length()' );
 </code></pre>
@@ -841,15 +883,15 @@ of the value actually is:</p>
 
 <h1 id="Pursuing+Your+Query">Pursuing Your Query</h1>
 
-<p>Sometimes, you've just gotta test a query. I mean the results of a full blown
-query, not just the scalar assertion functions we've seen so far. pgTAP
+<p>Sometimes, you&rsquo;ve just gotta test a query. I mean the results of a full blown
+query, not just the scalar assertion functions we&rsquo;ve seen so far. pgTAP
 provides a number of functions to help you test your queries, each of which
 takes one or two SQL statements as arguments. For example:</p>
 
 <pre><code>SELECT throws_ok('SELECT divide_by(0)');
 </code></pre>
 
-<p>Yes, as strings. Of course, you'll often need to do something complex in your
+<p>Yes, as strings. Of course, you&rsquo;ll often need to do something complex in your
 SQL, and quoting SQL in strings in what is, after all, an SQL application, is
 an unnecessary PITA. Each of the query-executing functions in this section
 thus support an alternative to make your tests more SQLish: using prepared
@@ -893,7 +935,7 @@ SELECT set_eq(
 );
 </code></pre>
 
-<p>On PostgreSQL 8.1 and down, you'll have to use <code>UNION</code> queries (if order
+<p>On PostgreSQL 8.1 and down, you&rsquo;ll have to use <code>UNION</code> queries (if order
 doesn&rsquo;t matter) or temporary tables to pass arbitrary values:</p>
 
 <pre><code>SET client_min_messages = warning;
@@ -920,7 +962,7 @@ can be an array. Check it out:</p>
 </code></pre>
 
 <p>The first query <em>must</em> return only one column of the same type as the values
-in the array. If you need to test more columns, you'll need to use two
+in the array. If you need to test more columns, you&rsquo;ll need to use two
 queries.</p>
 
 <p>Keeping these techniques in mind, read on for all of the query-testing
@@ -971,8 +1013,8 @@ A.</a> in the <a href="http://www.postgresql.org/docs/current/static/">PostgreSQ
 documentation</a>.</p>
 
 <p>The third argument is an error message. This will be most useful for functions
-you've written that raise exceptions, so that you can test the exception
-message that you've thrown. Otherwise, for core errors, you'll need to be
+you&rsquo;ve written that raise exceptions, so that you can test the exception
+message that you&rsquo;ve thrown. Otherwise, for core errors, you&rsquo;ll need to be
 careful of localized error messages.  One trick to get around localized error
 messages is to pass NULL as the third argument.  This allows you to still pass
 a description as the fourth argument.</p>
@@ -1124,7 +1166,7 @@ fractions of milliseconds if it floats your boat.</p>
 
 <p>The third argument is the usual description. If not provided, <code>performs_ok()</code>
 will generate the description &ldquo;Should run in less than $milliseconds ms&rdquo;.
-You'll likely want to provide your own description if you have more than a
+You&rsquo;ll likely want to provide your own description if you have more than a
 couple of these in a test script or function.</p>
 
 <p>Should a <code>performs_ok()</code> test fail it produces appropriate diagnostic
@@ -1143,9 +1185,9 @@ to ensure that a query is not <em>really</em> slow (think seconds).</p>
 
 <h2 id="Can+You+Relate?">Can You Relate?</h2>
 
-<p>So you've got your basic scalar comparison functions, what about relations?
+<p>So you&rsquo;ve got your basic scalar comparison functions, what about relations?
 Maybe you have some pretty hairy <code>SELECT</code> statements in views or functions to
-test? We've got your relation-testing functions right here.</p>
+test? We&rsquo;ve got your relation-testing functions right here.</p>
 
 <h3 id="results_eq"><code>results_eq( sql, sql, description )</code></h3>
 
@@ -1197,7 +1239,7 @@ expect, you might do something like this:</p>
 );
 </code></pre>
 
-<p>Tip: If you're using PostgreSQL 8.2 and up and want to hard-code the values to
+<p>Tip: If you&rsquo;re using PostgreSQL 8.2 and up and want to hard-code the values to
 compare, use a <code>VALUES</code> statement instead of a query, like so:</p>
 
 <pre><code>SELECT results_eq(
@@ -1306,7 +1348,7 @@ will be represented as &ldquo;NULL&rdquo;:</p>
 </code></pre>
 
 <p>On PostgreSQL 8.4 or higher, if the number of columns varies between result
-sets, or if results are of different data types, you'll get diagnostics like
+sets, or if results are of different data types, you&rsquo;ll get diagnostics like
 so:</p>
 
 <pre><code># Failed test 148
@@ -1357,7 +1399,7 @@ SELECT results_ne( 'users_test', 'not_users', 'We should get only users' );
 <p>The inverse of <code>results_eq()</code>, this function tests that query results are not
 equivalent. Note that, like <code>results_ne()</code>, order matters, so you can actually
 have the same sets of results in the two query arguments and the test will
-pass if they're merely in a different order. More than likely what you really
+pass if they&rsquo;re merely in a different order. More than likely what you really
 want is <code>results_eq()</code> or <code>set_ne()</code>. But this function is included for
 completeness and is kind of cute, so enjoy. If a <code>results_ne()</code> test fails,
 however, there will be no diagnostics, because, well, the results will be the
@@ -1443,7 +1485,7 @@ statements or strings containing an SQL query (see the
 <a href="#Pursuing+Your+Query">summary</a> for query argument details), or even one of
 each. The two queries, however, must return results that are directly
 comparable &mdash; that is, with the same number and types of columns in the same
-orders. If it happens that the query you're testing returns a single column,
+orders. If it happens that the query you&rsquo;re testing returns a single column,
 the second argument may be an array.</p>
 
 <h3 id="set_has"><code>set_has( sql, sql, description )</code></h3>
@@ -1456,7 +1498,7 @@ SELECT set_has( 'testq', 'subset', 'gotta have at least the A listers' );
 </code></pre>
 
 <p>When you need to test that a query returns at least some subset of records,
-<code>set_has()</code> is the hammer you're looking for. It tests that the the results of
+<code>set_has()</code> is the hammer you&rsquo;re looking for. It tests that the the results of
 a query contain at least the results returned by another query, if not more.
 That is, the test passes if the second query&rsquo;s results are a subset of the
 first query&rsquo;s results. The second query can even return an empty set, in which
@@ -1466,7 +1508,7 @@ useful perhaps, but set-theoretically correct.</p>
 <p>As with <code>set_eq()</code>. the SQL arguments can be the names of prepared statements
 or strings containing an SQL query (see the <a href="#Pursuing+Your+Query">summary</a>
 for query argument details), or one of each. If it happens that the query
-you're testing returns a single column, the second argument may be an array.</p>
+you&rsquo;re testing returns a single column, the second argument may be an array.</p>
 
 <p>In whatever case, a failing test will yield useful diagnostics just like:</p>
 
@@ -1544,7 +1586,7 @@ names of prepared statements or strings containing an SQL query (see the
 <a href="#Pursuing+Your+Query">summary</a> for query argument details), or even one of
 each. The two queries, however, must return results that are directly
 comparable &mdash; that is, with the same number and types of columns in the same
-orders. If it happens that the query you're testing returns a single column,
+orders. If it happens that the query you&rsquo;re testing returns a single column,
 the second argument may be an array.</p>
 
 <h3 id="bag_has"><code>bag_has( sql, sql, description )</code></h3>
@@ -1654,7 +1696,7 @@ upshot is that you can create composite types in your tests explicitly for
 comparing the rerutn values of your queries, if such queries don&rsquo;t return an
 existing valid type.</p>
 
-<p>Hopefully someday in the future we'll be able to support arbitrary <code>record</code>
+<p>Hopefully someday in the future we&rsquo;ll be able to support arbitrary <code>record</code>
 arguments. In the meantime, this is the 90% solution.</p>
 
 <p>Diagnostics on failure are similar to those from <code>is()</code>:</p>
@@ -1690,7 +1732,7 @@ test to pass):</p>
 <pre><code>CREATE TABLE "Foo" (id integer);
 </code></pre>
 
-<p>Then you'd need to test for it using exactly the same string, including case,
+<p>Then you&rsquo;d need to test for it using exactly the same string, including case,
 like so:</p>
 
 <pre><code>SELECT has_table('Foo');
@@ -1716,7 +1758,7 @@ are not in the list, or if there are tables in the list that are missing from
 the database. It can also be useful for testing replication and the success or
 failure of schema change deployments.</p>
 
-<p>If you're more interested in the specifics of particular objects, skip to
+<p>If you&rsquo;re more interested in the specifics of particular objects, skip to
 the next section.</p>
 
 <h3 id="tablespaces_are"><code>tablespaces_are( tablespaces, description )</code></h3>
@@ -1730,7 +1772,7 @@ the next section.</p>
 </code></pre>
 
 <p>This function tests that all of the tablespaces in the database only the
-tablespaces that <em>should</em> be there. In the event of a failure, you'll see
+tablespaces that <em>should</em> be there. In the event of a failure, you&rsquo;ll see
 diagnostics listing the extra and/or missing tablespaces, like so:</p>
 
 <pre><code># Failed test 121: "There should be the correct tablespaces"
@@ -1752,7 +1794,7 @@ diagnostics listing the extra and/or missing tablespaces, like so:</p>
 
 <p>This function tests that all of the schemas in the database only the schemas
 that <em>should</em> be there, excluding system schemas and <code>information_schema</code>. In
-the event of a failure, you'll see diagnostics listing the extra and/or
+the event of a failure, you&rsquo;ll see diagnostics listing the extra and/or
 missing schemas, like so:</p>
 
 <pre><code># Failed test 106: "There should be the correct schemas"
@@ -1783,7 +1825,7 @@ visible in the search path, are only the tables that <em>should</em> be there. I
 excluding <code>pg_catalog</code> and <code>information_schema</code> If the description is omitted,
 a generally useful default description will be generated.</p>
 
-<p>In the event of a failure, you'll see diagnostics listing the extra and/or
+<p>In the event of a failure, you&rsquo;ll see diagnostics listing the extra and/or
 missing tables, like so:</p>
 
 <pre><code># Failed test 91: "Schema public should have the correct tables"
@@ -1816,7 +1858,7 @@ visible in the search path, are only the views that <em>should</em> be there. If
 excluding <code>pg_catalog</code> and <code>information_schema</code> If the description is omitted,
 a generally useful default description will be generated.</p>
 
-<p>In the event of a failure, you'll see diagnostics listing the extra and/or
+<p>In the event of a failure, you&rsquo;ll see diagnostics listing the extra and/or
 missing views, like so:</p>
 
 <pre><code># Failed test 92: "Schema public should have the correct views"
@@ -1849,7 +1891,7 @@ the <code>:schema</code> argument is omitted, sequences will be sought in the se
 path, excluding <code>pg_catalog</code> and <code>information_schema</code>. If the description is
 omitted, a generally useful default description will be generated.</p>
 
-<p>In the event of a failure, you'll see diagnostics listing the extra and/or
+<p>In the event of a failure, you&rsquo;ll see diagnostics listing the extra and/or
 missing sequences, like so:</p>
 
 <pre><code># Failed test 93: "Schema public should have the correct sequences"
@@ -1883,7 +1925,7 @@ the table must be visible in the search path, excluding <code>pg_catalog</code> 
 <code>information_schema</code>. If the description is omitted, a generally useful
 default description will be generated.</p>
 
-<p>In the event of a failure, you'll see diagnostics listing the extra and/or
+<p>In the event of a failure, you&rsquo;ll see diagnostics listing the extra and/or
 missing columns, like so:</p>
 
 <pre><code># Failed test 183: "Table users should have the correct columns"
@@ -1916,7 +1958,7 @@ the table must be visible in the search path, excluding <code>pg_catalog</code> 
 <code>information_schema</code>. If the description is omitted, a generally useful
 default description will be generated.</p>
 
-<p>In the event of a failure, you'll see diagnostics listing the extra and/or
+<p>In the event of a failure, you&rsquo;ll see diagnostics listing the extra and/or
 missing indexes, like so:</p>
 
 <pre><code># Failed test 180: "Table fou should have the correct indexes"
@@ -1948,7 +1990,7 @@ the table must be visible in the search path, excluding <code>pg_catalog</code> 
 <code>information_schema</code>. If the description is omitted, a generally useful
 default description will be generated.</p>
 
-<p>In the event of a failure, you'll see diagnostics listing the extra and/or
+<p>In the event of a failure, you&rsquo;ll see diagnostics listing the extra and/or
 missing triggers, like so:</p>
 
 <pre><code># Failed test 180: "Table fou should have the correct triggers"
@@ -1979,7 +2021,7 @@ the <code>:schema</code> argument is omitted, functions will be sought in the se
 path, excluding <code>pg_catalog</code> and <code>information_schema</code> If the description is
 omitted, a generally useful default description will be generated.</p>
 
-<p>In the event of a failure, you'll see diagnostics listing the extra and/or
+<p>In the event of a failure, you&rsquo;ll see diagnostics listing the extra and/or
 missing functions, like so:</p>
 
 <pre><code># Failed test 150: "Schema someschema should have the correct functions"
@@ -2001,7 +2043,7 @@ missing functions, like so:</p>
 
 <p>This function tests that all of the roles in the database only the roles that
 <em>should</em> be there. Supported in PostgreSQL 8.1 and higher. In the event of a
-failure, you'll see diagnostics listing the extra and/or missing roles, like
+failure, you&rsquo;ll see diagnostics listing the extra and/or missing roles, like
 so:</p>
 
 <pre><code># Failed test 195: "There should be the correct roles"
@@ -2022,7 +2064,7 @@ so:</p>
 </code></pre>
 
 <p>This function tests that all of the users in the database only the users that
-<em>should</em> be there. In the event of a failure, you'll see diagnostics listing
+<em>should</em> be there. In the event of a failure, you&rsquo;ll see diagnostics listing
 the extra and/or missing users, like so:</p>
 
 <pre><code># Failed test 195: "There should be the correct users"
@@ -2043,7 +2085,7 @@ the extra and/or missing users, like so:</p>
 </code></pre>
 
 <p>This function tests that all of the groups in the database only the groups
-that <em>should</em> be there. In the event of a failure, you'll see diagnostics
+that <em>should</em> be there. In the event of a failure, you&rsquo;ll see diagnostics
 listing the extra and/or missing groups, like so:</p>
 
 <pre><code># Failed test 210: "There should be the correct groups"
@@ -2064,7 +2106,7 @@ listing the extra and/or missing groups, like so:</p>
 </code></pre>
 
 <p>This function tests that all of the procedural languages in the database only
-the languages that <em>should</em> be there. In the event of a failure, you'll see
+the languages that <em>should</em> be there. In the event of a failure, you&rsquo;ll see
 diagnostics listing the extra and/or missing languages, like so:</p>
 
 <pre><code># Failed test 225: "There should be the correct procedural languages"
@@ -2096,7 +2138,7 @@ search path, excluding <code>pg_catalog</code> and <code>information_schema</cod
 description is omitted, a generally useful default description will be
 generated.</p>
 
-<p>In the event of a failure, you'll see diagnostics listing the extra and/or
+<p>In the event of a failure, you&rsquo;ll see diagnostics listing the extra and/or
 missing opclasses, like so:</p>
 
 <pre><code># Failed test 251: "Schema public should have the correct operator classes"
@@ -2128,7 +2170,7 @@ argument is omitted, the rules must be visible in the search path, excluding
 <code>pg_catalog</code> and <code>information_schema</code>. If the description is omitted, a
 generally useful default description will be generated.</p>
 
-<p>In the event of a failure, you'll see diagnostics listing the extra and/or
+<p>In the event of a failure, you&rsquo;ll see diagnostics listing the extra and/or
 missing rules, like so:</p>
 
 <pre><code># Failed test 281: "Relation public.users should have the correct rules"
@@ -2160,7 +2202,7 @@ in the search path, excluding <code>pg_catalog</code> and <code>information_sche
 description is omitted, a generally useful default description will be
 generated.</p>
 
-<p>In the event of a failure, you'll see diagnostics listing the extra and/or
+<p>In the event of a failure, you&rsquo;ll see diagnostics listing the extra and/or
 missing types, like so:</p>
 
 <pre><code># Failed test 307: "Schema someschema should have the correct types"
@@ -2191,7 +2233,7 @@ the search path, excluding <code>pg_catalog</code> and <code>information_schema<
 description is omitted, a generally useful default description will be
 generated.</p>
 
-<p>In the event of a failure, you'll see diagnostics listing the extra and/or
+<p>In the event of a failure, you&rsquo;ll see diagnostics listing the extra and/or
 missing domains, like so:</p>
 
 <pre><code># Failed test 327: "Schema someschema should have the correct domains"
@@ -2222,7 +2264,7 @@ argument is omitted, the enums must be visible in the search path, excluding
 <code>pg_catalog</code> and <code>information_schema</code>. If the description is omitted, a
 generally useful default description will be generated.</p>
 
-<p>In the event of a failure, you'll see diagnostics listing the extra and/or
+<p>In the event of a failure, you&rsquo;ll see diagnostics listing the extra and/or
 missing enums, like so:</p>
 
 <pre><code># Failed test 333: "Schema someschema should have the correct enums"
@@ -2242,18 +2284,30 @@ missing enums, like so:</p>
         'integer AS reltime',
         'integer AS numeric',
         -- ...
-    ]
+    ],
     'Should have the correct casts'
 );
 </code></pre>
 
 <p>This function tests that all of the casts in the database are only the casts
 that <em>should</em> be in that database. Casts are specified as strings in a syntax
-similarly to how they're declared via <code>CREATE CAST</code>. The pattern is
-<code>:source_type AS :target_type</code>. If the description is omitted, a generally
-useful default description will be generated.</p>
+similarly to how they&rsquo;re declared via <code>CREATE CAST</code>. The pattern is
+<code>:source_type AS :target_type</code>. If either type was created with double-quotes
+to force mixed case or special characers, then you must use double quotes in
+the cast strings:</p>
 
-<p>In the event of a failure, you'll see diagnostics listing the extra and/or
+<pre><code>SELECT casts_are(
+    ARRAY[
+        'integer AS "myInteger"',
+        -- ...
+    ]
+);
+</code></pre>
+
+<p>If the description is omitted, a generally useful default description will be
+generated.</p>
+
+<p>In the event of a failure, you&rsquo;ll see diagnostics listing the extra and/or
 missing casts, like so:</p>
 
 <pre><code># Failed test 302: "There should be the correct casts"
@@ -2299,7 +2353,7 @@ one one of each of the operator types. <code>=(citext,citext)</code> is an infix
 operator, <code>-(bigint,NONE)</code> is a left operator, and <code>!(NONE,bigint)</code> is a right
 operator.</p>
 
-<p>In the event of a failure, you'll see diagnostics listing the extra and/or
+<p>In the event of a failure, you&rsquo;ll see diagnostics listing the extra and/or
 missing operators, like so:</p>
 
 <pre><code># Failed test 453: "Schema public should have the correct operators"
@@ -2311,9 +2365,9 @@ missing operators, like so:</p>
 
 <h2 id="To+Have+or+Have+Not">To Have or Have Not</h2>
 
-<p>Perhaps you're not so concerned with ensuring the <a href="#I+Object!" title="I Object!">precise correlation of
+<p>Perhaps you&rsquo;re not so concerned with ensuring the <a href="#I+Object!" title="I Object!">precise correlation of
 database objects</a>. Perhaps you just need to make sure
-that certain objects exist (or that certain objects <em>don&rsquo;t</em> exist). You've
+that certain objects exist (or that certain objects <em>don&rsquo;t</em> exist). You&rsquo;ve
 come to the right place.</p>
 
 <h3 id="has_tablespace"><code>has_tablespace( tablespace, location, description )</code></h3>
@@ -2497,11 +2551,11 @@ types of types, including base types, composite types, domains, enums, and
 pseudo-types. The first argument is a schema name, the second is a type name,
 and the third is the test description. If you omit the schema, the type must
 be visible in the search path. If you omit the test description, it will be
-set to &ldquo;Type <code>:type</code> should exist&rdquo;. If you're passing a schema and type rather
+set to &ldquo;Type <code>:type</code> should exist&rdquo;. If you&rsquo;re passing a schema and type rather
 than type and description, be sure to cast the arguments to <code>name</code> values so
 that your type name doesn&rsquo;t get treated as a description.</p>
 
-<p>If you've created a composite type and want to test that the composed types
+<p>If you&rsquo;ve created a composite type and want to test that the composed types
 are a part of it, use the column testing functions to verify them, like so:</p>
 
 <pre><code>CREATE TYPE foo AS (id int, name text);
@@ -2547,7 +2601,7 @@ type does <em>not</em> exist.</p>
 argument is a schema name, the second is the name of a domain, and the third
 is the test description. If you omit the schema, the domain must be visible in
 the search path. If you omit the test description, it will be set to &ldquo;Domain
-<code>:domain</code> should exist&rdquo;. If you're passing a schema and domain rather than
+<code>:domain</code> should exist&rdquo;. If you&rsquo;re passing a schema and domain rather than
 domain and description, be sure to cast the arguments to <code>name</code> values so that
 your domain name doesn&rsquo;t get treated as a description.</p>
 
@@ -2588,7 +2642,7 @@ specified domain does <em>not</em> exist.</p>
 supported in PostgreSQL 8.3 or higher. The first argument is a schema name,
 the second is the an enum name, and the third is the test description. If you
 omit the schema, the enum must be visible in the search path. If you omit the
-test description, it will be set to &ldquo;Enum <code>:enum</code> should exist&rdquo;. If you're
+test description, it will be set to &ldquo;Enum <code>:enum</code> should exist&rdquo;. If you&rsquo;re
 passing a schema and enum rather than enum and description, be sure to cast
 the arguments to <code>name</code> values so that your enum name doesn&rsquo;t get treated as a
 description.</p>
@@ -2747,14 +2801,14 @@ specified trigger does <em>not</em> exist.</p>
     'myschema',
     'sometable',
     'somerule,
-    'Trigger "somerule" should exist'
+    'Rule "somerule" should exist'
 );
 
 SELECT has_rule( 'sometable', 'somerule' );
 </code></pre>
 
 <p>Tests to see if the specified table has the named rule. The <code>:description</code> is
-optional, and if the schema is omitted, the table with which the trigger is
+optional, and if the schema is omitted, the table with which the rule is
 associated must be visible in the search path.</p>
 
 <h3 id="hasnt_rule"><code>hasnt_rule( schema, table, rule, description )</code></h3>
@@ -2881,7 +2935,7 @@ specified function (optionally with the specified signature) does <em>not</em> e
 
 <p>Tests for the existence of a cast. A cast consists of a source data type, a
 target data type, and perhaps a (possibly schema-qualified) function. If you
-omit the description four the 3- or 4-argument version, you'll need to cast
+omit the description four the 3- or 4-argument version, you&rsquo;ll need to cast
 the function name to the <code>NAME</code> data type so that PostgreSQL doesn&rsquo;t resolve
 the function name as a description. For example:</p>
 
@@ -3111,7 +3165,7 @@ procedural language.</p>
 
 <h2 id="Table+For+One">Table For One</h2>
 
-<p>Okay, you're sure that your database has exactly the <a href="#I+Object!" title="I Object!">right schema</a> and that all of the objects you need <a href="#To+Have+or+Have+Not" title="To Have or Have Not">are
+<p>Okay, you&rsquo;re sure that your database has exactly the <a href="#I+Object!" title="I Object!">right schema</a> and that all of the objects you need <a href="#To+Have+or+Have+Not" title="To Have or Have Not">are
 there</a>. So let&rsquo;s take a closer
 look at tables. There are a lot of ways to look at tables, to make sure that
 they have all the columns, indexes, constraints, keys, and indexes they need.
@@ -3678,7 +3732,14 @@ SELECT col_is_unique(
 </code></pre>
 
 <p>Just like <code>col_is_pk()</code>, except that it test that the column or array of
-columns have a unique constraint on them.</p>
+columns have a unique constraint on them. In the event of failure, the
+diagnostics will list the unique constraints that were actually found, if any:</p>
+
+<pre><code>Failed test 40: "users.email should be unique"
+        have: {username}
+              {first_name,last_name}
+        want: {email}
+</code></pre>
 
 <h3 id="has_check"><code>has_check( schema, table, description )</code></h3>
 
@@ -3691,6 +3752,10 @@ columns have a unique constraint on them.</p>
     'sometable',
     'Table myschema.sometable should have a check constraint'
 );
+
+Failed test 41: "users.email should have a check constraint"
+        have: {username}
+        want: {email}
 </code></pre>
 
 <p>Tests whether or not a table has a check constraint. The first argument is the
@@ -3699,6 +3764,9 @@ If the schema is omitted, the table must be visible in the search path. If the
 test description is omitted, it will be set to &ldquo;Table <code>:table</code> should have a
 check constraint&rdquo;. Note that this test will fail if the table in question does
 not exist.</p>
+
+<p>In the event of failure, the diagnostics will list the columns on the table
+that do have check constraints, if any:</p>
 
 <h3 id="col_has_check"><code>col_has_check( schema, table, column, description )</code></h3>
 
@@ -3905,17 +3973,17 @@ one tested; otherwise, a function with any signature will be checked (pass an
 empty array to specify a function with an empty signature). If the
 <code>:description</code> is omitted, a reasonable substitute will be created.</p>
 
-<p>In the event of a failure, you'll useful diagnostics will tell you what went
+<p>In the event of a failure, you&rsquo;ll useful diagnostics will tell you what went
 wrong, for example:</p>
 
-<pre><code># Failed test 211: &quot;Function mychema.eat(integer, text) should be written in perl&quot;
+<pre><code># Failed test 211: "Function mychema.eat(integer, text) should be written in perl"
 #         have: plpgsql
 #         want: perl
 </code></pre>
 
-<p>If the function does not exist, you'll be told that, too.</p>
+<p>If the function does not exist, you&rsquo;ll be told that, too.</p>
 
-<pre><code># Failed test 212: &quot;Function myschema.grab() should be written in sql
+<pre><code># Failed test 212: "Function myschema.grab() should be written in sql
 #     Function myschema.grab() does not exist
 </code></pre>
 
@@ -3964,7 +4032,7 @@ signature will be checked (pass an empty array to specify a function with an
 empty signature). If the <code>:description</code> is omitted, a reasonable substitute
 will be created.</p>
 
-<p>In the event of a failure, you'll useful diagnostics will tell you what went
+<p>In the event of a failure, you&rsquo;ll useful diagnostics will tell you what went
 wrong, for example:</p>
 
 <pre><code># Failed test 283: "Function oww(integer, text) should return integer"
@@ -3972,7 +4040,7 @@ wrong, for example:</p>
 #         want: integer
 </code></pre>
 
-<p>If the function does not exist, you'll be told that, too.</p>
+<p>If the function does not exist, you&rsquo;ll be told that, too.</p>
 
 <pre><code># Failed test 284: "Function oui(integer, text) should return integer"
 #     Function oui(integer, text) does not exist
@@ -4151,7 +4219,7 @@ will be the one tested; otherwise, a function with any signature will be
 checked (pass an empty array to specify a function with an empty signature).
 If the <code>:description</code> is omitted, a reasonable substitute will be created.</p>
 
-<p>In the event of a failure, you'll useful diagnostics will tell you what went
+<p>In the event of a failure, you&rsquo;ll useful diagnostics will tell you what went
 wrong, for example:</p>
 
 <pre><code># Failed test 211: "Function mychema.eat(integer, text) should be IMMUTABLE"
@@ -4159,7 +4227,7 @@ wrong, for example:</p>
 #         want: IMMUTABLE
 </code></pre>
 
-<p>If the function does not exist, you'll be told that, too.</p>
+<p>If the function does not exist, you&rsquo;ll be told that, too.</p>
 
 <pre><code># Failed test 212: "Function myschema.grab() should be IMMUTABLE
 #     Function myschema.grab() does not exist
@@ -4337,13 +4405,13 @@ don&rsquo;t supply a test description, pgTAP will create a reasonable one for yo
 #         want: explicit
 </code></pre>
 
-<p>If the cast doesn&rsquo;t exist, you'll be told that, too:</p>
+<p>If the cast doesn&rsquo;t exist, you&rsquo;ll be told that, too:</p>
 
 <pre><code># Failed test 199: "Cast ("integer" AS foo) context should be explicit"
 #     Cast ("integer" AS foo) does not exist
 </code></pre>
 
-<p>But you've already used <code>has_cast()</code> to make sure of that, right?</p>
+<p>But you&rsquo;ve already used <code>has_cast()</code> to make sure of that, right?</p>
 
 <h3 id="is_superuser"><code>is_superuser( user, desc )</code></h3>
 
@@ -4450,14 +4518,14 @@ in any case, or even with a single letter (&ldquo;s&rdquo;, &ldquo;i&rdquo;, &ld
 <code>:schema</code> argument is omitted, then the table must be visible in the search
 path. If the <code>:description</code> is omitted, a reasonable default will be created.</p>
 
-<p>If the test fails, you'll see useful diagnostics, such as:</p>
+<p>If the test fails, you&rsquo;ll see useful diagnostics, such as:</p>
 
 <pre><code># Failed test 133: "Rule ins_me should be on INSERT to public.widgets"
 #         have: UPDATE
 #         want: INSERT
 </code></pre>
 
-<p>If the rule in question does not exist, you'll be told that, too:</p>
+<p>If the rule in question does not exist, you&rsquo;ll be told that, too:</p>
 
 <pre><code># Failed test 134: "Rule upd_me should be on UPDATE to public.widgets"
 #     Rule upd_me does not exist on public.widgets
@@ -4475,21 +4543,27 @@ functions</a>. Read on to learn all about it.</p>
 
 <h2 id="Diagnostics">Diagnostics</h2>
 
-<p>If you pick the right test function, you'll usually get a good idea of what
+<p>If you pick the right test function, you&rsquo;ll usually get a good idea of what
 went wrong when it failed. But sometimes it doesn&rsquo;t work out that way. So here
 we have ways for you to write your own diagnostic messages which are safer
 than just <code>\echo</code> or <code>SELECT foo</code>.</p>
 
 <h3 id="diag"><code>diag( text )</code></h3>
 
-<p>Returns a diagnostic message which is guaranteed not to interfere with
-test output. Handy for this sort of thing:</p>
+<h3 id="diag1"><code>diag( anyelement )</code></h3>
+
+<h3 id="diag2"><code>diag( variadic anyarray )</code></h3>
+
+<h3 id="diag3"><code>diag( variadic text[] )</code></h3>
+
+<p>Returns a diagnostic message which is guaranteed not to interfere with test
+output. Handy for this sort of thing:</p>
 
 <pre><code>-- Output a diagnostic message if the collation is not en_US.UTF-8.
 SELECT diag(
-     E'These tests expect LC_COLLATE to be en_US.UTF-8,\n'
-  || 'but yours is set to ' || setting || E'.\n'
-  || 'As a result, some tests may fail. YMMV.'
+     E'These tests expect LC_COLLATE to be en_US.UTF-8,\n',
+     'but yours is set to ', setting, E'.\n',
+     'As a result, some tests may fail. YMMV.'
 )
   FROM pg_settings
  WHERE name = 'lc_collate'
@@ -4502,6 +4576,11 @@ SELECT diag(
 # but yours is set to en_US.ISO8859-1.
 # As a result, some tests may fail. YMMV.
 </code></pre>
+
+<p>You can pass data of any type to <code>diag()</code> on PostgreSQL 8.3 and higher and it
+will all be converted to text for the diagnostics. On PostgreSQL 8.4 and
+higher, you can pass any number of arguments (as long as they are all the same
+data type) and they will be concatenated together.</p>
 
 <h2 id="Conditional+Tests">Conditional Tests</h2>
 
@@ -4535,10 +4614,10 @@ have run.</p>
 <p>Note how use of the conditional <code>CASE</code> statement has been used to determine
 whether or not to run a couple of tests. If they are to be run, they are run
 through <code>collect_tap()</code>, so that we can run a few tests in the same query. If
-we don&rsquo;t want to run them, we call <code>skip()</code> and tell it how many tests we're
+we don&rsquo;t want to run them, we call <code>skip()</code> and tell it how many tests we&rsquo;re
 skipping.</p>
 
-<p>If you don&rsquo;t specify how many tests to skip, <code>skip()</code> will assume that you're
+<p>If you don&rsquo;t specify how many tests to skip, <code>skip()</code> will assume that you&rsquo;re
 skipping only one. This is useful for the simple case, of course:</p>
 
 <pre><code>SELECT CASE current_schema()
@@ -4573,7 +4652,7 @@ because you haven&rsquo;t fixed a bug or haven&rsquo;t finished a new feature:</
 
 <pre><code>SELECT todo('URIGeller not finished', 2);
 
-\set card '\'' Eight of clubs '\''
+\set card '\'Eight of clubs\''
 SELECT is( URIGeller.yourCard(), :card, 'Is THIS your card?' );
 SELECT is( URIGeller.bendSpoon(), 'bent', 'Spoon bending, how original' );
 </code></pre>
@@ -4586,11 +4665,11 @@ will report it as an unexpected success. You then know that the thing you had
 todo is done and can remove the call to <code>todo()</code>.</p>
 
 <p>The nice part about todo tests, as opposed to simply commenting out a block of
-tests, is that they're like a programmatic todo list. You know how much work
-is left to be done, you're aware of what bugs there are, and you'll know
-immediately when they're fixed.</p>
+tests, is that they&rsquo;re like a programmatic todo list. You know how much work
+is left to be done, you&rsquo;re aware of what bugs there are, and you&rsquo;ll know
+immediately when they&rsquo;re fixed.</p>
 
-<h3 id="todo_start"><code>todo_start( :why )</code></h3>
+<h3 id="todo_start"><code>todo_start( why )</code></h3>
 
 <h3 id="todo_start1"><code>todo_start( )</code></h3>
 
@@ -4598,7 +4677,7 @@ immediately when they're fixed.</p>
 the <code>todo_end()</code> function is called.</p>
 
 <p>The <code>todo()</code> syntax is generally pretty good about figuring out whether or not
-we're in a TODO test. However, often we find it difficult to specify the
+we&rsquo;re in a TODO test. However, often we find it difficult to specify the
 <em>number</em> of tests that are TODO tests. Thus, you can instead use
 <code>todo_start()</code> and <code>todo_end()</code> to more easily define the scope of your TODO
 tests.</p>
@@ -4890,7 +4969,7 @@ failing tests.</p>
 <pre><code>SELECT * FROM runtests( 'testschema', '^test' );
 </code></pre>
 
-<p>If you'd like pgTAP to plan, run all of your tests functions, and finish all
+<p>If you&rsquo;d like pgTAP to plan, run all of your tests functions, and finish all
 in one fell swoop, use <code>runtests()</code>. This most closely emulates the xUnit
 testing environment, similar to the functionality of
 <a href="http://en.dklab.ru/lib/dklab_pgunit/">PGUnit</a> and
@@ -4929,27 +5008,27 @@ transaction, and each test is run in a subtransaction that also includes
 execution all the setup and teardown functions. All transactions are rolled
 back after each test function, and at the end of testing, leaving your
 database in largely the same condition as it was in when you started it (the
-one exception I'm aware of being sequences, which are not rolled back to the
+one exception I&rsquo;m aware of being sequences, which are not rolled back to the
 value used at the beginning of a rolled-back transaction).</p>
 
 <h1 id="Compose+Yourself">Compose Yourself</h1>
 
-<p>So, you've been using pgTAP for a while, and now you want to write your own
+<p>So, you&rsquo;ve been using pgTAP for a while, and now you want to write your own
 test functions. Go ahead; I don&rsquo;t mind. In fact, I encourage it. How? Why,
 by providing a function you can use to test your tests, of course!</p>
 
 <p>But first, a brief primer on writing your own test functions. There isn&rsquo;t much
 to it, really. Just write your function to do whatever comparison you want. As
 long as you have a boolean value indicating whether or not the test passed,
-you're golden. Just then use <code>ok()</code> to ensure that everything is tracked
+you&rsquo;re golden. Just then use <code>ok()</code> to ensure that everything is tracked
 appropriately by a test script.</p>
 
 <p>For example, say that you wanted to create a function to ensure that two text
 values always compare case-insensitively. Sure you could do this with <code>is()</code>
-and the <code>LOWER()</code> function, but if you're doing this all the time, you might
+and the <code>LOWER()</code> function, but if you&rsquo;re doing this all the time, you might
 want to simplify things. Here&rsquo;s how to go about it:</p>
 
-<pre><code>CREATE OR REPLACE FUNCTION is (text, text, text)
+<pre><code>CREATE OR REPLACE FUNCTION lc_is (text, text, text)
 RETURNS TEXT AS $$
 DECLARE
     result BOOLEAN;
@@ -4967,7 +5046,7 @@ $$ LANGUAGE plpgsql;
 that the output is properly formatted, uses the next number in the sequence,
 and the results are properly recorded in the database for summarization at
 the end of the test script. You can also provide diagnostics as appropriate;
-just append them to the output of <code>ok()</code> as we've done here.</p>
+just append them to the output of <code>ok()</code> as we&rsquo;ve done here.</p>
 
 <p>Of course, you don&rsquo;t have to directly use <code>ok()</code>; you can also use another
 pgTAP function that ultimately calls <code>ok()</code>. IOW, while the above example
@@ -4975,7 +5054,7 @@ is instructive, this version is easier on the eyes:</p>
 
 <pre><code>CREATE OR REPLACE FUNCTION lc_is ( TEXT, TEXT, TEXT )
 RETURNS TEXT AS $$
-     SELECT is( LOWER($1), LOWER(2), $3);
+     SELECT is( LOWER($1), LOWER($2), $3);
 $$ LANGUAGE sql;
 </code></pre>
 
@@ -4984,7 +5063,7 @@ output.</p>
 
 <h2 id="Testing+Test+Functions">Testing Test Functions</h2>
 
-<p>Now you've written your test function. So how do you test it? Why, with this
+<p>Now you&rsquo;ve written your test function. So how do you test it? Why, with this
 handy-dandy test function!</p>
 
 <h3 id="check_test"><code>check_test( test_output, is_ok, name, want_description, want_diag, match_diag )</code></h3>
@@ -5022,20 +5101,21 @@ Required.</li>
 <li><code>:name</code> &ndash; A brief name for your test, to make it easier to find failures in
 your test script. Optional.</li>
 <li><code>:want_description</code> &ndash; Expected test description to be output by the test.
-Optional.</li>
+Optional. Use an empty string to test that no description is output.</li>
 <li><code>:want_diag</code> &ndash; Expected diagnostic message output during the execution of
-a test. Must always follow whatever is output by the call to <code>ok()</code>.</li>
+a test. Must always follow whatever is output by the call to <code>ok()</code>.
+Optional. Use an empty string to test that no description is output.</li>
 <li><code>:match_diag</code> &ndash; Use <code>matches()</code> to compare the diagnostics rather than
-<code>:is()</code>. Useful for those situations where you're not sure what will be in
+<code>:is()</code>. Useful for those situations where you&rsquo;re not sure what will be in
 the output, but you can match it with a regular expression.</li>
 </ul>
 
 
-<p>Now, on with the detailed documentation. At its simplest, you just pass it the
-output of your test (and it must be one and <strong>only one</strong> test function&rsquo;s
-output, or you'll screw up the count, so don&rsquo;t do that!) and a boolean value
-indicating whether or not you expect the test to have passed. That looks
-something like the second example above.</p>
+<p>Now, on with the detailed documentation. At its simplest, you just pass in the
+output of your test function (and it must be one and <strong>only one</strong> test
+function&rsquo;s output, or you&rsquo;ll screw up the count, so don&rsquo;t do that!) and a
+boolean value indicating whether or not you expect the test to have passed.
+That looks something like the second example above.</p>
 
 <p>All other arguments are optional, but I recommend that you <em>always</em> include a
 short test name to make it easier to track down failures in your test script.
@@ -5046,7 +5126,7 @@ like so:</p>
 <pre><code>not ok 14 - Test should pass
 </code></pre>
 
-<p>Yeah, but which test? So give it a very succinct name and you'll know what
+<p>Yeah, but which test? So give it a very succinct name and you&rsquo;ll know what
 test. If you have a lot of these, it won&rsquo;t be much help. So give each call
 to <code>check_test()</code> a name:</p>
 
@@ -5057,7 +5137,7 @@ to <code>check_test()</code> a name:</p>
 );
 </code></pre>
 
-<p>Then you'll get output more like this:</p>
+<p>Then you&rsquo;ll get output more like this:</p>
 
 <pre><code>not ok 14 - Simple lc_test should pass
 </code></pre>
@@ -5103,9 +5183,9 @@ diagnostics generated during the test to an expected string. Such diagnostics
 test function should not call <code>diag()</code> until after it calls <code>ok()</code> or things
 will get truly funky.</p>
 
-<p>Assuming you've followed that rule in your <code>lc_eq()</code> test function, to see
-what happens when a <code>lc_eq()</code> fails. Write your test to test the diagnostics
-like so:</p>
+<p>Assuming you&rsquo;ve followed that rule in your <code>lc_eq()</code> test function, see what
+happens when a <code>lc_eq()</code> fails. Write your test to test the diagnostics like
+so:</p>
 
 <pre><code>SELECT * FROM check_test(
     lc_eq( ''this'', ''THat'' ),
@@ -5147,7 +5227,7 @@ But either way, <em>do</em> test your diagnostics!</p>
 <h1 id="Compatibility">Compatibility</h1>
 
 <p>Here are some notes on how pgTAP is built for particular versions of
-PostgreSQL. This helps you to understand any side-effects. If you'd rather not
+PostgreSQL. This helps you to understand any side-effects. If you&rsquo;d rather not
 have these changes in your schema, build <code>pgTAP</code> with a schema just for it,
 instead:</p>
 
@@ -5171,19 +5251,19 @@ convert to the same text string may be considered incorrectly equivalent.</li>
 <li>A C function, <code>pg_typeof()</code>, is built and installed in a DSO. This is for
 compatibility with the same function that ships in 8.4 core, and is required
 for <code>cmp_ok()</code> and <code>isa_ok()</code> to work.</li>
-<li>The variadic form of <code>collect_tap()</code> is not available. Instead you must pass
-an array of TAP to it.</li>
+<li>The variadic forms of <code>diag()</code> and <code>collect_tap()</code> are not available.
+You can pass an array of TAP to <code>collect_tap()</code>, however.</li>
 </ul>
 
 
 <h2 id="8.2+and+Down">8.2 and Down</h2>
 
 <ul>
-<li>A patch is applied that removes the <code>enum_has_labels()</code> function, and
-<code>col_has_default()</code> cannot be used to test for columns specified with
-<code>DEFAULT NULL</code> (even though that&rsquo;s the implied default default). The
-<code>has_enums()</code> function won&rsquo;t work. Also, a number of assignments casts are
-added to increase compatibility. The casts are:
+<li><p>A patch is applied that removes the <code>enum_has_labels()</code>, the
+<code>diag(anyelement)</code> function and <code>col_has_default()</code> cannot be used to test
+for columns specified with <code>DEFAULT NULL</code> (even though that&rsquo;s the implied
+default default). The <code>has_enums()</code> function won&rsquo;t work. Also, a number of
+assignments casts are added to increase compatibility. The casts are:</p>
 
 <ul>
 <li><code>boolean</code> to <code>text</code></li>
@@ -5225,6 +5305,9 @@ added to increase compatibility. The casts are:
 <h2 id="To+Do">To Do</h2>
 
 <ul>
+<li>Add <code>isnt_empty()</code> to complement <code>is_empty()</code>.</li>
+<li>Add variants of <code>set_eq()</code>, <code>bag_eq()</code>, and <code>results_eq()</code> that take an
+array of records as the second argument.</li>
 <li>Add <code>schema, table, colname</code> variations of the table-checking functions
 (<code>table_has_column()</code>, <code>col_type_is()</code>, etc.). That is, allow the
 description to be optional if the schema is included in the function call.</li>
@@ -5262,25 +5345,21 @@ code): <code>rowtype_is()</code></li>
 <li>One with schema testing functions: <code>has_table()</code>, <code>tables_are()</code>, etc.</li>
 </ul>
 </li>
-</ul>
-
-
-<h2 id="Supported+Versions">Supported Versions</h2>
-
-<p>pgTAP has been tested on the following builds of PostgreSQL:</p>
+<li>Add useful negation function tests:
 
 <ul>
-<li>PostgreSQL 9.0beta1 on x86_64-apple-darwin10.3.0</li>
-<li>PostgreSQL 8.4.4 on i386-apple-darwin10.3.0</li>
-<li>PostgreSQL 8.3.11 on i386-apple-darwin10.3.0</li>
-<li>PostgreSQL 8.2.17 on i386-apple-darwin10.3.0</li>
-<li>PostgreSQL 8.1.21 on i686-apple-darwin10.3.0</li>
-<li>PostgreSQL 8.0.25 on i686-apple-darwin10.3.0</li>
+<li><code>isnt_definer()</code></li>
+<li><code>isnt_strict()</code></li>
+<li><code>isnt_aggregate()</code></li>
+</ul>
+</li>
+<li>Modify function testing assertions so that functions can be specified with
+full signatures, so that a polymorphic functions can be independently tested
+for language, volatility, etc.</li>
 </ul>
 
 
-<p>If you know of others, please submit them! Use
-<code>psql -d template1 -c 'SELECT VERSION()'</code> to get the formal build version and OS.</p>
+<h1 id="Metadata">Metadata</h1>
 
 <h2 id="Public+Repository">Public Repository</h2>
 
@@ -5308,7 +5387,7 @@ comments, suggestions, and bug reports are welcomed there.</p>
 
 <h2 id="Copyright+and+License">Copyright and License</h2>
 
-<p>Copyright &copy; 2008-2009 Kineticode, Inc. Some rights reserved.</p>
+<p>Copyright &copy; 2008-2011 Kineticode, Inc. Some rights reserved.</p>
 
 <p>Permission to use, copy, modify, and distribute this software and its
 documentation for any purpose, without fee, and without a written agreement is
