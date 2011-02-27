@@ -15,7 +15,7 @@
   <body>
     <div id="main">
       <!-- DOC INTRO HERE -->
-<h1 id="pgTAP+0.25.0">pgTAP 0.25.0</h1>
+<h1 id="pgTAP.0.25.0">pgTAP 0.25.0</h1>
 
 <p>pgTAP is a unit testing framework for PostgreSQL written in PL/pgSQL and
 PL/SQL. It includes a comprehensive collection of
@@ -29,15 +29,15 @@ used in the xUnit testing style.</p>
 <ul>
 <li><a href="#Synopsis">Synopsis</a></li>
 <li><a href="#Installation">Installation</a><ul>
-<li><a href="#Testing+pgTAP+with+pgTAP">Testing pgTAP with pgTAP</a></li>
-<li><a href="#Adding+pgTAP+to+a+Database">Adding pgTAP to a Database</a></li></ul></li>
-<li><a href="#pgTAP+Test+Scripts">pgTAP Test Scripts</a><ul>
-<li><a href="#Using+`pg_prove`">Using <code>pg_prove</code></a></li></ul></li>
-<li><a href="#Using+pgTAP">Using pgTAP</a><ul>
-<li><a href="#I+love+it+when+a+plan+comes+together">I love it when a plan comes together</a></li>
-<li><a href="#What+a+sweet+unit!">What a sweet unit!</a></li>
-<li><a href="#Test+names">Test names</a></li>
-<li><a href="#I'm+ok,+you're+not+ok">I&rsquo;m ok, you&rsquo;re not ok</a><ul>
+<li><a href="#Testing.pgTAP.with.pgTAP">Testing pgTAP with pgTAP</a></li>
+<li><a href="#Adding.pgTAP.to.a.Database">Adding pgTAP to a Database</a></li></ul></li>
+<li><a href="#pgTAP.Test.Scripts">pgTAP Test Scripts</a><ul>
+<li><a href="#Using.pg_prove.">Using <code>pg_prove</code></a></li></ul></li>
+<li><a href="#Using.pgTAP">Using pgTAP</a><ul>
+<li><a href="#I.love.it.when.a.plan.comes.together">I love it when a plan comes together</a></li>
+<li><a href="#What.a.sweet.unit.">What a sweet unit!</a></li>
+<li><a href="#Test.names">Test names</a></li>
+<li><a href="#I.m.ok.you.re.not.ok">I&rsquo;m ok, you&rsquo;re not ok</a><ul>
 <li><a href="#ok"><code>ok()</code></a></li>
 <li><a href="#is"><code>is()</code></a></li>
 <li><a href="#isnt"><code>isnt()</code></a></li>
@@ -53,8 +53,8 @@ used in the xUnit testing style.</p>
 <li><a href="#pass"><code>pass()</code></a></li>
 <li><a href="#fail"><code>fail()</code></a></li>
 <li><a href="#isa_ok"><code>isa_ok()</code></a></li></ul></li></ul></li>
-<li><a href="#Pursuing+Your+Query">Pursuing Your Query</a><ul>
-<li><a href="#To+Error+is+Human">To Error is Human</a><ul>
+<li><a href="#Pursuing.Your.Query">Pursuing Your Query</a><ul>
+<li><a href="#To.Error.is.Human">To Error is Human</a><ul>
 <li><a href="#throws_ok"><code>throws_ok()</code></a></li>
 <li><a href="#throws_like"><code>throws_like()</code></a></li>
 <li><a href="#throws_ilike"><code>throws_ilike()</code></a></li>
@@ -62,7 +62,7 @@ used in the xUnit testing style.</p>
 <li><a href="#throws_imatching"><code>throws_imatching()</code></a></li>
 <li><a href="#lives_ok"><code>lives_ok()</code></a></li>
 <li><a href="#performs_ok"><code>performs_ok()</code></a></li></ul></li>
-<li><a href="#Can+You+Relate?">Can You Relate?</a><ul>
+<li><a href="#Can.You.Relate.">Can You Relate?</a><ul>
 <li><a href="#results_eq"><code>results_eq()</code></a></li>
 <li><a href="#results_ne"><code>results_ne()</code></a></li>
 <li><a href="#set_eq"><code>set_eq()</code></a></li>
@@ -75,8 +75,8 @@ used in the xUnit testing style.</p>
 <li><a href="#bag_hasnt"><code>bag_hasnt()</code></a></li>
 <li><a href="#is_empty"><code>is_empty()</code></a></li>
 <li><a href="#row_eq"><code>row_eq()</code></a></li></ul></li></ul></li>
-<li><a href="#The+Schema+Things">The Schema Things</a><ul>
-<li><a href="#I+Object!">I Object!</a><ul>
+<li><a href="#The.Schema.Things">The Schema Things</a><ul>
+<li><a href="#I.Object.">I Object!</a><ul>
 <li><a href="#tablespaces_are"><code>tablespaces_are()</code></a></li>
 <li><a href="#schemas_are"><code>schemas_are()</code></a></li>
 <li><a href="#tables_are"><code>tables_are()</code></a></li>
@@ -97,7 +97,7 @@ used in the xUnit testing style.</p>
 <li><a href="#enums_are"><code>enums_are()</code></a></li>
 <li><a href="#casts_are"><code>casts_are()</code></a></li>
 <li><a href="#operators_are"><code>operators_are()</code></a></li></ul></li>
-<li><a href="#To+Have+or+Have+Not">To Have or Have Not</a><ul>
+<li><a href="#To.Have.or.Have.Not">To Have or Have Not</a><ul>
 <li><a href="#has_tablespace"><code>has_tablespace()</code></a></li>
 <li><a href="#hasnt_tablespace"><code>hasnt_tablespace()</code></a></li>
 <li><a href="#has_schema"><code>has_schema()</code></a></li>
@@ -137,7 +137,7 @@ used in the xUnit testing style.</p>
 <li><a href="#hasnt_group"><code>hasnt_group()</code></a></li>
 <li><a href="#has_language"><code>has_language()</code></a></li>
 <li><a href="#hasnt_language"><code>hasnt_language()</code></a></li></ul></li>
-<li><a href="#Table+For+One">Table For One</a><ul>
+<li><a href="#Table.For.One">Table For One</a><ul>
 <li><a href="#has_column"><code>has_column()</code></a></li>
 <li><a href="#hasnt_column"><code>hasnt_column()</code></a></li>
 <li><a href="#col_not_null"><code>col_not_null()</code></a></li>
@@ -163,7 +163,7 @@ used in the xUnit testing style.</p>
 <li><a href="#index_is_primary"><code>index_is_primary()</code></a></li>
 <li><a href="#is_clustered"><code>is_clustered()</code></a></li>
 <li><a href="#index_is_type"><code>index_is_type()</code></a></li></ul></li>
-<li><a href="#Feeling+Funky">Feeling Funky</a><ul>
+<li><a href="#Feeling.Funky">Feeling Funky</a><ul>
 <li><a href="#can"><code>can()</code></a></li>
 <li><a href="#function_lang_is"><code>function_lang_is()</code></a></li>
 <li><a href="#function_returns"><code>function_returns()</code></a></li>
@@ -172,7 +172,7 @@ used in the xUnit testing style.</p>
 <li><a href="#is_aggregate"><code>is_aggregate()</code></a></li>
 <li><a href="#volatility_is"><code>volatility_is()</code></a></li>
 <li><a href="#trigger_is"><code>trigger_is()</code></a></li></ul></li>
-<li><a href="#Database+Deets">Database Deets</a><ul>
+<li><a href="#Database.Deets">Database Deets</a><ul>
 <li><a href="#language_is_trusted"><code>language_is_trusted()</code></a></li>
 <li><a href="#enum_has_labels"><code>enum_has_labels()</code></a></li>
 <li><a href="#domain_type_is"><code>domain_type_is()</code></a></li>
@@ -183,16 +183,16 @@ used in the xUnit testing style.</p>
 <li><a href="#is_member_of"><code>is_member_of()</code></a></li>
 <li><a href="#rule_is_instead"><code>rule_is_instead()</code></a></li>
 <li><a href="#rule_is_on"><code>rule_is_on()</code></a></li></ul></li></ul></li>
-<li><a href="#No+Test+for+the+Wicked">No Test for the Wicked</a><ul>
+<li><a href="#No.Test.for.the.Wicked">No Test for the Wicked</a><ul>
 <li><a href="#Diagnostics">Diagnostics</a><ul>
 <li><a href="#diag"><code>diag()</code></a></li></ul></li>
-<li><a href="#Conditional+Tests">Conditional Tests</a><ul>
+<li><a href="#Conditional.Tests">Conditional Tests</a><ul>
 <li><a href="#skip"><code>skip()</code></a></li>
 <li><a href="#todo"><code>todo()</code></a></li>
 <li><a href="#todo_start"><code>todo_start()</code></a></li>
-<li><a href="#todo_end()">todo_end()</a></li>
-<li><a href="#in_todo()">in_todo()</a></li></ul></li>
-<li><a href="#Utility+Functions">Utility Functions</a><ul>
+<li><a href="#todo_end"><code>todo_end()</code></a></li>
+<li><a href="#in_todo"><code>in_todo()</code></a></li></ul></li>
+<li><a href="#Utility.Functions">Utility Functions</a><ul>
 <li><a href="#pgtap_version"><code>pgtap_version()</code></a></li>
 <li><a href="#pg_version"><code>pg_version()</code></a></li>
 <li><a href="#pg_version_num"><code>pg_version_num()</code></a></li>
@@ -202,24 +202,24 @@ used in the xUnit testing style.</p>
 <li><a href="#display_oper"><code>display_oper()</code></a></li>
 <li><a href="#pg_typeof"><code>pg_typeof()</code></a></li>
 <li><a href="#findfuncs"><code>findfuncs()</code></a></li></ul></li>
-<li><a href="#Tap+that+Batch">Tap that Batch</a><ul>
+<li><a href="#Tap.that.Batch">Tap that Batch</a><ul>
 <li><a href="#do_tap"><code>do_tap()</code></a></li>
 <li><a href="#runtests"><code>runtests()</code></a></li></ul></li></ul></li>
-<li><a href="#Compose+Yourself">Compose Yourself</a><ul>
-<li><a href="#Testing+Test+Functions">Testing Test Functions</a><ul>
+<li><a href="#Compose.Yourself">Compose Yourself</a><ul>
+<li><a href="#Testing.Test.Functions">Testing Test Functions</a><ul>
 <li><a href="#check_test"><code>check_test()</code></a></li></ul></li></ul></li>
 <li><a href="#Compatibility">Compatibility</a><ul>
-<li><a href="#8.4+and+Up">8.4 and Up</a></li>
-<li><a href="#8.3+and+Down">8.3 and Down</a></li>
-<li><a href="#8.2+and+Down">8.2 and Down</a></li>
-<li><a href="#8.0">8.0</a></li>
-<li><a href="#To+Do">To Do</a></li></ul></li>
+<li><a href="#L8.4.and.Up">8.4 and Up</a></li>
+<li><a href="#L8.3.and.Down">8.3 and Down</a></li>
+<li><a href="#L8.2.and.Down">8.2 and Down</a></li>
+<li><a href="#L8.0">8.0</a></li></ul></li>
+<li><a href="#To.Do">To Do</a></li>
 <li><a href="#Metadata">Metadata</a><ul>
-<li><a href="#Public+Repository">Public Repository</a></li>
-<li><a href="#Mail+List">Mail List</a></li>
+<li><a href="#Public.Repository">Public Repository</a></li>
+<li><a href="#Mail.List">Mail List</a></li>
 <li><a href="#Author">Author</a></li>
 <li><a href="#Credits">Credits</a></li>
-<li><a href="#Copyright+and+License">Copyright and License</a></li>
+<li><a href="#Copyright.and.License">Copyright and License</a></li>
 </ul>
         <!-- END TOC -->
       </div>
@@ -331,7 +331,7 @@ make install
 make installcheck
 </code></pre>
 
-<h2 id="Testing+pgTAP+with+pgTAP">Testing pgTAP with pgTAP</h2>
+<h2 id="Testing.pgTAP.with.pgTAP">Testing pgTAP with pgTAP</h2>
 
 <p>In addition to the PostgreSQL-standard <code>installcheck</code> target, the <code>test</code>
 target uses the <code>pg_prove</code> Perl program to do its testing, which will be
@@ -355,7 +355,7 @@ PostgreSQL client environment variables:</p>
 <pre><code>make test PGUSER=postgres
 </code></pre>
 
-<h2 id="Adding+pgTAP+to+a+Database">Adding pgTAP to a Database</h2>
+<h2 id="Adding.pgTAP.to.a.Database">Adding pgTAP to a Database</h2>
 
 <p>Once pgTAP has been built and tested, you can install it into a
 PL/pgSQL-enabled database:</p>
@@ -384,7 +384,7 @@ directory output by <code>pg_config --sharedir</code>. So you can always do this
 <p>But do be aware that, if you&rsquo;ve specified a schema using <code>$TAPSCHEMA</code>, that
 schema will always be created and the pgTAP functions placed in it.</p>
 
-<h1 id="pgTAP+Test+Scripts">pgTAP Test Scripts</h1>
+<h1 id="pgTAP.Test.Scripts">pgTAP Test Scripts</h1>
 
 <p>You can distribute <code>pgtap.sql</code> with any PostgreSQL distribution, such as a
 custom data type. For such a case, if your users want to run your test suite
@@ -443,7 +443,7 @@ ok 1 - My test passed, w00t!
 output is proper TAP and that all changes are rolled back &mdash; including the
 loading of the test functions &mdash; in the event of an uncaught exception.</p>
 
-<h2 id="Using+`pg_prove`">Using <code>pg_prove</code></h2>
+<h2 id="Using.pg_prove.">Using <code>pg_prove</code></h2>
 
 <p>Or save yourself some effort &mdash; and run a batch of tests scripts or all of
 your xUnit test functions at once &mdash; by using <code>pg_prove</code>, available in the
@@ -487,7 +487,7 @@ through the <code>runtests()</code> function, just tell it to do so:</p>
 <p>Yep, that&rsquo;s all there is to it. Call <code>pg_prove --help</code> to see other supported
 options, and <code>pg_prove --man</code> to see its entire documentation.</p>
 
-<h1 id="Using+pgTAP">Using pgTAP</h1>
+<h1 id="Using.pgTAP">Using pgTAP</h1>
 
 <p>The purpose of pgTAP is to provide a wide range of testing utilities that
 output TAP. TAP, or the &ldquo;Test Anything Protocol&rdquo;, is an emerging standard for
@@ -502,7 +502,7 @@ describe the tests in the script; or 2) In xUnit-style test functions that you
 install into your database and run all at once in the PostgreSQL client of
 your choice.</p>
 
-<h2 id="I+love+it+when+a+plan+comes+together">I love it when a plan comes together</h2>
+<h2 id="I.love.it.when.a.plan.comes.together">I love it when a plan comes together</h2>
 
 <p>Before anything else, you need a testing plan. This basically declares how
 many tests your script is going to run to protect against premature failure.</p>
@@ -533,7 +533,7 @@ discrepancy between the planned number of tests and the number actually run:</p>
 <pre><code>SELECT * FROM finish();
 </code></pre>
 
-<h2 id="What+a+sweet+unit!">What a sweet unit!</h2>
+<h2 id="What.a.sweet.unit.">What a sweet unit!</h2>
 
 <p>If you&rsquo;re used to xUnit testing frameworks and using PostgreSQL 8.1 or higher,
 you can collect all of your tests into database functions and run them all at
@@ -569,7 +569,7 @@ your unit testing functions, you can run your tests at any time using the
 the function completes (or after any teardown functions have run). The TAP
 results will be sent to your client.</p>
 
-<h2 id="Test+names">Test names</h2>
+<h2 id="Test.names">Test names</h2>
 
 <p>By convention, each test is assigned a number in order. This is largely done
 automatically for you. However, it&rsquo;s often very useful to assign a name to
@@ -593,7 +593,7 @@ the test in your script, simply search for &ldquo;simple exponential&rdquo;.</p>
 <p>All test functions take a name argument. It&rsquo;s optional, but highly suggested
 that you use it.</p>
 
-<h2 id="I'm+ok,+you're+not+ok">I&rsquo;m ok, you&rsquo;re not ok</h2>
+<h2 id="I.m.ok.you.re.not.ok">I&rsquo;m ok, you&rsquo;re not ok</h2>
 
 <p>The basic purpose of pgTAP&mdash;and of any TAP-emitting test framework, for that
 matter&mdash;is to print out either &ldquo;ok #&rdquo; or &ldquo;not ok #&rdquo;, depending on whether a
@@ -881,7 +881,7 @@ of the value actually is:</p>
 #     the value isn't a "integer[]" it's a "boolean"
 </code></pre>
 
-<h1 id="Pursuing+Your+Query">Pursuing Your Query</h1>
+<h1 id="Pursuing.Your.Query">Pursuing Your Query</h1>
 
 <p>Sometimes, you&rsquo;ve just gotta test a query. I mean the results of a full blown
 query, not just the scalar assertion functions we&rsquo;ve seen so far. pgTAP
@@ -968,7 +968,7 @@ queries.</p>
 <p>Keeping these techniques in mind, read on for all of the query-testing
 goodness.</p>
 
-<h2 id="To+Error+is+Human">To Error is Human</h2>
+<h2 id="To.Error.is.Human">To Error is Human</h2>
 
 <p>Sometimes you just want to know that a particular query will trigger an error.
 Or maybe you want to make sure a query <em>does not</em> trigger an error. For such
@@ -1183,7 +1183,7 @@ string. You will want to account for this and pad your estimates accordingly.
 It&rsquo;s best to think of this as a brute force comparison of runtimes, in order
 to ensure that a query is not <em>really</em> slow (think seconds).</p>
 
-<h2 id="Can+You+Relate?">Can You Relate?</h2>
+<h2 id="Can.You.Relate.">Can You Relate?</h2>
 
 <p>So you&rsquo;ve got your basic scalar comparison functions, what about relations?
 Maybe you have some pretty hairy <code>SELECT</code> statements in views or functions to
@@ -1706,7 +1706,7 @@ arguments. In the meantime, this is the 90% solution.</p>
 #       want: (1,Larry)
 </code></pre>
 
-<h1 id="The+Schema+Things">The Schema Things</h1>
+<h1 id="The.Schema.Things">The Schema Things</h1>
 
 <p>Need to make sure that your database is designed just the way you think it
 should be? Use these test functions and rest easy.</p>
@@ -1742,7 +1742,7 @@ like so:</p>
 only rarely. So if you just stick to lowercase-only arguments to these
 functions, you should be in good shape.</p>
 
-<h2 id="I+Object!">I Object!</h2>
+<h2 id="I.Object.">I Object!</h2>
 
 <p>In a busy development environment, you might have a number of users who make
 changes to the database schema. Sometimes you have to really work to keep
@@ -2363,7 +2363,7 @@ missing operators, like so:</p>
 #         +(integer,text) RETURNS text
 </code></pre>
 
-<h2 id="To+Have+or+Have+Not">To Have or Have Not</h2>
+<h2 id="To.Have.or.Have.Not">To Have or Have Not</h2>
 
 <p>Perhaps you&rsquo;re not so concerned with ensuring the <a href="#I+Object!" title="I Object!">precise correlation of
 database objects</a>. Perhaps you just need to make sure
@@ -3163,7 +3163,7 @@ omitted, it will default to &ldquo;Procedural language <code>:language</code> sh
 <p>The inverse of <code>has_language()</code>, this function tests for the <em>absence</em> of a
 procedural language.</p>
 
-<h2 id="Table+For+One">Table For One</h2>
+<h2 id="Table.For.One">Table For One</h2>
 
 <p>Okay, you&rsquo;re sure that your database has exactly the <a href="#I+Object!" title="I Object!">right schema</a> and that all of the objects you need <a href="#To+Have+or+Have+Not" title="To Have or Have Not">are
 there</a>. So let&rsquo;s take a closer
@@ -3897,7 +3897,7 @@ type, like so:</p>
 #         want: hash
 </code></pre>
 
-<h2 id="Feeling+Funky">Feeling Funky</h2>
+<h2 id="Feeling.Funky">Feeling Funky</h2>
 
 <p>Perhaps more important than testing the database schema is testing your custom
 functions. Especially if you write functions that provide the interface for
@@ -4261,7 +4261,7 @@ a useful diagnostic:</p>
 #         want: hash_password
 </code></pre>
 
-<h2 id="Database+Deets">Database Deets</h2>
+<h2 id="Database.Deets">Database Deets</h2>
 
 <p>Tables and functions aren&rsquo;t the only objects in the database, as you well
 know. These assertions close the gap by letting you test the attributes of
@@ -4533,7 +4533,7 @@ path. If the <code>:description</code> is omitted, a reasonable default will be 
 
 <p>But then you run <code>has_rule()</code> first, don&rsquo;t you?</p>
 
-<h1 id="No+Test+for+the+Wicked">No Test for the Wicked</h1>
+<h1 id="No.Test.for.the.Wicked">No Test for the Wicked</h1>
 
 <p>There is more to pgTAP. Oh <em>so</em> much more! You can output your own
 <a href="#Diagnostics">diagnostics</a>. You can write <a href="#Conditional+Tests">conditional
@@ -4582,7 +4582,7 @@ will all be converted to text for the diagnostics. On PostgreSQL 8.4 and
 higher, you can pass any number of arguments (as long as they are all the same
 data type) and they will be concatenated together.</p>
 
-<h2 id="Conditional+Tests">Conditional Tests</h2>
+<h2 id="Conditional.Tests">Conditional Tests</h2>
 
 <p>Sometimes running a test under certain conditions will cause the test script
 or function to die. A certain function or feature isn&rsquo;t implemented (such as
@@ -4710,16 +4710,16 @@ SELECT todo_end();
 <p>We recommend that you pick one style or another of TODO to be on the safe
 side.</p>
 
-<h3 id="todo_end()">todo_end()</h3>
+<h3 id="todo_end"><code>todo_end()</code></h3>
 
 <p>Stops running tests as TODO tests. This function is fatal if called without a
 preceding <code>todo_start()</code> method call.</p>
 
-<h3 id="in_todo()">in_todo()</h3>
+<h3 id="in_todo"><code>in_todo()</code></h3>
 
 <p>Returns true if the test is currently inside a TODO block.</p>
 
-<h2 id="Utility+Functions">Utility Functions</h2>
+<h2 id="Utility.Functions">Utility Functions</h2>
 
 <p>Along with the usual array of testing, planning, and diagnostic functions,
 pTAP provides a few extra functions to make the work of testing more pleasant.</p>
@@ -4892,7 +4892,7 @@ consisting of the schema name, a dot, and the function name. For example:</p>
 (1 row)
 </code></pre>
 
-<h2 id="Tap+that+Batch">Tap that Batch</h2>
+<h2 id="Tap.that.Batch">Tap that Batch</h2>
 
 <p>Sometimes it can be useful to batch a lot of TAP tests into a function. The
 simplest way to do so is to define a function that <code>RETURNS SETOF TEXT</code> and
@@ -5011,7 +5011,7 @@ database in largely the same condition as it was in when you started it (the
 one exception I&rsquo;m aware of being sequences, which are not rolled back to the
 value used at the beginning of a rolled-back transaction).</p>
 
-<h1 id="Compose+Yourself">Compose Yourself</h1>
+<h1 id="Compose.Yourself">Compose Yourself</h1>
 
 <p>So, you&rsquo;ve been using pgTAP for a while, and now you want to write your own
 test functions. Go ahead; I don&rsquo;t mind. In fact, I encourage it. How? Why,
@@ -5061,7 +5061,7 @@ $$ LANGUAGE sql;
 <p>But either way, let pgTAP handle recording the test results and formatting the
 output.</p>
 
-<h2 id="Testing+Test+Functions">Testing Test Functions</h2>
+<h2 id="Testing.Test.Functions">Testing Test Functions</h2>
 
 <p>Now you&rsquo;ve written your test function. So how do you test it? Why, with this
 handy-dandy test function!</p>
@@ -5237,11 +5237,11 @@ instead:</p>
 <p>To see the specifics for each version of PostgreSQL, consult the files in the
 <code>compat/</code> directory in the pgTAP distribution.</p>
 
-<h2 id="8.4+and+Up">8.4 and Up</h2>
+<h2 id="L8.4.and.Up">8.4 and Up</h2>
 
 <p>No changes. Everything should just work.</p>
 
-<h2 id="8.3+and+Down">8.3 and Down</h2>
+<h2 id="L8.3.and.Down">8.3 and Down</h2>
 
 <ul>
 <li>A patch is applied to modify <code>results_eq()</code> and <code>row_eq()</code> to cast records
@@ -5256,7 +5256,7 @@ You can pass an array of TAP to <code>collect_tap()</code>, however.</li>
 </ul>
 
 
-<h2 id="8.2+and+Down">8.2 and Down</h2>
+<h2 id="L8.2.and.Down">8.2 and Down</h2>
 
 <ul>
 <li><p>A patch is applied that removes the <code>enum_has_labels()</code>, the
@@ -5276,7 +5276,7 @@ assignments casts are added to increase compatibility. The casts are:</p>
 </ul>
 
 
-<h2 id="8.0">8.0</h2>
+<h2 id="L8.0">8.0</h2>
 
 <ul>
 <li>A patch is applied that changes how some of the test functions are written.</li>
@@ -5302,7 +5302,7 @@ assignments casts are added to increase compatibility. The casts are:</p>
 </ul>
 
 
-<h2 id="To+Do">To Do</h2>
+<h1 id="To.Do">To Do</h1>
 
 <ul>
 <li>Add <code>isnt_empty()</code> to complement <code>is_empty()</code>.</li>
@@ -5361,13 +5361,13 @@ for language, volatility, etc.</li>
 
 <h1 id="Metadata">Metadata</h1>
 
-<h2 id="Public+Repository">Public Repository</h2>
+<h2 id="Public.Repository">Public Repository</h2>
 
 <p>The source code for pgTAP is available on
 <a href="http://github.com/theory/pgtap/tree/">GitHub</a>. Please feel free to fork and
 contribute!</p>
 
-<h2 id="Mail+List">Mail List</h2>
+<h2 id="Mail.List">Mail List</h2>
 
 <p>Join the pgTAP community by subscribing to the <a href="http://pgfoundry.org/mailman/listinfo/pgtap-users">pgtap-users mail
 list</a>. All questions,
@@ -5385,7 +5385,7 @@ comments, suggestions, and bug reports are welcomed there.</p>
 </ul>
 
 
-<h2 id="Copyright+and+License">Copyright and License</h2>
+<h2 id="Copyright.and.License">Copyright and License</h2>
 
 <p>Copyright &copy; 2008-2011 Kineticode, Inc. Some rights reserved.</p>
 
