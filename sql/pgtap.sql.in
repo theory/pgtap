@@ -7419,25 +7419,53 @@ RETURNS TEXT AS $$
 				)
 			END;
 $$ LANGUAGE SQL;
+
 -- db_owner_is (user, description)
 CREATE OR REPLACE FUNCTION db_owner_is ( NAME, TEXT )
 RETURNS TEXT AS $$
-    SELECT CASE WHEN  _is_db_owner($1) IS TRUE
-      THEN ok( TRUE, $2 )
-      ELSE ok( FALSE, $2 ) || diag (E'\n'
-        'db owner is: ' || fetch_db_owner() || E'\nyou wanted: ' || $1
-				)
-			END;
-$$ LANGUAGE SQL;
+DECLARE
+	isok     BOOLEAN;
+	username ALIAS FOR $1;
+BEGIN
+    select _has_user(username) INTO isok;
+		IF NOT isok THEN
+				return ok( FALSE,$2 ) ||  diag (E'\nuser  ' || quote_ident($1) || ' does not exist');
+		END IF;
+		select _is_db_owner(username) INTO isok;
+		IF isok IS TRUE
+      THEN return ok( TRUE, $2 );
+      ELSE return ok( FALSE, $2 ) || diag (E'\n'
+        'db owner is: ' || fetch_db_owner() || E'\nyou wanted: ' || quote_ident($1)
+				);
+			END IF;
+END;
+$$ LANGUAGE plpgsql;
 -- db_owner_is (user, database, description)
 CREATE OR REPLACE FUNCTION db_owner_is ( NAME, NAME, TEXT )
 RETURNS TEXT AS $$
---	SELECT ok( _is_db_owner($1, $2), $3);
-    SELECT CASE WHEN  _is_db_owner($1,$2) IS TRUE
-      THEN ok( TRUE, $3 )
-      ELSE ok( FALSE, $3 ) || diag (E'\n'
-        'db owner is: ' || fetch_db_owner($2) || E'\nyou wanted: ' || $1
-				)
-			END;
-$$ LANGUAGE SQL;
-
+DECLARE
+	isok     BOOLEAN;
+	username ALIAS FOR $1;
+	dbname   ALIAS FOR $2;
+BEGIN
+    select _has_user(username) INTO isok;
+		IF NOT isok 
+		THEN
+				return ok( FALSE,$3 ) ||  diag (E'\nuser  ' || quote_ident($1) || ' does not exist');
+		END IF;
+    select _has_db(dbname) INTO isok;
+		IF NOT isok 
+		THEN
+				return ok( FALSE,$3 ) ||  diag (E'\ndatabase  ' || quote_ident($2) || ' does not exist');
+		END IF;
+		select _is_db_owner($1,$2) INTO isok;
+    IF isok 
+		THEN 
+			return ok( TRUE, $3 );
+    ELSE 
+			return ok( FALSE, $3 ) || diag (E'\n'
+      'db owner is: ' || quote_ident(fetch_db_owner($2)) || E'\nyou wanted: ' || quote_ident($1)
+			);
+		END IF;
+END;
+$$ LANGUAGE plpgsql;
