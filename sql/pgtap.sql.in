@@ -7361,3 +7361,83 @@ RETURNS TEXT AS $$
     SELECT columns_are( $1, $2, 'Table ' || quote_ident($1) || ' should have the correct columns' );
 $$ LANGUAGE SQL;
 
+--
+-- functions for retrieving owner of objects
+--
+-- return owner of current database
+CREATE OR REPLACE FUNCTION fetch_db_owner()
+RETURNS TEXT AS $$
+	SELECT pg_catalog.pg_get_userbyid(datdba)::TEXT from pg_catalog.pg_database where datname=current_database();
+$$ LANGUAGE SQL;
+CREATE OR REPLACE FUNCTION fetch_db_owner( NAME )
+RETURNS TEXT AS $$
+	SELECT pg_catalog.pg_get_userbyid(datdba)::TEXT from pg_catalog.pg_database where datname=$1;
+$$ LANGUAGE SQL;
+
+
+--
+-- checks for database ownership
+--
+-- _is_db_owner()
+CREATE OR REPLACE FUNCTION _is_db_owner ()
+RETURNS BOOLEAN AS $$
+    SELECT EXISTS(
+        SELECT true
+          FROM pg_catalog.pg_database
+         WHERE datname=current_database()
+           AND pg_catalog.pg_get_userbyid(datdba) = current_user
+    );
+$$ LANGUAGE SQL;
+-- _is_db_owner (user)
+CREATE OR REPLACE FUNCTION _is_db_owner ( NAME )
+RETURNS BOOLEAN AS $$
+		SELECT EXISTS(
+        SELECT true
+          FROM pg_catalog.pg_database
+         WHERE datname=current_database()
+           AND pg_catalog.pg_get_userbyid(datdba) = $1
+    );
+$$ LANGUAGE SQL;
+-- _is_db_owner (user, database)
+CREATE OR REPLACE FUNCTION _is_db_owner ( NAME, NAME )
+RETURNS BOOLEAN AS $$
+		SELECT EXISTS(
+        SELECT true
+          FROM pg_catalog.pg_database
+         WHERE datname=$2
+           AND pg_catalog.pg_get_userbyid(datdba) = $1
+    );
+$$ LANGUAGE SQL;
+
+-- db_owner_is (description)
+CREATE OR REPLACE FUNCTION db_owner_is ( TEXT )
+RETURNS TEXT AS $$
+    SELECT CASE WHEN  _is_db_owner() IS TRUE
+      THEN ok( TRUE, $1 )
+      ELSE ok( FALSE, $1 ) || diag (E'\n'
+        'db owner is: ' || fetch_db_owner() || E'\nyou wanted: ' || current_user
+				)
+			END;
+$$ LANGUAGE SQL;
+-- db_owner_is (user, description)
+CREATE OR REPLACE FUNCTION db_owner_is ( NAME, TEXT )
+RETURNS TEXT AS $$
+    SELECT CASE WHEN  _is_db_owner($1) IS TRUE
+      THEN ok( TRUE, $2 )
+      ELSE ok( FALSE, $2 ) || diag (E'\n'
+        'db owner is: ' || fetch_db_owner() || E'\nyou wanted: ' || $1
+				)
+			END;
+$$ LANGUAGE SQL;
+-- db_owner_is (user, database, description)
+CREATE OR REPLACE FUNCTION db_owner_is ( NAME, NAME, TEXT )
+RETURNS TEXT AS $$
+--	SELECT ok( _is_db_owner($1, $2), $3);
+    SELECT CASE WHEN  _is_db_owner($1,$2) IS TRUE
+      THEN ok( TRUE, $3 )
+      ELSE ok( FALSE, $3 ) || diag (E'\n'
+        'db owner is: ' || fetch_db_owner($2) || E'\nyou wanted: ' || $1
+				)
+			END;
+$$ LANGUAGE SQL;
+
