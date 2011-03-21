@@ -3685,12 +3685,17 @@ of an object (e.g. database, relation, function,...).
     SELECT db_owner_is( current_user, 'current user should own current database' );
     SELECT db_owner_is( 'testuser', 'testdb', 'user testuser should own database testdb' );
 
-If the test fails, the diagnostic output will tell you details about the owner mismatch, like:
+If the test fails, the diagnostic output will tell you details about the failure, like
+e.g. user mismatch:
 
     # Failed test 16: "current user should own current database"# 
     # db owner is: testman
     # you wanted: postgres
 
+..or an unknown user:
+
+    # Failed test 17: "test if user blob owns current database"# 
+    # user blob does not exist
 
 
 No Test for the Wicked
