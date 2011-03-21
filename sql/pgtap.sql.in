@@ -7415,7 +7415,7 @@ RETURNS TEXT AS $$
     SELECT CASE WHEN  _is_db_owner() IS TRUE
       THEN ok( TRUE, $1 )
       ELSE ok( FALSE, $1 ) || diag (E'\n'
-        'db owner is: ' || fetch_db_owner() || E'\nyou wanted: ' || current_user
+        '    db owner is: ' || fetch_db_owner() || E'\n    you wanted: ' || current_user
 				)
 			END;
 $$ LANGUAGE SQL;
@@ -7435,7 +7435,7 @@ BEGIN
 		IF isok IS TRUE
       THEN return ok( TRUE, $2 );
       ELSE return ok( FALSE, $2 ) || diag (E'\n'
-        'db owner is: ' || fetch_db_owner() || E'\nyou wanted: ' || quote_ident($1)
+        '    db owner is: ' || fetch_db_owner() || E'\n    you wanted: ' || quote_ident($1)
 				);
 			END IF;
 END;
@@ -7464,7 +7464,7 @@ BEGIN
 			return ok( TRUE, $3 );
     ELSE 
 			return ok( FALSE, $3 ) || diag (E'\n'
-      'db owner is: ' || quote_ident(fetch_db_owner($2)) || E'\nyou wanted: ' || quote_ident($1)
+      '    db owner is: ' || quote_ident(fetch_db_owner($2)) || E'\n    you wanted: ' || quote_ident($1)
 			);
 		END IF;
 END;
