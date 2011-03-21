@@ -3672,6 +3672,27 @@ If the rule in question does not exist, you'll be told that, too:
 
 But then you run `has_rule()` first, don't you?
 
+Who owns me ?
+-------------
+
+After testing the availability of several objects, we often need to know who is the owner
+of an object (e.g. database, relation, function,...).
+
+### `db_owner_is( user, description )` ###
+### `db_owner_is( user, database, description )` ###
+
+    SELECT db_owner_is( 'testuser', 'user testuser should own current database' );
+    SELECT db_owner_is( current_user, 'current user should own current database' );
+    SELECT db_owner_is( 'testuser', 'testdb', 'user testuser should own database testdb' );
+
+If the test fails, the diagnostic output will tell you details about the owner mismatch, like:
+
+    # Failed test 16: "current user should own current database"# 
+    # db owner is: testman
+    # you wanted: postgres
+
+
+
 No Test for the Wicked
 ======================
 
