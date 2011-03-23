@@ -7361,6 +7361,15 @@ RETURNS TEXT AS $$
     SELECT columns_are( $1, $2, 'Table ' || quote_ident($1) || ' should have the correct columns' );
 $$ LANGUAGE SQL;
 
+
+--
+-- check for database existence
+--
+-- returns TRUE if database exists, FALSE otherwise
+CREATE OR REPLACE FUNCTION _has_db( NAME )
+RETURNS BOOLEAN AS $$
+    SELECT EXISTS( SELECT true FROM pg_catalog.pg_database WHERE datname = $1);
+$$ LANGUAGE sql STRICT;
 --
 -- functions for retrieving owner of objects
 --
