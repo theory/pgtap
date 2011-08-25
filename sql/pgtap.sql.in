@@ -7363,3 +7363,120 @@ RETURNS TEXT AS $$
     SELECT columns_are( $1, $2, 'Table ' || quote_ident($1) || ' should have the correct columns' );
 $$ LANGUAGE SQL;
 
+
+--
+-- check for database existence
+--
+-- returns TRUE if database exists, FALSE otherwise
+CREATE OR REPLACE FUNCTION _has_db( NAME )
+RETURNS BOOLEAN AS $$
+    SELECT EXISTS( SELECT true FROM pg_catalog.pg_database WHERE datname = $1);
+$$ LANGUAGE sql STRICT;
+--
+-- functions for retrieving owner of objects
+--
+-- return owner of current database
+CREATE OR REPLACE FUNCTION fetch_db_owner()
+RETURNS TEXT AS $$
+	SELECT pg_catalog.pg_get_userbyid(datdba)::TEXT from pg_catalog.pg_database where datname=current_database();
+$$ LANGUAGE SQL;
+CREATE OR REPLACE FUNCTION fetch_db_owner( NAME )
+RETURNS TEXT AS $$
+	SELECT pg_catalog.pg_get_userbyid(datdba)::TEXT from pg_catalog.pg_database where datname=$1;
+$$ LANGUAGE SQL;
+
+
+--
+-- checks for database ownership
+--
+-- _is_db_owner()
+CREATE OR REPLACE FUNCTION _is_db_owner ()
+RETURNS BOOLEAN AS $$
+    SELECT EXISTS(
+        SELECT true
+          FROM pg_catalog.pg_database
+         WHERE datname=current_database()
+           AND pg_catalog.pg_get_userbyid(datdba) = current_user
+    );
+$$ LANGUAGE SQL;
+-- _is_db_owner (user)
+CREATE OR REPLACE FUNCTION _is_db_owner ( NAME )
+RETURNS BOOLEAN AS $$
+		SELECT EXISTS(
+        SELECT true
+          FROM pg_catalog.pg_database
+         WHERE datname=current_database()
+           AND pg_catalog.pg_get_userbyid(datdba) = $1
+    );
+$$ LANGUAGE SQL;
+-- _is_db_owner (user, database)
+CREATE OR REPLACE FUNCTION _is_db_owner ( NAME, NAME )
+RETURNS BOOLEAN AS $$
+		SELECT EXISTS(
+        SELECT true
+          FROM pg_catalog.pg_database
+         WHERE datname=$2
+           AND pg_catalog.pg_get_userbyid(datdba) = $1
+    );
+$$ LANGUAGE SQL;
+
+-- db_owner_is (description)
+CREATE OR REPLACE FUNCTION db_owner_is ( TEXT )
+RETURNS TEXT AS $$
+    SELECT CASE WHEN  _is_db_owner() IS TRUE
+      THEN ok( TRUE, $1 )
+      ELSE ok( FALSE, $1 ) || diag (E'\n'
+        '    db owner is: ' || fetch_db_owner() || E'\n    you wanted: ' || current_user
+				)
+			END;
+$$ LANGUAGE SQL;
+
+-- db_owner_is (user, description)
+CREATE OR REPLACE FUNCTION db_owner_is ( NAME, TEXT )
+RETURNS TEXT AS $$
+DECLARE
+	isok     BOOLEAN;
+	username ALIAS FOR $1;
+BEGIN
+    select _has_user(username) INTO isok;
+		IF NOT isok THEN
+				return ok( FALSE,$2 ) ||  diag (E'\nuser  ' || quote_ident($1) || ' does not exist');
+		END IF;
+		select _is_db_owner(username) INTO isok;
+		IF isok IS TRUE
+      THEN return ok( TRUE, $2 );
+      ELSE return ok( FALSE, $2 ) || diag (E'\n'
+        '    db owner is: ' || fetch_db_owner() || E'\n    you wanted: ' || quote_ident($1)
+				);
+			END IF;
+END;
+$$ LANGUAGE plpgsql;
+-- db_owner_is (user, database, description)
+CREATE OR REPLACE FUNCTION db_owner_is ( NAME, NAME, TEXT )
+RETURNS TEXT AS $$
+DECLARE
+	isok     BOOLEAN;
+	username ALIAS FOR $1;
+	dbname   ALIAS FOR $2;
+BEGIN
+    select _has_user(username) INTO isok;
+		IF NOT isok 
+		THEN
+				return ok( FALSE,$3 ) ||  diag (E'\nuser  ' || quote_ident($1) || ' does not exist');
+		END IF;
+    select _has_db(dbname) INTO isok;
+		IF NOT isok 
+		THEN
+				return ok( FALSE,$3 ) ||  diag (E'\ndatabase  ' || quote_ident($2) || ' does not exist');
+		END IF;
+		select _is_db_owner($1,$2) INTO isok;
+    IF isok 
+		THEN 
+			return ok( TRUE, $3 );
+    ELSE 
+			return ok( FALSE, $3 ) || diag (E'\n'
+      '    db owner is: ' || quote_ident(fetch_db_owner($2)) || E'\n    you wanted: ' || quote_ident($1)
+			);
+		END IF;
+END;
+$$ LANGUAGE plpgsql;
