@@ -94,6 +94,7 @@ Result: PASS</code></pre>
 -h,  --host HOST            Host to which to connect.
 -p,  --port PORT            Port to which to connect.
 -P,  --pset OPTION=VALUE    Set psql key/value printing option.
+-S,  --set VAR=VALUE        Set variables for psql session.
 -R   --runtests             Run xUnit test using <code>runtests()</code>.
 -s,  --schema SCHEMA        Schema in which to find xUnit tests.
 -x,  --match REGEX          Regular expression to find xUnit tests.
@@ -215,6 +216,19 @@ pg_prove -p 666</code></pre>
 pg_prove -P null=[NULL]</code></pre>
 
 <p>Specifies printing options in the style of <code>\pset</code> in the <code>psql</code> program. See <a href="http://www.postgresql.org/docs/current/static/app-psql.html">http://www.postgresql.org/docs/current/static/app-psql.html</a> for details on the supported options.</p>
+
+</dd>
+<dt><code>-S</code></dt>
+<dd>
+
+</dd>
+<dt><code>--set</code></dt>
+<dd>
+
+<pre><code>pg_prove --set MY_CONTRACT=321
+pg_prove -S TEST_SEARCH_PATH=test,public</code></pre>
+
+<p>Sets local variables for psql in the style of <code>\set</code> in the <code>psql</code> program. See <a href="http://www.postgresql.org/docs/current/static/app-psql.html">http://www.postgresql.org/docs/current/static/app-psql.html</a> for details on the supported options.</p>
 
 </dd>
 <dt><code>--runtests</code></dt>
@@ -732,7 +746,7 @@ pg_prove -V</code></pre>
 
 <h1 id="Copyright">Copyright</h1>
 
-<p>Copyright (c) 2008-2010 David E. Wheeler. Some Rights Reserved.</p>
+<p>Copyright (c) 2008-2011 David E. Wheeler. Some Rights Reserved.</p>
 <!-- END DOCS -->
     </div>
     <div id="menu">
