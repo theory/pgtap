@@ -88,25 +88,25 @@ Result: PASS</code></pre>
 
 <h1 id="Options">Options</h1>
 
-<pre><code>-b   --psql-bin PSQL        Location of the <code>psql</code> client.
+<pre><code>-b   --psql-bin PSQL        Location of the psql client.
 -d,  --dbname DBNAME        Database to which to connect.
 -U,  --username USERNAME    User with which to connect.
 -h,  --host HOST            Host to which to connect.
 -p,  --port PORT            Port to which to connect.
 -P,  --pset OPTION=VALUE    Set psql key/value printing option.
 -S,  --set VAR=VALUE        Set variables for psql session.
--R   --runtests             Run xUnit test using <code>runtests()</code>.
+-R   --runtests             Run xUnit test using runtests().
 -s,  --schema SCHEMA        Schema in which to find xUnit tests.
 -x,  --match REGEX          Regular expression to find xUnit tests.
 
-     --ext                  Set the extension for tests (default <i>.pg</i>)
+     --ext                  Set the extension for tests (default .pg)
 -r,  --recurse              Recursively descend into directories.
      --ignore-exit          Ignore exit status from test scripts.
-     --trap                 Trap <code>Ctrl-C</code> and print summary on interrupt.
+     --trap                 Trap Ctrl-C and print summary on interrupt.
      --harness              Define test harness to use.
 -j,  --jobs N               Run N test jobs in parallel (try 9.)
      --rc RCFILE            Process options from rcfile
-     --norc                 Don&#39;t process default <i>.proverc</i>
+     --norc                 Don&#39;t process default .proverc
      --state OPTION=VALUE   Set persistent state options.
 
 -v,  --verbose              Print all test lines.
@@ -118,8 +118,8 @@ Result: PASS</code></pre>
      --parse                Show full list of TAP parse errors, if any.
      --normalize            Normalize TAP output in verbose output
 -D   --dry                  Dry run. Show test that would have run.
-     --merge                Merge test scripts&#39; <code>STDERR</code> and <code>STDOUT</code>.
-     --timer                Print elapsed time after each test.
+     --merge                Merge test scripts&#39; STDERR and STDOUT.
+-t   --timer                Print elapsed time after each test.
 -c,  --color                Colored test output (default).
      --nocolor              Do not color test output.
      --shuffle              Run the tests in random order.
@@ -610,7 +610,7 @@ pg_prove -t</code></pre>
 <p>Print elapsed time after each test file.</p>
 
 </dd>
-<dt><code>-t</code></dt>
+<dt><code>-c</code></dt>
 <dd>
 
 </dd>
@@ -746,7 +746,7 @@ pg_prove -V</code></pre>
 
 <h1 id="Copyright">Copyright</h1>
 
-<p>Copyright (c) 2008-2012 David E. Wheeler. Some Rights Reserved.</p>
+<p>Copyright (c) 2008-2013 David E. Wheeler. Some Rights Reserved.</p>
 <!-- END DOCS -->
     </div>
     <div id="menu">
