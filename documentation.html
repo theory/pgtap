@@ -15,7 +15,7 @@
   <body>
     <div id="main">
       <!-- DOC INTRO HERE -->
-<h1 id="pgtap0.91.0">pgTAP 0.91.0</h1>
+<h1 id="pgtap0.93.0">pgTAP 0.93.0</h1>
 
 <p>pgTAP is a unit testing framework for PostgreSQL written in PL/pgSQL and
 PL/SQL. It includes a comprehensive collection of
@@ -75,6 +75,7 @@ used in the xUnit testing style.</p>
 <li><a href="#bag_has"><code>bag_has()</code></a></li>
 <li><a href="#bag_hasnt"><code>bag_hasnt()</code></a></li>
 <li><a href="#is_empty"><code>is_empty()</code></a></li>
+<li><a href="#isnt_empty"><code>isnt_empty()</code></a></li>
 <li><a href="#row_eq"><code>row_eq()</code></a></li></ul></li></ul></li>
 <li><a href="#theschemathings">The Schema Things</a><ul>
 <li><a href="#iobject">I Object!</a><ul>
@@ -103,14 +104,20 @@ used in the xUnit testing style.</p>
 <li><a href="#hasnt_tablespace"><code>hasnt_tablespace()</code></a></li>
 <li><a href="#has_schema"><code>has_schema()</code></a></li>
 <li><a href="#hasnt_schema"><code>hasnt_schema()</code></a></li>
+<li><a href="#has_relation"><code>has_relation()</code></a></li>
+<li><a href="#hasnt_relation"><code>hasnt_relation()</code></a></li>
 <li><a href="#has_table"><code>has_table()</code></a></li>
 <li><a href="#hasnt_table"><code>hasnt_table()</code></a></li>
 <li><a href="#has_view"><code>has_view()</code></a></li>
 <li><a href="#hasnt_view"><code>hasnt_view()</code></a></li>
 <li><a href="#has_sequence"><code>has_sequence()</code></a></li>
 <li><a href="#hasnt_sequence"><code>hasnt_sequence()</code></a></li>
+<li><a href="#has_foreign_table"><code>has_foreign_table()</code></a></li>
+<li><a href="#hasnt_foreign_table"><code>hasnt_foreign_table()</code></a></li>
 <li><a href="#has_type"><code>has_type()</code></a></li>
 <li><a href="#hasnt_type"><code>hasnt_type()</code></a></li>
+<li><a href="#has_composite"><code>has_composite()</code></a></li>
+<li><a href="#hasnt_composite"><code>hasnt_composite()</code></a></li>
 <li><a href="#has_domain"><code>has_domain()</code></a></li>
 <li><a href="#hasnt_domain"><code>hasnt_domain()</code></a></li>
 <li><a href="#has_enum"><code>has_enum()</code></a></li>
@@ -125,6 +132,7 @@ used in the xUnit testing style.</p>
 <li><a href="#hasnt_function"><code>hasnt_function()</code></a></li>
 <li><a href="#has_cast"><code>has_cast()</code></a></li>
 <li><a href="#hasnt_cast"><code>hasnt_cast()</code></a></li>
+<li><a href="#has_operator"><code>has_operator()</code></a></li>
 <li><a href="#has_leftop"><code>has_leftop()</code></a></li>
 <li><a href="#has_rightop"><code>has_rightop()</code></a></li>
 <li><a href="#has_opclass"><code>has_opclass()</code></a></li>
@@ -144,6 +152,7 @@ used in the xUnit testing style.</p>
 <li><a href="#col_is_null"><code>col_is_null()</code></a></li>
 <li><a href="#col_has_default"><code>col_has_default()</code></a></li>
 <li><a href="#col_hasnt_default"><code>col_hasnt_default()</code></a></li>
+<li><a href="#col_type_is"><code>col_type_is()</code></a></li>
 <li><a href="#col_default_is"><code>col_default_is()</code></a></li>
 <li><a href="#has_pk"><code>has_pk()</code></a></li>
 <li><a href="#hasnt_pk"><code>hasnt_pk()</code></a></li>
@@ -183,7 +192,32 @@ used in the xUnit testing style.</p>
 <li><a href="#rule_is_instead"><code>rule_is_instead()</code></a></li>
 <li><a href="#rule_is_on"><code>rule_is_on()</code></a></li></ul></li>
 <li><a href="#whoownsme">Who owns me?</a><ul>
-<li><a href="#db_owner_is"><code>db_owner_is ()</code></a></li></ul></li></ul></li>
+<li><a href="#db_owner_is"><code>db_owner_is ()</code></a></li>
+<li><a href="#schema_owner_is"><code>schema_owner_is ()</code></a></li>
+<li><a href="#tablespace_owner_is"><code>tablespace_owner_is ()</code></a></li>
+<li><a href="#relation_owner_is"><code>relation_owner_is ()</code></a></li>
+<li><a href="#table_owner_is"><code>table_owner_is ()</code></a></li>
+<li><a href="#view_owner_is"><code>view_owner_is ()</code></a></li>
+<li><a href="#sequence_owner_is"><code>sequence_owner_is ()</code></a></li>
+<li><a href="#composite_owner_is"><code>composite_owner_is ()</code></a></li>
+<li><a href="#foreign_table_owner_is"><code>foreign_table_owner_is ()</code></a></li>
+<li><a href="#index_owner_is"><code>index_owner_is ()</code></a></li>
+<li><a href="#function_owner_is"><code>function_owner_is ()</code></a></li>
+<li><a href="#language_owner_is"><code>language_owner_is ()</code></a></li></ul></li>
+<li><a href="#opclass_owner_is"><code>opclass_owner_is ()</code></a></li>
+<li><a href="#type_owner_is"><code>type_owner_is ()</code></a></li>
+<li><a href="#prvilegedaccess">Prvileged Access</a><ul>
+<li><a href="#database_privs_are"><code>database_privs_are()</code></a></li>
+<li><a href="#tablespace_privs_are"><code>tablespace_privs_are()</code></a></li>
+<li><a href="#schema_privs_are"><code>schema_privs_are()</code></a></li>
+<li><a href="#table_privs_are"><code>table_privs_are()</code></a></li>
+<li><a href="#sequence_privs_are"><code>sequence_privs_are()</code></a></li>
+<li><a href="#any_column_privs_are"><code>any_column_privs_are()</code></a></li>
+<li><a href="#column_privs_are"><code>column_privs_are()</code></a></li>
+<li><a href="#function_privs_are"><code>function_privs_are()</code></a></li>
+<li><a href="#language_privs_are"><code>language_privs_are()</code></a></li>
+<li><a href="#fdw_privs_are"><code>fdw_privs_are()</code></a></li>
+<li><a href="#server_privs_are"><code>server_privs_are()</code></a></li></ul></li></ul></li>
 <li><a href="#notestforthewicked">No Test for the Wicked</a><ul>
 <li><a href="#diagnostics">Diagnostics</a><ul>
 <li><a href="#diag"><code>diag()</code></a></li></ul></li>
@@ -200,7 +234,6 @@ used in the xUnit testing style.</p>
 <li><a href="#pg_version_num"><code>pg_version_num()</code></a></li>
 <li><a href="#os_name"><code>os_name()</code></a></li>
 <li><a href="#collect_tap"><code>collect_tap()</code></a></li>
-<li><a href="#display_type"><code>display_type()</code></a></li>
 <li><a href="#display_oper"><code>display_oper()</code></a></li>
 <li><a href="#pg_typeof"><code>pg_typeof()</code></a></li>
 <li><a href="#findfuncs"><code>findfuncs()</code></a></li></ul></li>
@@ -211,10 +244,11 @@ used in the xUnit testing style.</p>
 <li><a href="#testingtestfunctions">Testing Test Functions</a><ul>
 <li><a href="#check_test"><code>check_test()</code></a></li></ul></li></ul></li>
 <li><a href="#compatibility">Compatibility</a><ul>
-<li><a href="#andup">8.4 and Up</a></li>
+<li><a href="#andup">9.1 and Up</a></li>
+<li><a href="#anddown">9.0 and Down</a></li>
+<li><a href="#anddown">8.4 and Down</a></li>
 <li><a href="#anddown">8.3 and Down</a></li>
 <li><a href="#anddown">8.2 and Down</a></li></ul></li>
-<li><a href="#todo">To Do</a></li>
 <li><a href="#metadata">Metadata</a><ul>
 <li><a href="#publicrepository">Public Repository</a></li>
 <li><a href="#maillist">Mail List</a></li>
@@ -1656,7 +1690,7 @@ sets, or if results are of different data types, you'll get diagnostics like
 so:</p>
 
 <pre><code># Failed test 148
-#     Column types differ between queries:
+#     Number of columns or their types differ between the queries:
 #         have: (1)
 #         want: (foo,1)
 </code></pre>
@@ -1665,9 +1699,13 @@ so:</p>
 than compared as <code>record</code> objects. The downside to this necessity is that the
 test cannot detect incompatibilities in column numbers or types, or
 differences in columns that convert to the same text representation. For
-example, a <code>NULL</code> column will be equivalent to an empty string. The upshot:
-read failure diagnostics carefully and pay attention to data types on 8.3 and
-down.</p>
+example, a <code>NULL</code> column will be equivalent to an empty string. As a result,
+pgTAP will not show the <code>have</code> and <code>want</code> values if they are the same, just
+the error message, like so:</p>
+
+<pre><code># Failed test 149
+#     Number of columns or their types differ between the queries
+</code></pre>
 
 <h3 id="results_ne"><code>results_ne()</code></h3>
 
@@ -2081,6 +2119,31 @@ fails and the results are displayed in the failure diagnostics, like so:</p>
 #         (1,Jacob,false)
 #         (2,Emily,false)
 </code></pre>
+
+<h3 id="isnt_empty"><code>isnt_empty()</code></h3>
+
+<pre><code>SELECT isnt_empty( :sql, :description );
+SELECT isnt_empty( :sql );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:sql</code></dt>
+<dd>
+An SQL statement or the name of a prepared statement, passed as a string.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>This function is the inverse of <code>is_empty()</code>. The test passes if the specified
+query, when executed, returns at least one row. If it returns no rows, the
+test fails.</p>
 
 <h3 id="row_eq"><code>row_eq()</code></h3>
 
@@ -3294,6 +3357,75 @@ A short description of the test.
 <p>This function is the inverse of <code>has_schema()</code>. The test passes if the
 specified schema does <em>not</em> exist.</p>
 
+<h3 id="has_relation"><code>has_relation()</code></h3>
+
+<pre><code>SELECT has_relation( :schema, :relation, :description );
+SELECT has_relation( :relation, :description );
+SELECT has_relation( :relation );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which to find the relation.
+</dd>
+
+<dt><code>:relation</code></dt>
+<dd>
+Name of a relation.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>This function tests whether or not a relation exists in the database.
+Relations are tables, views, seqences, composite types, foreign tables, and
+toast tables. The first argument is a schema name, the second is a relation
+name, and the third is the test description. If you omit the schema, the
+relation must be visible in the search path. Example:</p>
+
+<pre><code>SELECT has_relation('myschema', 'somerelation');
+</code></pre>
+
+<p>If you omit the test description, it will be set to "Relation <code>:relation</code>
+should exist".</p>
+
+<h3 id="hasnt_relation"><code>hasnt_relation()</code></h3>
+
+<pre><code>SELECT hasnt_relation( :schema, :relation, :description );
+SELECT hasnt_relation( :relation, :description );
+SELECT hasnt_relation( :relation );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which to find the relation.
+</dd>
+
+<dt><code>:relation</code></dt>
+<dd>
+Name of a relation.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>This function is the inverse of <code>has_relation()</code>. The test passes if the
+specified relation does <em>not</em> exist.</p>
+
 <h3 id="has_table"><code>has_table()</code></h3>
 
 <pre><code>SELECT has_table( :schema, :table, :description );
@@ -3331,6 +3463,9 @@ search path. Example:</p>
 
 <p>If you omit the test description, it will be set to "Table <code>:table</code> should
 exist".</p>
+
+<p>Note that this function will not recognize foreign tables; use
+<code>has_foreign_table()</code> to test for the presence of foreign tables.</p>
 
 <h3 id="hasnt_table"><code>hasnt_table()</code></h3>
 
@@ -3498,6 +3633,74 @@ A short description of the test.
 <p>This function is the inverse of <code>has_sequence()</code>. The test passes if the
 specified sequence does <em>not</em> exist.</p>
 
+<h3 id="has_foreign_table"><code>has_foreign_table()</code></h3>
+
+<pre><code>SELECT has_foreign_table( :schema, :table, :description );
+SELECT has_foreign_table( :table, :description );
+SELECT has_foreign_table( :table );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which to find the foreign table.
+</dd>
+
+<dt><code>:table</code></dt>
+<dd>
+Name of a foreign table.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>This function tests whether or not a foreign table exists in the database. The
+first argument is a schema name, the second is a foreign table name, and the
+third is the test description. If you omit the schema, the foreign table must
+be visible in the search path. Example:</p>
+
+<pre><code>SELECT has_foreign_table('myschema', 'some_foreign_table');
+</code></pre>
+
+<p>If you omit the test description, it will be set to "Foreign table <code>:table</code>
+should exist".</p>
+
+<h3 id="hasnt_foreign_table"><code>hasnt_foreign_table()</code></h3>
+
+<pre><code>SELECT hasnt_foreign_table( :schema, :table, :description );
+SELECT hasnt_foreign_table( :table, :description );
+SELECT hasnt_foreign_table( :table );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which to find the foreign table.
+</dd>
+
+<dt><code>:table</code></dt>
+<dd>
+Name of a foreign table.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>This function is the inverse of <code>has_foreign_table()</code>. The test passes if the
+specified foreign table does <em>not</em> exist.</p>
+
 <h3 id="has_type"><code>has_type()</code></h3>
 
 <pre><code>SELECT has_type( schema, type, description );
@@ -3511,7 +3714,7 @@ SELECT has_type( type );
 <dl>
 <dt><code>:schema</code></dt>
 <dd>
-Name of a schema in which to find the sequence.
+Name of a schema in which to find the data type.
 </dd>
 
 <dt><code>:type</code></dt>
@@ -3560,7 +3763,7 @@ SELECT hasnt_type( type );
 <dl>
 <dt><code>:schema</code></dt>
 <dd>
-Name of a schema in which to find the sequence.
+Name of a schema in which to find the data type.
 </dd>
 
 <dt><code>:type</code></dt>
@@ -3578,6 +3781,79 @@ A short description of the test.
 <p>This function is the inverse of <code>has_type()</code>. The test passes if the specified
 type does <em>not</em> exist.</p>
 
+<h3 id="has_composite"><code>has_composite()</code></h3>
+
+<pre><code>SELECT has_composite( schema, type, description );
+SELECT has_composite( schema, type );
+SELECT has_composite( type, description );
+SELECT has_composite( type );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which to find the composite type.
+</dd>
+
+<dt><code>:composite type</code></dt>
+<dd>
+Name of a composite type.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>This function tests whether or not a composite type exists in the database.
+The first argument is a schema name, the second is the name of a composite
+type, and the third is the test description. If you omit the schema, the
+composite type must be visible in the search path. If you omit the test
+description, it will be set to "Composite type <code>:composite type</code> should
+exist". Example:</p>
+
+<pre><code>SELECT has_composite( 'myschema', 'somecomposite' );
+</code></pre>
+
+<p>If you're passing a schema and composite type rather than composite type and
+description, be sure to cast the arguments to <code>name</code> values so that your
+composite type name doesn't get treated as a description.</p>
+
+<h3 id="hasnt_composite"><code>hasnt_composite()</code></h3>
+
+<pre><code>SELECT hasnt_composite( schema, type, description );
+SELECT hasnt_composite( schema, type );
+SELECT hasnt_composite( type, description );
+SELECT hasnt_composite( type );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which to find the composite type.
+</dd>
+
+<dt><code>:composite type</code></dt>
+<dd>
+Name of a composite type.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>This function is the inverse of <code>has_composite()</code>. The test passes if the
+specified composite type does <em>not</em> exist.</p>
+
 <h3 id="has_domain"><code>has_domain()</code></h3>
 
 <pre><code>SELECT has_domain( schema, domain, description );
@@ -3591,7 +3867,7 @@ SELECT has_domain( domain );
 <dl>
 <dt><code>:schema</code></dt>
 <dd>
-Name of a schema in which to find the sequence.
+Name of a schema in which to find the domain.
 </dd>
 
 <dt><code>:domain</code></dt>
@@ -3632,7 +3908,7 @@ SELECT hasnt_domain( domain );
 <dl>
 <dt><code>:schema</code></dt>
 <dd>
-Name of a schema in which to find the sequence.
+Name of a schema in which to find the domain.
 </dd>
 
 <dt><code>:domain</code></dt>
@@ -3663,7 +3939,7 @@ SELECT has_enum( enum );
 <dl>
 <dt><code>:schema</code></dt>
 <dd>
-Name of a schema in which to find the sequence.
+Name of a schema in which to find the enum.
 </dd>
 
 <dt><code>:enum</code></dt>
@@ -3704,7 +3980,7 @@ SELECT hasnt_enum( enum );
 <dl>
 <dt><code>:schema</code></dt>
 <dd>
-Name of a schema in which to find the sequence.
+Name of a schema in which to find the enum.
 </dd>
 
 <dt><code>:enum</code></dt>
@@ -3758,7 +4034,7 @@ Name of an index.
 
 <dt><code>:columns</code></dt>
 <dd>
-Array of the columns in the index.
+Array of the columns and/or expressions in the index.
 </dd>
 
 <dt><code>:column</code></dt>
@@ -3776,21 +4052,21 @@ A short description of the test.
 <p>Checks for the existence of an index associated with the named table. The
 <code>:schema</code> argument is optional, as is the column name or names or expression,
 and the description. The columns argument may be a string naming one column or
-an array of column names. It may also be a string representing an expression,
-such as <code>lower(foo)</code>. For expressions, you must use lowercase for all SQL
-keywords and functions to properly compare to PostgreSQL's internal form of
-the expression. A few examples:</p>
+expression, or an array of column names and/or expressions. For expressions,
+you must use lowercase for all SQL keywords and functions to properly compare
+to PostgreSQL's internal form of the expression. Non-functional expressions
+should also be wrapped in parentheses. A few examples:</p>
 
 <pre><code>SELECT has_index(
     'myschema',
     'sometable',
     'myindex',
-    ARRAY[ 'somecolumn', 'anothercolumn' ],
+    ARRAY[ 'somecolumn', 'anothercolumn', 'lower(txtcolumn)' ],
     'Index "myindex" should exist'
 );
 
 SELECT has_index('myschema', 'sometable', 'anidx', 'somecolumn');
-SELECT has_index('myschema', 'sometable', 'loweridx', 'LOWER(somecolumn)');
+SELECT has_index('myschema', 'sometable', 'loweridx', '(somearray[1])');
 SELECT has_index('sometable', 'someindex');
 </code></pre>
 
@@ -4052,9 +4328,9 @@ SELECT has_function( 'do_something', ARRAY['numeric'] );
 
 <p>The <code>:args</code> argument should be formatted as it would be displayed in the view
 of a function using the <code>\df</code> command in <code>psql</code>. For example, even if you have
-a numeric column with a precision of 8, you should specify
-<code>ARRAY['numeric']</code>". If you created a <code>varchar(64)</code> column, you should pass
-the <code>:args</code> argument as <code>ARRAY['character varying']</code>.</p>
+a numeric column with a precision of 8, you should specify <code>ARRAY['numeric']</code>.
+If you created a <code>varchar(64)</code> column, you should pass the <code>:args</code> argument as
+<code>ARRAY['character varying']</code>.</p>
 
 <p>If you wish to use the two-argument form of <code>has_function()</code>, specifying only
 the schema and the function name, you must cast the <code>:function</code> argument to
@@ -4127,12 +4403,12 @@ SELECT has_cast( :source_type, :target_type );
 <dl>
 <dt><code>:source_type</code></dt>
 <dd>
-Data type of the source value.
+Data type of the source value without typemod.
 </dd>
 
 <dt><code>:target_type</code></dt>
 <dd>
-Data type of the target value.
+Data type of the target value without typemod.
 </dd>
 
 <dt><code>:schema</code></dt>
@@ -4166,6 +4442,17 @@ resolve the function name as a description. For example:</p>
 </code></pre>
 
 <p>pgTAP will generate a useful description if you don't provide one.</p>
+
+<p>Note that pgTAP does not compare typemods. So if you wanted to test for a cast
+between, say, a <code>uuid</code> type and <code>bit(128)</code>, this will not work:</p>
+
+<pre><code>SELECT has_cast( 'integer', 'bit(128)' );
+</code></pre>
+
+<p>But this will:</p>
+
+<pre><code>SELECT has_cast( 'integer', 'bit' );
+</code></pre>
 
 <h3 id="hasnt_cast"><code>hasnt_cast()</code></h3>
 
@@ -4209,6 +4496,8 @@ A short description of the test.
 
 <p>This function is the inverse of <code>has_cast()</code>: the test passes if the specified
 cast does <em>not</em> exist.</p>
+
+<h3 id="has_operator"><code>has_operator()</code></h3>
 
 <pre><code>SELECT has_operator( :left_type, :schema, :name, :right_type, :return_type, :description );
 SELECT has_operator( :left_type, :schema, :name, :right_type, :return_type );
@@ -4865,6 +5154,8 @@ A short description of the test.
 specified column does <em>not</em> have a default. It will still fail if the column
 does not exist, and emit useful diagnostics to let you know.</p>
 
+<h3 id="col_type_is"><code>col_type_is()</code></h3>
+
 <pre><code>SELECT col_type_is( :schema, :table, :column, :type_schema, :type, :description );
 SELECT col_type_is( :schema, :table, :column, :type_schema, :type );
 SELECT col_type_is( :schema, :table, :column, :type, :description );
@@ -4912,11 +5203,16 @@ A short description of the test.
 fails, it will emit diagnostics naming the actual type. The first argument is
 the schema name, the second the table name, the third the column name, the
 fourth the type's schema, the fifth the type, and the sixth is the test
-description. Example: If the table schema is omitted, the table and the type
-must be visible in the search path. If the test description is omitted, it
-will be set to "Column <code>:schema.:table.:column</code> should be type
-<code>:schema.:type</code>". Note that this test will fail if the table or column in
-question does not exist.</p>
+description.</p>
+
+<p>If the table schema is omitted, the table must be visible in the search path.
+If the type schema is omitted, it must be visible in the search path;
+otherwise, the diagnostics will report the schema it's actually in. The schema
+can optinally be included in the <code>:type</code> argument, e.g., <code>'contrib.citext</code>.</p>
+
+<p>If the test description is omitted, it will be set to "Column
+<code>:schema.:table.:column</code> should be type <code>:schema.:type</code>". Note that this test
+will fail if the table or column in question does not exist.</p>
 
 <p>The type argument should be formatted as it would be displayed in the view of
 a table using the <code>\d</code> command in <code>psql</code>. For example, if you have a numeric
@@ -5925,7 +6221,7 @@ wrong, for example:</p>
 
 <p>If the function does not exist, you'll be told that, too.</p>
 
-<pre><code># Failed test 212: "Function myschema.grab() should be written in sql
+<pre><code># Failed test 212: "Function myschema.grab() should be written in sql"
 #     Function myschema.grab() does not exist
 </code></pre>
 
@@ -6121,7 +6417,7 @@ SELECT is_strict( 'do_something', ARRAY['numeric'] );
 
 <p>If the function does not exist, a handy diagnostic message will let you know:</p>
 
-<pre><code># Failed test 290: "Function nasty() should be strict
+<pre><code># Failed test 290: "Function nasty() should be strict"
 #     Function nasty() does not exist
 </code></pre>
 
@@ -6180,7 +6476,7 @@ SELECT is_aggregate( 'do_something', ARRAY['numeric'] );
 
 <p>If the function does not exist, a handy diagnostic message will let you know:</p>
 
-<pre><code># Failed test 290: "Function nasty() should be strict
+<pre><code># Failed test 290: "Function nasty() should be strict"
 #     Function nasty() does not exist
 </code></pre>
 
@@ -6255,7 +6551,7 @@ wrong, for example:</p>
 
 <p>If the function does not exist, you'll be told that, too.</p>
 
-<pre><code># Failed test 212: "Function myschema.grab() should be IMMUTABLE
+<pre><code># Failed test 212: "Function myschema.grab() should be IMMUTABLE"
 #     Function myschema.grab() does not exist
 </code></pre>
 
@@ -6441,13 +6737,17 @@ A short description of the test.
 
 </dl>
 
-<p>Tests the data type underlying a domain. The first two are arguments are the
+<p>Tests the data type underlying a domain. The first two   arguments are the
 schema and name of the domain. The second two are the schema and name of the
 type that the domain should extend. The fifth argument is a description. If
-there is no description, a reasonable default description will be created. The
-schema arguments are also optional (though if there is no schema for the
-domain then there cannot be one for the type). For the 3- and 4-argument
-forms with schemas, cast the schemas to <code>NAME</code> to avoid ambiguities. Example:</p>
+there is no description, a reasonable default description will be created.</p>
+
+<p>The schema arguments are also optional. However, if there is no <code>:schema</code>
+argument, there cannot be a <code>:type_schema</code> argument, either, though the
+schema can be included in the <code>type</code> argument, e.g., <code>contrib.citext</code>.</p>
+
+<p>For the 3- and 4-argument forms with schemas, cast the schemas to <code>NAME</code> to
+avoid ambiguities. Example:</p>
 
 <pre><code>SELECT domain_type_is(
     'public'::name, 'us_postal_code',
@@ -6857,6 +7157,1730 @@ diagnostics will look something like:</p>
 #         want: root
 </code></pre>
 
+<h3 id="schema_owner_is"><code>schema_owner_is ()</code></h3>
+
+<pre><code>SELECT schema_owner_is ( :schemaname, :user, :description );
+SELECT schema_owner_is ( :schemaname, :user );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schemaname</code></dt>
+<dd>
+Name of a schema.
+</dd>
+
+<dt><code>:user</code></dt>
+<dd>
+Name of a user.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the ownership of the schema. If the <code>:description</code> argument is
+omitted, an appropriate description will be created. Examples:</p>
+
+<pre><code>SELECT schema_owner_is( 'myschema', 'someuser', 'myschema should be owned by someuser' );
+SELECT schema_owner_is( current_schema(), current_user );
+</code></pre>
+
+<p>In the event that the test fails because the schema in question does not
+actually exist, you will see an appropriate diagnostic such as:</p>
+
+<pre><code># Failed test 16: "Schema foo should be owned by www"
+#     Schema foo does not exist
+</code></pre>
+
+<p>If the test fails because the schema is not owned by the specified user, the
+diagnostics will look something like:</p>
+
+<pre><code># Failed test 17: "Schema bar should be owned by root"
+#         have: postgres
+#         want: root
+</code></pre>
+
+<h3 id="tablespace_owner_is"><code>tablespace_owner_is ()</code></h3>
+
+<pre><code>SELECT tablespace_owner_is ( :tablespacename, :user, :description );
+SELECT tablespace_owner_is ( :tablespacename, :user );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:tablespacename</code></dt>
+<dd>
+Name of a tablespace.
+</dd>
+
+<dt><code>:user</code></dt>
+<dd>
+Name of a user.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the ownership of the tablespace. If the <code>:description</code> argument is
+omitted, an appropriate description will be created. Examples:</p>
+
+<pre><code>SELECT tablespace_owner_is( 'myts', 'joe', 'Joe has mytablespace' );
+SELECT tablespace_owner_is( 'pg_default', current_user );
+</code></pre>
+
+<p>In the event that the test fails because the tablespace in question does not
+actually exist, you will see an appropriate diagnostic such as:</p>
+
+<pre><code># Failed test 16: "Tablespace ssd should be owned by www"
+#     Tablespace ssd does not exist
+</code></pre>
+
+<p>If the test fails because the tablespace is not owned by the specified user,
+the diagnostics will look something like:</p>
+
+<pre><code># Failed test 17: "Tablespace raid_hds should be owned by root"
+#         have: postgres
+#         want: root
+</code></pre>
+
+<h3 id="relation_owner_is"><code>relation_owner_is ()</code></h3>
+
+<pre><code>SELECT relation_owner_is ( :schema, :relation, :user, :description );
+SELECT relation_owner_is ( :relation, :user, :description );
+SELECT relation_owner_is ( :schema, :relation, :user );
+SELECT relation_owner_is ( :relation, :user );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which find to the <code>:relation</code>.
+</dd>
+
+<dt><code>:relation</code></dt>
+<dd>
+Name of a relation.
+</dd>
+
+<dt><code>:user</code></dt>
+<dd>
+Name of a user.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the ownership of a relation. Relations are tables, views, seqences,
+composite types, foreign tables, and toast tables. If the <code>:description</code>
+argument is omitted, an appropriate description will be created. Examples:</p>
+
+<pre><code>SELECT relation_owner_is(
+    'public', 'mytable', 'someuser',
+    'mytable should be owned by someuser'
+);
+SELECT relation_owner_is( current_schema(), 'mysequence', current_user );
+</code></pre>
+
+<p>In the event that the test fails because the relation in question does not
+actually exist or is not visible, you will see an appropriate diagnostic such
+as:</p>
+
+<pre><code># Failed test 16: "Relation foo should be owned by www"
+#     Relation foo does not exist
+</code></pre>
+
+<p>If the test fails because the relation is not owned by the specified user, the
+diagnostics will look something like:</p>
+
+<pre><code># Failed test 17: "Relation bar should be owned by root"
+#         have: postgres
+#         want: root
+</code></pre>
+
+<h3 id="table_owner_is"><code>table_owner_is ()</code></h3>
+
+<pre><code>SELECT table_owner_is ( :schema, :table, :user, :description );
+SELECT table_owner_is ( :table, :user, :description );
+SELECT table_owner_is ( :schema, :table, :user );
+SELECT table_owner_is ( :table, :user );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which to find the <code>:table</code>.
+</dd>
+
+<dt><code>:table</code></dt>
+<dd>
+Name of a table.
+</dd>
+
+<dt><code>:user</code></dt>
+<dd>
+Name of a user.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the ownership of a table. If the <code>:description</code> argument is omitted, an
+appropriate description will be created. Examples:</p>
+
+<pre><code>SELECT table_owner_is(
+    'public', 'mytable', 'someuser',
+    'mytable should be owned by someuser'
+);
+SELECT table_owner_is( 'widgets', current_user );
+</code></pre>
+
+<p>Note that this function will not recognize foreign tables; use
+<code>foreign_table_owner_is()</code> to test for the presence of foreign tables.</p>
+
+<p>In the event that the test fails because the table in question does not
+actually exist or is not visible, you will see an appropriate diagnostic such
+as:</p>
+
+<pre><code># Failed test 16: "Table foo should be owned by www"
+#     Table foo does not exist
+</code></pre>
+
+<p>If the test fails because the table is not owned by the specified user, the
+diagnostics will look something like:</p>
+
+<pre><code># Failed test 17: "Table bar should be owned by root"
+#         have: postgres
+#         want: root
+</code></pre>
+
+<h3 id="view_owner_is"><code>view_owner_is ()</code></h3>
+
+<pre><code>SELECT view_owner_is ( :schema, :view, :user, :description );
+SELECT view_owner_is ( :view, :user, :description );
+SELECT view_owner_is ( :schema, :view, :user );
+SELECT view_owner_is ( :view, :user );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which to find the <code>:view</code>.
+</dd>
+
+<dt><code>:view</code></dt>
+<dd>
+Name of a view.
+</dd>
+
+<dt><code>:user</code></dt>
+<dd>
+Name of a user.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the ownership of a view. If the <code>:description</code> argument is omitted, an
+appropriate description will be created. Examples:</p>
+
+<pre><code>SELECT view_owner_is(
+    'public', 'myview', 'someuser',
+    'myview should be owned by someuser'
+);
+SELECT view_owner_is( 'widgets', current_user );
+</code></pre>
+
+<p>In the event that the test fails because the view in question does not
+actually exist or is not visible, you will see an appropriate diagnostic such
+as:</p>
+
+<pre><code># Failed test 16: "View foo should be owned by www"
+#     View foo does not exist
+</code></pre>
+
+<p>If the test fails because the view is not owned by the specified user, the
+diagnostics will look something like:</p>
+
+<pre><code># Failed test 17: "View bar should be owned by root"
+#         have: postgres
+#         want: root
+</code></pre>
+
+<h3 id="sequence_owner_is"><code>sequence_owner_is ()</code></h3>
+
+<pre><code>SELECT sequence_owner_is ( :schema, :sequence, :user, :description );
+SELECT sequence_owner_is ( :sequence, :user, :description );
+SELECT sequence_owner_is ( :schema, :sequence, :user );
+SELECT sequence_owner_is ( :sequence, :user );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which to find the <code>:sequence</code>.
+</dd>
+
+<dt><code>:sequence</code></dt>
+<dd>
+Name of a sequence.
+</dd>
+
+<dt><code>:user</code></dt>
+<dd>
+Name of a user.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the ownership of a sequence. If the <code>:description</code> argument is omitted, an
+appropriate description will be created. Examples:</p>
+
+<pre><code>SELECT sequence_owner_is(
+    'public', 'mysequence', 'someuser',
+    'mysequence should be owned by someuser'
+);
+SELECT sequence_owner_is( 'widgets', current_user );
+</code></pre>
+
+<p>In the event that the test fails because the sequence in question does not
+actually exist or is not visible, you will see an appropriate diagnostic such
+as:</p>
+
+<pre><code># Failed test 16: "Sequence foo should be owned by www"
+#     Sequence foo does not exist
+</code></pre>
+
+<p>If the test fails because the sequence is not owned by the specified user, the
+diagnostics will look something like:</p>
+
+<pre><code># Failed test 17: "Sequence bar should be owned by root"
+#         have: postgres
+#         want: root
+</code></pre>
+
+<h3 id="composite_owner_is"><code>composite_owner_is ()</code></h3>
+
+<pre><code>SELECT composite_owner_is ( :schema, :composite, :user, :description );
+SELECT composite_owner_is ( :composite, :user, :description );
+SELECT composite_owner_is ( :schema, :composite, :user );
+SELECT composite_owner_is ( :composite, :user );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which to find the <code>:composite</code> type.
+</dd>
+
+<dt><code>:composite</code></dt>
+<dd>
+Name of a composite type.
+</dd>
+
+<dt><code>:user</code></dt>
+<dd>
+Name of a user.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the ownership of a composite. If the <code>:description</code> argument is omitted, an
+appropriate description will be created. Examples:</p>
+
+<pre><code>SELECT composite_owner_is(
+    'public', 'mycomposite', 'someuser',
+    'mycomposite should be owned by someuser'
+);
+SELECT composite_owner_is( 'widgets', current_user );
+</code></pre>
+
+<p>In the event that the test fails because the composite in question does not
+actually exist or is not visible, you will see an appropriate diagnostic such
+as:</p>
+
+<pre><code># Failed test 16: "Composite type foo should be owned by www"
+#     Composite type foo does not exist
+</code></pre>
+
+<p>If the test fails because the composite is not owned by the specified user, the
+diagnostics will look something like:</p>
+
+<pre><code># Failed test 17: "Composite type bar should be owned by root"
+#         have: postgres
+#         want: root
+</code></pre>
+
+<h3 id="foreign_table_owner_is"><code>foreign_table_owner_is ()</code></h3>
+
+<pre><code>SELECT foreign_table_owner_is ( :schema, :foreign_table, :user, :description );
+SELECT foreign_table_owner_is ( :foreign_table, :user, :description );
+SELECT foreign_table_owner_is ( :schema, :foreign_table, :user );
+SELECT foreign_table_owner_is ( :foreign_table, :user );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which to find the <code>:foreign_table</code>.
+</dd>
+
+<dt><code>:foreign_table</code></dt>
+<dd>
+Name of a foreign table.
+</dd>
+
+<dt><code>:user</code></dt>
+<dd>
+Name of a user.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the ownership of a foreign table. If the <code>:description</code> argument is
+omitted, an appropriate description will be created. Examples:</p>
+
+<pre><code>SELECT foreign_table_owner_is(
+    'public', 'mytable', 'someuser',
+    'mytable should be owned by someuser'
+);
+SELECT foreign_table_owner_is( 'widgets', current_user );
+</code></pre>
+
+<p>In the event that the test fails because the foreign table in question does
+not actually exist or is not visible, you will see an appropriate diagnostic
+such as:</p>
+
+<pre><code># Failed test 16: "Foreign table foo should be owned by www"
+#     Foreign table foo does not exist
+</code></pre>
+
+<p>If the test fails because the foreign table is not owned by the specified
+user, the diagnostics will look something like:</p>
+
+<pre><code># Failed test 17: "Foreign table bar should be owned by root"
+#         have: postgres
+#         want: root
+</code></pre>
+
+<h3 id="index_owner_is"><code>index_owner_is ()</code></h3>
+
+<pre><code>SELECT index_owner_is ( :schema, :table, :index, :user, :description );
+SELECT index_owner_is ( :table, :index, :user, :description );
+SELECT index_owner_is ( :schema, :table, :index, :user );
+SELECT index_owner_is ( :table, :index, :user );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which to find the <code>:table, :index</code>.
+</dd>
+
+<dt><code>:table</code></dt>
+<dd>
+Name of a table.
+</dd>
+
+<dt><code>:table</code></dt>
+<dd>
+Name of an index on the table.
+</dd>
+
+<dt><code>:user</code></dt>
+<dd>
+Name of a user.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the ownership of an index. If the <code>:description</code> argument is omitted, an
+appropriate description will be created. Examples:</p>
+
+<pre><code>SELECT index_owner_is(
+    'public', 'mytable', 'idx_name', 'someuser',
+    'Index "idx_name" on mytable should be owned by someuser'
+);
+SELECT index_owner_is( 'widgets', 'widgets_pkey', current_user );
+</code></pre>
+
+<p>In the event that the test fails because the index in question does not
+actually exist, or the table or schema it's on does not exist or is not
+visible, you will see an appropriate diagnostic such as:</p>
+
+<pre><code># Failed test 16: "Index idx_foo should be owned by root"
+#     Index idx_foo on table darfoo not found
+</code></pre>
+
+<p>If the test fails because the table is not owned by the specified user, the
+diagnostics will look something like:</p>
+
+<pre><code># Failed test 17: "Index idx_foo on table bar should be owned by bob"
+#         have: postgres
+#         want: bob
+</code></pre>
+
+<h3 id="function_owner_is"><code>function_owner_is ()</code></h3>
+
+<pre><code>SELECT function_owner_is ( :schema, :function, :args, :user, :description );
+SELECT function_owner_is ( :function, :args, :user, :description );
+SELECT function_owner_is ( :schema, :function, :args, :user );
+SELECT function_owner_is ( :function, :args, :user );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which to find the <code>:function</code>.
+</dd>
+
+<dt><code>:function</code></dt>
+<dd>
+Name of a function.
+</dd>
+
+<dt><code>:args</code></dt>
+<dd>
+Array of data types of the function arguments.
+</dd>
+
+<dt><code>:user</code></dt>
+<dd>
+Name of a user.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the ownership of a function. If the <code>:description</code> argument is omitted,
+an appropriate description will be created. Examples:</p>
+
+<pre><code>SELECT function_owner_is(
+    'public', 'frobulate', ARRAY['integer', 'text'], 'someuser',
+    'public.frobulate(integer, text) should be owned by someuser'
+);
+SELECT function_owner_is( 'masticate', ARRAY['text'], current_user );
+</code></pre>
+
+<p>In the event that the test fails because the function in question does not
+actually exist or is not visible, you will see an appropriate diagnostic such
+as:</p>
+
+<pre><code># Failed test 16: "Function foo() should be owned by www"
+#     Function foo() does not exist
+</code></pre>
+
+<p>If the test fails because the function is not owned by the specified user, the
+diagnostics will look something like:</p>
+
+<pre><code># Failed test 17: "Function bar() should be owned by root"
+#         have: postgres
+#         want: root
+</code></pre>
+
+<h3 id="language_owner_is"><code>language_owner_is ()</code></h3>
+
+<pre><code>SELECT language_owner_is ( :languagename, :user, :description );
+SELECT language_owner_is ( :languagename, :user );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:languagename</code></dt>
+<dd>
+Name of a language.
+</dd>
+
+<dt><code>:user</code></dt>
+<dd>
+Name of a user.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the ownership of a procedural language. If the <code>:description</code> argument
+is omitted, an appropriate description will be created. Works on PostgreSQL
+8.3 and higher. Examples:</p>
+
+<pre><code>SELECT language_owner_is( 'plpgsql', 'larry', 'Larry should own plpgsql' );
+SELECT language_owner_is( 'plperl', current_user );
+</code></pre>
+
+<p>In the event that the test fails because the language in question does not
+actually exist, you will see an appropriate diagnostic such as:</p>
+
+<pre><code># Failed test 16: "Language pllolcode should be owned by meow"
+#     Language pllolcode does not exist
+</code></pre>
+
+<p>If the test fails because the language is not owned by the specified user,
+the diagnostics will look something like:</p>
+
+<pre><code># Failed test 17: "Language plruby should be owned by mats"
+#         have: postgres
+#         want: mats
+</code></pre>
+
+<h2 id="opclass_owner_is"><code>opclass_owner_is ()</code></h2>
+
+<pre><code>SELECT opclass_owner_is ( :schema, :opclass, :user, :description );
+SELECT opclass_owner_is ( :opclass, :user, :description );
+SELECT opclass_owner_is ( :schema, :opclass, :user );
+SELECT opclass_owner_is ( :opclass, :user );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which to find the <code>:opclass</code>.
+</dd>
+
+<dt><code>:opclass</code></dt>
+<dd>
+Name of an operator class.
+</dd>
+
+<dt><code>:user</code></dt>
+<dd>
+Name of a user.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the ownership of an operator class. If the <code>:description</code> argument is
+omitted, an appropriate description will be created. Examples:</p>
+
+<pre><code>SELECT opclass_owner_is(
+    'pg_catalog', 'int4_ops', 'postgres',
+    'Operator class int4_ops should be owned by postgres'
+);
+SELECT opclass_owner_is( 'my_ops', current_user );
+</code></pre>
+
+<p>In the event that the test fails because the operator class in question does
+not actually exist or is not visible, you will see an appropriate diagnostic
+such as:</p>
+
+<pre><code># Failed test 16: "operator class foo should be owned by www"
+#     operator class foo does not exist
+</code></pre>
+
+<p>If the test fails because the operator class is not owned by the specified
+user, the diagnostics will look something like:</p>
+
+<pre><code># Failed test 17: "operator class bar should be owned by root"
+#         have: postgres
+#         want: root
+</code></pre>
+
+<h2 id="type_owner_is"><code>type_owner_is ()</code></h2>
+
+<pre><code>SELECT type_owner_is ( :schema, :type, :user, :description );
+SELECT type_owner_is ( :type, :user, :description );
+SELECT type_owner_is ( :schema, :type, :user );
+SELECT type_owner_is ( :type, :user );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which to find the <code>:type</code>.
+</dd>
+
+<dt><code>:type</code></dt>
+<dd>
+Name of a type.
+</dd>
+
+<dt><code>:user</code></dt>
+<dd>
+Name of a user.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the ownership of a data type. If the <code>:description</code> argument is omitted,
+an appropriate description will be created. Examples:</p>
+
+<pre><code>SELECT type_owner_is(
+    'pg_catalog', 'int4', 'postgres',
+    'type int4 should be owned by postgres'
+);
+SELECT type_owner_is( 'us_postal_code', current_user );
+</code></pre>
+
+<p>In the event that the test fails because the type in question does not
+actually exist or is not visible, you will see an appropriate diagnostic such
+as:</p>
+
+<pre><code># Failed test 16: "type uk_postal_code should be owned by www"
+#     type uk_postal_code does not exist
+</code></pre>
+
+<p>If the test fails because the type is not owned by the specified
+user, the diagnostics will look something like:</p>
+
+<pre><code># Failed test 17: "type us_postal_code should be owned by root"
+#         have: postgres
+#         want: root
+</code></pre>
+
+<h2 id="prvilegedaccess">Prvileged Access</h2>
+
+<p>So we know who owns the objects. But what about other roles? Can they access
+database objects? Let's find out!</p>
+
+<h3 id="database_privs_are"><code>database_privs_are()</code></h3>
+
+<pre><code>SELECT database_privs_are ( :db, :role, :privileges, :description );
+SELECT database_privs_are ( :db, :role, :privileges );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:db</code></dt>
+<dd>
+Name of a database.
+</dd>
+
+<dt><code>:role</code></dt>
+<dd>
+Name of a user or group role.
+</dd>
+
+<dt><code>:privileges</code></dt>
+<dd>
+An array of table privileges the role should be granted to the database.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the privileges granted to a role to access a database. The available
+database privileges are:</p>
+
+<ul>
+<li>CREATE</li>
+<li>CONNECT</li>
+<li>TEMPORARY</li>
+</ul>
+
+<p>Although CONNECT is not available before PostgreSQL 8.2.</p>
+
+<p>If the <code>:description</code> argument is omitted, an appropriate description will be
+created. Examples:</p>
+
+<pre><code>SELECT database_privs_are(
+    'flipr', 'fred', ARRAY['CONNECT', 'TEMPORARY'],
+    'Fred should be granted CONNECT and TERMPORARY on db "flipr"'
+);
+SELECT database_privs_are( 'dept_corrections', ARRAY['CREATE'] );
+</code></pre>
+
+<p>If the role is granted permissions other than those specified, the diagnostics
+will list the extra permissions, like so:</p>
+
+<pre><code># Failed test 14: "Role bob should be granted CREATE on database banks"
+#     Extra privileges:
+#           CONNECT
+#           TEMPORARY
+</code></pre>
+
+<p>Likewise if the role is not granted some of the specified permissions on the
+database:</p>
+
+<pre><code># Failed test 15: "Role kurk should be granted CONNECT, TEMPORARY on database banks"
+#     Missing privileges:
+#           CREATE
+</code></pre>
+
+<p>In the event that the test fails because the database in question does not
+actually exist or is not visible, you will see an appropriate diagnostic such
+as:</p>
+
+<pre><code># Failed test 16: "Role slim should be granted CONNECT on database maindb"
+#     Database maindb does not exist
+</code></pre>
+
+<p>If the test fails because the role does not exist, the diagnostics will look
+something like:</p>
+
+<pre><code># Failed test 17: "Role slim should be granted CONNECT, CREATE on database widgets"
+#     Role slim does not exist
+</code></pre>
+
+<h3 id="tablespace_privs_are"><code>tablespace_privs_are()</code></h3>
+
+<pre><code>SELECT tablespace_privs_are ( :tablespace, :role, :privileges, :description );
+SELECT tablespace_privs_are ( :tablespace, :role, :privileges );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:tablespace</code></dt>
+<dd>
+Name of a tablespace.
+</dd>
+
+<dt><code>:role</code></dt>
+<dd>
+Name of a user or group role.
+</dd>
+
+<dt><code>:privileges</code></dt>
+<dd>
+An array of table privileges the role should be granted to the tablespace.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the privileges granted to a role to access a tablespace. The available
+function privileges are:</p>
+
+<ul>
+<li>CREATE</li>
+</ul>
+
+<p>If the <code>:description</code> argument is omitted, an appropriate description will be
+created. Examples:</p>
+
+<pre><code>SELECT tablespace_privs_are(
+    'ssd', 'fred', ARRAY['CREATE'],
+    'Fred should be granted CREATE on tablespace "ssd"'
+);
+SELECT tablespace_privs_are( 'san', ARRAY['CREATE'] );
+</code></pre>
+
+<p>If the role is granted permissions other than those specified, the diagnostics
+will list the extra permissions, like so:</p>
+
+<pre><code># Failed test 14: "Role bob should be granted no privileges on tablespace hdd"
+#     Extra privileges:
+#           CREATE
+</code></pre>
+
+<p>Likewise if the role is not granted some of the specified permissions on the
+tablespace:</p>
+
+<pre><code># Failed test 15: "Role kurk should be granted USAGE on ssd"
+#     Missing privileges:
+#           CREATE
+</code></pre>
+
+<p>In the event that the test fails because the tablespace in question does not
+actually exist or is not visible, you will see an appropriate diagnostic such
+as:</p>
+
+<pre><code># Failed test 16: "Role slim should be granted CREATE on tablespace tape"
+#     Tablespace tape does not exist
+</code></pre>
+
+<p>If the test fails because the role does not exist, the diagnostics will look
+something like:</p>
+
+<pre><code># Failed test 17: "Role slim should be granted CREATE on san"
+#     Role slim does not exist
+</code></pre>
+
+<h3 id="schema_privs_are"><code>schema_privs_are()</code></h3>
+
+<pre><code>SELECT schema_privs_are ( :schema, :role, :privileges, :description );
+SELECT schema_privs_are ( :schema, :role, :privileges );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema.
+</dd>
+
+<dt><code>:role</code></dt>
+<dd>
+Name of a user or group role.
+</dd>
+
+<dt><code>:privileges</code></dt>
+<dd>
+An array of table privileges the role should be granted to the schema.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the privileges granted to a role to access a schema. The available
+schema privileges are:</p>
+
+<ul>
+<li>CREATE</li>
+<li>USAGE</li>
+</ul>
+
+<p>If the <code>:description</code> argument is omitted, an appropriate description will be
+created. Examples:</p>
+
+<pre><code>SELECT schema_privs_are(
+    'flipr', 'fred', ARRAY['CREATE', 'USAGE'],
+    'Fred should be granted CREATE and USAGE on schema "flipr"'
+);
+SELECT schema_privs_are( 'hr', ARRAY['USAGE'] );
+</code></pre>
+
+<p>If the role is granted permissions other than those specified, the diagnostics
+will list the extra permissions, like so:</p>
+
+<pre><code># Failed test 14: "Role bob should be granted no privileges on schema pinata"
+#     Extra privileges:
+#           CREATE
+#           USAGE
+</code></pre>
+
+<p>Likewise if the role is not granted some of the specified permissions on the
+schema:</p>
+
+<pre><code># Failed test 15: "Role kurk should be granted CREATE, USAGE on schema stuff"
+#     Missing privileges:
+#           CREATE
+</code></pre>
+
+<p>In the event that the test fails because the schema in question does not
+actually exist or is not visible, you will see an appropriate diagnostic such
+as:</p>
+
+<pre><code># Failed test 16: "Role slim should be granted USAGE on schema main"
+#     Schema main does not exist
+</code></pre>
+
+<p>If the test fails because the role does not exist, the diagnostics will look
+something like:</p>
+
+<pre><code># Failed test 17: "Role slim should be granted CREATE, USAGE on schema admin"
+#     Role slim does not exist
+</code></pre>
+
+<h3 id="table_privs_are"><code>table_privs_are()</code></h3>
+
+<pre><code>SELECT table_privs_are ( :schema, :table, :role, :privileges, :description );
+SELECT table_privs_are ( :schema, :table, :role, :privileges );
+SELECT table_privs_are ( :table, :role, :privileges, :description );
+SELECT table_privs_are ( :table, :role, :privileges );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which to find the table.
+</dd>
+
+<dt><code>:table</code></dt>
+<dd>
+Name of a table.
+</dd>
+
+<dt><code>:role</code></dt>
+<dd>
+Name of a user or group role.
+</dd>
+
+<dt><code>:privileges</code></dt>
+<dd>
+An array of table privileges the role should be granted to the table.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the privileges granted to a role to access a table. The available
+table privileges are:</p>
+
+<ul>
+<li>DELETE</li>
+<li>INSERT</li>
+<li>REFERENCES</li>
+<li>RULE</li>
+<li>SELECT</li>
+<li>TRIGGER</li>
+<li>TRUNCATE</li>
+<li>UPDATE</li>
+</ul>
+
+<p>Note that the privilege RULE is not available aftter PostgreSQL 8.1, and that
+TRIGGER was added in 8.4.</p>
+
+<p>If the <code>:description</code> argument is omitted, an appropriate description will be
+created. Examples:</p>
+
+<pre><code>SELECT table_privs_are(
+    'public', 'frobulate', 'fred', ARRAY['SELECT', 'DELETE'],
+    'Fred should be able to select and delete on frobulate'
+);
+SELECT table_privs_are( 'widgets', 'slim', ARRAY['INSERT', 'UPDATE'] );
+</code></pre>
+
+<p>If the role is granted permissions other than those specified, the diagnostics
+will list the extra permissions, like so:</p>
+
+<pre><code># Failed test 14: "Role bob should be granted SELECT on widgets"
+#     Extra privileges:
+#           DELETE
+#           INSERT
+#           UPDATE
+</code></pre>
+
+<p>Likewise if the role is not granted some of the specified permissions on the
+table:</p>
+
+<pre><code># Failed test 15: "Role kurk should be granted SELECT, INSERT, UPDATE on widgets"
+#     Missing privileges:
+#           INSERT
+#           UPDATE
+</code></pre>
+
+<p>In the event that the test fails because the table in question does not
+actually exist or is not visible, you will see an appropriate diagnostic such
+as:</p>
+
+<pre><code># Failed test 16: "Role slim should be granted SELECT on widgets"
+#     Table widgets does not exist
+</code></pre>
+
+<p>If the test fails because the role does not exist, the diagnostics will look
+something like:</p>
+
+<pre><code># Failed test 17: "Role slim should be granted SELECT on widgets"
+#     Role slim does not exist
+</code></pre>
+
+<h3 id="sequence_privs_are"><code>sequence_privs_are()</code></h3>
+
+<pre><code>SELECT sequence_privs_are ( :schema, :sequence, :role, :privileges, :description );
+SELECT sequence_privs_are ( :schema, :sequence, :role, :privileges );
+SELECT sequence_privs_are ( :sequence, :role, :privileges, :description );
+SELECT sequence_privs_are ( :sequence, :role, :privileges );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which to find the sequence.
+</dd>
+
+<dt><code>:sequence</code></dt>
+<dd>
+Name of a sequence.
+</dd>
+
+<dt><code>:role</code></dt>
+<dd>
+Name of a user or group role.
+</dd>
+
+<dt><code>:privileges</code></dt>
+<dd>
+An array of sequence privileges the role should be granted to the sequence.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the privileges granted to a role to access a sequence. The available
+sequence privileges are:</p>
+
+<ul>
+<li>SELECT</li>
+<li>UPDATE</li>
+<li>USAGE</li>
+</ul>
+
+<p>Note that sequence privileges were added in PostgreSQL 9.0, so this function
+will likley throw an exception on earlier versions.</p>
+
+<p>If the <code>:description</code> argument is omitted, an appropriate description will be
+created. Examples:</p>
+
+<pre><code>SELECT sequence_privs_are(
+    'public', 'seq_ids', 'fred', ARRAY['SELECT', 'UPDATE'],
+    'Fred should be able to select and update seq_ids'
+);
+SELECT sequence_privs_are( 'seq_u', 'slim', ARRAY['USAGE'] );
+</code></pre>
+
+<p>If the role is granted permissions other than those specified, the diagnostics
+will list the extra permissions, like so:</p>
+
+<pre><code># Failed test 14: "Role bob should be granted SELECT on seq_foo_id"
+#     Extra privileges:
+#           UPDATE
+#           USAGE
+</code></pre>
+
+<p>Likewise if the role is not granted some of the specified permissions on the
+sequence:</p>
+
+<pre><code># Failed test 15: "Role kurk should be granted USAGE on seq_widgets"
+#     Missing privileges:
+#           SELECT
+#           UPDATE
+</code></pre>
+
+<p>In the event that the test fails because the sequence in question does not
+actually exist or is not visible, you will see an appropriate diagnostic such
+as:</p>
+
+<pre><code># Failed test 16: "Role slim should be granted SELECT on seq_widgets"
+#     Sequence widgets does not exist
+</code></pre>
+
+<p>If the test fails because the role does not exist, the diagnostics will look
+something like:</p>
+
+<pre><code># Failed test 17: "Role slim should be granted SELECT on seq_widgets"
+#     Role slim does not exist
+</code></pre>
+
+<h3 id="any_column_privs_are"><code>any_column_privs_are()</code></h3>
+
+<pre><code>SELECT any_column_privs_are ( :schema, :table, :role, :privileges, :description );
+SELECT any_column_privs_are ( :schema, :table, :role, :privileges );
+SELECT any_column_privs_are ( :table, :role, :privileges, :description );
+SELECT any_column_privs_are ( :table, :role, :privileges );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which to find the table.
+</dd>
+
+<dt><code>:table</code></dt>
+<dd>
+Name of a table.
+</dd>
+
+<dt><code>:role</code></dt>
+<dd>
+Name of a user or group role.
+</dd>
+
+<dt><code>:privileges</code></dt>
+<dd>
+An array of table privileges the role should be granted to the table.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the privileges granted to access one or more of the columns in a table.
+The available column privileges are:</p>
+
+<ul>
+<li>INSERT</li>
+<li>REFERENCES</li>
+<li>SELECT</li>
+<li>UPDATE</li>
+</ul>
+
+<p>Note that column privileges were added in PostgreSQL 8.4, so this function
+will likley throw an exception on earlier versions.</p>
+
+<p>If the <code>:description</code> argument is omitted, an appropriate description will be
+created. Examples:</p>
+
+<pre><code>SELECT any_column_privs_are(
+    'public', 'frobulate', 'fred', ARRAY['SELECT', 'UPDATE'],
+    'Fred should be able to select and update columns in frobulate'
+);
+SELECT any_column_privs_are( 'widgets', 'slim', ARRAY['INSERT', 'UPDATE'] );
+</code></pre>
+
+<p>If the role is granted permissions other than those specified, the diagnostics
+will list the extra permissions, like so:</p>
+
+<pre><code># Failed test 14: "Role bob should be granted SELECT on columns in widgets"
+#     Extra privileges:
+#           INSERT
+#           UPDATE
+</code></pre>
+
+<p>Likewise if the role is not granted some of the specified permissions on the
+table:</p>
+
+<pre><code># Failed test 15: "Role kurk should be granted SELECT, INSERT, UPDATE on columns in widgets"
+#     Missing privileges:
+#           INSERT
+#           UPDATE
+</code></pre>
+
+<p>In the event that the test fails because the table in question does not
+actually exist or is not visible, you will see an appropriate diagnostic such
+as:</p>
+
+<pre><code># Failed test 16: "Role slim should be granted SELECT on columns in widgets"
+#     Table widgets does not exist
+</code></pre>
+
+<p>If the test fails because the role does not exist, the diagnostics will look
+something like:</p>
+
+<pre><code># Failed test 17: "Role slim should be granted SELECT on columns in widgets"
+#     Role slim does not exist
+</code></pre>
+
+<h3 id="column_privs_are"><code>column_privs_are()</code></h3>
+
+<pre><code>SELECT column_privs_are ( :schema, :table, :column, :role, :privileges, :description );
+SELECT column_privs_are ( :schema, :table, :column, :role, :privileges );
+SELECT column_privs_are ( :table, :column, :role, :privileges, :description );
+SELECT column_privs_are ( :table, :column, :role, :privileges );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which to find the table.
+</dd>
+
+<dt><code>:table</code></dt>
+<dd>
+Name of a table.
+</dd>
+
+<dt><code>:column</code></dt>
+<dd>
+Name of a column.
+</dd>
+
+<dt><code>:role</code></dt>
+<dd>
+Name of a user or group role.
+</dd>
+
+<dt><code>:privileges</code></dt>
+<dd>
+An array of column privileges the role should be granted to the column.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the privileges granted to a role to access a single column. The
+available column privileges are:</p>
+
+<ul>
+<li>INSERT</li>
+<li>REFERENCES</li>
+<li>SELECT</li>
+<li>UPDATE</li>
+</ul>
+
+<p>Note that column privileges were added in PostgreSQL 8.4, so this function
+will likley throw an exception on earlier versions.</p>
+
+<p>If the <code>:description</code> argument is omitted, an appropriate description will be
+created. Examples:</p>
+
+<pre><code>SELECT column_privs_are(
+    'public', 'frobulate', 'id', 'fred', ARRAY['SELECT', 'UPDATE'],
+    'Fred should be able to select and update frobulate.id'
+);
+SELECT column_privs_are( 'widgets', 'name', 'slim', ARRAY['INSERT', 'UPDATE'] );
+</code></pre>
+
+<p>If the role is granted permissions other than those specified, the diagnostics
+will list the extra permissions, like so:</p>
+
+<pre><code># Failed test 14: "Role bob should be granted SELECT on widgets.foo"
+#     Extra privileges:
+#           INSERT
+#           UPDATE
+</code></pre>
+
+<p>Likewise if the role is not granted some of the specified permissions on the
+table:</p>
+
+<pre><code># Failed test 15: "Role kurk should be granted SELECT, INSERT, UPDATE on widgets.foo"
+#     Missing privileges:
+#           INSERT
+#           UPDATE
+</code></pre>
+
+<p>In the event that the test fails because the table in question does not
+actually exist or is not visible, you will see an appropriate diagnostic such
+as:</p>
+
+<pre><code># Failed test 16: "Role slim should be granted SELECT on widgets.foo"
+#     Table widgets does not exist
+</code></pre>
+
+<p>If the test fails because the column does not actually exist or is not
+visible, the diagnostics will tell you:</p>
+
+<pre><code># Failed test 17: "Role slim should be granted SELECT on gadgets.foo"
+#     Column gadgets.foo does not exist
+</code></pre>
+
+<p>If the test fails because the role does not exist, the diagnostics will look
+something like:</p>
+
+<pre><code># Failed test 18: "Role slim should be granted SELECT on gadgets.foo"
+#     Role slim does not exist
+</code></pre>
+
+<h3 id="function_privs_are"><code>function_privs_are()</code></h3>
+
+<pre><code>SELECT function_privs_are ( :schema, :function, :args, :role, :privileges, :description );
+SELECT function_privs_are ( :schema, :function, :args, :role, :privileges );
+SELECT function_privs_are ( :function, :args, :role, :privileges, :description );
+SELECT function_privs_are ( :function, :args, :role, :privileges );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>
+Name of a schema in which to find the function.
+</dd>
+
+<dt><code>:function</code></dt>
+<dd>
+Name of a function.
+</dd>
+
+<dt><code>:args</code></dt>
+<dd>
+Array of function arguments.
+</dd>
+
+<dt><code>:role</code></dt>
+<dd>
+Name of a user or group role.
+</dd>
+
+<dt><code>:privileges</code></dt>
+<dd>
+An array of function privileges the role should be granted to the function.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the privileges granted to a role to access a function. The available
+function privileges are:</p>
+
+<ul>
+<li>EXECUTE</li>
+</ul>
+
+<p>If the <code>:description</code> argument is omitted, an appropriate description will be
+created. Examples:</p>
+
+<pre><code>SELECT function_privs_are(
+    'public', 'frobulate', ARRAY['integer'], 'fred', ARRAY['EXECUTE'],
+    'Fred should be able to execute frobulate(int)'
+);
+SELECT function_privs_are( 'bake', '{}', 'slim', '{}');
+</code></pre>
+
+<p>If the role is granted permissions other than those specified, the diagnostics
+will list the extra permissions, like so:</p>
+
+<pre><code># Failed test 14: "Role bob should be granted no privileges on foo()"
+#     Extra privileges:
+#           EXECUTE
+</code></pre>
+
+<p>Likewise if the role is not granted some of the specified permissions on the
+function:</p>
+
+<pre><code># Failed test 15: "Role kurk should be granted EXECUTE foo()"
+#     Missing privileges:
+#           EXECUTE
+</code></pre>
+
+<p>In the event that the test fails because the function in question does not
+actually exist or is not visible, you will see an appropriate diagnostic such
+as:</p>
+
+<pre><code># Failed test 16: "Role slim should be granted EXECUTE on foo(int)"
+#     Function foo(int) does not exist
+</code></pre>
+
+<p>If the test fails because the role does not exist, the diagnostics will look
+something like:</p>
+
+<pre><code># Failed test 17: "Role slim should be granted EXECUTE on foo()"
+#     Role slim does not exist
+</code></pre>
+
+<h3 id="language_privs_are"><code>language_privs_are()</code></h3>
+
+<pre><code>SELECT language_privs_are ( :lang, :role, :privileges, :description );
+SELECT language_privs_are ( :lang, :role, :privileges );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:lang</code></dt>
+<dd>
+Name of a language.
+</dd>
+
+<dt><code>:role</code></dt>
+<dd>
+Name of a user or group role.
+</dd>
+
+<dt><code>:privileges</code></dt>
+<dd>
+An array of table privileges the role should be granted to the language.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the privileges granted to a role to access a language. The available
+function privileges are:</p>
+
+<ul>
+<li>USAGE</li>
+</ul>
+
+<p>If the <code>:description</code> argument is omitted, an appropriate description will be
+created. Examples:</p>
+
+<pre><code>SELECT language_privs_are(
+    'plpgsql', 'fred', ARRAY['USAGE'],
+    'Fred should be granted USAGE on language "flipr"'
+);
+SELECT language_privs_are( 'plperl', ARRAY['USAGE'] );
+</code></pre>
+
+<p>If the role is granted permissions other than those specified, the diagnostics
+will list the extra permissions, like so:</p>
+
+<pre><code># Failed test 14: "Role bob should be granted no privileges on banks"
+#     Extra privileges:
+#           USAGE
+</code></pre>
+
+<p>Likewise if the role is not granted some of the specified permissions on the
+language:</p>
+
+<pre><code># Failed test 15: "Role kurk should be granted USAGE on banks"
+#     Missing privileges:
+#           USAGE
+</code></pre>
+
+<p>In the event that the test fails because the language in question does not
+actually exist or is not visible, you will see an appropriate diagnostic such
+as:</p>
+
+<pre><code># Failed test 16: "Role slim should be granted USAGE on plr"
+#     Language plr does not exist
+</code></pre>
+
+<p>If the test fails because the role does not exist, the diagnostics will look
+something like:</p>
+
+<pre><code># Failed test 17: "Role slim should be granted USAGE on pllolcode"
+#     Role slim does not exist
+</code></pre>
+
+<h3 id="fdw_privs_are"><code>fdw_privs_are()</code></h3>
+
+<pre><code>SELECT fdw_privs_are ( :fdw, :role, :privileges, :description );
+SELECT fdw_privs_are ( :fdw, :role, :privileges );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:fdw</code></dt>
+<dd>
+Name of a foreign data wrapper.
+</dd>
+
+<dt><code>:role</code></dt>
+<dd>
+Name of a user or group role.
+</dd>
+
+<dt><code>:privileges</code></dt>
+<dd>
+An array of table privileges the role should be granted to the foreign data wrapper.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the privileges granted to a role to access a foreign data wrapper. The
+available function privileges are:</p>
+
+<ul>
+<li>USAGE</li>
+</ul>
+
+<p>Note that foreign data wrapper privileges were added in PostgreSQL 8.4, so
+this function will likley throw an exception on earlier versions.</p>
+
+<p>If the <code>:description</code> argument is omitted, an appropriate description will be
+created. Examples:</p>
+
+<pre><code>SELECT fdw_privs_are(
+    'oracle', 'fred', ARRAY['USAGE'],
+    'Fred should be granted USAGE on fdw "oracle"'
+);
+SELECT fdw_privs_are( 'log_csv', ARRAY['USAGE'] );
+</code></pre>
+
+<p>If the role is granted permissions other than those specified, the diagnostics
+will list the extra permissions, like so:</p>
+
+<pre><code># Failed test 14: "Role bob should be granted no privileges on odbc"
+#     Extra privileges:
+#           USAGE
+</code></pre>
+
+<p>Likewise if the role is not granted some of the specified permissions on the
+fdw:</p>
+
+<pre><code># Failed test 15: "Role kurk should be granted USAGE on odbc"
+#     Missing privileges:
+#           USAGE
+</code></pre>
+
+<p>In the event that the test fails because the fdw in question does not
+actually exist or is not visible, you will see an appropriate diagnostic such
+as:</p>
+
+<pre><code># Failed test 16: "Role slim should be granted USAGE on FDW sqlite"
+#     FDW sqlite does not exist
+</code></pre>
+
+<p>If the test fails because the role does not exist, the diagnostics will look
+something like:</p>
+
+<pre><code># Failed test 17: "Role slim should be granted USAGE on sqlite"
+#     Role slim does not exist
+</code></pre>
+
+<h3 id="server_privs_are"><code>server_privs_are()</code></h3>
+
+<pre><code>SELECT server_privs_are ( :server, :role, :privileges, :description );
+SELECT server_privs_are ( :server, :role, :privileges );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:server</code></dt>
+<dd>
+Name of a server.
+</dd>
+
+<dt><code>:role</code></dt>
+<dd>
+Name of a user or group role.
+</dd>
+
+<dt><code>:privileges</code></dt>
+<dd>
+An array of table privileges the role should be granted to the server.
+</dd>
+
+<dt><code>:description</code></dt>
+<dd>
+A short description of the test.
+</dd>
+
+</dl>
+
+<p>Tests the privileges granted to a role to access a server. The available
+function privileges are:</p>
+
+<ul>
+<li>USAGE</li>
+</ul>
+
+<p>Note that server privileges were added in PostgreSQL 8.4, so this function
+will likley throw an exception on earlier versions.</p>
+
+<p>If the <code>:description</code> argument is omitted, an appropriate description will be
+created. Examples:</p>
+
+<pre><code>SELECT server_privs_are(
+    'otherdb', 'fred', ARRAY['USAGE'],
+    'Fred should be granted USAGE on server "otherdb"'
+);
+SELECT server_privs_are( 'myserv', ARRAY['USAGE'] );
+</code></pre>
+
+<p>If the role is granted permissions other than those specified, the diagnostics
+will list the extra permissions, like so:</p>
+
+<pre><code># Failed test 14: "Role bob should be granted no privileges on myserv"
+#     Extra privileges:
+#           USAGE
+</code></pre>
+
+<p>Likewise if the role is not granted some of the specified permissions on the
+server:</p>
+
+<pre><code># Failed test 15: "Role kurk should be granted USAGE on oltp"
+#     Missing privileges:
+#           USAGE
+</code></pre>
+
+<p>In the event that the test fails because the server in question does not
+actually exist or is not visible, you will see an appropriate diagnostic such
+as:</p>
+
+<pre><code># Failed test 16: "Role slim should be granted USAGE on server oltp"
+#     server oltp does not exist
+</code></pre>
+
+<p>If the test fails because the role does not exist, the diagnostics will look
+something like:</p>
+
+<pre><code># Failed test 17: "Role slim should be granted USAGE on oltp"
+#     Role slim does not exist
+</code></pre>
+
 <h1 id="notestforthewicked">No Test for the Wicked</h1>
 
 <p>There is more to pgTAP. Oh <em>so</em> much more! You can output your own
@@ -7200,43 +9224,6 @@ when used in combination with <code>skip()</code>:</p>
 ]);
 </code></pre>
 
-<h3 id="display_type"><code>display_type()</code></h3>
-
-<pre><code>SELECT display_type( :schema, :typeoid, typemod );
-SELECT display_type( :typeoid, :typemod );
-</code></pre>
-
-<p><strong>Parameters</strong></p>
-
-<dl>
-<dt><code>:schema</code></dt>
-<dd>
-Schema in which to find the type.
-</dd>
-
-<dt><code>:typeoid</code></dt>
-<dd>
-OID of the type.
-</dd>
-
-<dt><code>:typemod</code></dt>
-<dd>
-Typemode for the type.
-</dd>
-
-</dl>
-
-<p>Like <code>pg_catalog.format_type()</code>, except that the returned value is not
-prepended with the schema name unless it is passed as the first argument. Some
-examples:</p>
-
-<pre><code>SELECT display_type('public', 'varchar'::regtype, NULL );
-SELECT display_type('numeric'::regtype, 196612 );
-</code></pre>
-
-<p>Used internally by pgTAP to compare type names, but may be more generally
-useful.</p>
-
 <h3 id="display_oper"><code>display_oper()</code></h3>
 
 <pre><code>SELECT display_oper( :opername, :operoid );
@@ -7260,7 +9247,7 @@ Operator OID.
 <p>Similar to casting an operator OID to regoperator, only the schema is not
 included in the display. For example:</p>
 
-<pre><code>SELECT display_type(oprname, oid ) FROM pg_operator;
+<pre><code>SELECT display_oper(oprname, oid ) FROM pg_operator;
 </code></pre>
 
 <p>Used internally by pgTAP to compare operators, but may be more generally
@@ -7720,32 +9707,59 @@ instead:</p>
 <p>To see the specifics for each version of PostgreSQL, consult the files in the
 <code>compat/</code> directory in the pgTAP distribution.</p>
 
-<h2 id="andup">8.4 and Up</h2>
+<h2 id="andup">9.1 and Up</h2>
 
 <p>No changes. Everything should just work.</p>
+
+<h2 id="anddown">9.0 and Down</h2>
+
+<ul>
+<li>The <code>foreign_table_owner_is()</code> function will not work, because, of course,
+there were no foreign tables until 9.1.</li>
+</ul>
+
+<h2 id="anddown">8.4 and Down</h2>
+
+<ul>
+<li><p>The <code>sequence_privs_are()</code> function does not work, because privileges could
+not be granted on sequences before 9.0.</p></li>
+<li><p>The <code>triggers_are()</code> function does not ignore internally-created triggers.</p></li>
+</ul>
 
 <h2 id="anddown">8.3 and Down</h2>
 
 <ul>
-<li>A patch is applied to modify <code>results_eq()</code> and <code>row_eq()</code> to cast records
+<li><p>A patch is applied to modify <code>results_eq()</code> and <code>row_eq()</code> to cast records
 to text before comparing them. This means that things will mainly be
 correct, but it also means that two queries with incompatible types that
-convert to the same text string may be considered incorrectly equivalent.</li>
-<li>A C function, <code>pg_typeof()</code>, is built and installed in a DSO. This is for
+convert to the same text string may be considered incorrectly equivalent.</p></li>
+<li><p>A C function, <code>pg_typeof()</code>, is built and installed in a DSO. This is for
 compatibility with the same function that ships in 8.4 core, and is required
-for <code>cmp_ok()</code> and <code>isa_ok()</code> to work.</li>
-<li>The variadic forms of <code>diag()</code> and <code>collect_tap()</code> are not available.
-You can pass an array of TAP to <code>collect_tap()</code>, however.</li>
+for <code>cmp_ok()</code> and <code>isa_ok()</code> to work.</p></li>
+<li><p>The variadic forms of <code>diag()</code> and <code>collect_tap()</code> are not available.
+You can pass an array of TAP to <code>collect_tap()</code>, however.</p></li>
+<li><p>These permission-testing functions don't work, because one cannot grant
+permissions on the relevant objects until 8.4:</p>
+
+<ul>
+<li><code>has_any_column_privilege()</code></li>
+<li><code>has_column_privilege()</code></li>
+<li><code>has_foreign_data_wrapper_privilege()</code></li>
+<li><code>has_server_privilege()</code></li>
+</ul></li>
 </ul>
 
 <h2 id="anddown">8.2 and Down</h2>
 
 <ul>
-<li><p>A patch is applied that removes the <code>enum_has_labels()</code>, the
-<code>diag(anyelement)</code> function and <code>col_has_default()</code> cannot be used to test
-for columns specified with <code>DEFAULT NULL</code> (even though that's the implied
-default default). The <code>has_enums()</code> function won't work. Also, a number of
-assignments casts are added to increase compatibility. The casts are:</p>
+<li><p>A patch is applied that removes <code>enum_has_labels()</code> and
+<code>language_owner_is()</code>, since neither are testable before 8.3.</p></li>
+<li><p>the <code>diag(anyelement)</code> function and <code>col_has_default()</code> cannot be used to
+test for columns specified with <code>DEFAULT NULL</code> (even though that's the
+implied default default).</p></li>
+<li><p>The <code>has_enums()</code> function won't work. </p></li>
+<li><p>A number of assignments casts are added to increase compatibility. The casts
+are:</p>
 
 <ul>
 <li><code>boolean</code> to <code>text</code></li>
@@ -7753,56 +9767,7 @@ assignments casts are added to increase compatibility. The casts are:</p>
 <li><code>name[]</code> to <code>text</code></li>
 <li><code>regtype</code> to <code>text</code></li>
 </ul></li>
-<li>Two operators, <code>=</code> and <code>&lt;&gt;</code>, are added to compare <code>name[]</code> values.</li>
-</ul>
-
-<h1 id="todo">To Do</h1>
-
-<ul>
-<li>Add parameter names matching the docs so parameters can be passed by name on
-9.0 and higher.</li>
-<li>Add <code>isnt_empty()</code> to complement <code>is_empty()</code>.</li>
-<li>Add variants of <code>set_eq()</code>, <code>bag_eq()</code>, and <code>results_eq()</code> that take an
-array of records as the second argument.</li>
-<li>Add <code>schema, table, colname</code> variations of the table-checking functions
-(<code>table_has_column()</code>, <code>col_type_is()</code>, etc.). That is, allow the
-description to be optional if the schema is included in the function call.</li>
-<li>Add functions to test for object ownership.
-<ul>
-<li><code>table_owner_is()</code></li>
-<li><code>view_owner_is()</code></li>
-<li><code>sequence_owner_is()</code></li>
-<li><code>function_owner_is()</code></li>
-<li>etc.</li>
-</ul></li>
-<li>Add some sort of tests for permisions. Something like:
-<code>table_privs_are(:table, :user, :privs[])</code>, and would have variations for
-database, sequence, function, language, schema, and tablespace.</li>
-<li>Have <code>has_function()</code> manage OUT, INOUT, and VARIADIC arguments.</li>
-<li>Useful schema testing functions to consider adding:
-<ul>
-<li><code>sequence_has_range()</code></li>
-<li><code>sequence_increments_by()</code></li>
-<li><code>sequence_starts_at()</code></li>
-<li><code>sequence_cycles()</code></li>
-</ul></li>
-<li>Useful result testing function to consider adding (but might require C
-code): <code>rowtype_is()</code></li>
-<li>Split test functions into separate files (and maybe distributions?):
-<ul>
-<li>One with scalar comparison functions: <code>ok()</code>, <code>is()</code>, <code>like()</code>, etc.</li>
-<li>One with relation comparison functions: <code>set_eq()</code>, <code>results_eq()</code>, etc.</li>
-<li>One with schema testing functions: <code>has_table()</code>, <code>tables_are()</code>, etc.</li>
-</ul></li>
-<li>Add useful negation function tests:
-<ul>
-<li><code>isnt_definer()</code></li>
-<li><code>isnt_strict()</code></li>
-<li><code>isnt_aggregate()</code></li>
-</ul></li>
-<li>Modify function testing assertions so that functions can be specified with
-full signatures, so that a polymorphic functions can be independently tested
-for language, volatility, etc.</li>
+<li><p>Two operators, <code>=</code> and <code>&lt;&gt;</code>, are added to compare <code>name[]</code> values.</p></li>
 </ul>
 
 <h1 id="metadata">Metadata</h1>
@@ -7832,7 +9797,7 @@ comments, suggestions, and bug reports are welcomed there.</p>
 
 <h2 id="copyrightandlicense">Copyright and License</h2>
 
-<p>Copyright (c) 2008-2011 David E. Wheeler. Some rights reserved.</p>
+<p>Copyright (c) 2008-2013 David E. Wheeler. Some rights reserved.</p>
 
 <p>Permission to use, copy, modify, and distribute this software and its
 documentation for any purpose, without fee, and without a written agreement is
