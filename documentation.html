@@ -203,9 +203,9 @@ used in the xUnit testing style.</p>
 <li><a href="#foreign_table_owner_is"><code>foreign_table_owner_is ()</code></a></li>
 <li><a href="#index_owner_is"><code>index_owner_is ()</code></a></li>
 <li><a href="#function_owner_is"><code>function_owner_is ()</code></a></li>
-<li><a href="#language_owner_is"><code>language_owner_is ()</code></a></li></ul></li>
+<li><a href="#language_owner_is"><code>language_owner_is ()</code></a></li>
 <li><a href="#opclass_owner_is"><code>opclass_owner_is ()</code></a></li>
-<li><a href="#type_owner_is"><code>type_owner_is ()</code></a></li>
+<li><a href="#type_owner_is"><code>type_owner_is ()</code></a></li></ul></li>
 <li><a href="#prvilegedaccess">Prvileged Access</a><ul>
 <li><a href="#database_privs_are"><code>database_privs_are()</code></a></li>
 <li><a href="#tablespace_privs_are"><code>tablespace_privs_are()</code></a></li>
@@ -7788,7 +7788,7 @@ the diagnostics will look something like:</p>
 #         want: mats
 </code></pre>
 
-<h2 id="opclass_owner_is"><code>opclass_owner_is ()</code></h2>
+<h3 id="opclass_owner_is"><code>opclass_owner_is ()</code></h3>
 
 <pre><code>SELECT opclass_owner_is ( :schema, :opclass, :user, :description );
 SELECT opclass_owner_is ( :opclass, :user, :description );
@@ -7847,7 +7847,7 @@ user, the diagnostics will look something like:</p>
 #         want: root
 </code></pre>
 
-<h2 id="type_owner_is"><code>type_owner_is ()</code></h2>
+<h3 id="type_owner_is"><code>type_owner_is ()</code></h3>
 
 <pre><code>SELECT type_owner_is ( :schema, :type, :user, :description );
 SELECT type_owner_is ( :type, :user, :description );
@@ -9775,7 +9775,7 @@ are:</p>
 <h2 id="publicrepository">Public Repository</h2>
 
 <p>The source code for pgTAP is available on
-<a href="http://github.com/theory/pgtap/tree/">GitHub</a>. Please feel free to fork and
+<a href="https://github.com/theory/pgtap/tree/">GitHub</a>. Please feel free to fork and
 contribute!</p>
 
 <h2 id="maillist">Mail List</h2>
@@ -9829,7 +9829,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.</p>
           <li><a title="Read the documenaton for pg_prove" href="/pg_prove.html">pg_prove</a></li>
           <li><a title="Integrate pgTAP into your test suite" href="/integration.html">Integration</a></li>
           <li><a title="Subscribe to the pgTAP Mail Lists" href="http://pgfoundry.org/mail/?group_id=1000389">Mail Lists</a></li>
-          <li><a title="pgTAP GitHub Repository" href="http://github.com/theory/pgtap/tree/master/">GitHub</a></li>
+          <li><a title="pgTAP GitHub Repository" href="https://github.com/theory/pgtap/tree/master/">GitHub</a></li>
         </ul>
       </div>
 
