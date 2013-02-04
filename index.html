@@ -212,13 +212,13 @@ $$;</code></pre>
       <h2>Module Development</h2>
 
       <p>If you’re developing third-party modules for PostgreSQL, such
-      as <a href="http://pgfoundry.org/softwaremap/trove_list.php?form_cat=390"
-      title="Custom PostgreSQL data types on pgFoundry">custom data types</a>
-      or <a href="http://pgfoundry.org/softwaremap/trove_list.php?form_cat=314"
-      title="PosgreSQL database portability projects on pgFoundry">portability
-      functions</a>, you can of course use PostgreSQL’s standard regression test
-      architecture. But if you’re doing agile development, writing tests as you
-      go, which test output would you rather read? This:</p>
+      as <a href="http://pgxn.org/tag/datatype/" title="Custom PostgreSQL data
+      types on PGXN">custom data types</a>
+      or <a href="http://pgxn.org/tag/fdw/" title="PosgreSQL database foreign
+      data wrappers on PGXN">foreign data wrappers</a>, you can of course use
+      PostgreSQL’s standard regression test architecture. But if you’re doing
+      agile development, writing tests as you go, which test output would you
+      rather read? This:</p>
 
       <pre><code>% psql -Xd try -f pg.sql
 CREATE TEMP TABLE srt (
@@ -281,12 +281,11 @@ Result: PASS
 
     <h2>Get Started</h2>
 
-    <p>So, what are you waiting
-      for? <a href="http://pgfoundry.org/frs/?group_id=1000389"
-      title="Download pgTAP from pgFoundry">Download the latest version of
-      pgTAP</a>, or grab fork the 
+    <p>So, what are you waiting for? <a href="http://pgxn.org/dist/pgtap/"
+      title="Download pgTAP from PGXN">Download the latest version of
+      pgTAP</a>, or grab fork the
       <a title="pgTAP GitHub Repository"
-      href="http://github.com/theory/pgtap/">git repository</a>,
+      href="https://github.com/theory/pgtap/">git repository</a>,
       read the <a href="/documentation.html" title="The complete pgTAP
       documentation">documentation</a>, and get going with those tests!</p>
 
@@ -299,12 +298,12 @@ Result: PASS
       <div class="navcontainer">
         <ul class="navlist">
           <li><a title="pgTAP home" href="/" id="selected">Home</a></li>
-          <li><a title="Download pgTAP from pgFoundry" href="http://pgfoundry.org/frs/?group_id=1000389">Download</a></li>
+          <li><a title="Download pgTAP from PGXN" href="http://pgxn.org/dist/pgtap/">Download</a></li>
           <li><a title="Read the complete pgTAP documentation" href="/documentation.html">Documentation</a></li>
           <li><a title="Read the documenaton for pg_prove" href="/pg_prove.html">pg_prove</a></li>
           <li><a title="Integrate pgTAP into your test suite" href="/integration.html">Integration</a></li>
           <li><a title="Subscribe to the pgTAP Mail Lists" href="http://pgfoundry.org/mail/?group_id=1000389">Mail Lists</a></li>
-          <li><a title="pgTAP GitHub Repository" href="http://github.com/theory/pgtap/">GitHub</a></li>
+          <li><a title="pgTAP GitHub Repository" href="https://github.com/theory/pgtap/">GitHub</a></li>
         </ul>
       </div>
 
