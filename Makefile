@@ -87,8 +87,8 @@ sql/$(MAINEXT)-core--$(EXTVERSION).sql: sql/$(MAINEXT)-core.sql
 sql/$(MAINEXT)-schema--$(EXTVERSION).sql: sql/$(MAINEXT)-schema.sql
 	cp $< $@
 
-DATA = $(wildcard sql/*--*.sql) sql/$(MAINEXT)--$(EXTVERSION).sql sql/$(MAINEXT)-core--$(EXTVERSION).sql sql/$(MAINEXT)-schema--$(EXTVERSION).sql
-EXTRA_CLEAN += sql/$(MAINEXT)--$(EXTVERSION).sql sql/$(MAINEXT)-core--$(EXTVERSION).sql sql/$(MAINEXT)-schema--$(EXTVERSION).sql
+DATA = $(wildcard sql/*--*.sql)
+EXTRA_CLEAN += $(wildcard sql/*--*.sql)
 endif
 
 sql/pgtap.sql: sql/pgtap.sql.in test/setup.sql
