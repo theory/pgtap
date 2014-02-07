@@ -352,13 +352,15 @@ pg_prove --recurse sql/</code></pre>
 
 <p>Process options from the specified configuration file.</p>
 
-<p>If <code>--rc</code> is not specified and <i>./.proverc</i> or <i>~/.proverc</i> exist, they will be read and any options they contain processed before the command line options. Options in configuration files are specified in the same way as command line options:</p>
+<p>If <code>--rc</code> is not specified and <i>./.proverc</i> or <i>~/.proverc</i> exist, they will be read and the options they contain processed before the command line options. Options in configuration files are specified in the same way as command line options:</p>
 
 <pre><code># .proverc
 --state=hot,fast,save
 -j9</code></pre>
 
 <p>Under Windows and VMS the option file is named <i>_proverc</i> rather than <i>.proverc</i> and is sought only in the current directory.</p>
+
+<p>Due to how options are loaded you cannot use <i>.proverc</i> for <code>pg_prove</code>-specific options, only <code>prove</code> options. However, &lt;pg_prove&gt; does support all of the usual libpq <a href="http://www.postgresql.org/docs/current/static/libpq-envars.html">Environment Variables</a>.</p>
 
 </dd>
 <dt><code>--norc</code></dt>
@@ -746,7 +748,7 @@ pg_prove -V</code></pre>
 
 <h1 id="Copyright">Copyright</h1>
 
-<p>Copyright (c) 2008-2013 David E. Wheeler. Some Rights Reserved.</p>
+<p>Copyright (c) 2008-2014 David E. Wheeler. Some Rights Reserved.</p>
 <!-- END DOCS -->
     </div>
     <div id="menu">
