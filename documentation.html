@@ -15,7 +15,7 @@
   <body>
     <div id="main">
       <!-- DOC INTRO HERE -->
-<h1 id="pgtap0.93.0">pgTAP 0.93.0</h1>
+<h1 id="pgtap0.94.0">pgTAP 0.94.0</h1>
 
 <p>pgTAP is a unit testing framework for PostgreSQL written in PL/pgSQL and
 PL/SQL. It includes a comprehensive collection of
@@ -3429,6 +3429,7 @@ specified relation does <em>not</em> exist.</p>
 <h3 id="has_table"><code>has_table()</code></h3>
 
 <pre><code>SELECT has_table( :schema, :table, :description );
+SELECT has_table( :schema, :table );
 SELECT has_table( :table, :description );
 SELECT has_table( :table );
 </code></pre>
@@ -3458,7 +3459,7 @@ argument is a schema name, the second is a table name, and the third is the
 test description. If you omit the schema, the table must be visible in the
 search path. Example:</p>
 
-<pre><code>SELECT has_table('myschema', 'sometable');
+<pre><code>SELECT has_table('myschema'::name, 'sometable'::name);
 </code></pre>
 
 <p>If you omit the test description, it will be set to "Table <code>:table</code> should
@@ -3470,6 +3471,7 @@ exist".</p>
 <h3 id="hasnt_table"><code>hasnt_table()</code></h3>
 
 <pre><code>SELECT hasnt_table( :schema, :table, :description );
+SELECT hasnt_table( :schema, :table );
 SELECT hasnt_table( :table, :description );
 SELECT hasnt_table( :table );
 </code></pre>
@@ -3636,6 +3638,7 @@ specified sequence does <em>not</em> exist.</p>
 <h3 id="has_foreign_table"><code>has_foreign_table()</code></h3>
 
 <pre><code>SELECT has_foreign_table( :schema, :table, :description );
+SELECT has_foreign_table( :schema, :table );
 SELECT has_foreign_table( :table, :description );
 SELECT has_foreign_table( :table );
 </code></pre>
@@ -3665,7 +3668,7 @@ first argument is a schema name, the second is a foreign table name, and the
 third is the test description. If you omit the schema, the foreign table must
 be visible in the search path. Example:</p>
 
-<pre><code>SELECT has_foreign_table('myschema', 'some_foreign_table');
+<pre><code>SELECT has_foreign_table('myschema'::name, 'some_foreign_table'::name);
 </code></pre>
 
 <p>If you omit the test description, it will be set to "Foreign table <code>:table</code>
@@ -3674,6 +3677,7 @@ should exist".</p>
 <h3 id="hasnt_foreign_table"><code>hasnt_foreign_table()</code></h3>
 
 <pre><code>SELECT hasnt_foreign_table( :schema, :table, :description );
+SELECT hasnt_foreign_table( :schema, :table );
 SELECT hasnt_foreign_table( :table, :description );
 SELECT hasnt_foreign_table( :table );
 </code></pre>
