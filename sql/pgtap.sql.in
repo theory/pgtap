@@ -5997,10 +5997,13 @@ BEGIN
                 num_faild := num_faild + num_failed();
                 RAISE EXCEPTION '__TAP_ROLLBACK__';
 
-            EXCEPTION WHEN raise_exception THEN
+            EXCEPTION WHEN OTHERS THEN
                 IF SQLERRM <> '__TAP_ROLLBACK__' THEN
-                    -- We didn't raise it, so propagate it.
-                    RAISE EXCEPTION '%', SQLERRM;
+                    -- We didn't raise it, so return a failure.
+                    RETURN NEXT fail('Unexpected exception') || E'\n' || diag(
+                        '        died: ' || SQLSTATE || ': ' || SQLERRM
+                    );
+                    num_faild := num_faild + num_failed();
                 END IF;
             END;
         END LOOP;
@@ -6010,10 +6013,12 @@ BEGIN
 
         -- Raise an exception to rollback any changes.
         RAISE EXCEPTION '__TAP_ROLLBACK__';
-    EXCEPTION WHEN raise_exception THEN
+    EXCEPTION WHEN OTHERS THEN
         IF SQLERRM <> '__TAP_ROLLBACK__' THEN
-            -- We didn't raise it, so propagate it.
-            RAISE EXCEPTION '%', SQLERRM;
+            -- We didn't raise it, so return a failure.
+            RETURN NEXT fail('Unexpected exception') || E'\n' || diag(
+                '        died: ' || SQLSTATE || ': ' || SQLERRM
+            );
         END IF;
     END;
     -- Finish up.
