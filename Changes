@@ -1,6 +1,10 @@
 Revision history for pgTAP
 ==========================
 
+0.95.0
+---------------------------
+* Changed is_member_of to work with roles instead of users.
+
 0.94.0
 ---------------------------
 * Fixed the Makefile to allow `PG_CONFIG=/path/to/pg_config` to actually work.

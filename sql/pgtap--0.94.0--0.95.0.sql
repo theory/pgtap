@@ -1,3 +1,4 @@
+-- is_member_of( role, role[], description )
 CREATE OR REPLACE FUNCTION is_member_of( NAME, NAME[], TEXT )
 RETURNS TEXT AS $$
 DECLARE
@@ -21,8 +22,26 @@ BEGIN
         RETURN ok( true, $3 );
     END IF;
     RETURN ok( false, $3 ) || E'\n' || diag(
-        '    Users missing from the ' || quote_ident($1) || E' group:\n        ' ||
+        '    Users missing from the ' || quote_ident($1) || E' role:\n        ' ||
         array_to_string( missing, E'\n        ')
     );
 END;
 $$ LANGUAGE plpgsql;
+
+-- is_member_of( role, role, description )
+CREATE OR REPLACE FUNCTION is_member_of( NAME, NAME, TEXT )
+RETURNS TEXT AS $$
+    SELECT is_member_of( $1, ARRAY[$2], $3 );
+$$ LANGUAGE SQL;
+
+-- is_member_of( role, role[] )
+CREATE OR REPLACE FUNCTION is_member_of( NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT is_member_of( $1, $2, 'Should have members of role ' || quote_ident($1) );
+$$ LANGUAGE SQL;
+
+-- is_member_of( role, role )
+CREATE OR REPLACE FUNCTION is_member_of( NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT is_member_of( $1, ARRAY[$2] );
+$$ LANGUAGE SQL;
