@@ -9313,3 +9313,36 @@ $$ LANGUAGE SQL;
 
 GRANT SELECT ON tap_funky           TO PUBLIC;
 GRANT SELECT ON pg_all_foreign_keys TO PUBLIC;
+
+-- table_names_are_namespaced( schema, allowed_prefixes )
+CREATE OR REPLACE FUNCTION tables_are_namespaced( NAME, NAME[] )
+RETURNS TEXT AS $$
+DECLARE
+    output TEXT[];
+    sql_query      TEXT;
+    table_name     TEXT;
+    table_type     TEXT := 'BASE TABLE';
+BEGIN
+    output := '{}';
+    sql_query := 'SELECT table_name::text
+                    FROM information_schema.tables
+                    WHERE table_type = ' || quote_literal(table_type) ||
+                      ' AND table_schema = ' || quote_literal($1);
+
+
+    FOR i IN 1..array_upper($2, 1) LOOP
+        sql_query = sql_query || ' AND table_name NOT LIKE ' || quote_literal($2[i] || '%');
+    END LOOP;
+
+    FOR table_name in EXECUTE sql_query LOOP
+        output = array_append(output, table_name);
+    END LOOP;
+
+    IF array_lower(output, 1) IS NULL THEN
+        RETURN ok(TRUE, 'Tables in ' || $1 || ' conform to naming standards.');
+    ELSE
+        RETURN fail('The following tables in ' || $1 || ' do not conform to naming standards: '
+                    || array_to_string(output, ', '));
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
