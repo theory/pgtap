@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(465);
+SELECT plan(468);
 --SELECT * FROM no_plan();
 
 -- This will be rolled back. :-)
@@ -78,15 +78,23 @@ CREATE TABLE some_well_namespaced_schema.test_another_namespaced_table (
     id   FLOAT8
 );
 
-CREATE SCHEMA some_badly_namespaced_schema;
-CREATE TABLE some_badly_namespaced_schema.one_namespaced_table (
+CREATE TABLE some_well_namespaced_schema.f_test_another_namespaced_table (
     id   FLOAT8
 );
+
+CREATE SCHEMA some_badly_namespaced_schema;
 
 CREATE TABLE some_badly_namespaced_schema.other_namespaced_table (
     id   FLOAT8
 );
 
+CREATE TABLE some_badly_namespaced_schema.one_namespaced_table (
+    id   FLOAT8
+);
+
+CREATE TABLE some_badly_namespaced_schema.test_other_namespaced_table (
+    id   FLOAT8
+);
 RESET client_min_messages;
 
 /****************************************************************************/
@@ -306,12 +314,22 @@ SELECT * FROM check_test(
 
 SELECT * FROM check_test(
     tables_are_namespaced( 'some_well_namespaced_schema', ARRAY['test_']),
+    false,
+    'tables_are_namespaced(schema, prefixes[])',
+    'The following tables in some_well_namespaced_schema do not conform to naming standards: f_test_another_namespaced_table',
+
+    ''
+);
+
+SELECT * FROM check_test(
+    tables_are_namespaced( 'some_well_namespaced_schema', ARRAY['test_', 'f_test_']),
     true,
     'tables_are_namespaced(schema, prefixes[])',
     'Tables in some_well_namespaced_schema conform to naming standards.',
 
     ''
 );
+
 SELECT * FROM check_test(
     tables_are_namespaced( 'some_badly_namespaced_schema', ARRAY['test_']),
     false,

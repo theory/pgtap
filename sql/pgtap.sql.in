@@ -9318,7 +9318,8 @@ GRANT SELECT ON pg_all_foreign_keys TO PUBLIC;
 CREATE OR REPLACE FUNCTION tables_are_namespaced( NAME, NAME[] )
 RETURNS TEXT AS $$
 DECLARE
-    output TEXT[];
+    output         TEXT[];
+    sorted_output  TEXT[];
     sql_query      TEXT;
     table_name     TEXT;
     table_type     TEXT := 'BASE TABLE';
@@ -9333,9 +9334,10 @@ BEGIN
     FOR i IN 1..array_upper($2, 1) LOOP
         sql_query = sql_query || ' AND table_name NOT LIKE ' || quote_literal($2[i] || '%');
     END LOOP;
-
+    -- Sort the results so that we don't have non deterministic table list in output messages
+    sql_query := sql_query || ' ORDER BY table_name';
     FOR table_name in EXECUTE sql_query LOOP
-        output = array_append(output, table_name);
+        output := array_append(output, table_name);
     END LOOP;
 
     IF array_lower(output, 1) IS NULL THEN
