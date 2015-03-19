@@ -1,0 +1,29 @@
+\unset ECHO
+# whatever.test1this()
+ok 1 - simple pass
+ok 2 - another simple pass
+not ok 3 - Unexpected exception
+# Failed test 3: "Unexpected exception"
+#         died: P0001: Runner should continue after exception in teardown
+# whatever.test2unexpectedexception()
+not ok 4 - Unexpected exception
+# Failed test 4: "Unexpected exception"
+#         died: P0001: Runner should continue after exception in test
+# whatever.test3plpgsql()
+ok 5 - plpgsql simple
+not ok 6 - simple fail
+# Failed test 6: "simple fail"
+ok 7 - plpgsql simple 2
+ok 8 - Should be a 1 in the test table
+not ok 9 - Unexpected exception
+# Failed test 9: "Unexpected exception"
+#         died: P0001: Runner should continue after exception in teardown
+# whatever.testunexpectedexception()
+not ok 10 - Unexpected exception
+# Failed test 10: "Unexpected exception"
+#         died: P0001: Runner should continue after exception in test
+not ok 11 - Unexpected exception in shutdown
+# Failed test 11: "Unexpected exception in shutdown"
+#         died: P0001: Runner should continue after exception in shutdown
+1..11
+# Looks like you failed 6 tests of 11

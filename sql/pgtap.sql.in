@@ -6061,17 +6061,25 @@ BEGIN
                     RETURN NEXT tap;
                 END LOOP;
 
+                -- Remember how many failed
+                num_faild := num_faild + num_failed();
+
                 -- Run the teardown functions.
                 FOR tap IN SELECT * FROM _runem(teardown, false) LOOP RETURN NEXT tap; END LOOP;
 
-                -- Remember how many failed and then roll back.
-                num_faild := num_faild + num_failed();
+                -- Roll back.
                 RAISE EXCEPTION '__TAP_ROLLBACK__';
 
-            EXCEPTION WHEN raise_exception THEN
+            EXCEPTION WHEN OTHERS THEN
                 IF SQLERRM <> '__TAP_ROLLBACK__' THEN
-                    -- We didn't raise it, so propagate it.
-                    RAISE EXCEPTION '%', SQLERRM;
+                    -- We didn't raise it, so return a failure.
+                    RETURN NEXT fail('Unexpected exception') || E'\n' || diag(
+                        '        died: ' || SQLSTATE || ': ' || SQLERRM
+                    );
+                    num_faild := num_faild + 1;
+
+                    -- Previous fail() was not rolled back
+                    DELETE FROM __tresults__;
                 END IF;
             END;
         END LOOP;
@@ -6081,10 +6089,13 @@ BEGIN
 
         -- Raise an exception to rollback any changes.
         RAISE EXCEPTION '__TAP_ROLLBACK__';
-    EXCEPTION WHEN raise_exception THEN
+    EXCEPTION WHEN OTHERS THEN
         IF SQLERRM <> '__TAP_ROLLBACK__' THEN
-            -- We didn't raise it, so propagate it.
-            RAISE EXCEPTION '%', SQLERRM;
+            -- We didn't raise it, so return a failure.
+            RETURN NEXT fail('Unexpected exception in shutdown') || E'\n' || diag(
+                '        died: ' || SQLSTATE || ': ' || SQLERRM
+            );
+            num_faild := num_faild + 1;
         END IF;
     END;
     -- Finish up.
