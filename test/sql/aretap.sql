@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(459);
+SELECT plan(468);
 --SELECT * FROM no_plan();
 
 -- This will be rolled back. :-)
@@ -69,7 +69,32 @@ CREATE TYPE someschema."myType" AS (
     foo INT
 );
 
+CREATE SCHEMA some_well_namespaced_schema;
+CREATE TABLE some_well_namespaced_schema.test_one_namespaced_table (
+    id FLOAT8
+);
 
+CREATE TABLE some_well_namespaced_schema.test_another_namespaced_table (
+    id   FLOAT8
+);
+
+CREATE TABLE some_well_namespaced_schema.f_test_another_namespaced_table (
+    id   FLOAT8
+);
+
+CREATE SCHEMA some_badly_namespaced_schema;
+
+CREATE TABLE some_badly_namespaced_schema.other_namespaced_table (
+    id   FLOAT8
+);
+
+CREATE TABLE some_badly_namespaced_schema.one_namespaced_table (
+    id   FLOAT8
+);
+
+CREATE TABLE some_badly_namespaced_schema.test_other_namespaced_table (
+    id   FLOAT8
+);
 RESET client_min_messages;
 
 /****************************************************************************/
@@ -284,7 +309,34 @@ SELECT * FROM check_test(
         ba[rz]',
     true
 );
+/*****************************************************************************/
+-- Test tables_are_namespaced(). Tables could begin with an predefined set of prefixes
 
+SELECT * FROM check_test(
+    tables_are_namespaced( 'some_well_namespaced_schema', ARRAY['test_']),
+    false,
+    'tables_are_namespaced(schema, prefixes[])',
+    'The following tables in some_well_namespaced_schema do not conform to naming standards: f_test_another_namespaced_table',
+
+    ''
+);
+
+SELECT * FROM check_test(
+    tables_are_namespaced( 'some_well_namespaced_schema', ARRAY['test_', 'f_test_']),
+    true,
+    'tables_are_namespaced(schema, prefixes[])',
+    'Tables in some_well_namespaced_schema conform to naming standards.',
+
+    ''
+);
+
+SELECT * FROM check_test(
+    tables_are_namespaced( 'some_badly_namespaced_schema', ARRAY['test_']),
+    false,
+    'tables_are_namespaced(schema, prefixes[])',
+    'The following tables in some_badly_namespaced_schema do not conform to naming standards: one_namespaced_table, other_namespaced_table',
+    ''
+);
 /****************************************************************************/
 -- Test views_are().
 SELECT * FROM check_test(
@@ -1471,7 +1523,7 @@ BEGIN
             CREATE MATERIALIZED VIEW public.moo AS SELECT * FROM foo;
             CREATE MATERIALIZED VIEW public.mou AS SELECT * FROM fou;
         $E$;
-        
+
         FOR tap IN SELECT * FROM check_test(
             materialized_views_are( 'public', ARRAY['mou', 'moo'], 'whatever' ),
             true,
@@ -1705,9 +1757,9 @@ BEGIN
             RETURN NEXT tap.b;
         END LOOP;
     end IF;
-    
+
     RETURN;
-END; 
+END;
 $$LANGUAGE PLPGSQL;
 
 SELECT * FROM test_materialized_views_are();
@@ -1733,7 +1785,7 @@ BEGIN
         )
         SERVER server_null_fdw ;
         CREATE FOREIGN TABLE public.ft_bar(
-            id    INT 
+            id    INT
         )
         SERVER server_null_fdw ;
         $setup$;
@@ -1864,7 +1916,7 @@ BEGIN
         END LOOP;
 
     else
-       -- 10 fake pass/fail tests to make test work in older postgres. 
+       -- 10 fake pass/fail tests to make test work in older postgres.
        FOR tap IN SELECT * FROM check_test(pass('pass'), true,
                 'foreign_tables_are(schema, tables, desc)'
             , 'pass', '') AS r LOOP
@@ -1875,12 +1927,12 @@ BEGIN
             , 'pass', '') AS r LOOP
            return next tap.r;
        end loop;
-       FOR tap IN SELECT * FROM check_test(pass('pass'), true, 
+       FOR tap IN SELECT * FROM check_test(pass('pass'), true,
         'foreign_tables_are(schema, tables)'
         ,'pass' ,'') AS r LOOP
            RETURN NEXT tap.r;
        END LOOP;
-       FOR tap IN SELECT * FROM check_test(pass('pass'), true, 
+       FOR tap IN SELECT * FROM check_test(pass('pass'), true,
         'foreign_tables_are(tables)'
         ,'pass' ,'') AS r LOOP
            RETURN NEXT tap.r;
