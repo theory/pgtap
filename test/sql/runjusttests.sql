@@ -30,7 +30,17 @@ BEGIN
     RETURN NEXT pass( 'plpgsql simple 2' );
     INSERT INTO whatever.foo VALUES(1);
     RETURN NEXT is( MAX(id), 1, 'Should be a 1 in the test table') FROM whatever.foo;
-    RAISE EXCEPTION 'This test should die, but not halt execution';
+    RAISE EXCEPTION 'This test should die, but not halt execution.
+Note that we get what appears to be a duplicate context message, but that is due to Postgres itself.'
+        USING
+            -- Weird formatting helps errors show up
+            DETAIL =        ':     DETAIL'
+            , COLUMN =      ':     COLUMN'
+            , CONSTRAINT =  ': CONSTRAINT'
+            , DATATYPE =    ':   DATATYPE'
+            , TABLE =       ':      TABLE'
+            , SCHEMA =      ':     SCHEMA'
+    ;
 END;
 $$ LANGUAGE plpgsql;
 
