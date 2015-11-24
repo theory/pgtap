@@ -749,13 +749,37 @@ RETURNS TEXT AS $$
 DECLARE
     code  TEXT := _query($1);
     descr ALIAS FOR $2;
+    HINT text;
+    CONTEXT text;
+    SCHEMA_NAME text;
+    TABLE_NAME text;
+    COLUMN_NAME text;
+    CONSTRAINT_NAME text;
+    DATATYPE_NAME text;
 BEGIN
     EXECUTE code;
     RETURN ok( TRUE, descr );
 EXCEPTION WHEN OTHERS THEN
     -- There should have been no exception.
+
+    GET STACKED DIAGNOSTICS
+        HINT = PG_EXCEPTION_HINT
+        , CONTEXT = PG_EXCEPTION_CONTEXT
+        , SCHEMA_NAME = SCHEMA_NAME
+        , TABLE_NAME = TABLE_NAME
+        , COLUMN_NAME = COLUMN_NAME
+        , CONSTRAINT_NAME = CONSTRAINT_NAME
+        , DATATYPE_NAME = PG_DATATYPE_NAME
+    ;
     RETURN ok( FALSE, descr ) || E'\n' || diag(
-           '        died: ' || SQLSTATE || ': ' || SQLERRM
+           '        died: ' || SQLSTATE || ': ' || SQLERRM ||
+coalesce( E'\n              HINT: '         || nullif( HINT, ''             ), '' ) ||
+coalesce( E'\n              SCHEMA: '       || nullif( SCHEMA_NAME, ''      ), '' ) ||
+coalesce( E'\n              TABLE: '        || nullif( TABLE_NAME, ''       ), '' ) ||
+coalesce( E'\n              COLUMN: '       || nullif( COLUMN_NAME, ''      ), '' ) ||
+coalesce( E'\n              CONSTRAINT: '   || nullif( CONSTRAINT_NAME, ''  ), '' ) ||
+coalesce( E'\n              DATATYPE: '     || nullif( DATATYPE_NAME, ''    ), '' ) ||
+coalesce( E'\n              CONTEXT: '      || nullif( CONTEXT, ''          ), '' )
     );
 END;
 $$ LANGUAGE plpgsql;
