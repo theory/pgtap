@@ -1,3 +1,6 @@
+DROP FUNCTION has_extensions_installed( NAME, NAME[]);
+DROP FUNCTION has_extensions_installed( NAME, NAME[], TEXT );
+DROP FUNCTION _installed_extensions( NAME );
 DROP FUNCTION server_privs_are ( NAME, NAME, NAME[] );
 DROP FUNCTION server_privs_are ( NAME, NAME, NAME[], TEXT );
 DROP FUNCTION _get_server_privs (NAME, TEXT);

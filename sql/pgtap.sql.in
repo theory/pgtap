@@ -9432,5 +9432,43 @@ RETURNS TEXT AS $$
     );
 $$ LANGUAGE SQL;
 
+-- get installed extensions in a given schema
+CREATE OR REPLACE FUNCTION _installed_extensions( NAME )
+RETURNS SETOF NAME AS $$
+    SELECT extname
+    FROM pg_catalog.pg_extension
+    WHERE extnamespace = $1::regnamespace
+    ORDER BY extname ASC
+$$ LANGUAGE SQL;
+
+-- has_extensions_installed( schema, extensions, description )
+CREATE OR REPLACE FUNCTION has_extensions_installed( NAME, NAME[], TEXT )
+RETURNS TEXT AS $$
+    SELECT _are(
+        'extensions',
+        ARRAY(
+            SELECT _installed_extensions($1)
+            EXCEPT
+            SELECT unnest($2)
+        ),
+        ARRAY(
+            SELECT unnest($2)
+            EXCEPT
+            SELECT _installed_extensions($1)
+        ),
+        $3
+    );
+$$ LANGUAGE SQL;
+
+-- has_extensions_installed( schema, extensions)
+CREATE OR REPLACE FUNCTION has_extensions_installed( NAME, NAME[])
+RETURNS TEXT AS $$
+  SELECT has_extensions_installed(
+        $1,
+        $2,
+        'There should be the correct extensions installed.'
+    );
+$$ LANGUAGE SQL;
+
 GRANT SELECT ON tap_funky           TO PUBLIC;
 GRANT SELECT ON pg_all_foreign_keys TO PUBLIC;
