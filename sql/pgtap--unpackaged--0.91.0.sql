@@ -712,3 +712,6 @@ ALTER EXTENSION pgtap ADD FUNCTION columns_are( NAME, NAME[] );
 ALTER EXTENSION pgtap ADD FUNCTION _get_db_owner( NAME );
 ALTER EXTENSION pgtap ADD FUNCTION db_owner_is ( NAME, NAME, TEXT );
 ALTER EXTENSION pgtap ADD FUNCTION db_owner_is ( NAME, NAME );
+ALTER EXTENSION pgtap ADD FUNCTION _installed_extensions( NAME );
+ALTER EXTENSION pgtap ADD FUNCTION has_extensions_installed( NAME, NAME[], TEXT );
+ALTER EXTENSION pgtap ADD FUNCTION has_extensions_installed( NAME, NAME[]);
