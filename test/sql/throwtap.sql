@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(84);
+SELECT plan(93);
 --SELECT * FROM no_plan();
 
 /****************************************************************************/
@@ -118,11 +118,63 @@ SELECT * FROM check_test(
 
 -- Check its diagnostics when there is an exception.
 SELECT * FROM check_test(
-    lives_ok( 'SELECT * FROM todo_end()' ),
+    lives_ok( $live$DO $$BEGIN RAISE USING DETAIL = 'detail', HINT = 'hint'; END$$;$live$ ),
     false,
     'lives_ok failure diagnostics',
     '',
-    '        died: P0001: todo_end() called without todo_start()'
+    format(
+            '        died: P0001: P0001' ||
+         E'\n        DETAIL: detail' ||
+         E'\n        HINT: hint' ||
+         E'\n        CONTEXT:' ||
+         E'\n            SQL statement "%s"' ||
+         E'\n            PL/pgSQL function lives_ok(text,text) line 14 at EXECUTE statement'
+        , $live$DO $$BEGIN RAISE USING DETAIL = 'detail', HINT = 'hint'; END$$;$live$
+    )
+);
+
+-- Check the different detail messages
+CREATE DOMAIN pg_temp.test_domain boolean NOT NULL;
+CREATE TEMP TABLE test_table(b boolean NOT NULL CHECK(b), d pg_temp.test_domain);
+SELECT * FROM check_test(
+    lives_ok( 'INSERT INTO test_table VALUES(NULL,true)' ),
+    false,
+    'lives_ok failure diagnostics(schema/table/column)',
+    '',
+    '        died: 23502: null value in column "b" violates not-null constraint' ||
+ E'\n        DETAIL: Failing row contains (null, t).' ||
+ E'\n        SCHEMA: ' || ( SELECT nspname FROM pg_namespace WHERE oid = pg_my_temp_schema() ) ||
+ E'\n        TABLE: test_table' ||
+ E'\n        COLUMN: b' ||
+ E'\n        CONTEXT:' ||
+ E'\n            SQL statement "INSERT INTO test_table VALUES(NULL,true)"' ||
+ E'\n            PL/pgSQL function lives_ok(text,text) line 14 at EXECUTE statement'
+);
+SELECT * FROM check_test(
+    lives_ok( 'INSERT INTO test_table VALUES(false,true)' ),
+    false,
+    'lives_ok failure diagnostics(constraint)',
+    '',
+    '        died: 23514: new row for relation "test_table" violates check constraint "test_table_b_check"' ||
+ E'\n        DETAIL: Failing row contains (f, t).' ||
+ E'\n        SCHEMA: ' || ( SELECT nspname FROM pg_namespace WHERE oid = pg_my_temp_schema() ) ||
+ E'\n        TABLE: test_table' ||
+ E'\n        CONSTRAINT: test_table_b_check' ||
+ E'\n        CONTEXT:' ||
+ E'\n            SQL statement "INSERT INTO test_table VALUES(false,true)"' ||
+ E'\n            PL/pgSQL function lives_ok(text,text) line 14 at EXECUTE statement'
+);
+SELECT * FROM check_test(
+    lives_ok( 'INSERT INTO test_table VALUES(true,NULL)' ),
+    false,
+    'lives_ok failure diagnostics(constraint)',
+    '',
+    '        died: 23502: domain test_domain does not allow null values' ||
+ E'\n        SCHEMA: ' || ( SELECT nspname FROM pg_namespace WHERE oid = pg_my_temp_schema() ) ||
+ E'\n        DATATYPE: test_domain' ||
+ E'\n        CONTEXT:' ||
+ E'\n            SQL statement "INSERT INTO test_table VALUES(true,NULL)"' ||
+ E'\n            PL/pgSQL function lives_ok(text,text) line 14 at EXECUTE statement'
 );
 
 /****************************************************************************/

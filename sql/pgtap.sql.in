@@ -232,6 +232,44 @@ RETURNS SETOF TEXT AS $$
     );
 $$ LANGUAGE sql;
 
+CREATE OR REPLACE FUNCTION _diag_error (
+    SQLSTATE TEXT DEFAULT NULL
+    , SQLERRM TEXT DEFAULT NULL
+    , DETAIL TEXT DEFAULT NULL
+    , HINT TEXT DEFAULT NULL
+    , CONTEXT TEXT DEFAULT NULL
+    , SCHEMA_NAME TEXT DEFAULT NULL
+    , TABLE_NAME TEXT DEFAULT NULL
+    , COLUMN_NAME TEXT DEFAULT NULL
+    , CONSTRAINT_NAME TEXT DEFAULT NULL
+    , DATATYPE_NAME TEXT DEFAULT NULL
+) RETURNS TEXT AS $$
+SELECT coalesce(
+    coalesce( nullif(SQLSTATE, '') || ': ', '' ) || coalesce( nullif(SQLERRM, ''), '' ) ||
+    coalesce( E'\nDETAIL: '       || nullif( DETAIL, ''           ), '' ) ||
+    coalesce( E'\nHINT: '         || nullif( HINT, ''             ), '' ) ||
+    coalesce( E'\nSCHEMA: '       || nullif( SCHEMA_NAME, ''      ), '' ) ||
+    coalesce( E'\nTABLE: '        || nullif( TABLE_NAME, ''       ), '' ) ||
+    coalesce( E'\nCOLUMN: '       || nullif( COLUMN_NAME, ''      ), '' ) ||
+    coalesce( E'\nCONSTRAINT: '   || nullif( CONSTRAINT_NAME, ''  ), '' ) ||
+    coalesce( E'\nDATATYPE: '     || nullif( DATATYPE_NAME, ''    ), '' ) ||
+
+    -- We need to manually indent all the context lines
+    coalesce(
+        E'\nCONTEXT:\n' ||
+        regexp_replace(
+            nullif( CONTEXT, ''          )
+            , '^'
+            , E'    '
+            , 'gn'
+        )
+        , ''
+    )
+
+    , '_diag_error called with all NULL/empty inputs!'
+)
+$$ LANGUAGE sql IMMUTABLE;
+
 CREATE OR REPLACE FUNCTION diag ( msg text )
 RETURNS TEXT AS $$
     SELECT '# ' || replace(
@@ -749,13 +787,38 @@ RETURNS TEXT AS $$
 DECLARE
     code  TEXT := _query($1);
     descr ALIAS FOR $2;
+    DETAIL text;
+    HINT text;
+    CONTEXT text;
+    SCHEMA_NAME text;
+    TABLE_NAME text;
+    COLUMN_NAME text;
+    CONSTRAINT_NAME text;
+    DATATYPE_NAME text;
 BEGIN
     EXECUTE code;
     RETURN ok( TRUE, descr );
 EXCEPTION WHEN OTHERS THEN
     -- There should have been no exception.
+
+    GET STACKED DIAGNOSTICS
+        DETAIL = PG_EXCEPTION_DETAIL
+        , HINT = PG_EXCEPTION_HINT
+        , CONTEXT = PG_EXCEPTION_CONTEXT
+        , SCHEMA_NAME = SCHEMA_NAME
+        , TABLE_NAME = TABLE_NAME
+        , COLUMN_NAME = COLUMN_NAME
+        , CONSTRAINT_NAME = CONSTRAINT_NAME
+        , DATATYPE_NAME = PG_DATATYPE_NAME
+    ;
     RETURN ok( FALSE, descr ) || E'\n' || diag(
-           '        died: ' || SQLSTATE || ': ' || SQLERRM
+        regexp_replace(
+            'died: ' ||
+            _diag_error( SQLSTATE, SQLERRM, DETAIL, HINT, CONTEXT, SCHEMA_NAME, TABLE_NAME, COLUMN_NAME, CONSTRAINT_NAME, DATATYPE_NAME )
+            , '^'
+            , '        '
+            , 'gn'
+        )
     );
 END;
 $$ LANGUAGE plpgsql;
@@ -6037,7 +6100,6 @@ DECLARE
     tnumb    INTEGER := 0;
     fnumb    INTEGER := 0;
     tok      BOOLEAN := TRUE;
-    errmsg   TEXT;
 BEGIN
     BEGIN
         -- No plan support.
@@ -6067,6 +6129,20 @@ BEGIN
             PERFORM _set('failed', 0);
         END IF;
 
+        DECLARE
+            errstate        TEXT;
+            errmsg          TEXT;
+
+            -- These are intentionally capitalized to match GET STACKED DIAGNOSTICS
+            -- SEE ALSO lives_ok()
+            DETAIL          text;
+            HINT            text;
+            CONTEXT         text;
+            SCHEMA_NAME     text;
+            TABLE_NAME      text;
+            COLUMN_NAME     text;
+            CONSTRAINT_NAME text;
+            DATATYPE_NAME   text;
         BEGIN
             BEGIN
                 -- Run the setup functions.
@@ -6107,7 +6183,18 @@ BEGIN
 
             EXCEPTION WHEN raise_exception THEN
                 -- Something went wrong. Record that fact.
+                errstate := SQLSTATE;
                 errmsg := SQLERRM;
+                GET STACKED DIAGNOSTICS
+                    DETAIL = PG_EXCEPTION_DETAIL
+                    , HINT = PG_EXCEPTION_HINT
+                    , CONTEXT = PG_EXCEPTION_CONTEXT
+                    , SCHEMA_NAME = SCHEMA_NAME
+                    , TABLE_NAME = TABLE_NAME
+                    , COLUMN_NAME = COLUMN_NAME
+                    , CONSTRAINT_NAME = CONSTRAINT_NAME
+                    , DATATYPE_NAME = PG_DATATYPE_NAME
+                ;
             END;
 
             -- Always raise an exception to rollback any changes.
@@ -6117,7 +6204,14 @@ BEGIN
             IF errmsg IS NOT NULL THEN
                 -- Something went wrong. Emit the error message.
                 tok := FALSE;
-                RETURN NEXT '    ' || diag('Test died: ' || errmsg);
+                RETURN NEXT regexp_replace(
+                    diag('Test died: ' ||
+                        _diag_error( sqlstate, errmsg, DETAIL, HINT, CONTEXT
+                            , SCHEMA_NAME, TABLE_NAME, COLUMN_NAME, CONSTRAINT_NAME, DATATYPE_NAME
+                        )
+                    )
+                    , '^', '    ', 'gn'
+                );
                 errmsg := NULL;
             END IF;
        END;
