@@ -15,13 +15,14 @@
   <body>
     <div id="main">
       <!-- DOC INTRO HERE -->
-<h1 id="pgtap0.95.0">pgTAP 0.95.0</h1>
+<h1 id="pgtap0.96.0">pgTAP 0.96.0</h1>
 
 <p>pgTAP is a unit testing framework for PostgreSQL written in PL/pgSQL and
 PL/SQL. It includes a comprehensive collection of
 <a href="http://testanything.org">TAP</a>-emitting assertion functions, as well as the
 ability to integrate with other TAP-emitting test frameworks. It can also be
 used in the xUnit testing style.</p>
+
       <!-- END DOC INTRO HERE -->
       <div id="toc">
         <!-- TOC SANS "pgTAP x.xx" -->
@@ -101,7 +102,8 @@ used in the xUnit testing style.</p>
 <li><a href="#domains_are"><code>domains_are()</code></a></li>
 <li><a href="#enums_are"><code>enums_are()</code></a></li>
 <li><a href="#casts_are"><code>casts_are()</code></a></li>
-<li><a href="#operators_are"><code>operators_are()</code></a></li></ul></li>
+<li><a href="#operators_are"><code>operators_are()</code></a></li>
+<li><a href="#extensions_are"><code>extensions_are()</code></a></li></ul></li>
 <li><a href="#tohaveorhavenot">To Have or Have Not</a><ul>
 <li><a href="#has_tablespace"><code>has_tablespace()</code></a></li>
 <li><a href="#hasnt_tablespace"><code>hasnt_tablespace()</code></a></li>
@@ -251,7 +253,9 @@ used in the xUnit testing style.</p>
 <li><a href="#testingtestfunctions">Testing Test Functions</a><ul>
 <li><a href="#check_test"><code>check_test()</code></a></li></ul></li></ul></li>
 <li><a href="#compatibility">Compatibility</a><ul>
-<li><a href="#9.1andup">9.1 and Up</a></li>
+<li><a href="#9.3andup">9.3 and Up</a></li>
+<li><a href="#9.2anddown">9.2 and Down</a></li>
+<li><a href="#9.1anddown">9.1 and Down</a></li>
 <li><a href="#9.0anddown">9.0 and Down</a></li>
 <li><a href="#8.4anddown">8.4 and Down</a></li>
 <li><a href="#8.3anddown">8.3 and Down</a></li>
@@ -274,20 +278,20 @@ used in the xUnit testing style.</p>
 -- Various ways to say &quot;ok&quot;
 SELECT ok( :have = :want, :test_description );
 
-SELECT is(   :have, :want, $test_description );
-SELECT isnt( :have, :want, $test_description );
+SELECT is(   :have, :want, :test_description );
+SELECT isnt( :have, :want, :test_description );
 
 -- Rather than \echo # here's what went wrong
 SELECT diag( 'here''s what went wrong' );
 
 -- Compare values with LIKE or regular expressions.
-SELECT alike(   :have, :like_expression, $test_description );
-SELECT unalike( :have, :like_expression, $test_description );
+SELECT alike(   :have, :like_expression, :test_description );
+SELECT unalike( :have, :like_expression, :test_description );
 
-SELECT matches(      :have, :regex, $test_description );
-SELECT doesnt_match( :have, :regex, $test_description );
+SELECT matches(      :have, :regex, :test_description );
+SELECT doesnt_match( :have, :regex, :test_description );
 
-SELECT cmp_ok(:have, '=', :want, $test_description );
+SELECT cmp_ok(:have, '=', :want, :test_description );
 
 -- Skip tests based on runtime conditions.
 SELECT CASE WHEN :some_feature THEN collect_tap(
@@ -3092,6 +3096,51 @@ missing operators, like so:</p>
 #         +(integer,text) RETURNS text
 </code></pre>
 
+<h3 id="extensions_are"><code>extensions_are()</code></h3>
+
+<pre><code>SELECT extensions_are( :schema, :extensions, :description );
+SELECT extensions_are( :schema, :extensions );
+SELECT extensions_are( :extensions, :description );
+SELECT extensions_are( :extensions );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>Name of a schema in which to find extensions.</dd>
+
+<dt><code>:extensions</code></dt>
+<dd>An array of extension names.</dd>
+
+<dt><code>:description</code></dt>
+<dd>A short description of the test.</dd>
+</dl>
+
+<p>This function tests that all of the extensions in the named schema, or that
+are visible in the search path, are only the extensions that <em>should</em> be
+there. If the <code>:schema</code> argument is omitted, all extensions will be checked.
+If the description is omitted, a generally useful default description will be
+generated. Example:</p>
+
+<pre><code>SELECT extensions_are(
+    'myschema',
+    ARRAY[ 'citext', 'isn', 'plpgsql' ]
+);
+</code></pre>
+
+<p>In the event of a failure, you&#8217;ll see diagnostics listing the extra and/or
+missing extensions, like so:</p>
+
+<pre><code># Failed test 91: &quot;Schema public should have the correct extensions&quot;
+#     Extra extensions:
+#         pgtap
+#         ltree
+#     Missing extensions:
+#         citext
+#         isn
+</code></pre>
+
 <h2 id="tohaveorhavenot">To Have or Have Not</h2>
 
 <p>Perhaps you&#8217;re not so concerned with ensuring the <a href="#I+Object!" title="I Object!">precise correlation of
@@ -5092,14 +5141,14 @@ specified column or columns are not a foreign key.</p>
 
 <h3 id="fk_ok"><code>fk_ok()</code></h3>
 
-<pre><code>SELECT fk_ok( :fk_schema, :fk_table, :fk_columns, :pk_schema, :pk_table, :pk_columns, :description );
-SELECT fk_ok( :fk_schema, :fk_table, :fk_columns, :fk_schema, :pk_table, :pk_columns );
-SELECT fk_ok( :fk_table, :fk_columns, :pk_table, :pk_columns, :description );
-SELECT fk_ok( :fk_table, :fk_columns, :pk_table, :pk_columns );
-SELECT fk_ok( :fk_schema, :fk_table, :fk_column, :pk_schema, :pk_table, :pk_column, :description );
-SELECT fk_ok( :fk_schema, :fk_table, :fk_column, :pk_schema, :pk_table, :pk_column );
-SELECT fk_ok( :fk_table, :fk_column, :pk_table, :pk_column, :description );
-SELECT fk_ok( :fk_table, :fk_column, :pk_table, :pk_column );
+<pre><code>SELECT fk_ok( :fk_schema, :fk_table,   :fk_columns, :pk_schema,  :pk_table, :pk_columns, :description );
+SELECT fk_ok( :fk_schema, :fk_table,   :fk_columns, :pk_schema,  :pk_table, :pk_columns );
+SELECT fk_ok( :fk_table,  :fk_columns, :pk_table,   :pk_columns, :description );
+SELECT fk_ok( :fk_table,  :fk_columns, :pk_table,   :pk_columns );
+SELECT fk_ok( :fk_schema, :fk_table,   :fk_column,  :pk_schema,  :pk_table, :pk_column,  :description );
+SELECT fk_ok( :fk_schema, :fk_table,   :fk_column,  :pk_schema,  :pk_table, :pk_column );
+SELECT fk_ok( :fk_table,  :fk_column,  :pk_table,   :pk_column,  :description );
+SELECT fk_ok( :fk_table,  :fk_column,  :pk_table,   :pk_column );
 </code></pre>
 
 <p><strong>Parameters</strong></p>
@@ -8302,7 +8351,9 @@ in 8.4 and higher.</p>
 
 <h3 id="findfuncs"><code>findfuncs()</code></h3>
 
-<pre><code>SELECT findfuncs( :schema, :pattern );
+<pre><code>SELECT findfuncs( :schema, :pattern, :exclude_pattern );
+SELECT findfuncs( :schema, :pattern );
+SELECT findfuncs( :pattern, :exclude_pattern );
 SELECT findfuncs( :pattern );
 </code></pre>
 
@@ -8314,12 +8365,19 @@ SELECT findfuncs( :pattern );
 
 <dt><code>:pattern</code></dt>
 <dd>Regular expression pattern against which to match function names.</dd>
+
+<dt><code>:pattern</code></dt>
+<dd>Regular expression pattern to exclude functions with matching names.</dd>
 </dl>
 
 <p>This function searches the named schema or, if no schema is passed, the search
 patch, for all functions that match the regular expression pattern. The
-functions it finds are returned as an array of text values, with each value
-consisting of the schema name, a dot, and the function name. For example:</p>
+optional exclude regular expression pattern can be used to prevent matchin
+startup/setup/teardown/shutdown functions.</p>
+
+<p>The functions it finds are returned as an array of text values, with each
+value consisting of the schema name, a dot, and the function name. For
+example:</p>
 
 <pre><code>SELECT findfuncs('tests', '^test);
             findfuncs
@@ -8709,15 +8767,33 @@ instead:</p>
 <p>To see the specifics for each version of PostgreSQL, consult the files in the
 <code>compat/</code> directory in the pgTAP distribution.</p>
 
-<h2 id="9.1andup">9.1 and Up</h2>
+<h2 id="9.3andup">9.3 and Up</h2>
 
 <p>No changes. Everything should just work.</p>
+
+<h2 id="9.2anddown">9.2 and Down</h2>
+
+<ul>
+<li>Diagnostic output from <code>lives_ok()</code> and xUnit function exceptions will not
+ include schema, table, column, data type, or constraint information, since
+ such diagnostics were not introduced until 9.3.</li>
+</ul>
+
+<h2 id="9.1anddown">9.1 and Down</h2>
+
+<ul>
+<li>Diagnostic output from <code>lives_ok()</code> and xUnit function exceptions will not
+ error context or details, since such diagnostics were not introduced until
+ 9.2.</li>
+</ul>
 
 <h2 id="9.0anddown">9.0 and Down</h2>
 
 <ul>
 <li>The <code>foreign_table_owner_is()</code> function will not work, because, of course,
  there were no foreign tables until 9.1.</li>
+<li>The <code>extensions_are()</code> functions are not available, because extensions were
+ not introduced until 9.1.</li>
 </ul>
 
 <h2 id="8.4anddown">8.4 and Down</h2>
@@ -8793,7 +8869,7 @@ comments, suggestions, and bug reports are welcomed there.</p>
 
 <h2 id="copyrightandlicense">Copyright and License</h2>
 
-<p>Copyright (c) 2008&#8211;2015 David E. Wheeler. Some rights reserved.</p>
+<p>Copyright (c) 2008&#8211;2016 David E. Wheeler. Some rights reserved.</p>
 
 <p>Permission to use, copy, modify, and distribute this software and its
 documentation for any purpose, without fee, and without a written agreement is
