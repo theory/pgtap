@@ -1869,7 +1869,7 @@ SELECT * FROM check_test(
   hasnt_opclass( 'pg_catalog', 'int4_ops'::name ),
   false,
   'hasnt_opclass( schema, name )',
-  'Operator class pg_catalog.int4_ops should exist',
+  'Operator class pg_catalog.int4_ops should not exist',
   ''
 );
 
@@ -1885,7 +1885,7 @@ SELECT * FROM check_test(
   hasnt_opclass( 'int4_ops' ),
   false,
   'hasnt_opclass( name )',
-  'Operator class int4_ops should exist',
+  'Operator class int4_ops should not exist',
   ''
 );
 
