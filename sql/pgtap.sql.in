@@ -9509,7 +9509,10 @@ $$ LANGUAGE SQL;
 -- has_extension( schema, name )
 CREATE OR REPLACE FUNCTION has_extension( NAME, NAME )
 RETURNS TEXT AS $$
-    SELECT ok( _ext_exists( $1, $2 ), 'Extension ' || quote_ident($1) || '.' || quote_ident($2) || ' should exist' );
+    SELECT ok( _ext_exists( $1, $2 ),
+                'Extension ' || quote_ident($2)
+                || ' should exist in schema '
+                || quote_ident($1) );
 $$ LANGUAGE SQL;
 
 -- has_extension( name, description )
@@ -9548,6 +9551,56 @@ RETURNS TEXT AS $$
     SELECT ok( NOT _ext_exists( $1 ), 'Extension ' || quote_ident($1) || ' should not exist' );
 $$ LANGUAGE SQL;
 
+-- _ext_version_is( schema, extension, version, desc )
+CREATE OR REPLACE FUNCTION _ext_version_is ( NAME, NAME, TEXT, TEXT)
+RETURNS TEXT AS $$
+BEGIN
+    IF NOT _ext_exists( $1, $2 ) THEN
+        RETURN fail( $4 ) || E'\n'
+            || diag ('    Extension '  || quote_ident($2)
+            || ' does not exist in schema ' || quote_ident($1) );
+    END IF;
+    RETURN ok(
+        EXISTS(
+            SELECT true
+              FROM pg_catalog.pg_extension ex
+              JOIN pg_catalog.pg_namespace n ON ex.extnamespace = n.oid
+             WHERE n.nspname  = $1
+               AND ex.extname = $2
+               AND ex.extversion = $3
+        ), $4
+    );
+END;
+$$ LANGUAGE plpgsql;
+
+-- _ext_version_is( extension, version, desc )
+CREATE OR REPLACE FUNCTION _ext_version_is ( NAME, TEXT, TEXT)
+RETURNS TEXT AS $$
+BEGIN
+    IF NOT _ext_exists( $1 ) THEN
+        RETURN fail( $3 ) || E'\n'
+            || diag ('    Extension '  || quote_ident($1)
+            || ' does not exist' );
+    END IF;
+    RETURN ok(
+        EXISTS(
+            SELECT true
+              FROM pg_catalog.pg_extension ex
+             WHERE ex.extname = $2
+               AND ex.extversion = $3
+        ), $4
+    );
+END;
+$$ LANGUAGE plpgsql;
+
+-- hasnt_extension( name )
+CREATE OR REPLACE FUNCTION extension_version_is( NAME, TEXT )
+RETURNS TEXT AS $$
+    SELECT ok( NOT _ext_version_exists( $1, $2 ), 'Extension '
+    || quote_ident($1)
+    || ' should be in version not exist'
+    || quote_ident($2) );
+$$ LANGUAGE SQL;
 
 -- Get extensions in a given schema
 CREATE OR REPLACE FUNCTION _extensions( NAME )
