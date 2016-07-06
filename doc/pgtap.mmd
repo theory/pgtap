@@ -3888,6 +3888,7 @@ So we have the assertions to validate 'em.
 ### `has_column()` ###
 
     SELECT has_column( :schema, :table, :column, :description );
+    SELECT has_column( :schema, :table, :column );
     SELECT has_column( :table, :column, :description );
     SELECT has_column( :table, :column );
 
@@ -3915,6 +3916,7 @@ exist".
 ### `hasnt_column()` ###
 
     SELECT hasnt_column( :schema, :table, :column, :description );
+    SELECT hasnt_column( :schema, :table, :column );
     SELECT hasnt_column( :table, :column, :description );
     SELECT hasnt_column( :table, :column );
 
