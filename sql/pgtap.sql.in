@@ -1260,6 +1260,14 @@ RETURNS TEXT AS $$
     SELECT ok( _cexists( $1, $2, $3 ), $4 );
 $$ LANGUAGE SQL;
 
+-- has_column( schema, table, column )
+CREATE OR REPLACE FUNCTION has_column ( NAME, NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT ok( _cexists( $1, $2, $3 ),
+       'Column ' || quote_ident($1) || '.' || quote_ident($2)
+                 || '.' || quote_ident($3) || ' should exist' );
+$$ LANGUAGE SQL;
+
 -- has_column( table, column, description )
 CREATE OR REPLACE FUNCTION has_column ( NAME, NAME, TEXT )
 RETURNS TEXT AS $$
@@ -1276,6 +1284,14 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION hasnt_column ( NAME, NAME, NAME, TEXT )
 RETURNS TEXT AS $$
     SELECT ok( NOT _cexists( $1, $2, $3 ), $4 );
+$$ LANGUAGE SQL;
+
+-- hasnt_column( schema, table, column )
+CREATE OR REPLACE FUNCTION hasnt_column ( NAME, NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT ok( NOT _cexists( $1, $2, $3 ),
+       'Column ' || quote_ident($1) || '.' || quote_ident($2)
+                 || '.' || quote_ident($3) || ' should not exist' );
 $$ LANGUAGE SQL;
 
 -- hasnt_column( table, column, description )
