@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(830);
+SELECT plan(836);
 --SELECT * FROM no_plan();
 
 -- This will be rolled back. :-)
@@ -929,9 +929,17 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
+    has_column( 'information_schema', 'tables', 'table_name'::name ),
+    true,
+    'has_column(sch, tab, col)',
+    'Column information_schema.tables.table_name should exist',
+    ''
+);
+
+SELECT * FROM check_test(
     has_column( 'sometab', 'myInt' ),
     true,
-    'has_column(table, camleCase column)',
+    'has_column(table, camelCase column)',
     'Column sometab."myInt" should exist',
     ''
 );
@@ -994,6 +1002,14 @@ SELECT * FROM check_test(
     false,
     'hasnt_column(sch, tab, col, desc)',
     'desc',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_column( 'information_schema', 'tables', 'table_name'::name ),
+    false,
+    'hasnt_column(sch, tab, col)',
+    'Column information_schema.tables.table_name should not exist',
     ''
 );
 
