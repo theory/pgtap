@@ -3950,6 +3950,7 @@ But use `has_column()` to make sure the column exists first, eh?
 ### `col_has_default()` ###
 
     SELECT col_has_default( :schema, :table, :column, :description );
+    SELECT col_has_default( :schema, :table, :column );
     SELECT col_has_default( :table, :column, :description );
     SELECT col_has_default( :table, :column );
 
@@ -3977,6 +3978,7 @@ useful diagnostics to let you know:
 ### `col_hasnt_default()` ###
 
     SELECT col_hasnt_default( :schema, :table, :column, :description );
+    SELECT col_hasnt_default( :schema, :table, :column );
     SELECT col_hasnt_default( :table, :column, :description );
     SELECT col_hasnt_default( :table, :column );
 

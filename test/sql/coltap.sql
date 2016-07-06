@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(204);
+SELECT plan(210);
 --SELECT * from no_plan();
 
 CREATE TYPE public."myType" AS (
@@ -322,6 +322,15 @@ SELECT * FROM check_test(
     'desc',
     ''
 );
+
+SELECT * FROM check_test(
+    col_has_default( 'public', 'sometab', 'name'::name ),
+    true,
+    'col_has_default( sch, tab, col )',
+    'Column public.sometab.name should have a default',
+    ''
+);
+
 SELECT * FROM check_test(
     col_has_default( 'sometab', 'name', 'desc' ),
     true,
@@ -392,6 +401,15 @@ SELECT * FROM check_test(
     'desc',
     ''
 );
+
+SELECT * FROM check_test(
+    col_hasnt_default( 'public', 'sometab', 'name'::name ),
+    false,
+    'col_hasnt_default( sch, tab, col )',
+    'Column public.sometab.name should not have a default',
+    ''
+);
+
 SELECT * FROM check_test(
     col_hasnt_default( 'sometab', 'name', 'desc' ),
     false,
