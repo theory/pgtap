@@ -91,3 +91,43 @@ RETURNS TEXT AS $$
               'An index on ' || quote_ident($1) || ' on column '
                   || $2::text || ' should exist');
 $$ LANGUAGE sql;
+
+-- has_column( schema, table, column )
+CREATE OR REPLACE FUNCTION has_column ( NAME, NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT ok( _cexists( $1, $2, $3 ),
+       'Column ' || quote_ident($1) || '.' || quote_ident($2)
+                 || '.' || quote_ident($3) || ' should exist' );
+$$ LANGUAGE SQL;
+
+-- hasnt_column( schema, table, column )
+CREATE OR REPLACE FUNCTION hasnt_column ( NAME, NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT ok( NOT _cexists( $1, $2, $3 ),
+       'Column ' || quote_ident($1) || '.' || quote_ident($2)
+                 || '.' || quote_ident($3) || ' should not exist' );
+$$ LANGUAGE SQL;
+
+-- col_has_default( schema, table, column )
+CREATE OR REPLACE FUNCTION col_has_default ( NAME, NAME, NAME )
+RETURNS TEXT AS $$
+BEGIN
+    IF NOT _cexists( $1, $2, $3 ) THEN
+        RETURN fail( $4 ) || E'\n'
+            || diag ('    Column ' || quote_ident($1) || '.' || quote_ident($2) || '.' || quote_ident($3) || ' does not exist' );
+    END IF;
+    RETURN ok( _has_def( $1, $2, $3 ), 'Column ' || quote_ident($1) || '.' || quote_ident($2) || '.' || quote_ident($3) || ' should have a default' );
+END
+$$ LANGUAGE plpgsql;
+
+-- col_hasnt_default( schema, table, column )
+CREATE OR REPLACE FUNCTION col_hasnt_default ( NAME, NAME, NAME )
+RETURNS TEXT AS $$
+BEGIN
+    IF NOT _cexists( $1, $2, $3 ) THEN
+        RETURN fail( $4 ) || E'\n'
+            || diag ('    Column ' || quote_ident($1) || '.' || quote_ident($2) || '.' || quote_ident($3) || ' does not exist' );
+    END IF;
+    RETURN ok( NOT _has_def( $1, $2, $3 ), 'Column ' || quote_ident($1) || '.' || quote_ident($2) || '.' || quote_ident($3) || ' should not have a default' );
+END;
+$$ LANGUAGE plpgsql;
