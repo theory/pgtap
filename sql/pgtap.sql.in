@@ -1583,6 +1583,18 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+-- col_has_default( schema, table, column )
+CREATE OR REPLACE FUNCTION col_has_default ( NAME, NAME, NAME )
+RETURNS TEXT AS $$
+BEGIN
+    IF NOT _cexists( $1, $2, $3 ) THEN
+        RETURN fail( $4 ) || E'\n'
+            || diag ('    Column ' || quote_ident($1) || '.' || quote_ident($2) || '.' || quote_ident($3) || ' does not exist' );
+    END IF;
+    RETURN ok( _has_def( $1, $2, $3 ), 'Column ' || quote_ident($1) || '.' || quote_ident($2) || '.' || quote_ident($3) || ' should have a default' );
+END
+$$ LANGUAGE plpgsql;
+
 -- col_has_default( table, column, description )
 CREATE OR REPLACE FUNCTION col_has_default ( NAME, NAME, TEXT )
 RETURNS TEXT AS $$
@@ -1610,6 +1622,18 @@ BEGIN
             || diag ('    Column ' || quote_ident($1) || '.' || quote_ident($2) || '.' || quote_ident($3) || ' does not exist' );
     END IF;
     RETURN ok( NOT _has_def( $1, $2, $3 ), $4 );
+END;
+$$ LANGUAGE plpgsql;
+
+-- col_hasnt_default( schema, table, column )
+CREATE OR REPLACE FUNCTION col_hasnt_default ( NAME, NAME, NAME )
+RETURNS TEXT AS $$
+BEGIN
+    IF NOT _cexists( $1, $2, $3 ) THEN
+        RETURN fail( $4 ) || E'\n'
+            || diag ('    Column ' || quote_ident($1) || '.' || quote_ident($2) || '.' || quote_ident($3) || ' does not exist' );
+    END IF;
+    RETURN ok( NOT _has_def( $1, $2, $3 ), 'Column ' || quote_ident($1) || '.' || quote_ident($2) || '.' || quote_ident($3) || ' should not have a default' );
 END;
 $$ LANGUAGE plpgsql;
 
