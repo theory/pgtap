@@ -131,3 +131,9 @@ BEGIN
     RETURN ok( NOT _has_def( $1, $2, $3 ), 'Column ' || quote_ident($1) || '.' || quote_ident($2) || '.' || quote_ident($3) || ' should not have a default' );
 END;
 $$ LANGUAGE plpgsql;
+
+-- col_not_null( schema, table, column )
+CREATE OR REPLACE FUNCTION col_not_null ( NAME, NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT _col_is_null( $1, $2, $3, 'Column ' || quote_ident($1) || '.' || quote_ident($2) || '.' || quote_ident($3) || ' should be NOT NULL', true );
+$$ LANGUAGE SQL;
