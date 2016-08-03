@@ -6,6 +6,16 @@ SELECT plan(128);
 
 -- These will be rolled back. :-)
 SET client_min_messages = warning;
+CREATE TEMP TABLE temp_pk(
+    id    INT NOT NULL PRIMARY KEY,
+    name  TEXT DEFAULT ''
+);
+
+CREATE TEMP TABLE temp_fk (
+    id    INT NOT NULL PRIMARY KEY,
+    pk_id INT NOT NULL REFERENCES temp_pk(id)
+);
+
 CREATE TABLE public.pk (
     id    INT NOT NULL PRIMARY KEY,
     name  TEXT DEFAULT ''
@@ -304,6 +314,24 @@ SELECT * FROM check_test(
     fk_ok( 'public', 'fk', ARRAY['pk_id'], 'public', 'pk', ARRAY['id'], 'WHATEVER' ),
     true,
     'full fk_ok array',
+    'WHATEVER'
+);
+
+SELECT * FROM check_test(
+    fk_ok( 'pg_temp', 'temp_fk', ARRAY['pk_id'], 'pg_temp', 'temp_pk', ARRAY['id'], 'WHATEVER' ),
+    true,
+    'pg_temp',
+    'WHATEVER'
+);
+
+SELECT * FROM check_test(
+    fk_ok(
+        pg_my_temp_schema()::regnamespace::name, 'temp_fk', ARRAY['pk_id'],
+        pg_my_temp_schema()::regnamespace::name, 'temp_pk', ARRAY['id'],
+        'WHATEVER'
+    ),
+    true,
+    'pg_my_temp_schema()',
     'WHATEVER'
 );
 
