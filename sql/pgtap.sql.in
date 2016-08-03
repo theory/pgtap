@@ -2380,17 +2380,19 @@ DECLARE
     cols name[];
 BEGIN
     SELECT CASE
-            WHEN pk_schema_name = pg_my_temp_schema()::regnamespace::name
+            -- Need to special-case pg_temp since the real temp schema name is always pg_temp_<some number>
+            WHEN pk_schema_name LIKE 'pg_temp_%'
                     AND lower($4) IN ('pg_temp', '"pg_temp"')
                 THEN $4
             ELSE pk_schema_name
         END,
         pk_table_name, pk_columns
       FROM pg_all_foreign_keys
-      WHERE fk_schema_name = CASE
-                WHEN lower($1) IN ('pg_temp', '"pg_temp"') THEN pg_my_temp_schema()::regnamespace::name
-                ELSE $1
-            END
+      WHERE
+        (
+            ( lower($1) IN ('pg_temp', '"pg_temp"') AND fk_schema_name LIKE 'pg_temp_%' )
+            OR fk_schema_name = $1
+        )
         AND fk_table_name  = $2
         AND fk_columns     = $3
       INTO sch, tab, cols;
