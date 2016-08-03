@@ -326,8 +326,8 @@ SELECT * FROM check_test(
 
 SELECT * FROM check_test(
     fk_ok(
-        (SELECT nspname FROM pg_namespace WHERE oid = pg_my_temp_schema()), 'temp_fk', ARRAY['pk_id'],
-        (SELECT nspname FROM pg_namespace WHERE oid = pg_my_temp_schema()), 'temp_pk', ARRAY['id'],
+        pg_my_temp_schema()::regnamespace::name, 'temp_fk', ARRAY['pk_id'],
+        pg_my_temp_schema()::regnamespace::name, 'temp_pk', ARRAY['id'],
         'WHATEVER'
     ),
     true,
