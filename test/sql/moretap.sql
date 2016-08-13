@@ -69,7 +69,7 @@ SELECT * FROM test_variadic();
 -- Check no_plan.
 DELETE FROM __tcache__ WHERE label = 'plan';
 SELECT * FROM no_plan();
-SELECT is( value, 0::bigint, 'no_plan() should have stored a plan of 0' )
+SELECT is( value::int, 0, 'no_plan() should have stored a plan of 0' )
   FROM __tcache__
  WHERE label = 'plan';
 
@@ -94,7 +94,7 @@ SELECT is(
 -- Reset the original plan.
 DELETE FROM __tcache__ WHERE label = 'plan';
 SELECT is( plan(:numb_tests), '1..' || :numb_tests, 'Reset the plan' );
-SELECT is( value, :numb_tests, 'plan() should have stored the test count' )
+SELECT is( value::int, :numb_tests, 'plan() should have stored the test count' )
   FROM __tcache__
  WHERE label = 'plan';
 
