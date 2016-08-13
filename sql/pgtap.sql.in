@@ -27,7 +27,7 @@ CREATE OR REPLACE FUNCTION pgtap_version()
 RETURNS NUMERIC AS 'SELECT __VERSION__;'
 LANGUAGE SQL IMMUTABLE;
 
-CREATE OR REPLACE FUNCTION plan( integer )
+CREATE OR REPLACE FUNCTION plan( bigint )
 RETURNS TEXT AS $$
 DECLARE
     rcount INTEGER;
@@ -38,7 +38,7 @@ BEGIN
             CREATE TEMP TABLE __tcache__ (
                 id    INTEGER NOT NULL DEFAULT nextval(''__tcache___id_seq''),
                 label TEXT    NOT NULL,
-                value INTEGER NOT NULL,
+                value BIGINT  NOT NULL,
                 note  TEXT    NOT NULL DEFAULT ''''
             );
             CREATE UNIQUE INDEX __tcache___key ON __tcache__(id);
@@ -128,10 +128,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql strict;
 
-CREATE OR REPLACE FUNCTION _set ( text, integer, text )
-RETURNS integer AS $$
+CREATE OR REPLACE FUNCTION _set ( text, bigint, text )
+RETURNS bigint AS $$
 DECLARE
-    rcount integer;
+    rcount bigint;
 BEGIN
     EXECUTE 'UPDATE __tcache__ SET value = ' || $2
         || CASE WHEN $3 IS NULL THEN '' ELSE ', note = ' || quote_literal($3) END
@@ -144,13 +144,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION _set ( text, integer )
-RETURNS integer AS $$
+CREATE OR REPLACE FUNCTION _set ( text, bigint )
+RETURNS bigint AS $$
     SELECT _set($1, $2, '')
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION _set ( integer, integer )
-RETURNS integer AS $$
+CREATE OR REPLACE FUNCTION _set ( bigint, bigint )
+RETURNS bigint AS $$
 BEGIN
     EXECUTE 'UPDATE __tcache__ SET value = ' || $2
         || ' WHERE id = ' || $1;
@@ -158,8 +158,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION _add ( text, integer, text )
-RETURNS integer AS $$
+CREATE OR REPLACE FUNCTION _add ( text, bigint, text )
+RETURNS bigint AS $$
 BEGIN
     EXECUTE 'INSERT INTO __tcache__ (label, value, note) values (' ||
     quote_literal($1) || ', ' || $2 || ', ' || quote_literal(COALESCE($3, '')) || ')';
@@ -167,13 +167,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION _add ( text, integer )
-RETURNS integer AS $$
+CREATE OR REPLACE FUNCTION _add ( text, bigint )
+RETURNS bigint AS $$
     SELECT _add($1, $2, '')
 $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION add_result ( bool, bool, text, text, text )
-RETURNS integer AS $$
+RETURNS bigint AS $$
 BEGIN
     IF NOT $1 THEN PERFORM _set('failed', _get('failed') + 1); END IF;
     RETURN nextval('__tresults___numb_seq');
