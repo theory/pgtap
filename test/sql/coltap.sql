@@ -106,6 +106,14 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
+    col_is_null( 'public', 'sometab', 'name'::name ),
+    true,
+    'col_is_null( sch, tab, col )',
+    'Column sometab.name should allow NULL',
+    ''
+);
+
+SELECT * FROM check_test(
     col_is_null( 'sometab', 'name', 'my desc' ),
     true,
     'col_is_null( tab, col, desc )',

@@ -1391,6 +1391,12 @@ RETURNS TEXT AS $$
     SELECT _col_is_null( $1, $2, $3, false );
 $$ LANGUAGE SQL;
 
+-- col_is_null( table, column, description )
+CREATE OR REPLACE FUNCTION col_is_null ( NAME, NAME, TEXT )
+RETURNS TEXT AS $$
+    SELECT _col_is_null( $1, $2, $3, false );
+$$ LANGUAGE SQL;
+
 -- col_is_null( table, column )
 CREATE OR REPLACE FUNCTION col_is_null ( NAME, NAME )
 RETURNS TEXT AS $$
