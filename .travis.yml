@@ -5,6 +5,7 @@ before_install:
   - sudo sh ./apt.postgresql.org.sh
   - sudo rm -vf /etc/apt/sources.list.d/pgdg-source.list
 env:
+  - PGVERSION=8.4
   - PGVERSION=9.0
   - PGVERSION=9.1
   - PGVERSION=9.2
