@@ -27,9 +27,8 @@ sudo pg_createcluster --start $PGVERSION test -p $PGPORT -- -A trust
 make all
 
 sudo easy_install pgxnclient
-sudo make install installcheck_deps
 
-make regress || failed=true # Don't exit yet if this failed
+sudo make regress || failed=true # Don't exit yet if this failed
 
 # pg_regress --launcher not supported prior to 9.1
 echo $PGVERSION | grep -qE "8[.]|9[.][0]" || sudo make uninstall updatecheck # updatecheck depends on install, so must be sudo
