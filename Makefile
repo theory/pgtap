@@ -197,7 +197,7 @@ html:
 #
 .PHONY: regress
 regress: installcheck
-	@[ -z "`cat regression.out |grep -i '... failed'|grep -iv '... failed (ignored)'`" ] || $${PAGER:-cat} regression.diffs
+	@[ -z "`cat regression.out 2>/dev/null | grep -i '... failed'|grep -iv '... failed (ignored)'`" ] || $${PAGER:-cat} regression.diffs
 
 installcheck: $(SCHEDULE_DEST_FILES) extension_check set_parallel_conn # More dependencies below
 
