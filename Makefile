@@ -231,16 +231,16 @@ set_parallel_conn:
 $(TB_DIR)/which_schedule: $(TB_DIR)/ set_parallel_conn
 	$(eval SCHEDULE = $(shell [ $(PARALLEL_CONN) -gt 1 ] && echo $(TB_DIR)/parallel.sch || echo $(TB_DIR)/serial.sch))
 	@[ -n "$(SCHEDULE)" ]
-	@[ "`cat $@ 2>/dev/null`" == "$(SCHEDULE)" ] || (echo "Schedule changed to $(SCHEDULE)"; echo "$(SCHEDULE)" > $@)
+	@[ "`cat $@ 2>/dev/null`" = "$(SCHEDULE)" ] || (echo "Schedule changed to $(SCHEDULE)"; echo "$(SCHEDULE)" > $@)
 
 # Generated schedule files, one for serial one for parallel
 .PHONY: $(TB_DIR)/tests # Need this target to force schedule rebuild if $(TEST) changes
 $(TB_DIR)/tests: $(TB_DIR)/
-	@[ "`cat $@ 2>/dev/null`" == "$(TEST)" ] || (echo "Rebuilding $@"; echo "$(TEST)" > $@)
+	@[ "`cat $@ 2>/dev/null`" = "$(TEST)" ] || (echo "Rebuilding $@"; echo "$(TEST)" > $@)
 
 .PHONY: $(TB_DIR)/exclude_tests # Need this target to force schedule rebuild if $(EXCLUDE_TEST) changes
 $(TB_DIR)/exclude_tests: $(TB_DIR)/
-	@[ "`cat $@ 2>/dev/null`" == "$(EXCLUDE_TEST)" ] || (echo "Rebuilding $@"; echo "$(EXCLUDE_TEST)" > $@)
+	@[ "`cat $@ 2>/dev/null`" = "$(EXCLUDE_TEST)" ] || (echo "Rebuilding $@"; echo "$(EXCLUDE_TEST)" > $@)
 
 GENERATED_SCHEDULES = $(TB_DIR)/serial.sch $(TB_DIR)/parallel.sch
 $(TB_DIR)/serial.sch: $(GENERATED_SCHEDULE_DEPS)
@@ -288,7 +288,7 @@ $(EXTENSION_DIR)/pgtap--$(EXTVERSION).sql: install
 # Need to explicitly exclude the current version. I wonder if there's a way to do this with % in the target?
 # Note that we need to capture the test failure so the rule doesn't abort
 $(EXTENSION_DIR)/pgtap--%.sql:
-	@ver=$(@:$(EXTENSION_DIR)/pgtap--%.sql=%); [ "$$ver" == "$(EXTVERSION)" ] || (echo Installing pgtap version $$ver from pgxn; pgxn install pgtap=$$ver)
+	@ver=$(@:$(EXTENSION_DIR)/pgtap--%.sql=%); [ "$$ver" = "$(EXTVERSION)" ] || (echo Installing pgtap version $$ver from pgxn; pgxn install pgtap=$$ver)
 
 # We do this as a separate step to change SETUP_SCH before the main updatecheck
 # recipe calls installcheck (which depends on SETUP_SCH being set correctly).
