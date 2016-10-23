@@ -1,3 +1,5 @@
+# THERE ARE MORE .gitignore FILES IN test/ and test/sql!
+
 .*.swp
 pgtap.sql
 pgtap-core.sql
