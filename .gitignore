@@ -1,4 +1,4 @@
-# THERE ARE MORE .gitignore FILES IN test/ and test/sql!
+# THERE IS ANOTHER .gitignore IN test/sql!
 
 .*.swp
 pgtap.sql
@@ -15,3 +15,5 @@ bbin
 /sql/pgtap-core--*
 /sql/pgtap-schema--*
 *.sql.orig
+
+test/build
