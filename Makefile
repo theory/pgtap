@@ -41,8 +41,8 @@ SERIAL_TESTS = coltap hastap
 PARALLEL_TESTS = $(filter-out $(SERIAL_TESTS),$(TESTS))
 
 # This is a bit of a hack, but if REGRESS isn't set we can't installcheck, and
-# it must be set BEFORE including pgxs.
-REGRESS = --schedule $(SCHEDULE)
+# it must be set BEFORE including pgxs. Note this gets set again below
+REGRESS = --schedule $(TB_DIR)/run.sch
 
 # REMAINING TEST VARIABLES ARE DEFINED IN THE TEST SECTION
 
@@ -90,7 +90,7 @@ MISSING_EXTENSIONS += ltree
 endif
 ifneq (,$(MISSING_EXTENSIONS))
 EXCLUDE_TEST_FILES += test/sql/extension.sql
-EXCLUDE_TESTS = $(notdir $(EXCLUDE_TEST_FILES:.sql=))
+IGNORE_TESTS = $(notdir $(EXCLUDE_TEST_FILES:.sql=))
 endif
 
 # We need Perl.
@@ -197,9 +197,9 @@ html:
 #
 .PHONY: regress
 regress: installcheck
-	@[ -e regression.diffs ] && $${PAGER:-cat} regression.diffs
+	@[ -z "`cat regression.out |grep -i '... failed'|grep -iv '... failed (ignored)'`" ] || $${PAGER:-cat} regression.diffs
 
-installcheck: $(SCHEDULE_DEST_FILES) set_schedule extension_check 
+installcheck: $(SCHEDULE_DEST_FILES) extension_check set_parallel_conn # More dependencies below
 
 # In addition to installcheck, one can also run the tests through pg_prove.
 test: extension_check test/setup.sql
@@ -209,8 +209,11 @@ test: extension_check test/setup.sql
 # General test support
 #
 TB_DIR = test/build
+GENERATED_SCHEDULE_DEPS = $(TB_DIR)/tests $(TB_DIR)/exclude_tests
+REGRESS = --schedule $(TB_DIR)/run.sch # Set this again just to be safe
 REGRESS_OPTS = --inputdir=test --load-language=plpgsql --max-connections=$(PARALLEL_CONN) --schedule $(SETUP_SCH) $(REGRESS_CONF)
 SETUP_SCH = test/schedule/main.sch # schedule to use for test setup; this can be forcibly changed by some targets!
+installcheck: $(TB_DIR)/run.sch
 
 # Parallel tests will use a connection for each $(PARALLEL_TESTS) if we let it,
 # but max_connections may not be set that high. You can set this manually to 1
@@ -222,19 +225,41 @@ SETUP_SCH = test/schedule/main.sch # schedule to use for test setup; this can be
 set_parallel_conn:
 	$(eval PARALLEL_CONN = $(shell tools/parallel_conn.sh $(PARALLEL_CONN)))
 	@[ -n "$(PARALLEL_CONN)" ]
+	@echo "Using $(PARALLEL_CONN) parallel test connections"
 
 # Have to do this as a separate task to ensure the @[ -n ... ] test in set_parallel_conn actually runs
-.PHONY: set_schedule
-set_schedule: set_parallel_conn
+$(TB_DIR)/which_schedule: $(TB_DIR)/ set_parallel_conn
 	$(eval SCHEDULE = $(shell [ $(PARALLEL_CONN) -gt 1 ] && echo $(TB_DIR)/parallel.sch || echo $(TB_DIR)/serial.sch))
 	@[ -n "$(SCHEDULE)" ]
-	@[ -e "$(SCHEDULE)" ] || make $(SCHEDULE)
+	@[ "`cat $@ 2>/dev/null`" == "$(SCHEDULE)" ] || (echo "Schedule changed to $(SCHEDULE)"; echo "$(SCHEDULE)" > $@)
 
+# Generated schedule files, one for serial one for parallel
+.PHONY: $(TB_DIR)/tests # Need this target to force schedule rebuild if $(TEST) changes
+$(TB_DIR)/tests: $(TB_DIR)/
+	@[ "`cat $@ 2>/dev/null`" == "$(TEST)" ] || (echo "Rebuilding $@"; echo "$(TEST)" > $@)
+
+.PHONY: $(TB_DIR)/exclude_tests # Need this target to force schedule rebuild if $(EXCLUDE_TEST) changes
+$(TB_DIR)/exclude_tests: $(TB_DIR)/
+	@[ "`cat $@ 2>/dev/null`" == "$(EXCLUDE_TEST)" ] || (echo "Rebuilding $@"; echo "$(EXCLUDE_TEST)" > $@)
+
+GENERATED_SCHEDULES = $(TB_DIR)/serial.sch $(TB_DIR)/parallel.sch
+$(TB_DIR)/serial.sch: $(GENERATED_SCHEDULE_DEPS)
+	@(for f in $(IGNORE_TESTS); do echo "ignore: $$f"; done; for f in $(TESTS); do echo "test: $$f"; done) > $@
+
+$(TB_DIR)/parallel.sch: $(GENERATED_SCHEDULE_DEPS)
+	@( \
+		for f in $(SERIAL_TESTS); do echo "test: $$f"; done; \
+		([ -z "$(IGNORE_TESTS)" ] || echo "ignore: $(IGNORE_TESTS)"); \
+		([ -z "$(PARALLEL_TESTS)" ] || echo "test: $(PARALLEL_TESTS)") \
+	) > $@
+
+$(TB_DIR)/run.sch: $(TB_DIR)/which_schedule $(GENERATED_SCHEDULES)
+	cp `cat $<` $@
 
 # Don't generate noise if we're not running tests...
 .PHONY: extension_check
 extension_check: 
-	@[ -z "$(MISSING_EXTENSIONS)" ] || (echo; echo; echo "WARNING: Some mandatory extensions ($(MISSING_EXTENSIONS)) are not installed; skipping tests: $(EXCLUDE_TESTS)"; echo; echo)
+	@[ -z "$(MISSING_EXTENSIONS)" ] || (echo; echo; echo "WARNING: Some mandatory extensions ($(MISSING_EXTENSIONS)) are not installed; ignoring tests: $(IGNORE_TESTS)"; echo; echo)
 
 
 # These tests have specific dependencies
@@ -243,23 +268,6 @@ test/sql/create.sql test/sql/update.sql: pgtap-version-$(EXTVERSION)
 
 test/sql/%.sql: test/schedule/%.sql
 	@(echo '\unset ECHO'; echo '-- GENERATED FILE! DO NOT EDIT!'; echo "-- Original file: $<"; cat $< ) > $@
-
-# Generated schedule files, one for serial one for parallel
-.PHONY: $(TB_DIR)/test_files # Need this target to force schedule rebuild if $(TEST_FILES) changes
-$(TB_DIR)/test_files: $(TB_DIR)/
-	@[ "`cat $@ 2>/dev/null`" == "$(TEST_FILES)" ] || echo "$(TEST_FILES)" > $@
-
-.PHONY: $(TB_DIR)/test_files # Need this target to force schedule rebuild if $(TEST_FILES) changes
-$(TB_DIR)/exclude_test_files: $(TB_DIR)/
-	@[ "`cat $@ 2>/dev/null`" == "$(EXCLUDE_TEST_FILES)" ] || echo "$(TEST_FILES)" > $@
-
-$(TB_DIR)/serial.sch: $(TB_DIR)/test_files $(TB_DIR)/exclude_test_files
-	@(for f in $(EXCLUDE_TESTS); do echo "ignore: $$f"; done; for f in $(TESTS); do echo "test: $$f"; done) > $@
-
-$(TB_DIR)/parallel.sch: $(TB_DIR)/test_files $(TB_DIR)/exclude_test_files
-	@(for f in $(SERIAL_TESTS); do echo "test: $$f"; done) > $@
-	@echo "ignore: $(EXCLUDE_TESTS)" >> $@
-	@echo "test: $(PARALLEL_TESTS)" >> $@
 
 EXTRA_CLEAN += $(TB_DIR)/
 $(TB_DIR)/:
@@ -307,8 +315,11 @@ updatecheck: updatecheck_setup install regress
 # make results: runs `make test` and copy all result files to expected
 # DO NOT RUN THIS UNLESS YOU'RE CERTAIN ALL YOUR TESTS ARE PASSING!
 .PHONY: results
-results: installcheck
-	rsync -rlpgovP $(TESTOUT)/results/ $(TESTDIR)/expected
+results: installcheck result-rsync
+
+.PHONY:
+result-rsync:
+	rsync -rlpgovP results/ test/expected
 
 
 # To use this, do make print-VARIABLE_NAME
