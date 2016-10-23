@@ -3,16 +3,17 @@ before_install:
   - wget https://gist.githubusercontent.com/petere/5893799/raw/apt.postgresql.org.sh
   - sudo sh ./apt.postgresql.org.sh
   - sudo rm -vf /etc/apt/sources.list.d/pgdg-source.list
-env:
-  - PGVERSION=9.0
-  - PGVERSION=9.1
-  - PGVERSION=9.2
-  - PGVERSION=9.3
-  - PGVERSION=9.4
-  - PGVERSION=9.5
-env:
-  - TARGET=installcheck
-  - TARGET=updatecheck UPDATE_FROM=0.95.0
+matrix:
+  env:
+    - PGVERSION=9.0
+    - PGVERSION=9.1
+    - PGVERSION=9.2
+    - PGVERSION=9.3
+    - PGVERSION=9.4
+    - PGVERSION=9.5
+  env:
+    - TARGET=installcheck
+    - TARGET=updatecheck UPDATE_FROM=0.95.0
 
 script: bash ./pg-travis-test.sh
 
