@@ -225,4 +225,63 @@ RETURNS TEXT AS $$
     SELECT ok( NOT _opc_exists( $1 ), 'Operator class ' || quote_ident($1) || ' should not exist' );
 $$ LANGUAGE SQL;
 
+-- https://github.com/theory/pgtap/pull/101
+
+-- has_extension( schema, name, description )
+CREATE OR REPLACE FUNCTION has_extension( NAME, NAME, TEXT )
+RETURNS TEXT AS $$
+    SELECT ok( _ext_exists( $1, $2 ), $3 );
+$$ LANGUAGE SQL;
+
+-- has_extension( schema, name )
+CREATE OR REPLACE FUNCTION has_extension( NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT ok(
+        _ext_exists( $1, $2 ),
+        'Extension ' || quote_ident($2)
+        || ' should exist in schema ' || quote_ident($1) );
+$$ LANGUAGE SQL;
+
+-- has_extension( name, description )
+CREATE OR REPLACE FUNCTION has_extension( NAME, TEXT )
+RETURNS TEXT AS $$
+    SELECT ok( _ext_exists( $1 ), $2)
+$$ LANGUAGE SQL;
+
+-- has_extension( name )
+CREATE OR REPLACE FUNCTION has_extension( NAME )
+RETURNS TEXT AS $$
+    SELECT ok(
+        _ext_exists( $1 ),
+        'Extension ' || quote_ident($1) || ' should exist' );
+$$ LANGUAGE SQL;
+
+-- hasnt_extension( schema, name, description )
+CREATE OR REPLACE FUNCTION hasnt_extension( NAME, NAME, TEXT )
+RETURNS TEXT AS $$
+    SELECT ok( NOT _ext_exists( $1, $2 ), $3 );
+$$ LANGUAGE SQL;
+
+-- hasnt_extension( schema, name )
+CREATE OR REPLACE FUNCTION hasnt_extension( NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT ok(
+        NOT _ext_exists( $1, $2 ),
+        'Extension ' || quote_ident($2)
+        || ' should not exist in schema ' || quote_ident($1) );
+$$ LANGUAGE SQL;
+
+-- hasnt_extension( name, description )
+CREATE OR REPLACE FUNCTION hasnt_extension( NAME, TEXT )
+RETURNS TEXT AS $$
+    SELECT ok( NOT _ext_exists( $1 ), $2)
+$$ LANGUAGE SQL;
+
+-- hasnt_extension( name )
+CREATE OR REPLACE FUNCTION hasnt_extension( NAME )
+RETURNS TEXT AS $$
+    SELECT ok(
+        NOT _ext_exists( $1 ),
+        'Extension ' || quote_ident($1) || ' should not exist' );
+$$ LANGUAGE SQL;
 
