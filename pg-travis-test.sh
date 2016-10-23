@@ -31,6 +31,7 @@ sudo make install installcheck_deps
 
 make regress || failed=true # Don't exit yet if this failed
 
-sudo make uninstall updatecheck # updatecheck depends on install, so must be sudo
+# pg_regress --launcher not supported prior to 9.1
+echo $PGVERSION | grep -qE "8[.]|9[.][0]" || sudo make uninstall updatecheck # updatecheck depends on install, so must be sudo
 
 [ -n "$failed" ]
