@@ -199,7 +199,11 @@ html:
 # Run installcheck then output any diffs
 .PHONY: regress
 regress: installcheck_deps
-	make installcheck || ([ -e regression.diffs ] && $${PAGER:-cat} regression.diffs; exit 1)
+	$(MAKE) installcheck || ([ -e regression.diffs ] && $${PAGER:-cat} regression.diffs; exit 1)
+
+.PHONY: updatecheck
+updatecheck: updatecheck_deps install
+	$(MAKE) updatecheck_run || ([ -e regression.diffs ] && $${PAGER:-cat} regression.diffs; exit 1)
 
 .PHONY: installcheck_deps
 installcheck_deps: $(SCHEDULE_DEST_FILES) extension_check set_parallel_conn # More dependencies below
@@ -216,7 +220,7 @@ GENERATED_SCHEDULE_DEPS = $(TB_DIR)/tests $(TB_DIR)/exclude_tests
 REGRESS = --schedule $(TB_DIR)/run.sch # Set this again just to be safe
 REGRESS_OPTS = --inputdir=test --load-language=plpgsql --max-connections=$(PARALLEL_CONN) --schedule $(SETUP_SCH) $(REGRESS_CONF)
 SETUP_SCH = test/schedule/main.sch # schedule to use for test setup; this can be forcibly changed by some targets!
-installcheck: $(TB_DIR)/run.sch
+installcheck: $(TB_DIR)/run.sch installcheck_deps
 
 # Parallel tests will use a connection for each $(PARALLEL_TESTS) if we let it,
 # but max_connections may not be set that high. You can set this manually to 1
@@ -293,22 +297,26 @@ $(EXTENSION_DIR)/pgtap--$(EXTVERSION).sql: install
 $(EXTENSION_DIR)/pgtap--%.sql:
 	@ver=$(@:$(EXTENSION_DIR)/pgtap--%.sql=%); [ "$$ver" = "$(EXTVERSION)" ] || (echo Installing pgtap version $$ver from pgxn; pgxn install pgtap=$$ver)
 
+# This is separated out so it can be called before calling updatecheck_run
+.PHONY: updatecheck_deps
+updatecheck_deps: pgtap-version-$(UPDATE_FROM) test/sql/update.sql
+
 # We do this as a separate step to change SETUP_SCH before the main updatecheck
 # recipe calls installcheck (which depends on SETUP_SCH being set correctly).
 .PHONY: updatecheck_setup
 # we dpend on pg_regress --launcher, which was added in 9.1
-updatecheck_setup: pgtap-version-$(UPDATE_FROM) test/sql/update.sql 
+updatecheck_setup: updatecheck_deps
 	@if echo $(VERSION) | grep -qE "8[.]|9[.][0]"; then echo "updatecheck is not supported prior to 9.1"; exit 1; fi
 	$(eval SETUP_SCH = test/schedule/update.sch)
-	$(eval REGRESS_OPTS += --auncher "tools/psql_args.sh -v 'old_ver=$(UPDATE_FROM)' -v 'new_ver=$(EXTVERSION)'")
+	$(eval REGRESS_OPTS += --launcher "tools/psql_args.sh -v 'old_ver=$(UPDATE_FROM)' -v 'new_ver=$(EXTVERSION)'")
 	@echo
 	@echo "###################"
 	@echo "Testing upgrade from $(UPDATE_FROM) to $(EXTVERSION)"
 	@echo "###################"
 	@echo
 
-.PHONY: updatecheck
-updatecheck: updatecheck_setup install regress
+.PHONY: updatecheck_run
+updatecheck_run: updatecheck_setup install installcheck
 
 #
 # STOLEN FROM pgxntool
