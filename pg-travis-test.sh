@@ -28,13 +28,6 @@ export PG_CONFIG=/usr/lib/postgresql/$PGVERSION/bin/pg_config
 
 make regress || failed=true # Don't exit yet if this failed
 
-echo
-echo
-echo
-echo
-
-sudo make uninstall updatecheck_setu
-
-make updatecheck
+sudo make uninstall updatecheck # updatecheck depends on install, so must be sudo
 
 [ -n "$failed" ]
