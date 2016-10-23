@@ -22,4 +22,4 @@ sudo pg_createcluster --start $PGVERSION test -p 55435 -- -A trust
 
 make all PG_CONFIG=/usr/lib/postgresql/$PGVERSION/bin/pg_config
 sudo make install PG_CONFIG=/usr/lib/postgresql/$PGVERSION/bin/pg_config
-PGPORT=55435 make $TARGET PGUSER=postgres PG_CONFIG=/usr/lib/postgresql/$PGVERSION/bin/pg_config || exit $?
+PGPORT=55435 make PGUSER=postgres PG_CONFIG=/usr/lib/postgresql/$PGVERSION/bin/pg_config $@ || exit $?
