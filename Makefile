@@ -136,7 +136,7 @@ DATA = $(wildcard sql/*--*.sql)
 EXTRA_CLEAN += sql/$(MAINEXT)--$(EXTVERSION).sql sql/$(MAINEXT)-core--$(EXTVERSION).sql sql/$(MAINEXT)-schema--$(EXTVERSION).sql
 endif
 
-sql/pgtap.sql: sql/pgtap.sql.in test/setup.sql
+sql/pgtap.sql: sql/pgtap.sql.in
 	cp $< $@
 ifeq ($(shell echo $(VERSION) | grep -qE "9[.][01234]|8[.][1234]" && echo yes || echo no),yes)
 	patch -p0 < compat/install-9.4.patch
@@ -165,7 +165,7 @@ endif
 	sed -e 's,MODULE_PATHNAME,$$libdir/pgtap,g' -e 's,__OS__,$(OSNAME),g' -e 's,__VERSION__,$(NUMVERSION),g' sql/pgtap.sql > sql/pgtap.tmp
 	mv sql/pgtap.tmp sql/pgtap.sql
 
-sql/uninstall_pgtap.sql: sql/pgtap.sql test/setup.sql
+sql/uninstall_pgtap.sql: sql/pgtap.sql
 	grep '^CREATE ' sql/pgtap.sql | $(PERL) -e 'for (reverse <STDIN>) { chomp; s/CREATE (OR REPLACE)?/DROP/; print "$$_;\n" }' > sql/uninstall_pgtap.sql
 
 sql/pgtap-core.sql: sql/pgtap.sql.in
@@ -202,7 +202,7 @@ regress: installcheck
 installcheck: $(SCHEDULE_DEST_FILES) extension_check set_parallel_conn # More dependencies below
 
 # In addition to installcheck, one can also run the tests through pg_prove.
-test: extension_check test/setup.sql
+test: extension_check
 	pg_prove --pset tuples_only=1 $(TEST_FILES)
 
 #
