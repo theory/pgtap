@@ -20,6 +20,21 @@ sudo apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-co
 status=0
 sudo pg_createcluster --start $PGVERSION test -p 55435 -- -A trust
 
-make all PG_CONFIG=/usr/lib/postgresql/$PGVERSION/bin/pg_config
-sudo make install PG_CONFIG=/usr/lib/postgresql/$PGVERSION/bin/pg_config
-PGPORT=55435 make PGUSER=postgres PG_CONFIG=/usr/lib/postgresql/$PGVERSION/bin/pg_config $@ || exit $?
+make all
+sudo make install
+export PGPORT=55435
+export PGUSER=postgres
+export PG_CONFIG=/usr/lib/postgresql/$PGVERSION/bin/pg_config
+
+make regress || failed=true # Don't exit yet if this failed
+
+echo
+echo
+echo
+echo
+
+sudo make uninstall updatecheck_setu
+
+make updatecheck
+
+[ -n "$failed" ]
