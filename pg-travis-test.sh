@@ -27,7 +27,7 @@ sudo pg_createcluster --start $PGVERSION test -p $PGPORT -- -A trust
 make all
 
 sudo easy_install pgxnclient
-sudo make install
+sudo make install installcheck_deps
 
 make regress || failed=true # Don't exit yet if this failed
 

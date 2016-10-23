@@ -195,11 +195,14 @@ html:
 #
 # Actual test targets
 #
-.PHONY: regress
-regress: installcheck
-	@[ -z "`cat regression.out 2>/dev/null | grep -i '... failed'|grep -iv '... failed (ignored)'`" ] || $${PAGER:-cat} regression.diffs
 
-installcheck: $(SCHEDULE_DEST_FILES) extension_check set_parallel_conn # More dependencies below
+# Run installcheck then output any diffs
+.PHONY: regress
+regress: installcheck_deps
+	make installcheck || ([ -e regression.diffs ] && $${PAGER:-cat} regression.diffs; exit 1)
+
+.PHONY: installcheck_deps
+installcheck_deps: $(SCHEDULE_DEST_FILES) extension_check set_parallel_conn # More dependencies below
 
 # In addition to installcheck, one can also run the tests through pg_prove.
 test: extension_check
@@ -295,7 +298,7 @@ $(EXTENSION_DIR)/pgtap--%.sql:
 .PHONY: updatecheck_setup
 updatecheck_setup: pgtap-version-$(UPDATE_FROM) test/sql/update.sql 
 	$(eval SETUP_SCH = test/schedule/update.sch)
-	$(eval REGRESS_OPTS += --launcher "tools/psql_args.sh -v 'old_ver=$(UPDATE_FROM)' -v 'new_ver=$(EXTVERSION)'")
+	$(eval REGRESS_OPTS += --auncher "tools/psql_args.sh -v 'old_ver=$(UPDATE_FROM)' -v 'new_ver=$(EXTVERSION)'")
 	@echo
 	@echo "###################"
 	@echo "Testing upgrade from $(UPDATE_FROM) to $(EXTVERSION)"
@@ -308,9 +311,6 @@ updatecheck: updatecheck_setup install regress
 #
 # STOLEN FROM pgxntool
 #
-
-# Don't have installcheck bomb on error
-.IGNORE: installcheck
 
 # make results: runs `make test` and copy all result files to expected
 # DO NOT RUN THIS UNLESS YOU'RE CERTAIN ALL YOUR TESTS ARE PASSING!
