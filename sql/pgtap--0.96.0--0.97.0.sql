@@ -209,3 +209,20 @@ CREATE OR REPLACE FUNCTION isnt_aggregate( NAME )
 RETURNS TEXT AS $$
     SELECT ok( NOT _agg($1), 'Function ' || quote_ident($1) || '() should not be an aggregate function' );
 $$ LANGUAGE sql;
+
+
+-- https://github.com/theory/pgtap/pull/99
+
+-- hasnt_opclass( schema, name )
+CREATE OR REPLACE FUNCTION hasnt_opclass( NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT ok( NOT _opc_exists( $1, $2 ), 'Operator class ' || quote_ident($1) || '.' || quote_ident($2) || ' should not exist' );
+$$ LANGUAGE SQL;
+
+-- hasnt_opclass( name )
+CREATE OR REPLACE FUNCTION hasnt_opclass( NAME )
+RETURNS TEXT AS $$
+    SELECT ok( NOT _opc_exists( $1 ), 'Operator class ' || quote_ident($1) || ' should not exist' );
+$$ LANGUAGE SQL;
+
+
