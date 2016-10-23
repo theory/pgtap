@@ -1,9 +1,10 @@
 language: c
 before_install:
   - wget https://gist.githubusercontent.com/petere/5893799/raw/apt.postgresql.org.sh
-  - wget https://gist.githubusercontent.com/petere/6023944/raw/pg-travis-test.sh
   - sudo sh ./apt.postgresql.org.sh
   - sudo rm -vf /etc/apt/sources.list.d/pgdg-source.list
+script:
+  - bash ./pg-travis-test.sh
 env:
   - PGVERSION=9.0
   - PGVERSION=9.1
@@ -11,4 +12,5 @@ env:
   - PGVERSION=9.3
   - PGVERSION=9.4
   - PGVERSION=9.5
-script: bash ./pg-travis-test.sh
+
+# vi: expandtab ts=2 sw=2

@@ -15,8 +15,9 @@ BEGIN
     IF pg_version_num() >= 90100 THEN
         EXECUTE $E$
             CREATE SCHEMA someschema;
+            CREATE SCHEMA ci_schema;
             CREATE SCHEMA "empty schema";
-            CREATE EXTENSION IF NOT EXISTS citext;
+            CREATE EXTENSION IF NOT EXISTS citext SCHEMA ci_schema;
             CREATE EXTENSION IF NOT EXISTS isn SCHEMA someschema;
             CREATE EXTENSION IF NOT EXISTS ltree SCHEMA someschema;
         $E$;
@@ -38,7 +39,7 @@ BEGIN
         ) AS b LOOP RETURN NEXT tap.b; END LOOP;
 
         FOR tap IN SELECT* FROM check_test(
-            extensions_are( ARRAY['citext', 'isn', 'ltree', 'plpgsql'], 'Got em' ),
+            extensions_are( ARRAY['citext', 'isn', 'ltree', 'plpgsql', 'pgtap'], 'Got em' ),
             true,
             'extensions_are(exts, desc)',
             'Got em',
@@ -46,7 +47,7 @@ BEGIN
         ) AS b LOOP RETURN NEXT tap.b; END LOOP;
 
         FOR tap IN SELECT* FROM check_test(
-            extensions_are( ARRAY['citext', 'isn', 'ltree', 'plpgsql'] ),
+            extensions_are( ARRAY['citext', 'isn', 'ltree', 'plpgsql', 'pgtap'] ),
             true,
             'extensions_are(exts)',
             'Should have the correct extensions',
@@ -54,9 +55,9 @@ BEGIN
         ) AS b LOOP RETURN NEXT tap.b; END LOOP;
 
         FOR tap IN SELECT* FROM check_test(
-            extensions_are( 'public', ARRAY['citext'], 'Got em' ),
+            extensions_are( 'ci_schema', ARRAY['citext'], 'Got em' ),
             true,
-            'extensions_are(public, exts, desc)',
+            'extensions_are(ci_schema, exts, desc)',
             'Got em',
             ''
         ) AS b LOOP RETURN NEXT tap.b; END LOOP;
@@ -83,7 +84,7 @@ BEGIN
         ) AS b LOOP RETURN NEXT tap.b; END LOOP;
 
         FOR tap IN SELECT* FROM check_test(
-            extensions_are( ARRAY['citext', 'isn', 'ltree', 'nonesuch'] ),
+            extensions_are( ARRAY['citext', 'isn', 'ltree', 'pgtap', 'nonesuch'] ),
             false,
             'extensions_are(someexts)',
             'Should have the correct extensions',
@@ -128,7 +129,7 @@ BEGIN
         FOR tap IN SELECT * FROM check_test(
             pass('mumble'),
 	        true,
-            'extensions_are(public, exts, desc)',
+            'extensions_are(ci_schema, exts, desc)',
             'mumble',
             ''
         ) AS b LOOP RETURN NEXT tap.b; END LOOP;
