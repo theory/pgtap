@@ -3,7 +3,6 @@ EXTENSION    = $(MAINEXT)
 EXTVERSION   = $(shell grep default_version $(MAINEXT).control | \
 			   sed -e "s/default_version[[:space:]]*=[[:space:]]*'\([^']*\)'/\1/")
 NUMVERSION   = $(shell echo $(EXTVERSION) | sed -e 's/\([[:digit:]]*[.][[:digit:]]*\).*/\1/')
-DATA         = $(wildcard sql/*--*.sql) $(subst .in,,$(wildcard sql/*--*.sql.in)) # NOTE! This gets reset below!
 _IN_FILES 	 = $(wildcard sql/*--*.sql.in)
 _IN_PATCHED	 = $(_IN_FILES:.in=)
 TESTS        = $(wildcard test/sql/*.sql)
@@ -12,6 +11,9 @@ DOCS         = doc/pgtap.mmd
 REGRESS      = $(patsubst test/sql/%.sql,%,$(TESTS))
 REGRESS_OPTS = --inputdir=test --load-language=plpgsql
 PG_CONFIG   ?= pg_config
+
+# sort is necessary to remove dupes so install won't complain
+DATA         = $(sort $(wildcard sql/*--*.sql) $(_IN_PATCHED)) # NOTE! This gets reset below!
 
 ifdef NO_PGXS
 top_builddir = ../..
@@ -94,7 +96,9 @@ sql/$(MAINEXT)-core--$(EXTVERSION).sql: sql/$(MAINEXT)-core.sql
 sql/$(MAINEXT)-schema--$(EXTVERSION).sql: sql/$(MAINEXT)-schema.sql
 	cp $< $@
 
-DATA = $(wildcard sql/*--*.sql) $(_IN_PATCHED)
+# I think this can go away...
+DATA         = $(sort $(wildcard sql/*--*.sql) $(_IN_PATCHED))
+
 EXTRA_CLEAN += sql/$(MAINEXT)--$(EXTVERSION).sql sql/$(MAINEXT)-core--$(EXTVERSION).sql sql/$(MAINEXT)-schema--$(EXTVERSION).sql
 endif
 
