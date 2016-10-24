@@ -19,7 +19,7 @@ REGRESS_CONF ?=
 PARALLEL_CONN ?=
 
 # This controls what version to upgrade FROM when running updatecheck.
-UPDATE_FROM ?= 0.94.0
+UPDATE_FROM ?= 0.96.0
 
 # These are test files that need to end up in test/sql to make pg_regress
 # happy, but these should NOT be treated as regular regression tests
