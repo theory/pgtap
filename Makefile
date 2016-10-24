@@ -316,7 +316,7 @@ updatecheck_setup: updatecheck_deps
 	@echo
 
 .PHONY: updatecheck_run
-updatecheck_run: updatecheck_setup install installcheck
+updatecheck_run: updatecheck_setup installcheck
 
 #
 # STOLEN FROM pgxntool
