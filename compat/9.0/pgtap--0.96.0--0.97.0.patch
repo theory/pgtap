@@ -1,12 +1,32 @@
-diff --git a/sql/pgtap--0.96.0--0.97.0.sql b/sql/pgtap--0.96.0--0.97.0.sql
-index 499fbe4..3bd9169 100644
 --- sql/pgtap--0.96.0--0.97.0.sql
 +++ sql/pgtap--0.96.0--0.97.0.sql
-@@ -225,63 +225,4 @@ RETURNS TEXT AS $$
+@@ -225,85 +225,3 @@
      SELECT ok( NOT _opc_exists( $1 ), 'Operator class ' || quote_ident($1) || ' should not exist' );
  $$ LANGUAGE SQL;
  
 --- https://github.com/theory/pgtap/pull/101
+-
+--- check extension exists function with schema name
+-CREATE OR REPLACE FUNCTION _ext_exists( NAME, NAME )
+-RETURNS BOOLEAN AS $$
+-    SELECT EXISTS (
+-        SELECT TRUE
+-          FROM pg_catalog.pg_extension ex
+-          JOIN pg_catalog.pg_namespace n ON ex.extnamespace = n.oid
+-         WHERE n.nspname  = $1
+-           AND ex.extname = $2
+-    );
+-$$ LANGUAGE SQL;
+-
+--- check extension exists function without schema name
+-CREATE OR REPLACE FUNCTION _ext_exists( NAME )
+-RETURNS BOOLEAN AS $$
+-    SELECT EXISTS (
+-        SELECT TRUE
+-          FROM pg_catalog.pg_extension ex
+-         WHERE ex.extname = $1
+-    );
+-$$ LANGUAGE SQL;
 -
 --- has_extension( schema, name, description )
 -CREATE OR REPLACE FUNCTION has_extension( NAME, NAME, TEXT )
@@ -65,4 +85,4 @@ index 499fbe4..3bd9169 100644
 -        NOT _ext_exists( $1 ),
 -        'Extension ' || quote_ident($1) || ' should not exist' );
 -$$ LANGUAGE SQL;
- 
+-
