@@ -227,6 +227,28 @@ $$ LANGUAGE SQL;
 
 -- https://github.com/theory/pgtap/pull/101
 
+-- check extension exists function with schema name
+CREATE OR REPLACE FUNCTION _ext_exists( NAME, NAME )
+RETURNS BOOLEAN AS $$
+    SELECT EXISTS (
+        SELECT TRUE
+          FROM pg_catalog.pg_extension ex
+          JOIN pg_catalog.pg_namespace n ON ex.extnamespace = n.oid
+         WHERE n.nspname  = $1
+           AND ex.extname = $2
+    );
+$$ LANGUAGE SQL;
+
+-- check extension exists function without schema name
+CREATE OR REPLACE FUNCTION _ext_exists( NAME )
+RETURNS BOOLEAN AS $$
+    SELECT EXISTS (
+        SELECT TRUE
+          FROM pg_catalog.pg_extension ex
+         WHERE ex.extname = $1
+    );
+$$ LANGUAGE SQL;
+
 -- has_extension( schema, name, description )
 CREATE OR REPLACE FUNCTION has_extension( NAME, NAME, TEXT )
 RETURNS TEXT AS $$
