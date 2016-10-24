@@ -131,7 +131,7 @@ EXCRA_CLEAN += sql/pgtap--0.96.0--0.97.0.sql
 sql/pgtap--0.96.0--0.97.0.sql: sql/pgtap--0.96.0--0.97.0.sql.in
 	cp $< $@
 ifeq ($(shell echo $(VERSION) | grep -qE "9[.][01234]|8[.][1234]" && echo yes || echo no),yes)
-	patch -p0 < compat/9.0/pgtap--0.96.0--0.97.0.patch
+	patch -p0 < compat/9.4/pgtap--0.96.0--0.97.0.patch
 endif
 ifeq ($(shell echo $(VERSION) | grep -qE "9[.]0|8[.][1234]" && echo yes || echo no),yes)
 	patch -p0 < compat/9.0/pgtap--0.96.0--0.97.0.patch
