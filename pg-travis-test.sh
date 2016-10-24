@@ -3,6 +3,7 @@
 # Based on https://gist.github.com/petere/6023944
 
 set -eux
+failed=''
 
 sudo apt-get update
 
