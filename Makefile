@@ -78,6 +78,7 @@ endif
 OSNAME := $(shell $(SHELL) ./getos.sh)
 
 # Make sure we build these.
+EXTRA_CLEAN += $(_IN_PATCHED)
 all: $(_IN_PATCHED) sql/pgtap.sql sql/uninstall_pgtap.sql sql/pgtap-core.sql sql/pgtap-schema.sql
 
 # Add extension build targets on 9.1 and up.
