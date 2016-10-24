@@ -290,7 +290,9 @@ pgtap-version-%: $(EXTENSION_DIR)/pgtap--%.sql
 	@true # Necessary to have a fake action here
 
 
-$(EXTENSION_DIR)/pgtap--$(EXTVERSION).sql: install
+# Travis will complain if we reinstall too quickly, so be more intelligent about this
+$(EXTENSION_DIR)/pgtap--$(EXTVERSION).sql: sql/pgtap--$(EXTVERSION).sql
+	$(MAKE) install
 
 # Need to explicitly exclude the current version. I wonder if there's a way to do this with % in the target?
 # Note that we need to capture the test failure so the rule doesn't abort
