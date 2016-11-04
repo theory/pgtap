@@ -306,7 +306,7 @@ SELECT lives_ok(
     CASE WHEN pg_version_num() < 90500 THEN $exec$
 CREATE FUNCTION check_assert(b boolean) RETURNS void LANGUAGE plpgsql AS $body$
 BEGIN
-    RAISE 'this code should never be called!';
+    RAISE EXCEPTION 'this code should never be called!';
 END
 $body$;
 $exec$
