@@ -322,35 +322,43 @@ $exec$
 );
 
 CREATE FUNCTION test_assert() RETURNS SETOF text LANGUAGE plpgsql AS $body$
+DECLARE
+  t text;
 BEGIN
 IF pg_version_num() >= 90500 THEN
-RETURN QUERY SELECT * FROM check_test(
+FOR t IN SELECT * FROM check_test(
     throws_ok( 'SELECT check_assert(false)', 'P0004', 'assert description' ),
     true,
     'throws_ok catches assert',
     'threw P0004: assert description',
     ''
-);
+) LOOP
+    RETURN NEXT t;
+END LOOP;
 
-RETURN QUERY SELECT * FROM check_test(
+FOR t IN SELECT * FROM check_test(
     throws_ok( 'SELECT check_assert(true)', 'P0004' ),
     false,
     'throws_ok does not accept passing assert',
     'threw P0004',
     '      caught: no exception
       wanted: P0004'
-);
+) LOOP
+    RETURN NEXT t;
+END LOOP;
 
-RETURN QUERY SELECT * FROM check_test(
+FOR t IN SELECT * FROM check_test(
     lives_ok( 'SELECT check_assert(true)' ),
     true,
     'lives_ok calling check_assert(true)',
     '',
     ''
-);
+) LOOP
+    RETURN NEXT t;
+END LOOP;
 
 -- Check its diagnostics when there is an exception.
-RETURN QUERY SELECT * FROM check_test(
+FOR t IN SELECT * FROM check_test(
     lives_ok( 'SELECT check_assert(false)' ),
     false,
     'lives_ok with check_assert(false)',
@@ -360,41 +368,51 @@ RETURN QUERY SELECT * FROM check_test(
             PL/pgSQL function check_assert(boolean) line 3 at ASSERT
             SQL statement "SELECT check_assert(false)"
             PL/pgSQL function lives_ok(text,text) line 14 at EXECUTE
-            PL/pgSQL function test_assert() line 30 at RETURN QUERY'
-);
+            PL/pgSQL function test_assert() line 30 at RETURN NEXT'
+) LOOP
+    RETURN NEXT t;
+END LOOP;
 ELSE
-RETURN QUERY SELECT * FROM check_test(
+FOR t IN SELECT * FROM check_test(
     pass(''),
     true,
     'throws_ok catches assert',
     '',
     ''
-);
+) LOOP
+    RETURN NEXT t;
+END LOOP;
 
-RETURN QUERY SELECT * FROM check_test(
+FOR t IN SELECT * FROM check_test(
     fail(''),
     false,
     'throws_ok does not accept passing assert',
     '',
     ''
-);
+) LOOP
+    RETURN NEXT t;
+END LOOP;
 
-RETURN QUERY SELECT * FROM check_test(
+FOR t IN SELECT * FROM check_test(
     pass(''),
     true,
     'lives_ok calling check_assert(true)',
     '',
     ''
-);
+) LOOP
+    RETURN NEXT t;
+END LOOP;
 
 -- Check its diagnostics when there is an exception.
-RETURN QUERY SELECT * FROM check_test(
+FOR t IN SELECT * FROM check_test(
     fail(''),
     false,
     'lives_ok with check_assert(false)',
     '',
     ''
-);
+) LOOP
+    RETURN NEXT t;
+END LOOP;
 END IF;
 END
 $body$;
