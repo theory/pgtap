@@ -399,7 +399,7 @@ END IF;
 END
 $body$;
 
-SELECT test_assert();
+SELECT * FROM test_assert();
 
 /****************************************************************************/
 -- Finish the tests and clean up.
