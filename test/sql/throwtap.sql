@@ -368,7 +368,7 @@ FOR t IN SELECT * FROM check_test(
             PL/pgSQL function check_assert(boolean) line 3 at ASSERT
             SQL statement "SELECT check_assert(false)"
             PL/pgSQL function lives_ok(text,text) line 14 at EXECUTE
-            PL/pgSQL function test_assert() line 30 at RETURN NEXT'
+            PL/pgSQL function test_assert() line 38 at FOR over SELECT rows'
 ) LOOP
     RETURN NEXT t;
 END LOOP;
