@@ -143,6 +143,10 @@ DATA         = $(sort $(wildcard sql/*--*.sql) $(_IN_PATCHED))
 EXTRA_CLEAN += sql/$(MAINEXT)--$(EXTVERSION).sql sql/$(MAINEXT)-core--$(EXTVERSION).sql sql/$(MAINEXT)-schema--$(EXTVERSION).sql
 endif
 
+# Target to remove ALL pgtap code. Useful when testing multiple versions of pgtap.
+uninstall-all:
+	rm -f $(EXTENSION_DIR)/pgtap*
+
 sql/pgtap.sql: sql/pgtap.sql.in
 	cp $< $@
 ifeq ($(shell echo $(VERSION) | grep -qE "9[.][01234]|8[.][1234]" && echo yes || echo no),yes)
