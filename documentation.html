@@ -15,14 +15,13 @@
   <body>
     <div id="main">
       <!-- DOC INTRO HERE -->
-<h1 id="pgtap0.96.0">pgTAP 0.96.0</h1>
+<h1 id="pgtap0.97.0">pgTAP 0.97.0</h1>
 
 <p>pgTAP is a unit testing framework for PostgreSQL written in PL/pgSQL and
 PL/SQL. It includes a comprehensive collection of
 <a href="http://testanything.org">TAP</a>-emitting assertion functions, as well as the
 ability to integrate with other TAP-emitting test frameworks. It can also be
 used in the xUnit testing style.</p>
-
       <!-- END DOC INTRO HERE -->
       <div id="toc">
         <!-- TOC SANS "pgTAP x.xx" -->
@@ -151,7 +150,9 @@ used in the xUnit testing style.</p>
 <li><a href="#has_group"><code>has_group()</code></a></li>
 <li><a href="#hasnt_group"><code>hasnt_group()</code></a></li>
 <li><a href="#has_language"><code>has_language()</code></a></li>
-<li><a href="#hasnt_language"><code>hasnt_language()</code></a></li></ul></li>
+<li><a href="#hasnt_language"><code>hasnt_language()</code></a></li>
+<li><a href="#has_extension"><code>has_extension()</code></a></li>
+<li><a href="#hasnt_extension"><code>hasnt_extension()</code></a></li></ul></li>
 <li><a href="#tableforone">Table For One</a><ul>
 <li><a href="#has_column"><code>has_column()</code></a></li>
 <li><a href="#hasnt_column"><code>hasnt_column()</code></a></li>
@@ -177,15 +178,19 @@ used in the xUnit testing style.</p>
 <li><a href="#index_is_unique"><code>index_is_unique()</code></a></li>
 <li><a href="#index_is_primary"><code>index_is_primary()</code></a></li>
 <li><a href="#is_clustered"><code>is_clustered()</code></a></li>
+<li><a href="#is_indexed"><code>is_indexed()</code></a></li>
 <li><a href="#index_is_type"><code>index_is_type()</code></a></li></ul></li>
 <li><a href="#feelingfunky">Feeling Funky</a><ul>
 <li><a href="#can"><code>can()</code></a></li>
 <li><a href="#function_lang_is"><code>function_lang_is()</code></a></li>
 <li><a href="#function_returns"><code>function_returns()</code></a></li>
 <li><a href="#is_definer"><code>is_definer()</code></a></li>
+<li><a href="#isnt_definer"><code>isnt_definer()</code></a></li>
 <li><a href="#is_strict"><code>is_strict()</code></a></li>
 <li><a href="#isnt_strict"><code>isnt_strict()</code></a></li>
+<li><a href="#isnt_aggregate"><code>isnt_aggregate()</code></a></li>
 <li><a href="#is_aggregate"><code>is_aggregate()</code></a></li>
+<li><a href="#isnt_aggregate"><code>isnt_aggregate()</code></a></li>
 <li><a href="#volatility_is"><code>volatility_is()</code></a></li>
 <li><a href="#trigger_is"><code>trigger_is()</code></a></li></ul></li>
 <li><a href="#databasedeets">Database Deets</a><ul>
@@ -253,7 +258,8 @@ used in the xUnit testing style.</p>
 <li><a href="#testingtestfunctions">Testing Test Functions</a><ul>
 <li><a href="#check_test"><code>check_test()</code></a></li></ul></li></ul></li>
 <li><a href="#compatibility">Compatibility</a><ul>
-<li><a href="#9.3andup">9.3 and Up</a></li>
+<li><a href="#9.5andup">9.5 and Up</a></li>
+<li><a href="#9.4anddown">9.4 and Down</a></li>
 <li><a href="#9.2anddown">9.2 and Down</a></li>
 <li><a href="#9.1anddown">9.1 and Down</a></li>
 <li><a href="#9.0anddown">9.0 and Down</a></li>
