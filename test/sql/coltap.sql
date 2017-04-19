@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(204);
+SELECT plan(213);
 --SELECT * from no_plan();
 
 CREATE TYPE public."myType" AS (
@@ -42,6 +42,14 @@ SELECT * FROM check_test(
     true,
     'col_not_null( sch, tab, col, desc )',
     'typname not null',
+    ''
+);
+
+SELECT * FROM check_test(
+    col_not_null( 'pg_catalog', 'pg_type', 'typname'::name ),
+    true,
+    'col_not_null( sch, tab, col, desc )',
+    'Column pg_catalog.pg_type.typname should be NOT NULL',
     ''
 );
 
@@ -94,6 +102,14 @@ SELECT * FROM check_test(
     true,
     'col_is_null( sch, tab, col, desc )',
     'name is null',
+    ''
+);
+
+SELECT * FROM check_test(
+    col_is_null( 'public', 'sometab', 'name'::name ),
+    true,
+    'col_is_null( sch, tab, col )',
+    'Column sometab.name should allow NULL',
     ''
 );
 
@@ -322,6 +338,15 @@ SELECT * FROM check_test(
     'desc',
     ''
 );
+
+SELECT * FROM check_test(
+    col_has_default( 'public', 'sometab', 'name'::name ),
+    true,
+    'col_has_default( sch, tab, col )',
+    'Column public.sometab.name should have a default',
+    ''
+);
+
 SELECT * FROM check_test(
     col_has_default( 'sometab', 'name', 'desc' ),
     true,
@@ -392,6 +417,15 @@ SELECT * FROM check_test(
     'desc',
     ''
 );
+
+SELECT * FROM check_test(
+    col_hasnt_default( 'public', 'sometab', 'name'::name ),
+    false,
+    'col_hasnt_default( sch, tab, col )',
+    'Column public.sometab.name should not have a default',
+    ''
+);
+
 SELECT * FROM check_test(
     col_hasnt_default( 'sometab', 'name', 'desc' ),
     false,

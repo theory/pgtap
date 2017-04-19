@@ -3888,6 +3888,7 @@ So we have the assertions to validate 'em.
 ### `has_column()` ###
 
     SELECT has_column( :schema, :table, :column, :description );
+    SELECT has_column( :schema, :table, :column );
     SELECT has_column( :table, :column, :description );
     SELECT has_column( :table, :column );
 
@@ -3915,6 +3916,7 @@ exist".
 ### `hasnt_column()` ###
 
     SELECT hasnt_column( :schema, :table, :column, :description );
+    SELECT hasnt_column( :schema, :table, :column );
     SELECT hasnt_column( :table, :column, :description );
     SELECT hasnt_column( :table, :column );
 
@@ -3939,6 +3941,7 @@ type.
 ### `col_not_null()` ###
 
     SELECT col_not_null( :schema, :table, :column, :description );
+    SELECT col_not_null( :schema, :table, :column );
     SELECT col_not_null( :table, :column, :description );
     SELECT col_not_null( :table, :column );
 
@@ -3968,6 +3971,7 @@ first, eh?
 ### `col_is_null()` ###
 
     SELECT col_is_null( :schema, :table, :column, :description );
+    SELECT col_is_null( :schema, :table, :column );
     SELECT col_is_null( :table, :column, :description );
     SELECT col_is_null( :table, :column );
 
@@ -3997,6 +4001,7 @@ But use `has_column()` to make sure the column exists first, eh?
 ### `col_has_default()` ###
 
     SELECT col_has_default( :schema, :table, :column, :description );
+    SELECT col_has_default( :schema, :table, :column );
     SELECT col_has_default( :table, :column, :description );
     SELECT col_has_default( :table, :column );
 
@@ -4024,6 +4029,7 @@ useful diagnostics to let you know:
 ### `col_hasnt_default()` ###
 
     SELECT col_hasnt_default( :schema, :table, :column, :description );
+    SELECT col_hasnt_default( :schema, :table, :column );
     SELECT col_hasnt_default( :table, :column, :description );
     SELECT col_hasnt_default( :table, :column );
 
