@@ -1374,6 +1374,140 @@ SELECT * FROM check_test(
 );
 
 /****************************************************************************/
+-- Test has_extension().
+
+SELECT * FROM check_test(
+  has_extension( 'public', 'pgtap', 'desc' ),
+  true,
+  'has_extension( schema, name, desc )',
+  'desc',
+  ''
+);
+
+SELECT * FROM check_test(
+  has_extension( 'public', 'pgtap'::name ),
+  true,
+  'has_extension( schema, name )',
+  'Extension pgtap should exist',
+  ''
+);
+
+SELECT * FROM check_test(
+  has_extension( 'pgtap', 'desc' ),
+  true,
+  'has_extension( name, desc )',
+  'desc',
+  ''
+);
+
+SELECT * FROM check_test(
+  has_extension( 'pgtap' ),
+  true,
+  'has_extension( name )',
+  'Extension pgtap should exist',
+  ''
+);
+
+SELECT * FROM check_test(
+  has_extension( 'public', '__NON_EXISTS__', 'desc' ),
+  false,
+  'has_extension( schema, name, desc )',
+  'desc',
+  ''
+);
+
+SELECT * FROM check_test(
+  has_extension( 'public', '__NON_EXISTS__'::name ),
+  false,
+  'has_extension( schema, name )',
+  'Extension __NON_EXISTS__ should exist',
+  ''
+);
+
+SELECT * FROM check_test(
+  has_extension( '__NON_EXISTS__', 'desc' ),
+  false,
+  'has_extension( name, desc )',
+  'desc',
+  ''
+);
+
+SELECT * FROM check_test(
+  has_extension( '__NON_EXISTS__' ),
+  false,
+  'has_extension( name )',
+  'Extension __NON_EXISTS__ should exist',
+  ''
+);
+
+/****************************************************************************/
+-- Test hasnt_extension().
+
+SELECT * FROM check_test(
+  hasnt_extension( 'public', '__NON_EXISTS__p', 'desc' ),
+  true,
+  'hasnt_extension( schema, name, desc )',
+  'desc',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_extension( 'public', '__NON_EXISTS__p'::name ),
+  true,
+  'hasnt_extension( schema, name )',
+  'Extension __NON_EXISTS__p should not exist',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_extension( '__NON_EXISTS__p', 'desc' ),
+  true,
+  'hasnt_extension( name, desc )',
+  'desc',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_extension( '__NON_EXISTS__p' ),
+  true,
+  'hasnt_extension( name )',
+  'Extension __NON_EXISTS__p should not exist',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_extension( 'public', 'pgtap', 'desc' ),
+  false,
+  'hasnt_extension( schema, name, desc )',
+  'desc',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_extension( 'public', 'pgtap'::name ),
+  false,
+  'hasnt_extension( schema, name )',
+  'Extension pgtap should not exist',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_extension( 'pgtap', 'desc' ),
+  false,
+  'hasnt_extension( name, desc )',
+  'desc',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_extension( 'pgtap' ),
+  false,
+  'hasnt_extension( name )',
+  'Extension pgtap should not exist',
+  ''
+);
+
+/****************************************************************************/
 -- Test has_leftop().
 
 SELECT * FROM check_test(
