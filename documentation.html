@@ -15,7 +15,7 @@
   <body>
     <div id="main">
       <!-- DOC INTRO HERE -->
-<h1 id="pgtap0.97.0">pgTAP 0.97.0</h1>
+<h1 id="pgtap0.98.0">pgTAP 0.98.0</h1>
 
 <p>pgTAP is a unit testing framework for PostgreSQL written in PL/pgSQL and
 PL/SQL. It includes a comprehensive collection of
@@ -83,6 +83,7 @@ used in the xUnit testing style.</p>
 <li><a href="#tablespaces_are"><code>tablespaces_are()</code></a></li>
 <li><a href="#schemas_are"><code>schemas_are()</code></a></li>
 <li><a href="#tables_are"><code>tables_are()</code></a></li>
+<li><a href="#partitions_are"><code>partitions_are()</code></a></li>
 <li><a href="#foreign_tables_are"><code>foreign_tables_are()</code></a></li>
 <li><a href="#views_are"><code>views_are()</code></a></li>
 <li><a href="#materialized_views_are"><code>materialized_views_are()</code></a></li>
@@ -177,6 +178,9 @@ used in the xUnit testing style.</p>
 <li><a href="#col_has_check"><code>col_has_check()</code></a></li>
 <li><a href="#index_is_unique"><code>index_is_unique()</code></a></li>
 <li><a href="#index_is_primary"><code>index_is_primary()</code></a></li>
+<li><a href="#is_partitioned"><code>is_partitioned()</code></a></li>
+<li><a href="#isnt_partitioned"><code>isnt_partitioned()</code></a></li>
+<li><a href="#is_partition_of"><code>is_partition_of()</code></a></li>
 <li><a href="#is_clustered"><code>is_clustered()</code></a></li>
 <li><a href="#is_indexed"><code>is_indexed()</code></a></li>
 <li><a href="#index_is_type"><code>index_is_type()</code></a></li></ul></li>
@@ -258,7 +262,8 @@ used in the xUnit testing style.</p>
 <li><a href="#testingtestfunctions">Testing Test Functions</a><ul>
 <li><a href="#check_test"><code>check_test()</code></a></li></ul></li></ul></li>
 <li><a href="#compatibility">Compatibility</a><ul>
-<li><a href="#9.5andup">9.5 and Up</a></li>
+<li><a href="#10andup">10 and Up</a></li>
+<li><a href="#9.6anddown">9.6 and Down</a></li>
 <li><a href="#9.4anddown">9.4 and Down</a></li>
 <li><a href="#9.2anddown">9.2 and Down</a></li>
 <li><a href="#9.1anddown">9.1 and Down</a></li>
@@ -605,12 +610,12 @@ discrepancy between the planned number of tests and the number actually run:</p>
 
 <p>If you&#8217;re used to xUnit testing frameworks, you can collect all of your tests
 into database functions and run them all at once with <code>runtests()</code>. This is
-similar to how <a href="http://en.dklab.ru/lib/dklab_pgunit/">PGUnit</a> and
-<a href="http://www.epictest.org/">Epic</a> work. The <code>runtests()</code> function does all the
-work of finding and running your test functions in individual transactions. It
-even supports setup and teardown functions. To use it, write your unit test
-functions so that they return a set of text results, and then use the pgTAP
-assertion functions to return TAP values, like so:</p>
+similar to how <a href="http://en.dklab.ru/lib/dklab_pgunit/">PGUnit</a>s. The
+<code>runtests()</code> function does all the work of finding and running your test
+functions in individual transactions. It even supports setup and teardown
+functions. To use it, write your unit test functions so that they return a set
+of text results, and then use the pgTAP assertion functions to return TAP
+values, like so:</p>
 
 <pre><code>CREATE OR REPLACE FUNCTION setup_insert(
 ) RETURNS SETOF TEXT AS $$
@@ -2079,7 +2084,7 @@ SELECT row_eq( :sql, :record );
 </dl>
 
 <p>Compares the contents of a single row to a record. Due to the limitations of
-non-C functions in PostgreSQL, a bar <code>RECORD</code> value cannot be passed to the
+non-C functions in PostgreSQL, a bare <code>RECORD</code> value cannot be passed to the
 function. You must instead pass in a valid composite type value, and cast the
 record argument (the second argument) to the same type. Both explicitly
 created composite types and table types are supported. Thus, you can do this:</p>
@@ -2295,6 +2300,67 @@ missing tables, like so:</p>
 #         widgets
 </code></pre>
 
+<h3 id="partitions_are"><code>partitions_are()</code></h3>
+
+<pre><code>SELECT partitions_are( :schema, :table, :partitions :description );
+SELECT partitions_are( :schema, :table, :partitions );
+SELECT partitions_are( :table, :partitions :description );
+SELECT partitions_are( :table, :partitions );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>Name of a schema in which to find the partitioned table.</dd>
+
+<dt><code>:table</code></dt>
+<dd>Name of a partitioned table.</dd>
+
+<dt><code>:partitions</code></dt>
+<dd>An array of partition table names.</dd>
+
+<dt><code>:description</code></dt>
+<dd>A short description of the test.</dd>
+</dl>
+
+<p>This function tests that the named table has all of the specified partitions,
+and those are its only partitions. The test casts partition names to the
+<code>regclass</code> type; therefore, partition names should be specified relative to the
+search path. Those in the search path should not be schema-qualified, while
+those outside the search path should be schema-qualified. Partition names and
+schemas should be appropriately quoted as identifiers where appropriate.</p>
+
+<p>If the <code>:schema</code> argument is omitted, the partitioned table must be visible the
+search path. If the description is omitted, a generally useful default
+description will be generated. Example:</p>
+
+<pre><code>SELECT partitions_are(
+    'myschema', 'mylog',
+    ARRAY[ 'log1', 'log2', 'log3', 'log4' ]
+);
+</code></pre>
+
+<p>Example for partitions outside the search path and requiring identifier-quoting:</p>
+
+<pre><code>SELECT partitions_are(
+    'myschema', 'MyLog',
+    ARRAY[ 'hidden.&quot;Log 1&quot;', 'hidden.&quot;Log 2&quot;' ]
+);
+</code></pre>
+
+<p>In the event of a failure, you&#8217;ll see diagnostics listing the extra and/or
+missing partitions, like so:</p>
+
+<pre><code># Failed test 12: &quot;Table myschema should have the correct partitions&quot;
+#     Extra partitions:
+#         part4
+#         hidden.&quot;Part 5&quot;
+#     Missing partitions:
+#         part5
+#         part6
+</code></pre>
+
 <h3 id="foreign_tables_are"><code>foreign_tables_are()</code></h3>
 
 <pre><code>SELECT foreign_tables_are( :schema, :foreign_tables, :description );
@@ -2407,11 +2473,12 @@ SELECT materialized_views_are( :materialized_views );
 <dd>A short description of the test.</dd>
 </dl>
 
-<p>This function tests that all of the materialized views in the named schema, or that are
-visible in the search path, are only the materialized views that <em>should</em> be there. If the
-<code>:schema</code> argument is omitted, materialized views will be sought in the search path,
-excluding <code>pg_catalog</code> and <code>information_schema</code> If the description is omitted,
-a generally useful default description will be generated. Example:</p>
+<p>This function tests that all of the materialized views in the named schema, or
+that are visible in the search path, are only the materialized views that
+<em>should</em> be there. If the <code>:schema</code> argument is omitted, materialized views
+will be sought in the search path, excluding <code>pg_catalog</code> and
+<code>information_schema</code> If the description is omitted, a generally useful default
+description will be generated. Example:</p>
 
 <pre><code>SELECT materialized_views_are(
     'myschema',
@@ -2858,10 +2925,10 @@ SELECT rules_are( :table,  :rules );
 </dl>
 
 <p>This function tests that all of the rules on the named relation are only the
-rules that <em>should</em> be on that relation (a table, view or a materialized view). If the <code>:schema</code>
-argument is omitted, the rules must be visible in the search path, excluding
-<code>pg_catalog</code> and <code>information_schema</code>. If the description is omitted, a
-generally useful default description will be generated. Example:</p>
+rules that <em>should</em> be on that relation (a table, view or a materialized view).
+If the <code>:schema</code> argument is omitted, the rules must be visible in the search
+path, excluding <code>pg_catalog</code> and <code>information_schema</code>. If the description is
+omitted, a generally useful default description will be generated. Example:</p>
 
 <pre><code>SELECT rules_are(
     'myschema',
@@ -3114,7 +3181,7 @@ SELECT extensions_are( :extensions );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find extensions.</dd>
+<dd>Name of a schema associated with the extensions.</dd>
 
 <dt><code>:extensions</code></dt>
 <dd>An array of extension names.</dd>
@@ -3123,11 +3190,14 @@ SELECT extensions_are( :extensions );
 <dd>A short description of the test.</dd>
 </dl>
 
-<p>This function tests that all of the extensions in the named schema, or that
-are visible in the search path, are only the extensions that <em>should</em> be
-there. If the <code>:schema</code> argument is omitted, all extensions will be checked.
-If the description is omitted, a generally useful default description will be
-generated. Example:</p>
+<p>This function tests all of the extensions that should be present. If <code>:schema</code>
+is specified, it will test only for extensions associated the named schema (via
+the <code>schema</code> parameter in the extension&#8217;s control file, ov the <code>WITH SCHEMA</code>
+clause of the
+<a href="https://www.postgresql.org/docs/current/static/extend-extensions.html">CREATE EXTENSION</a>
+statement). Otherwise it will check for all extension in the database,
+including pgTAP itself. If the description is omitted, a generally useful
+default description will be generated. Example:</p>
 
 <pre><code>SELECT extensions_are(
     'myschema',
@@ -3264,11 +3334,11 @@ SELECT has_relation( :relation );
 <dd>A short description of the test.</dd>
 </dl>
 
-<p>This function tests whether or not a relation exists in the database.
-Relations are tables, views, materialized views, seqences, composite types, foreign tables, and
-toast tables. The first argument is a schema name, the second is a relation
-name, and the third is the test description. If you omit the schema, the
-relation must be visible in the search path. Example:</p>
+<p>This function tests whether or not a relation exists in the database. Relations
+are tables, views, materialized views, seqences, composite types, foreign
+tables, and toast tables. The first argument is a schema name, the second is a
+relation name, and the third is the test description. If you omit the schema,
+the relation must be visible in the search path. Example:</p>
 
 <pre><code>SELECT has_relation('myschema', 'somerelation');
 </code></pre>
@@ -3432,10 +3502,10 @@ SELECT has_materialized_view( :materialized_view );
 <dd>A short description of the test.</dd>
 </dl>
 
-<p>This function tests whether or not a materialized view exists in the database. The first
-argument is a schema name, the second is a materialized view name, and the third is the
-test description. If you omit the schema, the materialized view must be visible in the
-search path. Example:</p>
+<p>This function tests whether or not a materialized view exists in the database.
+The first argument is a schema name, the second is a materialized view name,
+and the third is the test description. If you omit the schema, the materialized
+view must be visible in the search path. Example:</p>
 
 <pre><code>SELECT has_materialized_view('myschema', 'some_materialized_view');
 </code></pre>
@@ -3854,13 +3924,13 @@ SELECT has_index( :table,  :index );
 <dd>Array of the columns and/or expressions in the index.</dd>
 
 <dt><code>:column</code></dt>
-<dd>Idexed column name or expression.</dd>
+<dd>Indexed column name or expression.</dd>
 
 <dt><code>:description</code></dt>
 <dd>A short description of the test.</dd>
 </dl>
 
-<p>Checks for the existence of an index associated with the named table. The
+<p>Checks for the existence of a named index associated with the named table. The
 <code>:schema</code> argument is optional, as is the column name or names or expression,
 and the description. The columns argument may be a string naming one column or
 expression, or an array of column names and/or expressions. For expressions,
@@ -4549,6 +4619,61 @@ SELECT hasnt_language( :language );
 <p>The inverse of <code>has_language()</code>, this function tests for the <em>absence</em> of a
 procedural language.</p>
 
+<h3 id="has_extension"><code>has_extension()</code></h3>
+
+<pre><code>SELECT has_extension( :schema, :extension, :description );
+SELECT has_extension( :schema, :extension );
+SELECT has_extension( :extension, :description );
+SELECT has_extension( :extension );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>Schema in which the extension&#8217;s objects were installed.</dd>
+
+<dt><code>:extension</code></dt>
+<dd>Name of an extension.</dd>
+
+<dt><code>:description</code></dt>
+<dd>A short description of the test.</dd>
+</dl>
+
+<p>This function tests whether or not an extension exists in the database. The
+first argument is the schema in which the extension objects were installed, the
+second the extension name, and the third the test description. If the schema is
+omitted, the may be associated with any schema or no schema. If the test
+description is omitted, it will be set to &#8220;Extension <code>:extension</code> should
+exist&#8221;. Example:</p>
+
+<pre><code>SELECT has_extension('public', 'pgtap');
+</code></pre>
+
+<h3 id="hasnt_extension"><code>hasnt_extension()</code></h3>
+
+<pre><code>SELECT hasnt_extension( :schema, :extension, :description );
+SELECT hasnt_extension( :schema, :extension );
+SELECT hasnt_extension( :extension, :description );
+SELECT hasnt_extension( :extension );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>Schema in which the extension&#8217;s objects would be installed.</dd>
+
+<dt><code>:extension</code></dt>
+<dd>Name of an extension.</dd>
+
+<dt><code>:description</code></dt>
+<dd>A short description of the test.</dd>
+</dl>
+
+<p>This function is the inverse of <code>has_extension()</code>. The test passes if the
+specified extension does <em>not</em> exist.</p>
+
 <h2 id="tableforone">Table For One</h2>
 
 <p>Okay, you&#8217;re sure that your database has exactly the <a href="#I+Object!" title="I Object!">right schema</a> and that all of the objects you need <a href="#To+Have+or+Have+Not" title="To Have or Have Not">are
@@ -4580,10 +4705,10 @@ SELECT has_column( :table, :column );
 <dd>A short description of the test.</dd>
 </dl>
 
-<p>Tests whether or not a column exists in a given table, view, materialized view or composite
-type. The first argument is the schema name, the second the table name, the
-third the column name, and the fourth is the test description. If the schema
-is omitted, the table must be visible in the search path. If the test
+<p>Tests whether or not a column exists in a given table, view, materialized view
+or composite type. The first argument is the schema name, the second the table
+name, the third the column name, and the fourth is the test description. If the
+schema is omitted, the table must be visible in the search path. If the test
 description is omitted, it will be set to &#8220;Column <code>:table.:column</code> should
 exist&#8221;.</p>
 
@@ -4611,8 +4736,8 @@ SELECT hasnt_column( :table, :column );
 </dl>
 
 <p>This function is the inverse of <code>has_column()</code>. The test passes if the
-specified column does <em>not</em> exist in the specified table, view, materialized view or composite
-type.</p>
+specified column does <em>not</em> exist in the specified table, view, materialized
+view or composite type.</p>
 
 <h3 id="col_not_null"><code>col_not_null()</code></h3>
 
@@ -5428,6 +5553,92 @@ SELECT index_is_primary( :index );
 
 <p>Tests whether an index is on a primary key.</p>
 
+<h3 id="is_partitioned"><code>is_partitioned()</code></h3>
+
+<pre><code>SELECT is_partitioned( :schema, :table, :description );
+SELECT is_partitioned( :schema, :table );
+SELECT is_partitioned( :table, :description);
+SELECT is_partitioned( :table );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>Schema in which to find the partitioned table.</dd>
+
+<dt><code>:table</code></dt>
+<dd>Name of a partitioned table.</dd>
+
+<dt><code>:description</code></dt>
+<dd>A short description of the test.</dd>
+</dl>
+
+<p>Tests whether a table is partitioned. The first argument is the schema name,
+the second the table name, the the third is the test description. If the schema
+is omitted, the table must be visible in the search path. If the test
+description is omitted, it will be set to &#8220;Table <code>:table</code> should be
+partitioned&#8221;. Note that this test will fail if the table in question does not
+exist.</p>
+
+<h3 id="isnt_partitioned"><code>isnt_partitioned()</code></h3>
+
+<pre><code>SELECT isnt_partitioned( :schema, :table, :description );
+SELECT isnt_partitioned( :schema, :table );
+SELECT isnt_partitioned( :table, :description);
+SELECT isnt_partitioned( :table );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>Schema in which to find the table.</dd>
+
+<dt><code>:table</code></dt>
+<dd>Name of a table.</dd>
+
+<dt><code>:description</code></dt>
+<dd>A short description of the test.</dd>
+</dl>
+
+<p>This function is the inverse of <code>is_partitioned()</code>. The test passes if the
+specified table is <em>not</em> partitioned, or if it does not exist.</p>
+
+<h3 id="is_partition_of"><code>is_partition_of()</code></h3>
+
+<pre><code>SELECT is_parent( :child_schema, :child, :parent_schema, :parent_table, :description );
+SELECT is_parent( :child_schema, :child, :parent_schema, :parent_table );
+SELECT is_parent( :child, :parent_table, :description );
+SELECT is_parent( :child, :parent_table );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:child_schema</code></dt>
+<dd>Schema in which to find the partition table.</dd>
+
+<dt><code>:child</code></dt>
+<dd>Name of a partition table.</dd>
+
+<dt><code>:parent_schema</code></dt>
+<dd>Schema in which to find the partitioned table.</dd>
+
+<dt><code>:parent_table</code></dt>
+<dd>Name of a partitioned table.</dd>
+
+<dt><code>:description</code></dt>
+<dd>A short description of the test.</dd>
+</dl>
+
+<p>Tests that one table is a partition of another table. The partition (or child)
+table is specified first, the partitioned (or parent) table second. Without the
+schema parameters, both tables must be visible in the search path. If the
+test description is omitted, it will be set to &#8220;Table <code>:child_table</code> should be
+a partition of <code>:parent_table</code>&#8221;. Note that this test will fail if either table
+does not exist.</p>
+
 <h3 id="is_clustered"><code>is_clustered()</code></h3>
 
 <pre><code>SELECT is_clustered( :schema, :table, :index, :description );
@@ -5456,6 +5667,42 @@ SELECT is_clustered( :index );
 an index when the SQL command <code>CLUSTER TABLE INDEXNAME</code> has been executed.
 Clustering reorganizes the table tuples so that they are stored on disk in the
 order defined by the index.</p>
+
+<h3 id="is_indexed"><code>is_indexed()</code></h3>
+
+<pre><code>SELECT is_indexed( :schema, :table, :columns, :description );
+SELECT is_indexed( :schema, :table, :columns );
+SELECT is_indexed( :table, :columns, :description );
+SELECT is_indexed( :table, :columns );
+SELECT is_indexed( :schema, :table, :column, :description );
+SELECT is_indexed( :schema, :table, :column );
+SELECT is_indexed( :table, :column, :description );
+SELECT is_indexed( :table, :column );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>Schema in which to find the table.</dd>
+
+<dt><code>:table</code></dt>
+<dd>Name of a table containing the index.</dd>
+
+<dt><code>:columns</code></dt>
+<dd>Array of the columns and/or expressions in the index.</dd>
+
+<dt><code>:column</code></dt>
+<dd>Indexed column name or expression.</dd>
+
+<dt><code>:description</code></dt>
+<dd>A short description of the test.</dd>
+</dl>
+
+<p>Checks that the specified columns or expressions are contained in a single
+index on the named table. Effectively like <code>has_index()</code> except that it
+doesn&#8217;t require an index name and does require one or more column names or
+expressions in the defined for the index.</p>
 
 <h3 id="index_is_type"><code>index_is_type()</code></h3>
 
@@ -5731,6 +5978,45 @@ SELECT is_definer( 'do_something', ARRAY['numeric'] );
 
 <p>But then you check with <code>has_function()</code> first, right?</p>
 
+<h3 id="isnt_definer"><code>isnt_definer()</code></h3>
+
+<pre><code>SELECT isnt_definer( :schema, :function, :args, :description );
+SELECT isnt_definer( :schema, :function, :args );
+SELECT isnt_definer( :schema, :function, :description );
+SELECT isnt_definer( :schema, :function );
+SELECT isnt_definer( :function, :args, :description );
+SELECT isnt_definer( :function, :args );
+SELECT isnt_definer( :function, :description );
+SELECT isnt_definer( :function );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>Schema in which to find the function.</dd>
+
+<dt><code>:function</code></dt>
+<dd>Function name.</dd>
+
+<dt><code>:args</code></dt>
+<dd>Array of data types for the function arguments.</dd>
+
+<dt><code>:description</code></dt>
+<dd>A short description of the test.</dd>
+</dl>
+
+<p>This function is the inverse of <code>is_definer()</code>. The test passes if the specified
+function is not a security definer.</p>
+
+<p>If the function does not exist, a handy diagnostic message will let you know:</p>
+
+<pre><code># Failed test 290: &quot;Function nasty() should not be security definer&quot;
+#     Function nasty() does not exist
+</code></pre>
+
+<p>But then you check with <code>has_function()</code> first, right?</p>
+
 <h3 id="is_strict"><code>is_strict()</code></h3>
 
 <pre><code>SELECT is_strict( :schema, :function, :args, :description );
@@ -5814,7 +6100,46 @@ function is not strict.</p>
 
 <p>If the function does not exist, a handy diagnostic message will let you know:</p>
 
-<pre><code># Failed test 290: &quot;Function nasty() should be strict&quot;
+<pre><code># Failed test 290: &quot;Function nasty() should be an aggregate function&quot;
+#     Function nasty() does not exist
+</code></pre>
+
+<p>But then you check with <code>has_function()</code> first, right?</p>
+
+<h3 id="isnt_aggregate"><code>isnt_aggregate()</code></h3>
+
+<pre><code>SELECT isnt_aggregate( :schema, :function, :args, :description );
+SELECT isnt_aggregate( :schema, :function, :args );
+SELECT isnt_aggregate( :schema, :function, :description );
+SELECT isnt_aggregate( :schema, :function );
+SELECT isnt_aggregate( :function, :args, :description );
+SELECT isnt_aggregate( :function, :args );
+SELECT isnt_aggregate( :function, :description );
+SELECT isnt_aggregate( :function );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>Schema in which to find the function.</dd>
+
+<dt><code>:function</code></dt>
+<dd>Function name.</dd>
+
+<dt><code>:args</code></dt>
+<dd>Array of data types for the function arguments.</dd>
+
+<dt><code>:description</code></dt>
+<dd>A short description of the test.</dd>
+</dl>
+
+<p>This function is the inverse of <code>is_aggregate()</code>. The test passes if the specified
+function is not an aggregate function.</p>
+
+<p>If the function does not exist, a handy diagnostic message will let you know:</p>
+
+<pre><code># Failed test 290: &quot;Function nasty() should not be an aggregate function&quot;
 #     Function nasty() does not exist
 </code></pre>
 
@@ -5864,7 +6189,46 @@ SELECT is_aggregate( 'do_something', ARRAY['numeric'] );
 
 <p>If the function does not exist, a handy diagnostic message will let you know:</p>
 
-<pre><code># Failed test 290: &quot;Function nasty() should be strict&quot;
+<pre><code># Failed test 290: &quot;Function nasty() should be an aggregate function&quot;
+#     Function nasty() does not exist
+</code></pre>
+
+<p>But then you check with <code>has_function()</code> first, right?</p>
+
+<h3 id="isnt_aggregate"><code>isnt_aggregate()</code></h3>
+
+<pre><code>SELECT isnt_aggregate( :schema, :function, :args, :description );
+SELECT isnt_aggregate( :schema, :function, :args );
+SELECT isnt_aggregate( :schema, :function, :description );
+SELECT isnt_aggregate( :schema, :function );
+SELECT isnt_aggregate( :function, :args, :description );
+SELECT isnt_aggregate( :function, :args );
+SELECT isnt_aggregate( :function, :description );
+SELECT isnt_aggregate( :function );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd>Schema in which to find the function.</dd>
+
+<dt><code>:function</code></dt>
+<dd>Function name.</dd>
+
+<dt><code>:args</code></dt>
+<dd>Array of data types for the function arguments.</dd>
+
+<dt><code>:description</code></dt>
+<dd>A short description of the test.</dd>
+</dl>
+
+<p>This function is the inverse of <code>is_aggregate()</code>. The test passes if the specified
+function is not an aggregate function.</p>
+
+<p>If the function does not exist, a handy diagnostic message will let you know:</p>
+
+<pre><code># Failed test 290: &quot;Function nasty() should not be an aggregate function&quot;
 #     Function nasty() does not exist
 </code></pre>
 
@@ -6537,9 +6901,10 @@ SELECT relation_owner_is ( :relation, :user );
 <dd>A short description of the test.</dd>
 </dl>
 
-<p>Tests the ownership of a relation. Relations are tables, views, materialized views, seqences,
-composite types, foreign tables, and toast tables. If the <code>:description</code>
-argument is omitted, an appropriate description will be created. Examples:</p>
+<p>Tests the ownership of a relation. Relations are tables, views, materialized
+views, sequences, composite types, foreign tables, and toast tables. If the
+<code>:description</code> argument is omitted, an appropriate description will be created.
+Examples:</p>
 
 <pre><code>SELECT relation_owner_is(
     'public', 'mytable', 'someuser',
@@ -6691,26 +7056,26 @@ SELECT materialized_view_owner_is ( :materialized_view, :user );
 <dd>A short description of the test.</dd>
 </dl>
 
-<p>Tests the ownership of a materialized view. If the <code>:description</code> argument is omitted, an
-appropriate description will be created. Examples:</p>
+<p>Tests the ownership of a materialized view. If the <code>:description</code> argument is
+omitted, an appropriate description will be created. Examples:</p>
 
 <pre><code>SELECT view_owner_is(
-    'public', 'mymaterializedview', 'someuser',
-    'mymaterializedview should be owned by someuser'
+    'public', 'my_matview', 'someuser',
+    'my_matview should be owned by someuser'
 );
 SELECT materialized_view_owner_is( 'widgets', current_user );
 </code></pre>
 
-<p>In the event that the test fails because the materialized view in question does not
-actually exist or is not visible, you will see an appropriate diagnostic such
-as:</p>
+<p>In the event that the test fails because the materialized view in question does
+not actually exist or is not visible, you will see an appropriate diagnostic
+such as:</p>
 
 <pre><code># Failed test 16: &quot;Materialized view foo should be owned by www&quot;
 #     Materialized view foo does not exist
 </code></pre>
 
-<p>If the test fails because the materialized view is not owned by the specified user, the
-diagnostics will look something like:</p>
+<p>If the test fails because the materialized view is not owned by the specified
+user, the diagnostics will look something like:</p>
 
 <pre><code># Failed test 17: &quot;Materialized view bar should be owned by root&quot;
 #         have: postgres
@@ -8489,8 +8854,7 @@ SELECT runtests( );
 <p>If you&#8217;d like pgTAP to plan, run all of your test functions, and finish, all
 in one fell swoop, use <code>runtests()</code>. This most closely emulates the xUnit
 testing environment, similar to the functionality of
-<a href="http://en.dklab.ru/lib/dklab_pgunit/">PGUnit</a> and
-<a href="http://www.epictest.org/">Epic</a>. Example:</p>
+<a href="http://en.dklab.ru/lib/dklab_pgunit/">PGUnit</a>. Example:</p>
 
 <pre><code>SELECT * FROM runtests( 'testschema', '^test' );
 </code></pre>
@@ -8773,9 +9137,23 @@ instead:</p>
 <p>To see the specifics for each version of PostgreSQL, consult the files in the
 <code>compat/</code> directory in the pgTAP distribution.</p>
 
-<h2 id="9.3andup">9.3 and Up</h2>
+<h2 id="10andup">10 and Up</h2>
 
 <p>No changes. Everything should just work.</p>
+
+<h2 id="9.6anddown">9.6 and Down</h2>
+
+<ul>
+<li>The partition-testing functions are not available, because partitions were
+ not introduced until 10.</li>
+</ul>
+
+<h2 id="9.4anddown">9.4 and Down</h2>
+
+<ul>
+<li>lives_ok() and throws_ok() will not trap ASSERT_FAILURE, since asserts do not
+ exist prior to 9.5.</li>
+</ul>
 
 <h2 id="9.2anddown">9.2 and Down</h2>
 
