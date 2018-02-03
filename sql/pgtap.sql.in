@@ -2644,6 +2644,74 @@ RETURNS TEXT AS $$
     SELECT ok( NOT _got_func($1), 'Function ' || quote_ident($1) || '() should not exist' );
 $$ LANGUAGE sql;
 
+-- function_checksum_is( function, md5, description )
+-- We don't have the prototype, so just check the first one found
+CREATE OR REPLACE FUNCTION function_checksum_is( NAME, text, text )
+RETURNS TEXT AS $$
+    SELECT is(md5( p.prosrc), $2, $3)
+    FROM tap_funky t
+    JOIN pg_proc p ON (p.oid=t.oid)
+    WHERE t.name=$1
+      AND pg_function_is_visible(t.oid) LIMIT 1;
+$$ LANGUAGE sql;
+
+-- function_checksum_is( schema, function, md5, description )
+CREATE OR REPLACE FUNCTION function_checksum_is( NAME, NAME, text, text )
+RETURNS TEXT AS $$
+    SELECT is(md5( p.prosrc), $3, $4)
+    FROM tap_funky t
+    JOIN pg_proc p ON (p.oid=t.oid)
+    WHERE t.name = $2
+      AND t.schema=$1 LIMIT 1;
+$$ LANGUAGE sql;
+
+-- function_checksum_is( function, args, md5, description )
+
+CREATE OR REPLACE FUNCTION function_checksum_is( NAME, NAME[], text, text )
+RETURNS TEXT AS $$
+    SELECT is(md5( p.prosrc), $3, $4)
+    FROM tap_funky t
+    JOIN pg_proc p ON (p.oid=t.oid)
+    WHERE t.name = $1
+      AND pg_function_is_visible(t.oid)
+      AND t.args=array_to_string($2,',');
+$$ LANGUAGE sql;
+
+-- function_checksum_is( schema, function, args, md5, description )
+CREATE OR REPLACE FUNCTION function_checksum_is( NAME, NAME, NAME[], text, text )
+RETURNS TEXT AS $$
+    SELECT is(md5( p.prosrc), $4, $5)
+    FROM tap_funky t
+    JOIN pg_proc p ON (p.oid=t.oid)
+    WHERE t.name = $2
+      AND t.schema=$1
+      AND t.args=array_to_string($3,',');
+$$ LANGUAGE sql;
+
+-- function_checksum_is( function, md5 )
+CREATE OR REPLACE FUNCTION function_checksum_is( NAME, text)
+RETURNS TEXT AS $$
+        SELECT function_checksum_is($1,$2,'Function ' || quote_ident($1) || ' Checksum');
+$$ LANGUAGE sql;
+
+-- function_checksum_is( schema, function, md5)
+CREATE OR REPLACE FUNCTION function_checksum_is( NAME, NAME, text)
+RETURNS TEXT AS $$
+        SELECT function_checksum_is($1,$2,$3,'Function ' || quote_ident($1) || '.' || quote_ident($2) || ' Checksum');
+$$ LANGUAGE sql;
+
+-- function_checksum_is( function, args, md5)
+CREATE OR REPLACE FUNCTION function_checksum_is( NAME, NAME[], text)
+RETURNS TEXT AS $$
+        SELECT function_checksum_is($1,$2,$3,'Function ' || quote_ident($1) || ' Checksum');
+$$ LANGUAGE sql;
+
+-- function_checksum_is( schema, function, args, md5)
+CREATE OR REPLACE FUNCTION function_checksum_is( NAME, NAME, NAME[], text)
+RETURNS TEXT AS $$
+        SELECT function_checksum_is($1,$2,$3,$4,'Function ' || quote_ident($1) || '.' || quote_ident($2) || ' Checksum');
+$$ LANGUAGE sql;
+
 CREATE OR REPLACE FUNCTION _pg_sv_type_array( OID[] )
 RETURNS NAME[] AS $$
     SELECT ARRAY(
