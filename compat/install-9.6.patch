@@ -100,8 +100,8 @@
 -RETURNS TEXT AS $$
 -    SELECT _are(
 -        'partitions',
--        ARRAY(SELECT _parts($1, $2) EXCEPT SELECT unnest($3)),
--        ARRAY(SELECT unnest($3) EXCEPT SELECT _parts($1, $2)),
+-        ARRAY((SELECT _parts($1, $2)::text collate "C" EXCEPT SELECT unnest($3)) ORDER BY 1),
+-        ARRAY((SELECT unnest($3)::text collate "C" EXCEPT SELECT _parts($1, $2)) ORDER BY 1),
 -        $4
 -    );
 -$$ LANGUAGE SQL;
@@ -120,8 +120,8 @@
 -RETURNS TEXT AS $$
 -    SELECT _are(
 -        'partitions',
--        ARRAY(SELECT _parts($1) EXCEPT SELECT unnest($2)),
--        ARRAY(SELECT unnest($2) EXCEPT SELECT _parts($1)),
+-        ARRAY((SELECT _parts($1)::text collate "C" EXCEPT SELECT unnest($2)) ORDER BY 1),
+-        ARRAY((SELECT unnest($2)::text collate "C" EXCEPT SELECT _parts($1)) ORDER BY 1),
 -        $3
 -    );
 -$$ LANGUAGE SQL;
