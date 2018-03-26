@@ -1,7 +1,46 @@
 Revision history for pgTAP
 ==========================
 
-0.96.1
+0.99.0
+---------------------------
+* Updated introductory documentation. A lot has changed over the years!
+* Added the "Secrets of the pgTAP Mavens" section of the documentation.
+  Contributions wanted!
+* Fixed `pg_version_num()` to always return the value of `server_version_num`
+  on PostreSQL 8.3 and higher, thus fixing a test failure on 10.1. Thanks to
+  Christoph Berg for the report (#148)!
+
+0.98.0 2017-11-06T22:30:54Z
+---------------------------
+* `make install` once again properly installs the versioned SQL file required
+  by `CREATE EXTENSION`. Thanks to Keith Fiske for the reports (Issue #131,
+  Issue #143) and Jim Nasby for the fix (Issue #132).
+* Removed references to the Epic test framework, since its domain
+  (`epictest.org`) has expired and the project appears to no longer be
+  available online. Thanks to Andreas Brekken for the report (#140).
+* Fix failing version tests on PostgreSQL v10. Thanks to Erik Rijkers
+  for the patch.
+* Improved foreign tables test to account for varying message order for
+  diagnostic output. Thanks to Erik Rijkers for the patch.
+* Clarified the use of the `:schema` parameter to the extension-testing
+  functions in the documentation. Required since extensions do not belong to
+  schemas, but their objects may be specifically created in a schema. Thanks to
+  Jim Nasby for the report (#121)!
+* Updated the table-testing functions to also recognize partitioned tables:
+    + `has_table()`
+    + `hasnt_table()`
+    + `tables_are()`
+    + `table_owner_is()`
+* Added partition-testing assertion functions:
+    + `is_partitioned()`
+    + `isnt_partitioned()`
+    + `is_partition_of()`
+    + `partitions_are()`
+* Added the materialized view-testing assertion functions to the v0.95.0 upgrade
+  script; they were inadvertently omitted in the v0.95.0 release.
+* Fixed faling tests on Postgres 8.1.
+
+0.97.0 2016-11-28T22:18:29Z
 ---------------------------
 * Fixed the default description for `hasnt_opclass()` to say "should not
   exist" instead of "should exist", thanks to Rodolphe Quiédeville (PR #99).
@@ -11,12 +50,12 @@ Revision history for pgTAP
   expressions. Thanks to Rodolphe Quiédeville (PR #103).
 * Fixed `pg_version_num()` to work with the new version format coming in
   PostgreSQL 10.
-* Fix lives_ok() and throws_ok() to also trap ASSERT_FAILURE (PR #119).
-* Add negation functions isnt_aggregate() and isnt_definer(), which return the
-  opposite of is_aggregate() and is_definer(). Thanks to Rodolphe Quiédeville
-  (PR #106).
-* Add has_extension() and hasnt_extension(). Thanks to Rodolphe Quiédeville (PR
-  #101).
+* Fix `lives_ok()` and `throws_ok()` to also trap `ASSERT_FAILURE` (PR #119).
+* Add negation functions `isnt_aggregate()` and `isnt_definer()`, which return
+  the opposite of `is_aggregate()` and `is_definer()`. Thanks to Rodolphe
+  Quiédeville (PR #106).
+* Add `has_extension()` and `hasnt_extension()`. Thanks to Rodolphe Quiédeville
+  (PR #101).
  
 0.96.0 2016-05-16T20:53:57Z
 ---------------------------
@@ -42,7 +81,7 @@ Revision history for pgTAP
 
 0.95.0 2015-03-20T20:31:41Z
 ---------------------------
-* Added materialized-view testing assertions functions:
+* Added materialized view-testing assertion functions:
     + `materialized_views_are()`
     + `has_materialized_view()`
     + `hasnt_materialized_view()`
