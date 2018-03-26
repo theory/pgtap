@@ -373,9 +373,10 @@ updatecheck_deps: pgtap-version-$(UPDATE_FROM) test/sql/update.sql
 # We do this as a separate step to change SETUP_SCH before the main updatecheck
 # recipe calls installcheck (which depends on SETUP_SCH being set correctly).
 .PHONY: updatecheck_setup
-# we dpend on pg_regress --launcher, which was added in 9.1
+# pg_regress --launcher not supported prior to 9.1
+# There are some other failures in 9.1 and 9.2 (see https://travis-ci.org/decibel/pgtap/builds/358206497).
 updatecheck_setup: updatecheck_deps
-	@if echo $(VERSION) | grep -qE "8[.]|9[.][0]"; then echo "updatecheck is not supported prior to 9.1"; exit 1; fi
+	@if echo $(VERSION) | grep -qE "8[.]|9[.][012]"; then echo "updatecheck is not supported prior to 9.3"; exit 1; fi
 	$(eval SETUP_SCH = test/schedule/update.sch)
 	$(eval REGRESS_OPTS += --launcher "tools/psql_args.sh -v 'old_ver=$(UPDATE_FROM)' -v 'new_ver=$(EXTVERSION)'")
 	@echo

@@ -32,6 +32,7 @@ sudo easy_install pgxnclient
 sudo make regress || failed=true # Don't exit yet if this failed
 
 # pg_regress --launcher not supported prior to 9.1
-echo $PGVERSION | grep -qE "8[.]|9[.][0]" || sudo make updatecheck # updatecheck depends on install, so must be sudo
+# There are some other failures in 9.1 and 9.2 (see https://travis-ci.org/decibel/pgtap/builds/358206497).
+echo $PGVERSION | grep -qE "8[.]|9[.][012]" || sudo make updatecheck # updatecheck depends on install, so must be sudo
 
 [ -z "$failed" ]
