@@ -140,8 +140,9 @@ endif
 ifeq (,$(call extension_control,ltree))
 MISSING_EXTENSIONS += ltree
 endif
+EXTENSION_TEST_FILES += test/sql/extension.sql
 ifneq (,$(MISSING_EXTENSIONS))
-EXCLUDE_TEST_FILES += test/sql/extension.sql
+EXCLUDE_TEST_FILES += $(EXTENSION_TEST_FILES)
 endif
 
 # We need Perl.
@@ -333,7 +334,7 @@ $(TB_DIR)/run.sch: $(TB_DIR)/which_schedule $(GENERATED_SCHEDULES)
 # Don't generate noise if we're not running tests...
 .PHONY: extension_check
 extension_check: 
-	@[ -z "$(MISSING_EXTENSIONS)" ] || (echo; echo; echo "WARNING: Some mandatory extensions ($(MISSING_EXTENSIONS)) are not installed; ignoring tests: $(IGNORE_TESTS)"; echo; echo)
+	@[ -z "$(MISSING_EXTENSIONS)" ] || (echo; echo; echo "WARNING: Some mandatory extensions ($(MISSING_EXTENSIONS)) are not installed; ignoring tests: $(EXTENSION_TEST_FILES)"; echo; echo)
 
 
 # These tests have specific dependencies
