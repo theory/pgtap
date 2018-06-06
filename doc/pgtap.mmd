@@ -3240,12 +3240,12 @@ enum does *not* exist.
     SELECT has_index( :schema, :table, :index, :columns );
     SELECT has_index( :schema, :table, :index, :column, :description );
     SELECT has_index( :schema, :table, :index, :column );
-    SELECT has_index( :table,  :index, :columns, :description );
-    SELECT has_index( :table,  :index, :columns, :description );
-    SELECT has_index( :table,  :index, :column, :description );
-    SELECT has_index( :schema, :table, :index, :column );
-    SELECT has_index( :table,  :index, :column );
+    SELECT has_index( :schema, :table, :index, :description );
     SELECT has_index( :schema, :table, :index );
+    SELECT has_index( :table,  :index, :columns, :description );
+    SELECT has_index( :table,  :index, :columns );
+    SELECT has_index( :table,  :index, :column, :description );
+    SELECT has_index( :table,  :index, :column );
     SELECT has_index( :table,  :index, :description );
     SELECT has_index( :table,  :index );
 
