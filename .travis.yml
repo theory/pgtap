@@ -6,8 +6,6 @@ before_install:
 script:
   - bash ./pg-travis-test.sh
 env:
-  - PGVERSION=8.4
-  - PGVERSION=9.0
   - PGVERSION=9.1
   - PGVERSION=9.2
   - PGVERSION=9.3
