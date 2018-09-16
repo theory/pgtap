@@ -15,7 +15,7 @@
   <body>
     <div id="main">
       <!-- DOC INTRO HERE -->
-<h1 id="pgtap0.98.0">pgTAP 0.98.0</h1>
+<h1 id="pgtap0.99.0">pgTAP 0.99.0</h1>
 
 <p>pgTAP is a unit testing framework for PostgreSQL written in PL/pgSQL and
 PL/SQL. It includes a comprehensive collection of
@@ -36,8 +36,8 @@ used in the xUnit testing style.</p>
 <li><a href="#usingpgtap">Using pgTAP</a><ul>
 <li><a href="#iloveitwhenaplancomestogether">I love it when a plan comes together</a></li>
 <li><a href="#whatasweetunit">What a sweet unit!</a></li>
-<li><a href="#testnames">Test names</a><ul>
-<li><a href="#diag_test_name"><code>diag_test_name()</code></a></li></ul></li>
+<li><a href="#testdescriptions">Test Descriptions</a><ul>
+<li><a href="#xunitfunctionnames">xUnit Function Names</a></li></ul></li>
 <li><a href="#imokyourenotok">I&#8217;m ok, you&#8217;re not ok</a><ul>
 <li><a href="#ok"><code>ok()</code></a></li>
 <li><a href="#is"><code>is()</code></a></li>
@@ -224,7 +224,7 @@ used in the xUnit testing style.</p>
 <li><a href="#language_owner_is"><code>language_owner_is ()</code></a></li>
 <li><a href="#opclass_owner_is"><code>opclass_owner_is ()</code></a></li>
 <li><a href="#type_owner_is"><code>type_owner_is ()</code></a></li></ul></li>
-<li><a href="#prvilegedaccess">Prvileged Access</a><ul>
+<li><a href="#privilegedaccess">Privileged Access</a><ul>
 <li><a href="#database_privs_are"><code>database_privs_are()</code></a></li>
 <li><a href="#tablespace_privs_are"><code>tablespace_privs_are()</code></a></li>
 <li><a href="#schema_privs_are"><code>schema_privs_are()</code></a></li>
@@ -258,6 +258,8 @@ used in the xUnit testing style.</p>
 <li><a href="#tapthatbatch">Tap that Batch</a><ul>
 <li><a href="#do_tap"><code>do_tap()</code></a></li>
 <li><a href="#runtests"><code>runtests()</code></a></li></ul></li></ul></li>
+<li><a href="#secretsofthepgtapmavens">Secrets of the pgTAP Mavens</a><ul>
+<li><a href="#relational-styleloops">Relational-style Loops</a></li></ul></li>
 <li><a href="#composeyourself">Compose Yourself</a><ul>
 <li><a href="#testingtestfunctions">Testing Test Functions</a><ul>
 <li><a href="#check_test"><code>check_test()</code></a></li></ul></li></ul></li>
@@ -283,7 +285,9 @@ used in the xUnit testing style.</p>
       <!-- DOCS HERE, WITH INTRO MOVED ABOVE -->
 <h1 id="synopsis">Synopsis</h1>
 
-<pre><code>SELECT plan( 23 );
+<pre><code>CREATE EXTENSION IF NOT EXISTS pgtap;
+
+SELECT plan( 23 );
 -- or SELECT * from no_plan();
 
 -- Various ways to say &quot;ok&quot;
@@ -378,32 +382,6 @@ of the PostgreSQL source tree and try it there without <code>pg_config</code>:</
 <pre><code>make installcheck PGUSER=postgres
 </code></pre>
 
-<p>Once pgTAP is installed, you can add it to a database. If you&#8217;re running
-PostgreSQL 9.1.0 or greater, it&#8217;s a simple as connecting to a database as a
-super user and running:</p>
-
-<pre><code>CREATE EXTENSION pgtap;
-</code></pre>
-
-<p>If you&#8217;ve upgraded your cluster to PostgreSQL 9.1 and already had pgTAP
-installed, you can upgrade it to a properly packaged extension with:</p>
-
-<pre><code>CREATE EXTENSION pgtap FROM unpackaged;
-</code></pre>
-
-<p>For versions of PostgreSQL less than 9.1.0, you&#8217;ll need to run the
-installation script:</p>
-
-<pre><code>psql -d mydb -f /path/to/pgsql/share/contrib/pgtap.sql
-</code></pre>
-
-<p>If you want to install pgTAP and all of its supporting objects into a
-specific schema, use the <code>PGOPTIONS</code> environment variable to specify the
-schema, like so:</p>
-
-<pre><code>PGOPTIONS=--search_path=tap psql -d mydb -f pgTAP.sql
-</code></pre>
-
 <h2 id="testingpgtapwithpgtap">Testing pgTAP with pgTAP</h2>
 
 <p>In addition to the PostgreSQL-standard <code>installcheck</code> target, the <code>test</code>
@@ -429,16 +407,41 @@ PostgreSQL client environment variables:</p>
 
 <h2 id="addingpgtaptoadatabase">Adding pgTAP to a Database</h2>
 
-<p>Once pgTAP has been built and tested, you can install it into a
-PL/pgSQL-enabled database:</p>
+<p>Once pgTAP is installed, you can add it to a database. If you&#8217;re running
+PostgreSQL 9.1.0 or greater, it&#8217;s a simple as connecting to a database as a
+super user and running:</p>
 
-<pre><code>psql -d dbname -f pgtap.sql
+<pre><code>CREATE EXTENSION IF NOT EXISTS pgtap;
+</code></pre>
+
+<p>If you&#8217;ve upgraded your cluster to PostgreSQL 9.1 and already had pgTAP
+installed, you can upgrade it to a properly packaged extension with:</p>
+
+<pre><code>CREATE EXTENSION pgtap FROM unpackaged;
 </code></pre>
 
 <p>If you want pgTAP to be available to all new databases, install it into the
 &#8220;template1&#8221; database:</p>
 
-<pre><code>psql -d template1 -f pgtap.sql
+<pre><code>psql -d template1 -C &quot;CREATE EXTENSION pgtap&quot;
+</code></pre>
+
+<p>To uninstall pgTAP, use <code>DROP EXTENSION</code>:</p>
+
+<pre><code>DROP EXTENSION IF EXISTS pgtap;
+</code></pre>
+
+<p>For versions of PostgreSQL less than 9.1.0, you&#8217;ll need to run the
+installation script:</p>
+
+<pre><code>psql -d mydb -f /path/to/pgsql/share/contrib/pgtap.sql
+</code></pre>
+
+<p>If you want to install pgTAP and all of its supporting objects into a
+specific schema, use the <code>PGOPTIONS</code> environment variable to specify the
+schema, like so:</p>
+
+<pre><code>PGOPTIONS=--search_path=tap psql -d mydb -f pgTAP.sql
 </code></pre>
 
 <p>If you want to remove pgTAP from a database, run the <code>uninstall_pgtap.sql</code>
@@ -465,23 +468,22 @@ variables to keep the tests quiet, start a transaction, load the functions in
 your test script, and then rollback the transaction at the end of the script.
 Here&#8217;s an example:</p>
 
-<pre><code>\set ECHO
+<pre><code>\unset ECHO
 \set QUIET 1
 -- Turn off echo and keep things quiet.
 
 -- Format the output for nice TAP.
 \pset format unaligned
 \pset tuples_only true
-\pset pager
+\pset pager off
 
 -- Revert all changes on failure.
 \set ON_ERROR_ROLLBACK 1
 \set ON_ERROR_STOP true
-\set QUIET 1
 
 -- Load the TAP functions.
 BEGIN;
-    \i pgtap.sql
+\i pgtap.sql
 
 -- Plan the tests.
 SELECT plan(1);
@@ -493,16 +495,6 @@ SELECT pass( 'My test passed, w00t!' );
 SELECT * FROM finish();
 ROLLBACK;
 </code></pre>
-
-<p>Of course, if you already have the pgTAP functions in your testing database,
-you should skip <code>\i pgtap.sql</code> at the beginning of the script.</p>
-
-<p>The only other limitation is that the <code>pg_typeof()</code> function, which is
-written in C, will not be available in 8.3 and lower. You&#8217;ll want to
-comment out its declaration in the bundled copy of <code>pgtap.sql</code> and then avoid
-using <code>cmp_ok()</code>, since that function relies on <code>pg_typeof()</code>. Note that
-<code>pg_typeof()</code> is included in PostgreSQL 8.4, so you won&#8217;t need to avoid it on
-that version or higher.</p>
 
 <p>Now you&#8217;re ready to run your test script!</p>
 
@@ -563,12 +555,12 @@ options, and <code>pg_prove --man</code> to see its entire documentation.</p>
 <h1 id="usingpgtap">Using pgTAP</h1>
 
 <p>The purpose of pgTAP is to provide a wide range of testing utilities that
-output TAP. TAP, or the &#8220;Test Anything Protocol&#8221;, is an emerging standard for
-representing the output from unit tests. It owes its success to its format as
-a simple text-based interface that allows for practical machine parsing and
-high legibility for humans. TAP started life as part of the test harness for
-Perl but now has implementations in C/C++, Python, PHP, JavaScript, Perl, and
-now PostgreSQL.</p>
+output TAP. TAP, or the &#8220;Test Anything Protocol&#8221;, is a standard for
+representing the output from unit tests. It owes its success to its format as a
+simple text-based interface that allows for practical machine parsing and high
+legibility for humans. TAP started life as part of the test harness for Perl
+but now has implementations in C/C++, Python, PHP, JavaScript, Perl, and, of
+course, PostgreSQL.</p>
 
 <p>There are two ways to use pgTAP: 1) In simple test scripts that use a plan to
 describe the tests in the script; or 2) In xUnit-style test functions that you
@@ -583,7 +575,7 @@ many tests your script is going to run to protect against premature failure.</p>
 <p>The preferred way to do this is to declare a plan by calling the <code>plan()</code>
 function:</p>
 
-<pre><code>SELECT plan( 42 );
+<pre><code>SELECT plan(42);
 </code></pre>
 
 <p>There are rare cases when you will not know beforehand how many tests your
@@ -610,17 +602,19 @@ discrepancy between the planned number of tests and the number actually run:</p>
 
 <p>If you&#8217;re used to xUnit testing frameworks, you can collect all of your tests
 into database functions and run them all at once with <code>runtests()</code>. This is
-similar to how <a href="http://en.dklab.ru/lib/dklab_pgunit/">PGUnit</a>s. The
+similar to how <a href="http://en.dklab.ru/lib/dklab_pgunit/">PGUnit</a> works. The
 <code>runtests()</code> function does all the work of finding and running your test
 functions in individual transactions. It even supports setup and teardown
 functions. To use it, write your unit test functions so that they return a set
 of text results, and then use the pgTAP assertion functions to return TAP
-values, like so:</p>
+values. Here&#8217;s an example, testing a hypothetical <code>users</code> table:</p>
 
 <pre><code>CREATE OR REPLACE FUNCTION setup_insert(
 ) RETURNS SETOF TEXT AS $$
+BEGIN
     RETURN NEXT is( MAX(nick), NULL, 'Should have no users') FROM users;
     INSERT INTO users (nick) VALUES ('theory');
+END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION test_user(
@@ -641,11 +635,11 @@ your unit testing functions, you can run your tests at any time using the
 the function completes (or after any teardown functions have run). The TAP
 results will be sent to your client.</p>
 
-<h2 id="testnames">Test names</h2>
+<h2 id="testdescriptions">Test Descriptions</h2>
 
 <p>By convention, each test is assigned a number in order. This is largely done
-automatically for you. However, it&#8217;s often very useful to assign a name to
-each test. Would you rather see this?</p>
+automatically for you. However, it&#8217;s often very useful to describe each test.
+Would you rather see this?</p>
 
 <pre><code>  ok 4
   not ok 5
@@ -662,13 +656,16 @@ each test. Would you rather see this?</p>
 <p>The latter gives you some idea of what failed. It also makes it easier to find
 the test in your script, simply search for &#8220;simple exponential&#8221;.</p>
 
-<p>All test functions take a name argument. It&#8217;s optional, but highly suggested
-that you use it.</p>
+<p>All test functions take a description argument. It&#8217;s optional, but highly
+suggested that you use it.</p>
 
-<p>Sometimes it&#8217;s useful to extract test function names from pgtap output, especially when using xUnit style with Continuous Integration Server like Hudson or TeamCity.
-By default pgTAP displays this names as &#8220;comment&#8221;, but you&#8217;re able to change this behavior by overriding function <code>diag_test_name</code>:</p>
+<h3 id="xunitfunctionnames">xUnit Function Names</h3>
 
-<h3 id="diag_test_name"><code>diag_test_name()</code></h3>
+<p>Sometimes it&#8217;s useful to extract xUnit test function names from TAP output,
+especially when using xUnit style with Continuous Integration Server like
+Hudson or TeamCity. By default pgTAP displays these names as comments, but
+you&#8217;re able to change this behavior by overriding the function <code>diag_test_name</code>.
+For example:</p>
 
 <pre><code>CREATE OR REPLACE FUNCTION diag_test_name(TEXT)
 RETURNS TEXT AS $$
@@ -676,23 +673,22 @@ RETURNS TEXT AS $$
 $$ LANGUAGE SQL;
 </code></pre>
 
-<p><strong>Parameters</strong></p>
+<p>This will show</p>
 
-<dl>
-<dt><code>:test_name</code></dt>
-<dd>A test name.</dd>
-</dl>
+<pre><code># test: my_example_test_function_name
+</code></pre>
 
-<p>This will show
- # test: my_example_test_function_name
-instead of
- # my_example_test_function_name()
-This makes easy handling test name and differing test names from comments.</p>
+<p>instead of</p>
+
+<pre><code># my_example_test_function_name()
+</code></pre>
+
+<p>This simplifies parsing test names from TAP comments.</p>
 
 <h2 id="imokyourenotok">I&#8217;m ok, you&#8217;re not ok</h2>
 
-<p>The basic purpose of pgTAP&#8211;and of any TAP-emitting test framework, for that
-matter&#8211;is to print out either &#8220;ok #&#8221; or &#8220;not ok #&#8221;, depending on whether a
+<p>The basic purpose of pgTAP&#8212;and of any TAP-emitting test framework, for that
+matter&#8212;is to print out either &#8220;ok #&#8221; or &#8220;not ok #&#8221;, depending on whether a
 given test succeeded or failed. Everything else is just gravy.</p>
 
 <p>All of the following functions return &#8220;ok&#8221; or &#8220;not ok&#8221; depending on whether
@@ -766,7 +762,7 @@ SELECT isnt( :have, :want );
 <dd>Value to test.</dd>
 
 <dt><code>:want</code></dt>
-<dd>Value that <code>:have</code> is expcted to be. Must be the same data type.</dd>
+<dd>Value that <code>:have</code> is expected to be. Must be the same data type.</dd>
 
 <dt><code>:description</code></dt>
 <dd>A short description of the test.</dd>
@@ -785,8 +781,8 @@ SELECT isnt( foo(), '', 'Got some foo' );
 
 <p>are similar to these:</p>
 
-<pre><code>SELECT ok(   ultimate_answer() =  42, 'Meaning of Life' );
-SELECT isnt( foo()             &lt;&gt; '', 'Got some foo'    );
+<pre><code>SELECT ok( ultimate_answer() =  42, 'Meaning of Life' );
+SELECT ok( foo() &lt;&gt; '', 'Got some foo' );
 </code></pre>
 
 <p>(Mnemonic: &#8220;This is that.&#8221; &#8220;This isn&#8217;t that.&#8221;)</p>
@@ -816,7 +812,7 @@ SELECT is( :foo::text, :bar::text, 'Is foo the same as bar?' );
 <p>So you can figure out what went wrong without re-running the test.</p>
 
 <p>You are encouraged to use <code>is()</code> and <code>isnt()</code> over <code>ok()</code> where possible. You
-can even use them to compar records in PostgreSQL 8.4 and later:</p>
+can even use them to compare records in PostgreSQL 8.4 and later:</p>
 
 <pre><code>SELECT is( users.*, ROW(1, 'theory', true)::users )
   FROM users
@@ -1074,7 +1070,7 @@ SELECT isa_ok( :have, :regtype );
 <p>Checks to see if the given value is of a particular type. The description and
 diagnostics of this test normally just refer to &#8220;the value&#8221;. If you&#8217;d like
 them to be more specific, you can supply a <code>:name</code>. For example you might say
-&#8220;the return value&#8221; when yo&#8217;re examing the result of a function call:</p>
+&#8220;the return value&#8221; when you&#8217;re examining the result of a function call:</p>
 
 <pre><code>SELECT isa_ok( length('foo'), 'integer', 'The return value from length()' );
 </code></pre>
@@ -1185,7 +1181,7 @@ SELECT throws_ok( :sql );
 <dd>An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:errcode</code></dt>
-<dd>A <a href="http://www.postgresql.org/docs/current/static/errcodes-appendix.html" title="Appendix A. PostgreSQL Error Codes">PostgreSQL error code</a></dd>
+<dd>A <a href="http://www.postgresql.org/docs/current/static/errcodes-appendix.html">PostgreSQL error code</a></dd>
 
 <dt><code>:errmsg</code></dt>
 <dd>An error message.</dd>
@@ -1206,7 +1202,7 @@ statement to execute the query and catch any exception.</p>
 five-character string (if it happens to consist only of numbers and you pass
 it as an integer, it will still work). If this value is not <code>NULL</code>,
 <code>throws_ok()</code> will check the thrown exception to ensure that it is the
-expected exception. For a complete list of error codes, see <a href="http://www.postgresql.org/docs/current/static/errcodes-appendix.html" title="Appendix A. PostgreSQL Error Codes">Appendix
+expected exception. For a complete list of error codes, see <a href="http://www.postgresql.org/docs/current/static/errcodes-appendix.html">Appendix
 A.</a> in the <a href="http://www.postgresql.org/docs/current/static/">PostgreSQL
 documentation</a>.</p>
 
@@ -1829,7 +1825,7 @@ are <em>not</em> the same. The two queries can as usual be the names of prepared
 statements or strings containing an SQL query (see the
 <a href="#Pursuing+Your+Query">summary</a> for query argument details), or even one of
 each. The two queries, however, must return results that are directly
-comparable &#8211; that is, with the same number and types of columns in the same
+comparable &#8212; that is, with the same number and types of columns in the same
 orders. If it happens that the query you&#8217;re testing returns a single column,
 the second argument may be an array.</p>
 
@@ -1960,7 +1956,7 @@ are <em>not</em> the same, including duplicates. The two queries can as usual be
 names of prepared statements or strings containing an SQL query (see the
 <a href="#Pursuing+Your+Query">summary</a> for query argument details), or even one of
 each. The two queries, however, must return results that are directly
-comparable &#8211; that is, with the same number and types of columns in the same
+comparable &#8212; that is, with the same number and types of columns in the same
 orders. If it happens that the query you&#8217;re testing returns a single column,
 the second argument may be an array.</p>
 
@@ -2083,11 +2079,17 @@ SELECT row_eq( :sql, :record );
 <dd>A short description of the test.</dd>
 </dl>
 
-<p>Compares the contents of a single row to a record. Due to the limitations of
-non-C functions in PostgreSQL, a bare <code>RECORD</code> value cannot be passed to the
-function. You must instead pass in a valid composite type value, and cast the
-record argument (the second argument) to the same type. Both explicitly
-created composite types and table types are supported. Thus, you can do this:</p>
+<p>Compares the contents of a single row to a record. On PostgreSQL 11 and later, a
+bare <code>RECORD</code> value may be passed:</p>
+
+<pre><code>SELECT row_eq( $$ SELECT 1, 'foo' $$, ROW(1, 'foo') );
+</code></pre>
+
+<p>ue to the limitations of non-C functions in earlier versions of PostgreSQL, a
+bare <code>RECORD</code> value cannot be passed to the function. You must instead pass in a
+valid composite type value, and cast the record argument (the second argument)
+to the same type. Both explicitly created composite types and table types are
+supported. Thus, you can do this:</p>
 
 <pre><code>CREATE TYPE sometype AS (
     id    INT,
@@ -3088,7 +3090,7 @@ SELECT casts_are( :casts );
 that <em>should</em> be in that database. Casts are specified as strings in a syntax
 similarly to how they&#8217;re declared via <code>CREATE CAST</code>. The pattern is
 <code>:source_type AS :target_type</code>. If either type was created with double-quotes
-to force mixed case or special characers, then you must use double quotes in
+to force mixed case or special characters, then you must use double quotes in
 the cast strings. Example:</p>
 
 <pre><code>SELECT casts_are(ARRAY[
@@ -3335,7 +3337,7 @@ SELECT has_relation( :relation );
 </dl>
 
 <p>This function tests whether or not a relation exists in the database. Relations
-are tables, views, materialized views, seqences, composite types, foreign
+are tables, views, materialized views, sequences, composite types, foreign
 tables, and toast tables. The first argument is a schema name, the second is a
 relation name, and the third is the test description. If you omit the schema,
 the relation must be visible in the search path. Example:</p>
@@ -4123,7 +4125,7 @@ SELECT has_function( :function );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to not find the function.</dd>
+<dd>Name of a schema in which to find the function.</dd>
 
 <dt><code>:function</code></dt>
 <dd>Name of a function.</dd>
@@ -4676,11 +4678,11 @@ specified extension does <em>not</em> exist.</p>
 
 <h2 id="tableforone">Table For One</h2>
 
-<p>Okay, you&#8217;re sure that your database has exactly the <a href="#I+Object!" title="I Object!">right schema</a> and that all of the objects you need <a href="#To+Have+or+Have+Not" title="To Have or Have Not">are
+<p>Okay, you&#8217;re sure that your database has exactly the <a href="#I+Object!">right schema</a> and that all of the objects you need <a href="#To+Have+or+Have+Not" title="To Have or Have Not">are
 there</a>. So let&#8217;s take a closer
 look at tables. There are a lot of ways to look at tables, to make sure that
 they have all the columns, indexes, constraints, keys, and indexes they need.
-So we have the assertions to validate &#8217;em.</p>
+So we have the assertions to validate 'em.</p>
 
 <h3 id="has_column"><code>has_column()</code></h3>
 
@@ -4902,7 +4904,7 @@ description.</p>
 <p>If the table schema is omitted, the table must be visible in the search path.
 If the type schema is omitted, it must be visible in the search path;
 otherwise, the diagnostics will report the schema it&#8217;s actually in. The schema
-can optinally be included in the <code>:type</code> argument, e.g., <code>'contrib.citext</code>.</p>
+can optionally be included in the <code>:type</code> argument, e.g., <code>'contrib.citext</code>.</p>
 
 <p>If the test description is omitted, it will be set to &#8220;Column
 <code>:schema.:table.:column</code> should be type <code>:schema.:type</code>&#8221;. Note that this test
@@ -5786,7 +5788,7 @@ defined in <code>:schema</code> are not exactly the functions defined in <code>:
 <p>If <code>:schema</code> is omitted, then <code>can()</code> will look for functions defined in
 schemas defined in the search path. No matter how many functions are listed in
 <code>:functions</code>, a single call to <code>can()</code> counts as one test. If you want
-otherwise, call <code>can()</code> once for each function &#8211; or better yet, use
+otherwise, call <code>can()</code> once for each function &#8212; or better yet, use
 <code>has_function()</code>. Example:</p>
 
 <pre><code>SELECT can( 'pg_catalog', ARRAY['upper', 'lower'] );
@@ -5896,7 +5898,7 @@ SELECT function_returns( :function, :type );
 and <code>:type</code> arguments should be formatted as they would be displayed in the
 view of a function using the <code>\df</code> command in <code>psql</code>. For example, use
 &#8220;character varying&#8221; rather than &#8220;varchar&#8221;, and &#8220;boolean&#8221; rather than &#8220;bool&#8221;.
-For set returning functions, the <code>:type</code> argument should start with &#8220;setof &#8221;
+For set returning functions, the <code>:type</code> argument should start with &quot;setof &quot;
 (yes, lowercase). Examples:</p>
 
 <pre><code>SELECT function_returns( 'myschema', 'foo', ARRAY['integer', 'text'], 'integer' );
@@ -6358,7 +6360,7 @@ SELECT language_is_trusted( language );
 <dd>A short description of the test.</dd>
 </dl>
 
-<p>Tests that the specified procedural language is trusted. See the <a href="http://www.postgresql.org/docs/current/static/sql-createlanguage.html" title="CREATE LANGUAGE">CREATE
+<p>Tests that the specified procedural language is trusted. See the <a href="http://www.postgresql.org/docs/current/static/sql-createlanguage.html">CREATE
 LANGUAGE</a> documentation for details on trusted and untrusted
 procedural languages. If the <code>:description</code> argument is not passed, a suitably
 useful default will be created.</p>
@@ -6503,7 +6505,7 @@ SELECT domain_type_isnt( :domain, :type );
 
 <p>The inverse of <code>domain_type_is()</code>, this function tests that a domain does
 <em>not</em> extend a particular data type. For example, a US postal code domain
-should probably extned the <code>text</code> type, not <code>integer</code>, since leading 0s are
+should probably extend the <code>text</code> type, not <code>integer</code>, since leading 0s are
 valid and required. Example:</p>
 
 <pre><code>SELECT domain_type_isnt(
@@ -6634,8 +6636,7 @@ SELECT is_member_of( :role, :member );
 <dd>Name of a role that should be a member of the group role.</dd>
 
 <dt><code>:description</code></dt>
-<dd>
-<p>A short description of the test.</p>
+<dd><p> A short description of the test.</p>
 
 <p>SELECT is_member_of( &#8216;sweeties&#8217;, &#8216;anna&#8217; &#8216;Anna should be a sweetie&#8217; );
 SELECT is_member_of( &#8216;meanies&#8217;, ARRAY[&#8216;dr_evil&#8217;, &#8216;dr_no&#8217; ] );</p></dd>
@@ -7480,7 +7481,7 @@ user, the diagnostics will look something like:</p>
 #         want: root
 </code></pre>
 
-<h2 id="prvilegedaccess">Prvileged Access</h2>
+<h2 id="privilegedaccess">Privileged Access</h2>
 
 <p>So we know who owns the objects. But what about other roles? Can they access
 database objects? Let&#8217;s find out!</p>
@@ -7743,7 +7744,7 @@ table privileges are:</p>
 <li>UPDATE</li>
 </ul>
 
-<p>Note that the privilege RULE is not available aftter PostgreSQL 8.1, and that
+<p>Note that the privilege RULE is not available after PostgreSQL 8.1, and that
 TRIGGER was added in 8.4.</p>
 
 <p>If the <code>:description</code> argument is omitted, an appropriate description will be
@@ -7827,7 +7828,7 @@ sequence privileges are:</p>
 </ul>
 
 <p>Note that sequence privileges were added in PostgreSQL 9.0, so this function
-will likley throw an exception on earlier versions.</p>
+will likely throw an exception on earlier versions.</p>
 
 <p>If the <code>:description</code> argument is omitted, an appropriate description will be
 created. Examples:</p>
@@ -7910,7 +7911,7 @@ The available column privileges are:</p>
 </ul>
 
 <p>Note that column privileges were added in PostgreSQL 8.4, so this function
-will likley throw an exception on earlier versions.</p>
+will likely throw an exception on earlier versions.</p>
 
 <p>If the <code>:description</code> argument is omitted, an appropriate description will be
 created. Examples:</p>
@@ -7996,7 +7997,7 @@ available column privileges are:</p>
 </ul>
 
 <p>Note that column privileges were added in PostgreSQL 8.4, so this function
-will likley throw an exception on earlier versions.</p>
+will likely throw an exception on earlier versions.</p>
 
 <p>If the <code>:description</code> argument is omitted, an appropriate description will be
 created. Examples:</p>
@@ -8226,7 +8227,7 @@ available function privileges are:</p>
 </ul>
 
 <p>Note that foreign data wrapper privileges were added in PostgreSQL 8.4, so
-this function will likley throw an exception on earlier versions.</p>
+this function will likely throw an exception on earlier versions.</p>
 
 <p>If the <code>:description</code> argument is omitted, an appropriate description will be
 created. Examples:</p>
@@ -8247,14 +8248,14 @@ will list the extra permissions, like so:</p>
 </code></pre>
 
 <p>Likewise if the role is not granted some of the specified permissions on the
-fdw:</p>
+FDW:</p>
 
 <pre><code># Failed test 15: &quot;Role kurk should be granted USAGE on odbc&quot;
 #     Missing privileges:
 #           USAGE
 </code></pre>
 
-<p>In the event that the test fails because the fdw in question does not
+<p>In the event that the test fails because the FDW in question does not
 actually exist or is not visible, you will see an appropriate diagnostic such
 as:</p>
 
@@ -8299,7 +8300,7 @@ function privileges are:</p>
 </ul>
 
 <p>Note that server privileges were added in PostgreSQL 8.4, so this function
-will likley throw an exception on earlier versions.</p>
+will likely throw an exception on earlier versions.</p>
 
 <p>If the <code>:description</code> argument is omitted, an appropriate description will be
 created. Examples:</p>
@@ -8597,7 +8598,7 @@ pgTAP was compiled. This function is useful for determining whether or not
 certain tests should be run or skipped (using <code>skip()</code>) depending on the
 version of PostgreSQL. For example:</p>
 
-<pre><code>SELECT CASE WHEN pg_version_num() &lt; 80100
+<pre><code>SELECT CASE WHEN pg_version_num() &lt; 80300
     THEN skip('has_enum() not supported before 8.3' )
     ELSE has_enum( 'bug_status', 'mydesc' )
     END;
@@ -8684,7 +8685,7 @@ when used in combination with <code>skip()</code>:</p>
 <dd>Operator OID.</dd>
 </dl>
 
-<p>Similar to casting an operator OID to regoperator, only the schema is not
+<p>Similar to casting an operator OID to <code>regoperator</code>, only the schema is not
 included in the display. For example:</p>
 
 <pre><code>SELECT display_oper(oprname, oid ) FROM pg_operator;
@@ -8891,14 +8892,14 @@ ok 4 - Shutdown test
 
 <ul>
 <li><code>^startup</code> - Functions whose names start with &#8220;startup&#8221; are run in
- alphabetical order before any test functions are run.</li>
+alphabetical order before any test functions are run.</li>
 <li><code>^setup</code> - Functions whose names start with &#8220;setup&#8221; are run in alphabetical
- order before each test function is run.</li>
+order before each test function is run.</li>
 <li><code>^teardown</code> - Functions whose names start with &#8220;teardown&#8221; are run in
- alphabetical order after each test function is run. They will not be run,
- however, after a test that has died.</li>
+alphabetical order after each test function is run. They will not be run,
+however, after a test that has died.</li>
 <li><code>^shutdown</code> - Functions whose names start with &#8220;shutdown&#8221; are run in
- alphabetical order after all test functions have been run.</li>
+alphabetical order after all test functions have been run.</li>
 </ul>
 
 <p>Note that all tests executed by <code>runtests()</code> are run within a single
@@ -8908,6 +8909,36 @@ back after each test function, and at the end of testing, leaving your
 database in largely the same condition as it was in when you started it (the
 one exception I&#8217;m aware of being sequences, which are not rolled back to the
 value used at the beginning of a rolled-back transaction).</p>
+
+<h1 id="secretsofthepgtapmavens">Secrets of the pgTAP Mavens</h1>
+
+<p>Over the years, a number of techniques have evolved to make all of our pgTAP
+testing lives easier. Here are some of them.</p>
+
+<h2 id="relational-styleloops">Relational-style Loops</h2>
+
+<p>Need to test a bunch of objects and find yourself looking for some kind of
+<code>for</code> loop to <a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY</a> off
+with? SQL doesn&#8217;t have one, of course, but that&#8217;s because it doesn&#8217;t need one:
+the whole language is built around doing things to a bunch of rows. So take
+advantage of it: build relations with the
+<a href="https://www.postgresql.org/docs/current/static/sql-values.html"><code>VALUES</code></a>
+command! For example, to make sure you have a table in a defined list of
+schemas, try something like this:</p>
+
+<p>SELECT has_table(sch, &#8216;widgets&#8217;, format(&#8216;Has %I.widgets&#8217;, sch))
+FROM (VALUES(&#8216;amazon&#8217;), (&#8216;starbucks&#8217;), (&#8216;boeing&#8217;)) F(sch);</p>
+
+<p>Note the use of the
+<a href="https://www.postgresql.org/docs/current/static/functions-string.html#functions-string-format"><code>format</code> function</a>
+to make a nice test description, too. Here&#8217;s a more complicated example that
+uses a cross join to test that various columns are <code>NOT NULL</code> in a specific
+table in a bunch of schemas:</p>
+
+<pre><code>SELECT col_not_null(sch, 'table1', col)
+FROM (VALUES('schema1'), ('schema1')) AS stmp (sch)
+CROSS JOIN (VALUES('col_pk'), ('col2'), ('col3')) AS ctmp (col);
+</code></pre>
 
 <h1 id="composeyourself">Compose Yourself</h1>
 
@@ -8981,28 +9012,28 @@ SELECT check_test( :test_output, :is_ok );
 
 <dt><code>:test_output</code></dt>
 <dd>The output from your test. Usually it&#8217;s just returned by a call to the test
- function itself. Required.</dd>
+function itself. Required.</dd>
 
 <dt><code>:is_ok</code></dt>
 <dd>Boolean indicating whether or not the test is expected to pass. Required.</dd>
 
 <dt><code>:name</code></dt>
 <dd>A brief name for your test, to make it easier to find failures in your test
- script. Optional.</dd>
+script. Optional.</dd>
 
 <dt><code>:want_description</code></dt>
 <dd>Expected test description to be output by the test. Optional. Use an empty
- string to test that no description is output.</dd>
+string to test that no description is output.</dd>
 
 <dt><code>:want_diag</code></dt>
 <dd>Expected diagnostic message output during the execution of a test. Must
- always follow whatever is output by the call to <code>ok()</code>. Optional. Use an
- empty string to test that no description is output.</dd>
+always follow whatever is output by the call to <code>ok()</code>. Optional. Use an
+empty string to test that no description is output.</dd>
 
 <dt><code>:match_diag</code></dt>
 <dd>Use <code>matches()</code> to compare the diagnostics rather than <code>:is()</code>. Useful for
- those situations where you&#8217;re not sure what will be in the output, but you
- can match it with a regular expression.</dd>
+those situations where you&#8217;re not sure what will be in the output, but you
+can match it with a regular expression.</dd>
 </dl>
 
 <p>This function runs anywhere between one and three tests against a test
@@ -9145,46 +9176,46 @@ instead:</p>
 
 <ul>
 <li>The partition-testing functions are not available, because partitions were
- not introduced until 10.</li>
+not introduced until 10.</li>
 </ul>
 
 <h2 id="9.4anddown">9.4 and Down</h2>
 
 <ul>
 <li>lives_ok() and throws_ok() will not trap ASSERT_FAILURE, since asserts do not
- exist prior to 9.5.</li>
+exist prior to 9.5.</li>
 </ul>
 
 <h2 id="9.2anddown">9.2 and Down</h2>
 
 <ul>
 <li>Diagnostic output from <code>lives_ok()</code> and xUnit function exceptions will not
- include schema, table, column, data type, or constraint information, since
- such diagnostics were not introduced until 9.3.</li>
+include schema, table, column, data type, or constraint information, since
+such diagnostics were not introduced until 9.3.</li>
 </ul>
 
 <h2 id="9.1anddown">9.1 and Down</h2>
 
 <ul>
 <li>Diagnostic output from <code>lives_ok()</code> and xUnit function exceptions will not
- error context or details, since such diagnostics were not introduced until
- 9.2.</li>
+error context or details, since such diagnostics were not introduced until
+9.2.</li>
 </ul>
 
 <h2 id="9.0anddown">9.0 and Down</h2>
 
 <ul>
 <li>The <code>foreign_table_owner_is()</code> function will not work, because, of course,
- there were no foreign tables until 9.1.</li>
+there were no foreign tables until 9.1.</li>
 <li>The <code>extensions_are()</code> functions are not available, because extensions were
- not introduced until 9.1.</li>
+not introduced until 9.1.</li>
 </ul>
 
 <h2 id="8.4anddown">8.4 and Down</h2>
 
 <ul>
 <li><p>The <code>sequence_privs_are()</code> function does not work, because privileges could
- not be granted on sequences before 9.0.</p></li>
+not be granted on sequences before 9.0.</p></li>
 <li><p>The <code>triggers_are()</code> function does not ignore internally-created triggers.</p></li>
 </ul>
 
@@ -9192,37 +9223,37 @@ instead:</p>
 
 <ul>
 <li><p>A patch is applied to modify <code>results_eq()</code> and <code>row_eq()</code> to cast records
- to text before comparing them. This means that things will mainly be
- correct, but it also means that two queries with incompatible types that
- convert to the same text string may be considered incorrectly equivalent.</p></li>
+to text before comparing them. This means that things will mainly be
+correct, but it also means that two queries with incompatible types that
+convert to the same text string may be considered incorrectly equivalent.</p></li>
 <li><p>A C function, <code>pg_typeof()</code>, is built and installed in a DSO. This is for
- compatibility with the same function that ships in 8.4 core, and is required
- for <code>cmp_ok()</code> and <code>isa_ok()</code> to work.</p></li>
+compatibility with the same function that ships in 8.4 core, and is required
+for <code>cmp_ok()</code> and <code>isa_ok()</code> to work.</p></li>
 <li><p>The variadic forms of <code>diag()</code> and <code>collect_tap()</code> are not available.
- You can pass an array of TAP to <code>collect_tap()</code>, however.</p></li>
+You can pass an array of TAP to <code>collect_tap()</code>, however.</p></li>
 <li><p>These permission-testing functions don&#8217;t work, because one cannot grant
- permissions on the relevant objects until 8.4:</p></li>
-<li><p><code>has_any_column_privilege()</code></p></li>
-<li><p><code>has_column_privilege()</code></p></li>
-<li><p><code>has_foreign_data_wrapper_privilege()</code></p></li>
-<li><p><code>has_server_privilege()</code></p></li>
+permissions on the relevant objects until 8.4:</p></li>
+<li><p> <code>has_any_column_privilege()</code></p></li>
+<li><p> <code>has_column_privilege()</code></p></li>
+<li><p> <code>has_foreign_data_wrapper_privilege()</code></p></li>
+<li><p> <code>has_server_privilege()</code></p></li>
 </ul>
 
 <h2 id="8.2anddown">8.2 and Down</h2>
 
 <ul>
 <li><p>A patch is applied that removes <code>enum_has_labels()</code> and
- <code>language_owner_is()</code>, since neither are testable before 8.3.</p></li>
+<code>language_owner_is()</code>, since neither are testable before 8.3.</p></li>
 <li><p>the <code>diag(anyelement)</code> function and <code>col_has_default()</code> cannot be used to
- test for columns specified with <code>DEFAULT NULL</code> (even though that&#8217;s the
- implied default default).</p></li>
+test for columns specified with <code>DEFAULT NULL</code> (even though that&#8217;s the
+implied default default).</p></li>
 <li><p>The <code>has_enums()</code> function won&#8217;t work.</p></li>
 <li><p>A number of assignments casts are added to increase compatibility. The casts
- are:</p></li>
-<li><p><code>boolean</code> to <code>text</code></p></li>
-<li><p><code>text[]</code> to <code>text</code></p></li>
-<li><p><code>name[]</code> to <code>text</code></p></li>
-<li><p><code>regtype</code> to <code>text</code></p></li>
+are:</p></li>
+<li><p> <code>boolean</code> to <code>text</code></p></li>
+<li><p> <code>text[]</code> to <code>text</code></p></li>
+<li><p> <code>name[]</code> to <code>text</code></p></li>
+<li><p> <code>regtype</code> to <code>text</code></p></li>
 <li><p>Two operators, <code>=</code> and <code>&lt;&gt;</code>, are added to compare <code>name[]</code> values.</p></li>
 </ul>
 
@@ -9242,7 +9273,7 @@ comments, suggestions, and bug reports are welcomed there.</p>
 
 <h2 id="author">Author</h2>
 
-<p><a href="http://theory.pm/">David E. Wheeler</a></p>
+<p><a href="http://justatheory.com/">David E. Wheeler</a></p>
 
 <h2 id="credits">Credits</h2>
 
@@ -9253,7 +9284,7 @@ comments, suggestions, and bug reports are welcomed there.</p>
 
 <h2 id="copyrightandlicense">Copyright and License</h2>
 
-<p>Copyright (c) 2008&#8211;2016 David E. Wheeler. Some rights reserved.</p>
+<p>Copyright (c) 2008&#8211;2018 David E. Wheeler. Some rights reserved.</p>
 
 <p>Permission to use, copy, modify, and distribute this software and its
 documentation for any purpose, without fee, and without a written agreement is
