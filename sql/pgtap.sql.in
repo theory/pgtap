@@ -1952,15 +1952,33 @@ RETURNS NAME[] AS $$
 $$ LANGUAGE sql;
 
 -- col_is_pk( schema, table, column, description )
-CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME, NAME[], TEXT )
+-- col_is_pk( schema, table, column )
+CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME, NAME[], TEXT DEFAULT NULL )
 RETURNS TEXT AS $$
-    SELECT is( _ckeys( $1, $2, 'p' ), $3, $4 );
+    SELECT is( _ckeys( $1, $2, 'p' ), $3,
+               coalesce( $4,
+                         format( 'Columns %I.%I(%s) should be a primary key',
+                                 $1, $2
+                                 _ident_array_to_string( $3, ', ' ) ) ) );
+$$ LANGUAGE sql;
+
+
+-- col_is_pk( schema, table, column )
+CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME, NAME )
+RETURNS TEXT AS $$
+        SELECT is( _ckeys( $1, $2, 'p' ), ARRAY[ $3 ]::NAME[],
+                           coalesce( $4,
+                           format( 'Column %I.%I(%s) should be a primary key',
+                                   $1, $2, $3  ) ) );
 $$ LANGUAGE sql;
 
 -- col_is_pk( table, column, description )
-CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME[], TEXT )
+-- col_is_pk( table, column )
+CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME[], TEXT DEFAULT NULL )
 RETURNS TEXT AS $$
-    SELECT is( _ckeys( $1, 'p' ), $2, $3 );
+    SELECT is( _ckeys( $1, 'p' ), $2,
+               coalesce( $3, format( 'Columns %I(%s) should be a primary key',
+                         $1, _ident_array_to_string( $3, ', ' ) ) ) );
 $$ LANGUAGE sql;
 
 -- col_is_pk( table, column[] )
