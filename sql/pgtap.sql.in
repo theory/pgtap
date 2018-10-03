@@ -1957,9 +1957,8 @@ CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME, NAME[], TEXT DEFAULT NULL )
 RETURNS TEXT AS $$
     SELECT is( _ckeys( $1, $2, 'p' ), $3,
                coalesce( $4,
-                         format( 'Columns %I.%I(%s) should be a primary key',
-                                 $1, $2,
-                                 _ident_array_to_string( $3, ', ' ) ) ) );
+               'Columns ' || quote_ident( $1 ) || '.' || quote_ident( $2 )
+                          || '(' || _ident_array_to_string( $3, ', ' ) || ') should be a primary key' ) );
 $$ LANGUAGE sql;
 
 
@@ -1968,9 +1967,9 @@ $$ LANGUAGE sql;
 CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME, NAME, TEXT DEFAULT NULL )
 RETURNS TEXT AS $$
         SELECT is( _ckeys( $1, $2, 'p' ), ARRAY[ $3 ]::NAME[],
-                   coalesce( $4, 
-                           format( 'Column %I.%I(%I) should be a primary key',
-                                   $1, $2, $3  ) ) );
+                   coalesce( $4,
+                            'Column ' || quote_ident( $1 ) || '.' || quote_ident( $2 )
+                            || '(' || quote_ident( $3 ) || ') should be a primary key' ) );
 $$ LANGUAGE sql;
 
 -- col_is_pk( table, column, description )
@@ -1978,8 +1977,8 @@ $$ LANGUAGE sql;
 CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME[], TEXT DEFAULT NULL )
 RETURNS TEXT AS $$
     SELECT is( _ckeys( $1, 'p' ), $2,
-               coalesce( $3, format( 'Columns %I(%s) should be a primary key',
-                         $1, _ident_array_to_string( $2, ', ' ) ) ) );
+               coalesce( $3,  'Columns '  || quote_ident( $1 )
+                             || '(' || _ident_array_to_string( $2, ', ' ) || ') should be a primary key' ) );
 $$ LANGUAGE sql;
 
 
@@ -1987,7 +1986,7 @@ $$ LANGUAGE sql;
 CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME, TEXT DEFAULT NULL )
 RETURNS TEXT AS $$
     SELECT col_is_pk( $1, ARRAY[$2]::name[],
-                      coalesce( $3, format( 'Column %I(%I) should be a primary key', $1, $2 ) ) );
+                      coalesce( $3, 'Column ' || quote_ident( $1 ) || '(' || quote_ident( $2 ) || ') should be a primary key' ) );
 $$ LANGUAGE sql;
 
 

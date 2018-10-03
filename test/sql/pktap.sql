@@ -136,7 +136,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-       col_is_pk( 'public', 'sometab','id'::name ),
+       col_is_pk( 'public'::name, 'sometab'::name,'id'::name ),
        true,
        'col_is_pk( schema, table, column )',
        'Column public.sometab(id) should be a primary key',
