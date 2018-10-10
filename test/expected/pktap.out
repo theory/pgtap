@@ -1,4 +1,5 @@
 \unset ECHO
+1..87
 ok 1 - has_pk( schema, table, description ) should pass
 ok 2 - has_pk( schema, table, description ) should have the proper description
 ok 3 - has_pk( schema, table, description ) should have the proper diagnostics
