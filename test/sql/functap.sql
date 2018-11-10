@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(628);
+SELECT plan(644);
 --SELECT * FROM no_plan();
 
 CREATE SCHEMA someschema;
@@ -252,6 +252,72 @@ SELECT * FROM check_test(
     'Function __cat__(numeric) should not exist',
     ''
 );
+
+/****************************************************************************/
+-- Test function_checksum_is().
+
+-- Test error message when checksum is wrong for these, as there is no way
+-- to be sure we are getting their checksum, as there are several prototypes
+SELECT * FROM check_test(
+    function_checksum_is('function_checksum_is'::name,'md5'::text),
+    false,
+    'function_checksum_is(name,text) should fail',
+    'Function function_checksum_is Checksum'
+);
+
+SELECT * FROM check_test(
+    function_checksum_is('function_checksum_is'::name,'md5'::text,'test'::text),
+    false,
+    'function_checksum_is(name,text,text) should fail',
+    'test'
+);
+
+SELECT * FROM check_test(
+    function_checksum_is('public'::name,'function_checksum_is'::name,'md5'::text),
+    false,
+    'function_checksum_is(name,name,text) should fail',
+    'Function public.function_checksum_is Checksum'
+);
+
+SELECT * FROM check_test(
+    function_checksum_is('public'::name,'function_checksum_is'::name,'md5'::text,'test'::text),
+    false,
+    'function_checksum_is(name,name,text,text) should fail',
+    'test'
+);
+
+-- The functions specifying parameters will be able to check their checksums
+
+SELECT * FROM check_test(
+    function_checksum_is('function_checksum_is'::name,'{"name","name[]","text"}'::name[],'c4d1078bb0ee774374a6ee54fd477117'::text),
+    true,
+    'function_checksum_is(name,name[],text) should succeed',
+    'Function function_checksum_is Checksum'
+);
+
+SELECT * FROM check_test(
+    function_checksum_is('function_checksum_is'::name,'{"name","name[]","text","text"}'::name[],'00484046b6ec5512f18c1af8cfe2004f'::text,'test'::text),
+    true,
+    'function_checksum_is(name,name[],text,text) should succeed',
+    'test'
+);
+
+SELECT * FROM check_test(
+    function_checksum_is('public'::name,'function_checksum_is'::name,'{"name","name[]","text"}'::name[],'c4d1078bb0ee774374a6ee54fd477117'::text),
+    true,
+    'function_checksum_is(name,name[],text) should succeed',
+    'Function public.function_checksum_is Checksum'
+);
+
+SELECT * FROM check_test(
+    function_checksum_is('public'::name,'function_checksum_is'::name,'{"name","name","name[]","text","text"}'::name[],'547cc12b8f55ab74bc2a3498de01b3e5'::text,'test'::text),
+    true,
+    'function_checksum_is(name,name,name[],text,text) should succeed',
+    'test'
+);
+
+
+
 
 /****************************************************************************/
 -- Try can() function names.
