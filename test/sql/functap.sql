@@ -65,6 +65,14 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
+    has_function( 'pg_catalog', 'now', ARRAY[''] ),
+    true,
+    'simple schema.func with 0 args (empty array)',
+    'Function pg_catalog.now() should exist',
+    ''
+);
+
+SELECT * FROM check_test(
     has_function( 'pg_catalog', 'now', '{}'::name[] ),
     true,
     'simple schema.func with 0 args',
