@@ -1,4 +1,4 @@
-pgTAP 0.99.0
+pgTAP 0.99.1
 ============
 
 pgTAP is a unit testing framework for PostgreSQL written in PL/pgSQL and
@@ -1636,11 +1636,16 @@ test fails.
 `:description`
 : A short description of the test.
 
-Compares the contents of a single row to a record. Due to the limitations of
-non-C functions in PostgreSQL, a bare `RECORD` value cannot be passed to the
-function. You must instead pass in a valid composite type value, and cast the
-record argument (the second argument) to the same type. Both explicitly
-created composite types and table types are supported. Thus, you can do this:
+Compares the contents of a single row to a record. On PostgreSQL 11 and later, a
+bare `RECORD` value may be passed:
+
+    SELECT row_eq( $$ SELECT 1, 'foo' $$, ROW(1, 'foo') );
+
+ue to the limitations of non-C functions in earlier versions of PostgreSQL, a
+bare `RECORD` value cannot be passed to the function. You must instead pass in a
+valid composite type value, and cast the record argument (the second argument)
+to the same type. Both explicitly created composite types and table types are
+supported. Thus, you can do this:
 
     CREATE TYPE sometype AS (
         id    INT,
@@ -2922,6 +2927,208 @@ exist".
 This function is the inverse of `has_view()`. The test passes if the
 specified materialized view does *not* exist.
 
+### `has_inherited_tables()`
+
+    SELECT has_inherited_tables( :schema, :table, :description );
+    SELECT has_inherited_tables( :schema, :table );
+    SELECT has_inherited_tables( :table, :description );
+    SELECT has_inherited_tables( :table );
+
+**Parameters**
+
+`:schema`
+: Name of a schema in which to search for the table that has children.
+
+`:table`
+: Name of the table that must have children.
+
+`:description`
+: A description of the test.
+
+This function checks that the specified table has other tables that inherit from
+it. If you find that the function call confuses the table name for a
+description, cast the table to the `NAME` type:
+
+    SELECT has_inherited_tables('myschema', 'sometable'::NAME);
+
+### `hasnt_inherited_tables()`
+
+    SELECT hasnt_inherited_tables( :schema, :table, :description );
+    SELECT hasnt_inherited_tables( :schema, :table );
+    SELECT hasnt_inherited_tables( :table, :description );
+    SELECT hasnt_inherited_tables( :table );
+
+**Parameters**
+
+`:schema`
+: Name of a schema in which to search for the table that must not have children.
+
+`:table`
+: Name of the table that must not have children.
+
+`:description`
+: A description of the test.
+
+This function checks that the specified table has no tables inheriting from it.
+It is the opposite of the function `has_inherited_tables()`. If you find that
+the function call confuses the table name for a description, cast the table to
+the `NAME` type:
+
+    SELECT hasnt_inherited_tables('myschema', 'sometable'::NAME);
+
+### `is_ancestor_of()`
+
+    SELECT is_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :depth, :description );
+    SELECT is_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :depth );
+    SELECT is_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :description );
+    SELECT is_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table );
+    SELECT is_ancestor_of( :ancestor_table, :descendent_table, :depth, :description );
+    SELECT is_ancestor_of( :ancestor_table, :descendent_table, :depth );
+    SELECT is_ancestor_of( :ancestor_table, :descendent_table, :description );
+    SELECT is_ancestor_of( :ancestor_table, :descendent_table );
+
+**Parameters**
+
+`:ancestor_schema`
+: Name of the schema in which the ancestor table must be found.
+
+`:ancestor_table`
+: Name of the ancestor table.
+
+`:descendent_schema`
+: Name of the schema in which the descendent table must be found.
+
+`:descendent_table`
+: Name of the descendent table.
+
+`:depth`
+: The inheritance distance between the two tables.
+
+`:description`
+: Description of the test.
+
+This function checks if the table marked as "ancestor" is effectively a table
+from which the "descendent" table inherits --- that there is an inheritance
+chain between the two tables. The optional depth argument specifies the length
+of the inheritance chain between the tables; if not specified, the inheritance
+distance may be of any length.  If the `:description` is omitted, a reasonable
+substitute will be created.
+
+ If you find that the function call seems to be getting confused, cast the
+ sequence to the `NAME` type:
+
+    SELECT is_ancestor_of('myschema', 'ancestor', 'myschema', 'descendent'::NAME);
+
+### `isnt_ancestor_of()`
+
+    SELECT isnt_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :depth, :description );
+    SELECT isnt_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :depth );
+    SELECT isnt_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :description );
+    SELECT isnt_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table );
+    SELECT isnt_ancestor_of( :ancestor_table, :descendent_table, :depth, :description );
+    SELECT isnt_ancestor_of( :ancestor_table, :descendent_table, :depth );
+    SELECT isnt_ancestor_of( :ancestor_table, :descendent_table, :description );
+    SELECT isnt_ancestor_of( :ancestor_table, :descendent_table );
+
+**Parameters**
+
+`:ancestor_schema`
+: Name of the schema in which the ancestor table must be found.
+
+`:ancestor_table`
+: Name of the ancestor table.
+
+`:descendent_schema`
+: Name of the schema in which the descendent table must be found.
+
+`:descendent_table`
+: Name of the descendent table.
+
+`:depth`
+: The inheritance distance between the two tables.
+
+`:description`
+: Description of the test.
+
+This function ensures that the table marked as "ancestor" is not a table from
+which "descendent" inherits --- that there is no inheritance chain between the
+two tables. If the optional depth argument is passed, the test enbsures only
+that the two tablesa are not related at that distance; they still might be an
+inheritance relationship between them. If the `:description` is omitted, a
+reasonable substitute will be created.
+
+ If you find that the function call seems to be getting confused, cast the
+ sequence to the `NAME` type:
+
+    SELECT isnt_ancestor_of('myschema', 'ancestor', 'myschema', 'descendent'::NAME);
+
+### `is_descendent_of()`
+
+    SELECT is_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :depth, :description );
+    SELECT is_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :depth );
+    SELECT is_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :description );
+    SELECT is_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table );
+    SELECT is_descendent_of( :descendent_table,  :ancestor_table, :depth, :description );
+    SELECT is_descendent_of( :descendent_table,  :ancestor_table, :depth );
+    SELECT is_descendent_of( :descendent_table,  :ancestor_table, :description );
+    SELECT is_descendent_of( :descendent_table,  :ancestor_table );
+
+**Parameters**
+
+`:descendent_schema`
+: Name of the schema in which the descendent table must be found.
+
+`:descendent_table`
+: Name of the descendent table.
+
+`:ancestor_schema`
+: Name of the schema in which the ancestor table must be found.
+
+`:ancestor_table`
+: Name of the ancestor table.
+
+`:depth`
+: The inheritance distance between the two tables.
+
+`:description`
+: Description of the test.
+
+This function provide exactly the same functionality as `is_ancestor_of()`, but
+with the ancestor and descendent arguments swapped.
+
+### `isnt_descendent_of()`
+
+    SELECT isnt_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :depth, :description );
+    SELECT isnt_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :depth );
+    SELECT isnt_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :description );
+    SELECT isnt_descendent_of( :descendent_table,  :ancestor_table, :depth, :description );
+    SELECT isnt_descendent_of( :descendent_table,  :ancestor_table, :depth );
+    SELECT isnt_descendent_of( :descendent_table,  :ancestor_table, :description );
+    SELECT isnt_descendent_of( :descendent_table,  :ancestor_table );
+
+**Parameters**
+
+`:ancestor_schema`
+: Name of the schema in which the ancestor table must be found.
+
+`:ancestor_table`
+: Name of the ancestor table.
+
+`:descendent_schema`
+: Name of the schema in which the descendent table must be found.
+
+`:descendent_table`
+: Name of the descendent table.
+
+`:depth`
+: The inheritance distance between the two tables.
+
+`:description`
+: Description of the test.
+
+This function provide exactly the same functionality as `isnt_ancestor_of()`,
+but with the ancestor and descendent arguments swapped.
+
 ### `has_sequence()` ###
 
     SELECT has_sequence( :schema, :sequence, :description );
@@ -3240,12 +3447,12 @@ enum does *not* exist.
     SELECT has_index( :schema, :table, :index, :columns );
     SELECT has_index( :schema, :table, :index, :column, :description );
     SELECT has_index( :schema, :table, :index, :column );
-    SELECT has_index( :table,  :index, :columns, :description );
-    SELECT has_index( :table,  :index, :columns, :description );
-    SELECT has_index( :table,  :index, :column, :description );
-    SELECT has_index( :schema, :table, :index, :column );
-    SELECT has_index( :table,  :index, :column );
+    SELECT has_index( :schema, :table, :index, :description );
     SELECT has_index( :schema, :table, :index );
+    SELECT has_index( :table,  :index, :columns, :description );
+    SELECT has_index( :table,  :index, :columns );
+    SELECT has_index( :table,  :index, :column, :description );
+    SELECT has_index( :table,  :index, :column );
     SELECT has_index( :table,  :index, :description );
     SELECT has_index( :table,  :index );
 
@@ -3441,7 +3648,7 @@ rule does *not* exist.
 **Parameters**
 
 `:schema`
-: Name of a schema in which to not find the function.
+: Name of a schema in which to find the function.
 
 `:function`
 : Name of a function.
@@ -4211,6 +4418,29 @@ You can also test for functional defaults. Just specify the function call as a
 string:
 
     SELECT col_default_is( 'user', 'created_at', 'now()' );
+
+But beware that the representation of special SQL syntax functions changed
+in PostgreSQL 10. Where previously a default of `CURRENT_USER` and friends
+used to be represented as functions:
+
+    SELECT col_default_is( 'widgets', 'created_by', '"current_user"()' );
+
+As of PostgreSQL 10, they comply with the SQL spec to appear in uppercase
+and without trailining parentheses:
+
+    SELECT col_default_is( 'widgets', 'created_by', 'CURRENT_USER' );
+
+If you need to support both variants, use `pg_version_num()` to decide
+which to use:
+
+    SELECT col_default_is(
+        'widgets', 'created_by',
+        CASE WHEN pg_version_num() >= 100000 THEN 'CURRENT_USER ELSE '"current_user"()' END
+    );
+
+See the note in the
+[System Information Functions](https://www.postgresql.org/docs/current/functions-info.html)
+documentation for a complete list.
 
 If the test fails, it will output useful diagnostics. For example, this test:
 
@@ -5018,7 +5248,7 @@ But then you check with `has_function()` first, right?
 `:args`
 : Array of data types for the function arguments.
 
-`:Type`
+`:type`
 : Return value data type.
 
 `:description`
@@ -5214,41 +5444,6 @@ function is not strict.
 If the function does not exist, a handy diagnostic message will let you know:
 
     # Failed test 290: "Function nasty() should be an aggregate function"
-    #     Function nasty() does not exist
-
-But then you check with `has_function()` first, right?
-
-### `isnt_aggregate()` ###
-
-    SELECT isnt_aggregate( :schema, :function, :args, :description );
-    SELECT isnt_aggregate( :schema, :function, :args );
-    SELECT isnt_aggregate( :schema, :function, :description );
-    SELECT isnt_aggregate( :schema, :function );
-    SELECT isnt_aggregate( :function, :args, :description );
-    SELECT isnt_aggregate( :function, :args );
-    SELECT isnt_aggregate( :function, :description );
-    SELECT isnt_aggregate( :function );
-
-**Parameters**
-
-`:schema`
-: Schema in which to find the function.
-
-`:function`
-: Function name.
-
-`:args`
-: Array of data types for the function arguments.
-
-`:description`
-: A short description of the test.
-
-This function is the inverse of `is_aggregate()`. The test passes if the specified
-function is not an aggregate function.
-
-If the function does not exist, a handy diagnostic message will let you know:
-
-    # Failed test 290: "Function nasty() should not be an aggregate function"
     #     Function nasty() does not exist
 
 But then you check with `has_function()` first, right?
@@ -7187,6 +7382,148 @@ something like:
     # Failed test 17: "Role slim should be granted USAGE on oltp"
     #     Role slim does not exist
 
+### `policies_are()` ###
+
+    SELECT policies_are( :schema, :table, :policies, :description );
+    SELECT policies_are( :schema, :table, :policies );
+    SELECT policies_are( :table,  :policies, :description );
+    SELECT policies_are( :table,  :policies );
+
+**Parameters**
+
+`:schema`
+: Name of a schema in which to find the `:table`.
+
+`:table`
+: Name of a table in which to find policies.
+
+`:policies`
+: An array of policy names.
+
+`:description`
+: A short description of the test.
+
+This function tests that all of the policies on the named table are only the
+policies that *should* be on that table. If the `:schema` argument is omitted,
+the table must be visible in the search path, excluding `pg_catalog` and
+`information_schema`. If the description is omitted, a generally useful
+default description will be generated. Example:
+
+    SELECT policies_are(
+        'myschema',
+        'atable',
+        ARRAY[ 'atable_policy_one', 'atable_policy_two' ]
+    );
+
+In the event of a failure, you'll see diagnostics listing the extra and/or
+missing policies, like so:
+
+    # Failed test 13: "Table myschema.atable should have the correct policies"
+    #     Extra policies:
+    #         policy_for_atable
+    #     Missing policies:
+    #         atable_policy_two
+
+### `policy_roles_are()` ###
+
+    SELECT policy_roles_are( :schema, :table, :policy, :roles, :description );
+    SELECT policy_roles_are( :schema, :table, :policy, :roles );
+    SELECT policy_roles_are( :table, :policy,  :roles, :description );
+    SELECT policy_roles_are( :table, :policy,  :roles );
+
+**Parameters**
+
+`:schema`
+: Name of a schema in which to find the `:table`.
+
+`:table`
+: Name of a table to which `:policy` applies.
+
+`:policy`
+: Name of a policy.
+
+`:roles`
+: An array of role names to which `:policy` is applied.
+
+`:description`
+: A short description of the test.
+
+This function tests whether the roles to which policy applies are only the
+roles that *should* be on that policy. If the `:schema` argument is omitted,
+the table must be visible in the search path, excluding `pg_catalog` and
+`information_schema`. If the description is omitted, a generally useful
+default description will be generated. Example:
+
+    SELECT policy_roles_are(
+        'myschema',
+        'atable',
+        'apolicy'
+        ARRAY[ 'atable_apolicy_role_one', 'atable_apolicy_role_two' ]
+    );
+
+In the event of a failure, you'll see diagnostics listing the extra and/or
+missing policy roles, like so:
+
+    # Failed test 13: "Policy apolicy for table myschema.atable should have the correct roles"
+    #     Extra policy roles:
+    #         arole_one
+    #     Missing policy roles:
+    #         atable_apolicy_role_one
+
+### `policy_cmd_is()` ###
+
+    SELECT policy_cmd_is( :schema, :table, :policy, :command, :description );
+    SELECT policy_cmd_is( :schema, :table, :policy, :command );
+    SELECT policy_cmd_is( :table, :policy,  :command, :description );
+    SELECT policy_cmd_is( :table, :policy,  :command );
+
+**Parameters**
+
+`:schema`
+: Name of a schema in which to find the `:table`.
+
+`:table`
+: Name of a table to which `:policy` applies.
+
+`:policy`
+: Name of a policy.
+
+`:command`
+: The command type to which the `:policy` is applied.
+
+`:description`
+: A short description of the test.
+
+This function tests whether the command to which policy applies is same as
+command that is given in function arguments.
+
+The available policy `:command` types are:
+
+* SELECT
+* INSERT
+* UPDATE
+* DELETE
+* ALL
+
+If the `:schema` argument is omitted, the table must be visible in the search
+path, excluding `pg_catalog` and `information_schema`. If the `:description` is
+omitted (but `:schema` is present, be sure to cast `:policy` to name), a
+generally useful default description will be generated. Example:
+
+    SELECT policy_cmd_is(
+        'myschema',
+        'atable',
+        'apolicy'::NAME
+        'all'
+    );
+
+In the event of a failure, you'll see diagnostics listing the extra and/or
+missing policy command, like so:
+
+    # Failed test 13: "Policy apolicy for table myschema.atable should apply to ALL command"
+    #         have: INSERT
+    #         want: ALL
+
 No Test for the Wicked
 ======================
 
@@ -7424,7 +7761,7 @@ pgTAP was compiled. This function is useful for determining whether or not
 certain tests should be run or skipped (using `skip()`) depending on the
 version of PostgreSQL. For example:
 
-    SELECT CASE WHEN pg_version_num() < 80100
+    SELECT CASE WHEN pg_version_num() < 80300
         THEN skip('has_enum() not supported before 8.3' )
         ELSE has_enum( 'bug_status', 'mydesc' )
         END;
@@ -8007,10 +8344,18 @@ No changes. Everything should just work.
 * These permission-testing functions don't work, because one cannot grant
   permissions on the relevant objects until 8.4:
 
-  + `has_any_column_privilege()`
-  + `has_column_privilege()`
-  + `has_foreign_data_wrapper_privilege()`
-  + `has_server_privilege()`
+    + `has_any_column_privilege()`
+    + `has_column_privilege()`
+    + `has_foreign_data_wrapper_privilege()`
+    + `has_server_privilege()`
+
+* These inheritance-testing functions are not available, because internally
+  the use a recursive common table expression query not supported before 8.4:
+
+    + `is_ancestor_of()`
+    + `isnt_ancestor_of()`
+    + `is_descendent_of()`
+    + `isnt_descendent_of()`
 
 8.2 and Down
 ------------
@@ -8054,7 +8399,7 @@ comments, suggestions, and bug reports are welcomed there.
 Author
 ------
 
-[David E. Wheeler](http://theory.pm/)
+[David E. Wheeler](http://justatheory.com/)
 
 Credits
 -------
@@ -8065,7 +8410,7 @@ Credits
 Copyright and License
 ---------------------
 
-Copyright (c) 2008-2017 David E. Wheeler. Some rights reserved.
+Copyright (c) 2008-2018 David E. Wheeler. Some rights reserved.
 
 Permission to use, copy, modify, and distribute this software and its
 documentation for any purpose, without fee, and without a written agreement is

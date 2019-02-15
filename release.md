@@ -3,9 +3,16 @@ pgTAP Release Management
 
 Here are the steps to take to make a release of pgTAP:
 
+*   Review and fix any open bugs in the
+    [issue tracker](https://github.com/theory/pgtap/issues).
+
+*   Review and merge any appropriate
+    [pull requests](https://github.com/theory/pgtap/pulls).
+
 *   Test on all supported PostgreSQL versions, starting with the latest version
-    (10) and moving backward in order (9.6, 9.5, 9.4, etc.). For each version,
-    ensure that:
+    (10) and moving backward in order (9.6, 9.5, 9.4, etc.).
+    [pgenv](https://github.com/theory/pgenv/) is a handy tool for installing and
+    switching between versions. For each version, ensure that:
 
     +   Patches apply cleanly (try to eliminate Hunk warnings for patches to
         `pgtap.sql` itself, usually by fixing line numbers)
@@ -14,15 +21,15 @@ Here are the steps to take to make a release of pgTAP:
 
     +   `ALTER EXTENSION pgtap UPDATE;` works on 9.1 and higher.
 
-    +   `CREATE EXTENSION pgtap;` works on 9.1 and higer.
+    +   `CREATE EXTENSION pgtap;` works on 9.1 and higher.
 
     +   All tests pass in `make installcheck` (on 8.1, move the pgtap source
-        dir into the postgres source contrib directory and run
+        dir into the postgres source `contrib` directory and run
         `make NO_PGXS=1 installcheck`)
 
-*   If you've made any significant changes, test all supported version again in
-    foreward order (8.1, 8.2, 8.3, etc.) to make sure the changes didn't break
-    any later versions.
+*   If you've made any significant changes while testing versions backward, test
+    them again in forward order (8.1, 8.2, 8.3, etc.) to make sure the changes
+    didn't break any later versions.
 
 *   Review the documentation in `doc/pgtap.mmd`, and make any necessary changes,
     including to the list of PostgreSQL version-compatibility notes at the end
@@ -39,7 +46,7 @@ Here are the steps to take to make a release of pgTAP:
     Perl module installed), then checkout the `gh-pages` branch and make these
     changes:
 
-    +   Open `documentatoin.html` and delete all the lines between these "DOC"
+    +   Open `documentation.html` and delete all the lines between these "DOC"
         comments, until the main div looks like this:
 
             <div id="main">
@@ -82,7 +89,7 @@ Here are the steps to take to make a release of pgTAP:
 *   Commit the timestamp and tag it:
 
          git ci -m 'Timestamp v0.98.0.'
-         git tag -am 'Tag v0.98.0.' v0.98.0
+         git tag -sm 'Tag v0.98.0.' v0.98.0
 
 *   Package the source and submit to [PGXN](http://manager.pgxn.org/).
 
@@ -95,15 +102,8 @@ Here are the steps to take to make a release of pgTAP:
         git push
         git push --tags
 
-*   Ask one of the nice folks at [PGX](https://pgexperts.com/) to pull the
-    changes into [their fork](https://github.com/pgexperts/pgtap); It's their
-    repo that serves [pgxn.org](http://pgxn.org/). Once it's merged, check
-    that the changes to the
-    [documentation page](http://pgxn.org/documentation.html) were properly
-    updated.
-
-*   Increment the version to kick off development for the next release. The
-    version should be added to the `Changes` file, and incremented in the
+*   Increment the minor version to kick off development for the next release.
+    The version should be added to the `Changes` file, and incremented in the
     following files:
 
     +   `META.json` (including for the three parts of the `provides` section)
@@ -114,7 +114,7 @@ Here are the steps to take to make a release of pgTAP:
 
 *   Commit that change and push it.
 
-        git ci -m 'Increment to v0.99.0.'
+        git ci -m 'Increment to v0.98.1.'
         git push
 
 *   Start hacking on the next version!

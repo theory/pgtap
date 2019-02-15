@@ -1,7 +1,34 @@
 Revision history for pgTAP
 ==========================
 
-0.99.0
+0.99.1 (Dev toward 1.0.0)
+--------------------------
+* Fixed uninstall script generation to properly emit `DROP TYPE` statements.
+  Thanks to Kamen Naydenov for the PR (#181)!
+* Added policy test assertion functions for PostgreSQL 9.5 and higher:
+    + `policies_are()`
+    + `policy_roles_are()`
+    + `policy_cmd_is()`
+  Thanks to Kamen Naydenov for the PR (#185).
+* Fixed an issue with `has_function()` where a test would fail if arguments
+  are schema-qualified even though the schema is in the search path. Thanks to
+  Sandro Santilli for the bug report (#179) and PR (#180).
+* Added table inheritance testing functions:
+    + `has_inherited_tables()`
+    + `hasnt_inherited_tables()`
+    + `is_ancestor_of()`
+    + `isnt_ancestor_of()`
+    + `is_descendent_of()`
+    + `isnt_descendent_of()`
+  Thanks to Luca Ferrari for the inspiration.
+* Fixed `col_default_is()` to properly report special SQL syntax functions
+  like `CURRENT_USER` and `CURRENT_CATALOG` instead of evaluating them on
+  PostgreSQL 10 and higher.
+* Changed the uninstall script to use `DROP IF EXISTS` rather than just `DROP`
+  so that it works even with partial or failed installs. Thanks to Sandro
+  Santilli for the PR (#194).
+
+0.99.0 2018-09-16T20:55:41Z
 ---------------------------
 * Updated introductory documentation. A lot has changed over the years!
 * Added the "Secrets of the pgTAP Mavens" section of the documentation.
@@ -12,7 +39,25 @@ Revision history for pgTAP
 * Changed the diagnostic output of extra and missing values from the `*_are()`
   functions to sort the extra and missing values. Fixes a test failure on
   PostgreSQL 10, and generally makes the diagnostics more deterministic and
-  easier to read and. Thanks to Michael Glaesemann for the report (#158)!
+  easier to read. Thanks to Michael Glaesemann for the report (#158)!
+* Fixed an issue on PostgreSQL 11, where the `pg_class.relhaspkey` column has
+  been removed. The primary key testing functions now refer to
+  `pg_index.indisprimary`, instead. Thanks to Keith Fiske for the report
+  (#174)!
+* Fixed an issue on PostgreSQL 11, where the `pg_proc.proisagg` column has
+  been replaced with the more generically useful `pg_proc.prokind`. Thanks to
+  Keith Fiske for the report (#174)!
+* Documented that a `RECORD` can be passed to `row_eq()` on PostgreSQL 11,
+  and fixed the tests to match this new functionality.
+* Removed tests that only ran on 8.0, support for which was discontinued in
+  v0.90.0.
+* Removed `test/sql/run*` tests, which intentionally fail, from the `test`
+  target in the `Makefile`. It's not meaningful to test them via `pg_prove`;
+  they must instead be tested by `make installcheck`, so their output can be
+  compared against output that varies by PostgreSQL version. Thanks to Jim Nasby
+  for the report (#172).
+* Fixed a bug where `have_fk()` would fail if the table had no primary key.
+  Thanks to @bigmodem for the report! (#171).
 
 0.98.0 2017-11-06T22:30:54Z
 ---------------------------
@@ -225,7 +270,7 @@ Revision history for pgTAP
 0.90.0 2011-12-03T20:18:16Z
 ---------------------------
 * Removed the "Supported Versions" section of the documentation. Suffice it to
-  say that pgTAP supports PostgreSQL 8.0 or higher.
+  say that pgTAP supports PostgreSQL 8.1 or higher.
 * Added a build target to create a portable copy of pgTAP that can be included
   in any distribution and should just work for tesing on PostgreSQL 8.3+. The
   new files are `pgtap-core.sql`, which contains the core functionality, and
