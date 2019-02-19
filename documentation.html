@@ -15,7 +15,7 @@
   <body>
     <div id="main">
       <!-- DOC INTRO HERE -->
-<h1 id="pgtap0.99.0">pgTAP 0.99.0</h1>
+<h1 id="pgtap1.0.0">pgTAP 1.0.0</h1>
 
 <p>pgTAP is a unit testing framework for PostgreSQL written in PL/pgSQL and
 PL/SQL. It includes a comprehensive collection of
@@ -117,6 +117,12 @@ used in the xUnit testing style.</p>
 <li><a href="#hasnt_view"><code>hasnt_view()</code></a></li>
 <li><a href="#has_materialized_view"><code>has_materialized_view()</code></a></li>
 <li><a href="#hasnt_materialized_view"><code>hasnt_materialized_view()</code></a></li>
+<li><a href="#has_inherited_tables"><code>has_inherited_tables()</code></a></li>
+<li><a href="#hasnt_inherited_tables"><code>hasnt_inherited_tables()</code></a></li>
+<li><a href="#is_ancestor_of"><code>is_ancestor_of()</code></a></li>
+<li><a href="#isnt_ancestor_of"><code>isnt_ancestor_of()</code></a></li>
+<li><a href="#is_descendent_of"><code>is_descendent_of()</code></a></li>
+<li><a href="#isnt_descendent_of"><code>isnt_descendent_of()</code></a></li>
 <li><a href="#has_sequence"><code>has_sequence()</code></a></li>
 <li><a href="#hasnt_sequence"><code>hasnt_sequence()</code></a></li>
 <li><a href="#has_foreign_table"><code>has_foreign_table()</code></a></li>
@@ -192,7 +198,6 @@ used in the xUnit testing style.</p>
 <li><a href="#isnt_definer"><code>isnt_definer()</code></a></li>
 <li><a href="#is_strict"><code>is_strict()</code></a></li>
 <li><a href="#isnt_strict"><code>isnt_strict()</code></a></li>
-<li><a href="#isnt_aggregate"><code>isnt_aggregate()</code></a></li>
 <li><a href="#is_aggregate"><code>is_aggregate()</code></a></li>
 <li><a href="#isnt_aggregate"><code>isnt_aggregate()</code></a></li>
 <li><a href="#volatility_is"><code>volatility_is()</code></a></li>
@@ -235,7 +240,10 @@ used in the xUnit testing style.</p>
 <li><a href="#function_privs_are"><code>function_privs_are()</code></a></li>
 <li><a href="#language_privs_are"><code>language_privs_are()</code></a></li>
 <li><a href="#fdw_privs_are"><code>fdw_privs_are()</code></a></li>
-<li><a href="#server_privs_are"><code>server_privs_are()</code></a></li></ul></li></ul></li>
+<li><a href="#server_privs_are"><code>server_privs_are()</code></a></li>
+<li><a href="#policies_are"><code>policies_are()</code></a></li>
+<li><a href="#policy_roles_are"><code>policy_roles_are()</code></a></li>
+<li><a href="#policy_cmd_is"><code>policy_cmd_is()</code></a></li></ul></li></ul></li>
 <li><a href="#notestforthewicked">No Test for the Wicked</a><ul>
 <li><a href="#diagnostics">Diagnostics</a><ul>
 <li><a href="#diag"><code>diag()</code></a></li></ul></li>
@@ -271,8 +279,7 @@ used in the xUnit testing style.</p>
 <li><a href="#9.1anddown">9.1 and Down</a></li>
 <li><a href="#9.0anddown">9.0 and Down</a></li>
 <li><a href="#8.4anddown">8.4 and Down</a></li>
-<li><a href="#8.3anddown">8.3 and Down</a></li>
-<li><a href="#8.2anddown">8.2 and Down</a></li></ul></li>
+<li><a href="#8.3anddown">8.3 and Down</a></li></ul></li>
 <li><a href="#metadata">Metadata</a><ul>
 <li><a href="#publicrepository">Public Repository</a></li>
 <li><a href="#maillist">Mail List</a></li>
@@ -704,10 +711,10 @@ SELECT ok( :boolean );
 
 <dl>
 <dt><code>:boolean</code></dt>
-<dd>A boolean value indicating success or failure.</dd>
+<dd> A boolean value indicating success or failure.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function simply evaluates any boolean expression and uses it to determine
@@ -759,13 +766,13 @@ SELECT isnt( :have, :want );
 
 <dl>
 <dt><code>:have</code></dt>
-<dd>Value to test.</dd>
+<dd> Value to test.</dd>
 
 <dt><code>:want</code></dt>
-<dd>Value that <code>:have</code> is expected to be. Must be the same data type.</dd>
+<dd> Value that <code>:have</code> is expected to be. Must be the same data type.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Similar to <code>ok()</code>, <code>is()</code> and <code>isnt()</code> compare their two arguments with <code>IS
@@ -829,13 +836,13 @@ SELECT matches( :have, :regex );
 
 <dl>
 <dt><code>:have</code></dt>
-<dd>Value to match.</dd>
+<dd> Value to match.</dd>
 
 <dt><code>:regex</code></dt>
-<dd>A regular expression.</dd>
+<dd> A regular expression.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Similar to <code>ok()</code>, <code>matches()</code> matches <code>:have</code> against the regex <code>:regex</code>.</p>
@@ -865,13 +872,13 @@ SELECT imatches( :have, :regex );
 
 <dl>
 <dt><code>:have</code></dt>
-<dd>Value to match.</dd>
+<dd> Value to match.</dd>
 
 <dt><code>:regex</code></dt>
-<dd>A regular expression.</dd>
+<dd> A regular expression.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Just like <code>matches()</code> except that the regular expression is compared to
@@ -891,13 +898,13 @@ SELECT doesnt_imatch( :have, :regex );
 
 <dl>
 <dt><code>:have</code></dt>
-<dd>Value to match.</dd>
+<dd> Value to match.</dd>
 
 <dt><code>:regex</code></dt>
-<dd>A regular expression.</dd>
+<dd> A regular expression.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>These functions work exactly as <code>matches()</code> and <code>imatches()</code> do, only they
@@ -917,13 +924,13 @@ SELECT ialike( :this, :like );
 
 <dl>
 <dt><code>:have</code></dt>
-<dd>Value to match.</dd>
+<dd> Value to match.</dd>
 
 <dt><code>:like</code></dt>
-<dd>A SQL <code>LIKE</code> pattern.</dd>
+<dd> A SQL <code>LIKE</code> pattern.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Similar to <code>matches()</code>, <code>alike()</code> matches <code>:hve</code> against the SQL <code>LIKE</code>
@@ -958,13 +965,13 @@ SELECT unialike( :this, :like );
 
 <dl>
 <dt><code>:have</code></dt>
-<dd>Value to match.</dd>
+<dd> Value to match.</dd>
 
 <dt><code>:like</code></dt>
-<dd>A SQL <code>LIKE</code> pattern.</dd>
+<dd> A SQL <code>LIKE</code> pattern.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Works exactly as <code>alike()</code>, only it checks if <code>:have</code> <em>does not</em> match the
@@ -980,16 +987,16 @@ SELECT cmp_ok( :have, :op, :want );
 
 <dl>
 <dt><code>:have</code></dt>
-<dd>Value to compare.</dd>
+<dd> Value to compare.</dd>
 
 <dt><code>:op</code></dt>
-<dd>An SQL operator specified as a string.</dd>
+<dd> An SQL operator specified as a string.</dd>
 
 <dt><code>:want</code></dt>
-<dd>Value to compare to <code>:have</code> using the <code>:op</code> operator.</dd>
+<dd> Value to compare to <code>:have</code> using the <code>:op</code> operator.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Halfway between <code>ok()</code> and <code>is()</code> lies <code>cmp_ok()</code>. This function allows you to
@@ -1038,7 +1045,7 @@ SELECT fail( );
 
 <dl>
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Sometimes you just want to say that the tests have passed. Usually the case is
@@ -1058,13 +1065,13 @@ SELECT isa_ok( :have, :regtype );
 
 <dl>
 <dt><code>:have</code></dt>
-<dd>Value to check the type of.</dd>
+<dd> Value to check the type of.</dd>
 
 <dt><code>:regtype</code></dt>
-<dd>Name of an SQL data type.</dd>
+<dd> Name of an SQL data type.</dd>
 
 <dt><code>:name</code></dt>
-<dd>A name for the value being compared.</dd>
+<dd> A name for the value being compared.</dd>
 </dl>
 
 <p>Checks to see if the given value is of a particular type. The description and
@@ -1130,8 +1137,8 @@ SELECT results_eq(
 quotes. And since the call to &#8220;expect&#8221; included spaces (to keep it legible),
 the <code>EXECUTE</code> keyword was required.</p>
 
-<p>In PostgreSQL 8.2 and up, you can also use a <code>VALUES</code> statement, both in
-the query string or in a prepared statement. A useless example:</p>
+<p>You can also use a <code>VALUES</code> statement, both in the query string or in a
+prepared statement. A useless example:</p>
 
 <pre><code>PREPARE myvals AS VALUES (1, 2), (3, 4);
 SELECT set_eq(
@@ -1178,16 +1185,16 @@ SELECT throws_ok( :sql );
 
 <dl>
 <dt><code>:sql</code></dt>
-<dd>An SQL statement or the name of a prepared statement, passed as a string.</dd>
+<dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:errcode</code></dt>
-<dd>A <a href="http://www.postgresql.org/docs/current/static/errcodes-appendix.html">PostgreSQL error code</a></dd>
+<dd> A <a href="http://www.postgresql.org/docs/current/static/errcodes-appendix.html">PostgreSQL error code</a></dd>
 
 <dt><code>:errmsg</code></dt>
-<dd>An error message.</dd>
+<dd> An error message.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>When you want to make sure that an exception is thrown by PostgreSQL, use
@@ -1256,13 +1263,13 @@ SELECT throws_ilike( :sql, :like );
 
 <dl>
 <dt><code>:sql</code></dt>
-<dd>An SQL statement or the name of a prepared statement, passed as a string.</dd>
+<dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:like</code></dt>
-<dd>An SQL <code>LIKE</code> pattern.</dd>
+<dd> An SQL <code>LIKE</code> pattern.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Like <code>throws_ok()</code>, but tests that an exception error message matches an SQL
@@ -1299,13 +1306,13 @@ SELECT throws_imatching( :sql, :regex );
 
 <dl>
 <dt><code>:sql</code></dt>
-<dd>An SQL statement or the name of a prepared statement, passed as a string.</dd>
+<dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:regex</code></dt>
-<dd>A regular expression.</dd>
+<dd> A regular expression.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Like <code>throws_ok()</code>, but tests that an exception error message matches a
@@ -1338,10 +1345,10 @@ SELECT lives_ok( :sql );
 
 <dl>
 <dt><code>:sql</code></dt>
-<dd>An SQL statement or the name of a prepared statement, passed as a string.</dd>
+<dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>The inverse of <code>throws_ok()</code>, <code>lives_ok()</code> ensures that an SQL statement does
@@ -1374,13 +1381,13 @@ SELECT performs_ok( :sql, :milliseconds );
 
 <dl>
 <dt><code>:sql</code></dt>
-<dd>An SQL statement or the name of a prepared statement, passed as a string.</dd>
+<dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:milliseconds</code></dt>
-<dd>Number of milliseconds.</dd>
+<dd> Number of milliseconds.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function makes sure that an SQL statement performs well. It does so by
@@ -1435,19 +1442,19 @@ SELECT performs_within( :sql, :average_milliseconds, :within);
 
 <dl>
 <dt><code>:sql</code></dt>
-<dd>An SQL statement or the name of a prepared statement, passed as a string.</dd>
+<dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:average_milliseconds</code></dt>
-<dd>Number of milliseconds the query should take on average.</dd>
+<dd> Number of milliseconds the query should take on average.</dd>
 
 <dt><code>:within</code></dt>
-<dd>The number of milliseconds that the average is allowed to vary.</dd>
+<dd> The number of milliseconds that the average is allowed to vary.</dd>
 
 <dt><code>:iterations</code></dt>
-<dd>The number of times to run the query.</dd>
+<dd> The number of times to run the query.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function makes sure that an SQL statement, on average, performs within
@@ -1528,16 +1535,16 @@ SELECT results_eq( :cursor, :array                );
 
 <dl>
 <dt><code>:sql</code></dt>
-<dd>An SQL statement or the name of a prepared statement, passed as a string.</dd>
+<dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:array</code></dt>
-<dd>An array of values representing a single-column row values.</dd>
+<dd> An array of values representing a single-column row values.</dd>
 
 <dt><code>:cursor</code></dt>
-<dd>A PostgreSQL <code>refcursor</code> value representing a named cursor.</dd>
+<dd> A PostgreSQL <code>refcursor</code> value representing a named cursor.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>There are three ways to test result sets in pgTAP. Perhaps the most intuitive
@@ -1559,8 +1566,8 @@ expect, you might do something like this:</p>
 );
 </code></pre>
 
-<p>Tip: If you&#8217;re using PostgreSQL 8.2 and up and want to hard-code the values to
-compare, use a <code>VALUES</code> statement instead of a query, like so:</p>
+<p>Tip: If you want to hard-code the values to compare, use a <code>VALUES</code> statement
+instead of a query, like so:</p>
 
 <pre><code>SELECT results_eq(
     'SELECT * FROM active_users()',
@@ -1579,12 +1586,11 @@ second argument may be an array:</p>
 </code></pre>
 
 <p>In general, the use of prepared statements is highly recommended to keep your
-test code SQLish (you can even use <code>VALUES</code> in prepared statements in
-PostgreSQL 8.2 and up!). But note that, because <code>results_eq()</code> does a
-row-by-row comparison, the results of the two query arguments must be in
-exactly the same order, with exactly the same data types, in order to pass. In
-practical terms, it means that you must make sure that your results are never
-unambiguously ordered.</p>
+test code SQLish (you can even use <code>VALUES</code> in prepared statements). But note
+that, because <code>results_eq()</code> does a row-by-row comparison, the results of the
+two query arguments must be in exactly the same order, with exactly the same
+data types, in order to pass. In practical terms, it means that you must make
+sure that your results are never unambiguously ordered.</p>
 
 <p>For example, say that you want to compare queries against a <code>persons</code> table.
 The simplest way to sort is by <code>name</code>, as in:</p>
@@ -1709,16 +1715,16 @@ SELECT results_ne( :cursor, :array                );
 
 <dl>
 <dt><code>:sql</code></dt>
-<dd>An SQL statement or the name of a prepared statement, passed as a string.</dd>
+<dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:array</code></dt>
-<dd>An array of values representing a single-column row values.</dd>
+<dd> An array of values representing a single-column row values.</dd>
 
 <dt><code>:cursor</code></dt>
-<dd>A PostgreSQL <code>refcursor</code> value representing a named cursor.</dd>
+<dd> A PostgreSQL <code>refcursor</code> value representing a named cursor.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>The inverse of <code>results_eq()</code>, this function tests that query results are not
@@ -1745,13 +1751,13 @@ SELECT set_eq( :sql, :array               );
 
 <dl>
 <dt><code>:sql</code></dt>
-<dd>An SQL statement or the name of a prepared statement, passed as a string.</dd>
+<dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:array</code></dt>
-<dd>An array of values representing a single-column row values.</dd>
+<dd> An array of values representing a single-column row values.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Sometimes you don&#8217;t care what order query results are in, or if there are
@@ -1811,13 +1817,13 @@ SELECT set_ne( :sql, :array               );
 
 <dl>
 <dt><code>:sql</code></dt>
-<dd>An SQL statement or the name of a prepared statement, passed as a string.</dd>
+<dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:array</code></dt>
-<dd>An array of values representing a single-column row values.</dd>
+<dd> An array of values representing a single-column row values.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>The inverse of <code>set_eq()</code>, this function tests that the results of two queries
@@ -1839,10 +1845,10 @@ SELECT set_has( :sql, :sql );
 
 <dl>
 <dt><code>:sql</code></dt>
-<dd>An SQL statement or the name of a prepared statement, passed as a string.</dd>
+<dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>When you need to test that a query returns at least some subset of records,
@@ -1880,10 +1886,10 @@ SELECT set_hasnt( :sql, :sql );
 
 <dl>
 <dt><code>:sql</code></dt>
-<dd>An SQL statement or the name of a prepared statement, passed as a string.</dd>
+<dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This test function is the inverse of <code>set_has()</code>: the test passes when the
@@ -1911,13 +1917,13 @@ SELECT bag_eq( :sql, :array               );
 
 <dl>
 <dt><code>:sql</code></dt>
-<dd>An SQL statement or the name of a prepared statement, passed as a string.</dd>
+<dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:array</code></dt>
-<dd>An array of values representing a single-column row values.</dd>
+<dd> An array of values representing a single-column row values.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>The <code>bag_eq()</code> function is just like <code>set_eq()</code>, except that it considers the
@@ -1942,13 +1948,13 @@ SELECT bag_ne( :sql, :array               );
 
 <dl>
 <dt><code>:sql</code></dt>
-<dd>An SQL statement or the name of a prepared statement, passed as a string.</dd>
+<dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:array</code></dt>
-<dd>An array of values representing a single-column row values.</dd>
+<dd> An array of values representing a single-column row values.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>The inverse of <code>bag_eq()</code>, this function tests that the results of two queries
@@ -1970,10 +1976,10 @@ SELECT bag_has( :sql, :sql );
 
 <dl>
 <dt><code>:sql</code></dt>
-<dd>An SQL statement or the name of a prepared statement, passed as a string.</dd>
+<dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>The <code>bag_has()</code> function is just like <code>set_has()</code>, except that it considers
@@ -1992,10 +1998,10 @@ SELECT bag_hasnt( :sql, :sql );
 
 <dl>
 <dt><code>:sql</code></dt>
-<dd>An SQL statement or the name of a prepared statement, passed as a string.</dd>
+<dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This test function is the inverse of <code>bag_hasnt()</code>: the test passes when the
@@ -2023,10 +2029,10 @@ SELECT is_empty( :sql );
 
 <dl>
 <dt><code>:sql</code></dt>
-<dd>An SQL statement or the name of a prepared statement, passed as a string.</dd>
+<dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>The <code>is_empty()</code> function takes a single query string or prepared statement
@@ -2050,10 +2056,10 @@ SELECT isnt_empty( :sql );
 
 <dl>
 <dt><code>:sql</code></dt>
-<dd>An SQL statement or the name of a prepared statement, passed as a string.</dd>
+<dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>is_empty()</code>. The test passes if the specified
@@ -2070,13 +2076,13 @@ SELECT row_eq( :sql, :record );
 
 <dl>
 <dt><code>:sql</code></dt>
-<dd>An SQL statement or the name of a prepared statement, passed as a string.</dd>
+<dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:record</code></dt>
-<dd>A row or value, also known as a <a href="http://www.postgresql.org/docs/current/static/rowtypes.html">composite type</a>.</dd>
+<dd> A row or value, also known as a <a href="http://www.postgresql.org/docs/current/static/rowtypes.html">composite type</a>.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Compares the contents of a single row to a record. On PostgreSQL 11 and later, a
@@ -2202,10 +2208,10 @@ SELECT tablespaces_are( :tablespaces );
 
 <dl>
 <dt><code>:tablespaces</code></dt>
-<dd>An array of tablespace names.</dd>
+<dd> An array of tablespace names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that all of the tablespaces in the database only the
@@ -2234,10 +2240,10 @@ SELECT schemas_are( :schemas );
 
 <dl>
 <dt><code>:schemas</code></dt>
-<dd>An array of schema names.</dd>
+<dd> An array of schema names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that all of the schemas in the database only the schemas
@@ -2269,13 +2275,13 @@ SELECT tables_are( :tables );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find tables.</dd>
+<dd> Name of a schema in which to find tables.</dd>
 
 <dt><code>:tables</code></dt>
-<dd>An array of table names.</dd>
+<dd> An array of table names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that all of the tables in the named schema, or that are
@@ -2314,16 +2320,16 @@ SELECT partitions_are( :table, :partitions );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the partitioned table.</dd>
+<dd> Name of a schema in which to find the partitioned table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a partitioned table.</dd>
+<dd> Name of a partitioned table.</dd>
 
 <dt><code>:partitions</code></dt>
-<dd>An array of partition table names.</dd>
+<dd> An array of partition table names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that the named table has all of the specified partitions,
@@ -2375,13 +2381,13 @@ SELECT foreign_tables_are( :foreign_tables );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find foreign tables.</dd>
+<dd> Name of a schema in which to find foreign tables.</dd>
 
 <dt><code>:foreign_tables</code></dt>
-<dd>An array of foreign table names.</dd>
+<dd> An array of foreign table names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that all of the foreign tables in the named schema, or
@@ -2421,13 +2427,13 @@ SELECT views_are( :views );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find views.</dd>
+<dd> Name of a schema in which to find views.</dd>
 
 <dt><code>:views</code></dt>
-<dd>An array of view names.</dd>
+<dd> An array of view names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that all of the views in the named schema, or that are
@@ -2466,13 +2472,13 @@ SELECT materialized_views_are( :materialized_views );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find materialized views.</dd>
+<dd> Name of a schema in which to find materialized views.</dd>
 
 <dt><code>:materialized_views</code></dt>
-<dd>An array of materialized view names.</dd>
+<dd> An array of materialized view names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that all of the materialized views in the named schema, or
@@ -2512,13 +2518,13 @@ SELECT sequences_are( :sequences );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find sequences.</dd>
+<dd> Name of a schema in which to find sequences.</dd>
 
 <dt><code>:sequences</code></dt>
-<dd>An array of sequence names.</dd>
+<dd> An array of sequence names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that all of the sequences in the named schema, or that are
@@ -2557,16 +2563,16 @@ SELECT columns_are( :table,  :columns );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the <code>:table</code>.</dd>
+<dd> Name of a schema in which to find the <code>:table</code>.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table in which to find columns.</dd>
+<dd> Name of a table in which to find columns.</dd>
 
 <dt><code>:columns</code></dt>
-<dd>An array of column names.</dd>
+<dd> An array of column names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that all of the columns on the named table are only the
@@ -2605,16 +2611,16 @@ SELECT indexes_are( :table,  :indexes );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the <code>:table</code>.</dd>
+<dd> Name of a schema in which to find the <code>:table</code>.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table in which to find indexes.</dd>
+<dd> Name of a table in which to find indexes.</dd>
 
 <dt><code>:indexes</code></dt>
-<dd>An array of index names.</dd>
+<dd> An array of index names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that all of the indexes on the named table are only the
@@ -2652,16 +2658,16 @@ SELECT triggers_are( :table,  :triggers );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the <code>:table</code>.</dd>
+<dd> Name of a schema in which to find the <code>:table</code>.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table in which to find triggers.</dd>
+<dd> Name of a table in which to find triggers.</dd>
 
 <dt><code>:triggers</code></dt>
-<dd>An array of trigger names.</dd>
+<dd> An array of trigger names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that all of the triggers on the named table are only the
@@ -2699,13 +2705,13 @@ SELECT functions_are( :functions );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find functions.</dd>
+<dd> Name of a schema in which to find functions.</dd>
 
 <dt><code>:functions</code></dt>
-<dd>An array of function names.</dd>
+<dd> An array of function names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that all of the functions in the named schema, or that are
@@ -2740,10 +2746,10 @@ SELECT roles_are( :roles );
 
 <dl>
 <dt><code>:roles</code></dt>
-<dd>An array of role names.</dd>
+<dd> An array of role names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that all of the roles in the database only the roles that
@@ -2772,10 +2778,10 @@ SELECT users_are( :users );
 
 <dl>
 <dt><code>:users</code></dt>
-<dd>An array of user names.</dd>
+<dd> An array of user names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that all of the users in the database only the users that
@@ -2804,10 +2810,10 @@ SELECT groups_are( :groups );
 
 <dl>
 <dt><code>:groups</code></dt>
-<dd>An array of group names.</dd>
+<dd> An array of group names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that all of the groups in the database only the groups that
@@ -2836,10 +2842,10 @@ SELECT languages_are( :languages );
 
 <dl>
 <dt><code>:languages</code></dt>
-<dd>An array of language names.</dd>
+<dd> An array of language names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that all of the languages in the database only the languages that
@@ -2870,13 +2876,13 @@ SELECT opclasses_are( :opclasses );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find opclasses.</dd>
+<dd> Name of a schema in which to find opclasses.</dd>
 
 <dt><code>:opclasses</code></dt>
-<dd>An array of opclass names.</dd>
+<dd> An array of opclass names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that all of the operator classes in the named schema, or
@@ -2914,16 +2920,16 @@ SELECT rules_are( :table,  :rules );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the <code>:table</code>.</dd>
+<dd> Name of a schema in which to find the <code>:table</code>.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table in which to find rules.</dd>
+<dd> Name of a table in which to find rules.</dd>
 
 <dt><code>:rules</code></dt>
-<dd>An array of rule names.</dd>
+<dd> An array of rule names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that all of the rules on the named relation are only the
@@ -2961,13 +2967,13 @@ SELECT types_are( :types );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find types.</dd>
+<dd> Name of a schema in which to find types.</dd>
 
 <dt><code>:types</code></dt>
-<dd>An array of data type names.</dd>
+<dd> An array of data type names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests that all of the types in the named schema are the only types in that
@@ -3002,13 +3008,13 @@ SELECT domains_are( :domains );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find domains.</dd>
+<dd> Name of a schema in which to find domains.</dd>
 
 <dt><code>:domains</code></dt>
-<dd>An array of data domain names.</dd>
+<dd> An array of data domain names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests that all of the domains in the named schema are the only domains in that
@@ -3042,13 +3048,13 @@ SELECT enums_are( :enums );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find enums.</dd>
+<dd> Name of a schema in which to find enums.</dd>
 
 <dt><code>:enums</code></dt>
-<dd>An array of enum data type names.</dd>
+<dd> An array of enum data type names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests that all of the enums in the named schema are the only enums in that
@@ -3080,10 +3086,10 @@ SELECT casts_are( :casts );
 
 <dl>
 <dt><code>:casts</code></dt>
-<dd>An array of cast names.</dd>
+<dd> An array of cast names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that all of the casts in the database are only the casts
@@ -3126,13 +3132,13 @@ SELECT operators_are( :operators );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find operators.</dd>
+<dd> Name of a schema in which to find operators.</dd>
 
 <dt><code>:operators</code></dt>
-<dd>An array of operators.</dd>
+<dd> An array of operators.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests that all of the operators in the named schema are the only operators in
@@ -3183,13 +3189,13 @@ SELECT extensions_are( :extensions );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema associated with the extensions.</dd>
+<dd> Name of a schema associated with the extensions.</dd>
 
 <dt><code>:extensions</code></dt>
-<dd>An array of extension names.</dd>
+<dd> An array of extension names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests all of the extensions that should be present. If <code>:schema</code>
@@ -3237,13 +3243,13 @@ SELECT has_tablespace( :tablespace );
 
 <dl>
 <dt><code>:tablespace</code></dt>
-<dd>Name of a tablespace.</dd>
+<dd> Name of a tablespace.</dd>
 
 <dt><code>:location</code></dt>
-<dd>The tablespace&#8217;s Location on disk.</dd>
+<dd> The tablespace&#8217;s Location on disk.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests whether or not a tablespace exists in the database. The
@@ -3266,10 +3272,10 @@ SELECT hasnt_tablespace( :tablespace );
 
 <dl>
 <dt><code>:tablespace</code></dt>
-<dd>Name of a tablespace.</dd>
+<dd> Name of a tablespace.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_tablespace()</code>. The test passes if the
@@ -3285,10 +3291,10 @@ SELECT has_schema( :schema );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema.</dd>
+<dd> Name of a schema.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests whether or not a schema exists in the database. The first
@@ -3307,10 +3313,10 @@ the test description, it will be set to &#8220;Schema <code>:schema</code> shoul
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema.</dd>
+<dd> Name of a schema.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_schema()</code>. The test passes if the
@@ -3327,13 +3333,13 @@ SELECT has_relation( :relation );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the relation.</dd>
+<dd> Name of a schema in which to find the relation.</dd>
 
 <dt><code>:relation</code></dt>
-<dd>Name of a relation.</dd>
+<dd> Name of a relation.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests whether or not a relation exists in the database. Relations
@@ -3359,13 +3365,13 @@ SELECT hasnt_relation( :relation );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the relation.</dd>
+<dd> Name of a schema in which to find the relation.</dd>
 
 <dt><code>:relation</code></dt>
-<dd>Name of a relation.</dd>
+<dd> Name of a relation.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_relation()</code>. The test passes if the
@@ -3383,13 +3389,13 @@ SELECT has_table( :table );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the table.</dd>
+<dd> Name of a schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table.</dd>
+<dd> Name of a table.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests whether or not a table exists in the database. The first
@@ -3418,13 +3424,13 @@ SELECT hasnt_table( :table );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the table.</dd>
+<dd> Name of a schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table.</dd>
+<dd> Name of a table.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_table()</code>. The test passes if the
@@ -3441,13 +3447,13 @@ SELECT has_view( :view );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the view.</dd>
+<dd> Name of a schema in which to find the view.</dd>
 
 <dt><code>:view</code></dt>
-<dd>Name of a view.</dd>
+<dd> Name of a view.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests whether or not a view exists in the database. The first
@@ -3472,13 +3478,13 @@ SELECT hasnt_view( :view );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the view.</dd>
+<dd> Name of a schema in which to find the view.</dd>
 
 <dt><code>:view</code></dt>
-<dd>Name of a view.</dd>
+<dd> Name of a view.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_view()</code>. The test passes if the
@@ -3495,13 +3501,13 @@ SELECT has_materialized_view( :materialized_view );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the materialized view.</dd>
+<dd> Name of a schema in which to find the materialized view.</dd>
 
 <dt><code>:materialized_view</code></dt>
-<dd>Name of a materialized view.</dd>
+<dd> Name of a materialized view.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests whether or not a materialized view exists in the database.
@@ -3526,17 +3532,241 @@ SELECT hasnt_materialized_view( :materialized_view );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the materialized view.</dd>
+<dd> Name of a schema in which to find the materialized view.</dd>
 
 <dt><code>:materialized_view</code></dt>
-<dd>Name of a materialized view.</dd>
+<dd> Name of a materialized view.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_view()</code>. The test passes if the
 specified materialized view does <em>not</em> exist.</p>
+
+<h3 id="has_inherited_tables"><code>has_inherited_tables()</code></h3>
+
+<pre><code>SELECT has_inherited_tables( :schema, :table, :description );
+SELECT has_inherited_tables( :schema, :table );
+SELECT has_inherited_tables( :table, :description );
+SELECT has_inherited_tables( :table );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd> Name of a schema in which to search for the table that has children.</dd>
+
+<dt><code>:table</code></dt>
+<dd> Name of the table that must have children.</dd>
+
+<dt><code>:description</code></dt>
+<dd> A description of the test.</dd>
+</dl>
+
+<p>This function checks that the specified table has other tables that inherit from
+it. If you find that the function call confuses the table name for a
+description, cast the table to the <code>NAME</code> type:</p>
+
+<pre><code>SELECT has_inherited_tables('myschema', 'sometable'::NAME);
+</code></pre>
+
+<h3 id="hasnt_inherited_tables"><code>hasnt_inherited_tables()</code></h3>
+
+<pre><code>SELECT hasnt_inherited_tables( :schema, :table, :description );
+SELECT hasnt_inherited_tables( :schema, :table );
+SELECT hasnt_inherited_tables( :table, :description );
+SELECT hasnt_inherited_tables( :table );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd> Name of a schema in which to search for the table that must not have children.</dd>
+
+<dt><code>:table</code></dt>
+<dd> Name of the table that must not have children.</dd>
+
+<dt><code>:description</code></dt>
+<dd> A description of the test.</dd>
+</dl>
+
+<p>This function checks that the specified table has no tables inheriting from it.
+It is the opposite of the function <code>has_inherited_tables()</code>. If you find that
+the function call confuses the table name for a description, cast the table to
+the <code>NAME</code> type:</p>
+
+<pre><code>SELECT hasnt_inherited_tables('myschema', 'sometable'::NAME);
+</code></pre>
+
+<h3 id="is_ancestor_of"><code>is_ancestor_of()</code></h3>
+
+<pre><code>SELECT is_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :depth, :description );
+SELECT is_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :depth );
+SELECT is_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :description );
+SELECT is_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table );
+SELECT is_ancestor_of( :ancestor_table, :descendent_table, :depth, :description );
+SELECT is_ancestor_of( :ancestor_table, :descendent_table, :depth );
+SELECT is_ancestor_of( :ancestor_table, :descendent_table, :description );
+SELECT is_ancestor_of( :ancestor_table, :descendent_table );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:ancestor_schema</code></dt>
+<dd> Name of the schema in which the ancestor table must be found.</dd>
+
+<dt><code>:ancestor_table</code></dt>
+<dd> Name of the ancestor table.</dd>
+
+<dt><code>:descendent_schema</code></dt>
+<dd> Name of the schema in which the descendent table must be found.</dd>
+
+<dt><code>:descendent_table</code></dt>
+<dd> Name of the descendent table.</dd>
+
+<dt><code>:depth</code></dt>
+<dd> The inheritance distance between the two tables.</dd>
+
+<dt><code>:description</code></dt>
+<dd> Description of the test.</dd>
+</dl>
+
+<p>This function checks if the table marked as &#8220;ancestor&#8221; is effectively a table
+from which the &#8220;descendent&#8221; table inherits &#8212; that there is an inheritance
+chain between the two tables. The optional depth argument specifies the length
+of the inheritance chain between the tables; if not specified, the inheritance
+distance may be of any length. If the <code>:description</code> is omitted, a reasonable
+substitute will be created.</p>
+
+<p>If you find that the function call seems to be getting confused, cast the
+sequence to the <code>NAME</code> type:</p>
+
+<pre><code>SELECT is_ancestor_of('myschema', 'ancestor', 'myschema', 'descendent'::NAME);
+</code></pre>
+
+<h3 id="isnt_ancestor_of"><code>isnt_ancestor_of()</code></h3>
+
+<pre><code>SELECT isnt_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :depth, :description );
+SELECT isnt_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :depth );
+SELECT isnt_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :description );
+SELECT isnt_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table );
+SELECT isnt_ancestor_of( :ancestor_table, :descendent_table, :depth, :description );
+SELECT isnt_ancestor_of( :ancestor_table, :descendent_table, :depth );
+SELECT isnt_ancestor_of( :ancestor_table, :descendent_table, :description );
+SELECT isnt_ancestor_of( :ancestor_table, :descendent_table );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:ancestor_schema</code></dt>
+<dd> Name of the schema in which the ancestor table must be found.</dd>
+
+<dt><code>:ancestor_table</code></dt>
+<dd> Name of the ancestor table.</dd>
+
+<dt><code>:descendent_schema</code></dt>
+<dd> Name of the schema in which the descendent table must be found.</dd>
+
+<dt><code>:descendent_table</code></dt>
+<dd> Name of the descendent table.</dd>
+
+<dt><code>:depth</code></dt>
+<dd> The inheritance distance between the two tables.</dd>
+
+<dt><code>:description</code></dt>
+<dd> Description of the test.</dd>
+</dl>
+
+<p>This function ensures that the table marked as &#8220;ancestor&#8221; is not a table from
+which &#8220;descendent&#8221; inherits &#8212; that there is no inheritance chain between the
+two tables. If the optional depth argument is passed, the test enbsures only
+that the two tablesa are not related at that distance; they still might be an
+inheritance relationship between them. If the <code>:description</code> is omitted, a
+reasonable substitute will be created.</p>
+
+<p>If you find that the function call seems to be getting confused, cast the
+sequence to the <code>NAME</code> type:</p>
+
+<pre><code>SELECT isnt_ancestor_of('myschema', 'ancestor', 'myschema', 'descendent'::NAME);
+</code></pre>
+
+<h3 id="is_descendent_of"><code>is_descendent_of()</code></h3>
+
+<pre><code>SELECT is_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :depth, :description );
+SELECT is_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :depth );
+SELECT is_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :description );
+SELECT is_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table );
+SELECT is_descendent_of( :descendent_table,  :ancestor_table, :depth, :description );
+SELECT is_descendent_of( :descendent_table,  :ancestor_table, :depth );
+SELECT is_descendent_of( :descendent_table,  :ancestor_table, :description );
+SELECT is_descendent_of( :descendent_table,  :ancestor_table );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:descendent_schema</code></dt>
+<dd> Name of the schema in which the descendent table must be found.</dd>
+
+<dt><code>:descendent_table</code></dt>
+<dd> Name of the descendent table.</dd>
+
+<dt><code>:ancestor_schema</code></dt>
+<dd> Name of the schema in which the ancestor table must be found.</dd>
+
+<dt><code>:ancestor_table</code></dt>
+<dd> Name of the ancestor table.</dd>
+
+<dt><code>:depth</code></dt>
+<dd> The inheritance distance between the two tables.</dd>
+
+<dt><code>:description</code></dt>
+<dd> Description of the test.</dd>
+</dl>
+
+<p>This function provide exactly the same functionality as <code>is_ancestor_of()</code>, but
+with the ancestor and descendent arguments swapped.</p>
+
+<h3 id="isnt_descendent_of"><code>isnt_descendent_of()</code></h3>
+
+<pre><code>SELECT isnt_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :depth, :description );
+SELECT isnt_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :depth );
+SELECT isnt_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :description );
+SELECT isnt_descendent_of( :descendent_table,  :ancestor_table, :depth, :description );
+SELECT isnt_descendent_of( :descendent_table,  :ancestor_table, :depth );
+SELECT isnt_descendent_of( :descendent_table,  :ancestor_table, :description );
+SELECT isnt_descendent_of( :descendent_table,  :ancestor_table );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:ancestor_schema</code></dt>
+<dd> Name of the schema in which the ancestor table must be found.</dd>
+
+<dt><code>:ancestor_table</code></dt>
+<dd> Name of the ancestor table.</dd>
+
+<dt><code>:descendent_schema</code></dt>
+<dd> Name of the schema in which the descendent table must be found.</dd>
+
+<dt><code>:descendent_table</code></dt>
+<dd> Name of the descendent table.</dd>
+
+<dt><code>:depth</code></dt>
+<dd> The inheritance distance between the two tables.</dd>
+
+<dt><code>:description</code></dt>
+<dd> Description of the test.</dd>
+</dl>
+
+<p>This function provide exactly the same functionality as <code>isnt_ancestor_of()</code>,
+but with the ancestor and descendent arguments swapped.</p>
 
 <h3 id="has_sequence"><code>has_sequence()</code></h3>
 
@@ -3550,13 +3780,13 @@ SELECT has_sequence( :sequence );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the sequence.</dd>
+<dd> Name of a schema in which to find the sequence.</dd>
 
 <dt><code>:sequence</code></dt>
-<dd>Name of a sequence.</dd>
+<dd> Name of a sequence.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests whether or not a sequence exists in the database. The first
@@ -3585,13 +3815,13 @@ SELECT hasnt_sequence( :sequence );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the sequence.</dd>
+<dd> Name of a schema in which to find the sequence.</dd>
 
 <dt><code>:sequence</code></dt>
-<dd>Name of a sequence.</dd>
+<dd> Name of a sequence.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_sequence()</code>. The test passes if the
@@ -3609,13 +3839,13 @@ SELECT has_foreign_table( :table );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the foreign table.</dd>
+<dd> Name of a schema in which to find the foreign table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a foreign table.</dd>
+<dd> Name of a foreign table.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests whether or not a foreign table exists in the database. The
@@ -3641,13 +3871,13 @@ SELECT hasnt_foreign_table( :table );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the foreign table.</dd>
+<dd> Name of a schema in which to find the foreign table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a foreign table.</dd>
+<dd> Name of a foreign table.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_foreign_table()</code>. The test passes if the
@@ -3665,13 +3895,13 @@ SELECT has_type( type );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the data type.</dd>
+<dd> Name of a schema in which to find the data type.</dd>
 
 <dt><code>:type</code></dt>
-<dd>Name of a data type.</dd>
+<dd> Name of a data type.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests whether or not a type exists in the database. Detects all
@@ -3707,13 +3937,13 @@ SELECT hasnt_type( type );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the data type.</dd>
+<dd> Name of a schema in which to find the data type.</dd>
 
 <dt><code>:type</code></dt>
-<dd>Name of a data type.</dd>
+<dd> Name of a data type.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_type()</code>. The test passes if the specified
@@ -3731,13 +3961,13 @@ SELECT has_composite( type );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the composite type.</dd>
+<dd> Name of a schema in which to find the composite type.</dd>
 
 <dt><code>:composite type</code></dt>
-<dd>Name of a composite type.</dd>
+<dd> Name of a composite type.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests whether or not a composite type exists in the database.
@@ -3766,13 +3996,13 @@ SELECT hasnt_composite( type );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the composite type.</dd>
+<dd> Name of a schema in which to find the composite type.</dd>
 
 <dt><code>:composite type</code></dt>
-<dd>Name of a composite type.</dd>
+<dd> Name of a composite type.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_composite()</code>. The test passes if the
@@ -3790,13 +4020,13 @@ SELECT has_domain( domain );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the domain.</dd>
+<dd> Name of a schema in which to find the domain.</dd>
 
 <dt><code>:domain</code></dt>
-<dd>Name of a domain.</dd>
+<dd> Name of a domain.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests whether or not a domain exists in the database. The first
@@ -3824,13 +4054,13 @@ SELECT hasnt_domain( domain );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the domain.</dd>
+<dd> Name of a schema in which to find the domain.</dd>
 
 <dt><code>:domain</code></dt>
-<dd>Name of a domain.</dd>
+<dd> Name of a domain.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_domain()</code>. The test passes if the specified
@@ -3848,13 +4078,13 @@ SELECT has_enum( enum );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the enum.</dd>
+<dd> Name of a schema in which to find the enum.</dd>
 
 <dt><code>:enum</code></dt>
-<dd>Name of a enum.</dd>
+<dd> Name of a enum.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests whether or not a enum exists in the database. Enums are
@@ -3882,13 +4112,13 @@ SELECT hasnt_enum( enum );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the enum.</dd>
+<dd> Name of a schema in which to find the enum.</dd>
 
 <dt><code>:enum</code></dt>
-<dd>Name of a enum.</dd>
+<dd> Name of a enum.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_enum()</code>. The test passes if the specified
@@ -3900,12 +4130,12 @@ enum does <em>not</em> exist.</p>
 SELECT has_index( :schema, :table, :index, :columns );
 SELECT has_index( :schema, :table, :index, :column, :description );
 SELECT has_index( :schema, :table, :index, :column );
-SELECT has_index( :table,  :index, :columns, :description );
-SELECT has_index( :table,  :index, :columns, :description );
-SELECT has_index( :table,  :index, :column, :description );
-SELECT has_index( :schema, :table, :index, :column );
-SELECT has_index( :table,  :index, :column );
+SELECT has_index( :schema, :table, :index, :description );
 SELECT has_index( :schema, :table, :index );
+SELECT has_index( :table,  :index, :columns, :description );
+SELECT has_index( :table,  :index, :columns );
+SELECT has_index( :table,  :index, :column, :description );
+SELECT has_index( :table,  :index, :column );
 SELECT has_index( :table,  :index, :description );
 SELECT has_index( :table,  :index );
 </code></pre>
@@ -3914,22 +4144,22 @@ SELECT has_index( :table,  :index );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the index.</dd>
+<dd> Name of a schema in which to find the index.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table in which to find index.</dd>
+<dd> Name of a table in which to find index.</dd>
 
 <dt><code>:index</code></dt>
-<dd>Name of an index.</dd>
+<dd> Name of an index.</dd>
 
 <dt><code>:columns</code></dt>
-<dd>Array of the columns and/or expressions in the index.</dd>
+<dd> Array of the columns and/or expressions in the index.</dd>
 
 <dt><code>:column</code></dt>
-<dd>Indexed column name or expression.</dd>
+<dd> Indexed column name or expression.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Checks for the existence of a named index associated with the named table. The
@@ -3984,16 +4214,16 @@ SELECT hasnt_index( table, index );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to not find the index.</dd>
+<dd> Name of a schema in which to not find the index.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table in which to not find the index.</dd>
+<dd> Name of a table in which to not find the index.</dd>
 
 <dt><code>:index</code></dt>
-<dd>Name of an index.</dd>
+<dd> Name of an index.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_index()</code>. The test passes if the
@@ -4011,16 +4241,16 @@ SELECT has_trigger( :table, :trigger )` ###
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the trigger.</dd>
+<dd> Name of a schema in which to find the trigger.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table in which to find the trigger.</dd>
+<dd> Name of a table in which to find the trigger.</dd>
 
 <dt><code>:trigger</code></dt>
-<dd>Name of an trigger.</dd>
+<dd> Name of an trigger.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests to see if the specified table has the named trigger. The <code>:description</code>
@@ -4039,16 +4269,16 @@ SELECT hasnt_trigger( :table, :trigger )` ###
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to not find the trigger.</dd>
+<dd> Name of a schema in which to not find the trigger.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table in which to not find the trigger.</dd>
+<dd> Name of a table in which to not find the trigger.</dd>
 
 <dt><code>:trigger</code></dt>
-<dd>Name of an trigger.</dd>
+<dd> Name of an trigger.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_trigger()</code>. The test passes if the
@@ -4066,16 +4296,16 @@ SELECT has_rule( :table, :rule )` ###
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the rule.</dd>
+<dd> Name of a schema in which to find the rule.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table in which to find the rule.</dd>
+<dd> Name of a table in which to find the rule.</dd>
 
 <dt><code>:rule</code></dt>
-<dd>Name of an rule.</dd>
+<dd> Name of an rule.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests to see if the specified table has the named rule. The <code>:description</code> is
@@ -4094,16 +4324,16 @@ SELECT hasnt_rule( :table, :rule )` ###
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to not find the rule.</dd>
+<dd> Name of a schema in which to not find the rule.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table in which to not find the rule.</dd>
+<dd> Name of a table in which to not find the rule.</dd>
 
 <dt><code>:rule</code></dt>
-<dd>Name of an rule.</dd>
+<dd> Name of an rule.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_rule()</code>. The test passes if the specified
@@ -4125,16 +4355,16 @@ SELECT has_function( :function );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the function.</dd>
+<dd> Name of a schema in which to find the function.</dd>
 
 <dt><code>:function</code></dt>
-<dd>Name of a function.</dd>
+<dd> Name of a function.</dd>
 
 <dt><code>:args</code></dt>
-<dd>Array of data types of the function arguments.</dd>
+<dd> Array of data types of the function arguments.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Checks to be sure that the given function exists in the named schema and with
@@ -4193,16 +4423,16 @@ SELECT hasnt_function( :function );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which not to find the function.</dd>
+<dd> Name of a schema in which not to find the function.</dd>
 
 <dt><code>:function</code></dt>
-<dd>Name of a function.</dd>
+<dd> Name of a function.</dd>
 
 <dt><code>:args</code></dt>
-<dd>Array of data types of the function arguments.</dd>
+<dd> Array of data types of the function arguments.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_function()</code>. The test passes if the
@@ -4222,19 +4452,19 @@ SELECT has_cast( :source_type, :target_type );
 
 <dl>
 <dt><code>:source_type</code></dt>
-<dd>Data type of the source value without typemod.</dd>
+<dd> Data type of the source value without typemod.</dd>
 
 <dt><code>:target_type</code></dt>
-<dd>Data type of the target value without typemod.</dd>
+<dd> Data type of the target value without typemod.</dd>
 
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the operator function.</dd>
+<dd> Schema in which to find the operator function.</dd>
 
 <dt><code>:function</code></dt>
-<dd>Name of the operator function.</dd>
+<dd> Name of the operator function.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests for the existence of a cast. A cast consists of a source data type, a
@@ -4277,19 +4507,19 @@ SELECT hasnt_cast( :source_type, :target_type );
 
 <dl>
 <dt><code>:source_type</code></dt>
-<dd>Data type of the source value.</dd>
+<dd> Data type of the source value.</dd>
 
 <dt><code>:target_type</code></dt>
-<dd>Data type of the target value.</dd>
+<dd> Data type of the target value.</dd>
 
 <dt><code>:schema</code></dt>
-<dd>Schema in which not to find the operator function.</dd>
+<dd> Schema in which not to find the operator function.</dd>
 
 <dt><code>:function</code></dt>
-<dd>Name of the operator function.</dd>
+<dd> Name of the operator function.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_cast()</code>: the test passes if the specified
@@ -4309,22 +4539,22 @@ SELECT has_operator( :left_type, :name, :right_type );
 
 <dl>
 <dt><code>:left_type</code></dt>
-<dd>Data type of the left operand.</dd>
+<dd> Data type of the left operand.</dd>
 
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the operator.</dd>
+<dd> Schema in which to find the operator.</dd>
 
 <dt><code>:name</code></dt>
-<dd>Name of the operator.</dd>
+<dd> Name of the operator.</dd>
 
 <dt><code>:right_type</code></dt>
-<dd>Data type of the right operand.</dd>
+<dd> Data type of the right operand.</dd>
 
 <dt><code>:return_type</code></dt>
-<dd>Data type of the return value.</dd>
+<dd> Data type of the return value.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests for the presence of a binary operator. If the operator exists with the
@@ -4353,19 +4583,19 @@ SELECT has_leftop( :name, :type );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the operator.</dd>
+<dd> Schema in which to find the operator.</dd>
 
 <dt><code>:name</code></dt>
-<dd>Name of the operator.</dd>
+<dd> Name of the operator.</dd>
 
 <dt><code>:type</code></dt>
-<dd>Data type of the operand.</dd>
+<dd> Data type of the operand.</dd>
 
 <dt><code>:return_type</code></dt>
-<dd>Data type of the return value.</dd>
+<dd> Data type of the return value.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests for the presence of a left-unary operator. If the operator exists with
@@ -4393,19 +4623,19 @@ SELECT has_rightop( :name, :type );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the operator.</dd>
+<dd> Schema in which to find the operator.</dd>
 
 <dt><code>:name</code></dt>
-<dd>Name of the operator.</dd>
+<dd> Name of the operator.</dd>
 
 <dt><code>:type</code></dt>
-<dd>Data type of the operand.</dd>
+<dd> Data type of the operand.</dd>
 
 <dt><code>:return_type</code></dt>
-<dd>Data type of the return value.</dd>
+<dd> Data type of the return value.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests for the presence of a right-unary operator. If the operator exists with
@@ -4431,13 +4661,13 @@ SELECT has_opclass( :name );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the operator class.</dd>
+<dd> Schema in which to find the operator class.</dd>
 
 <dt><code>:name</code></dt>
-<dd>Name of the operator class.</dd>
+<dd> Name of the operator class.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests for the presence of an operator class. If you omit the schema name, then
@@ -4457,13 +4687,13 @@ SELECT hasnt_opclass( :name );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which not to find the operator class.</dd>
+<dd> Schema in which not to find the operator class.</dd>
 
 <dt><code>:name</code></dt>
-<dd>Name of the operator class.</dd>
+<dd> Name of the operator class.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_opclass()</code>. The test passes if the
@@ -4479,10 +4709,10 @@ SELECT has_role( :role );
 
 <dl>
 <dt><code>:role</code></dt>
-<dd>Name of the role.</dd>
+<dd> Name of the role.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Checks to ensure that a database role exists. If the description is omitted,
@@ -4498,10 +4728,10 @@ SELECT hasnt_role( :role );
 
 <dl>
 <dt><code>:role</code></dt>
-<dd>Name of the role.</dd>
+<dd> Name of the role.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>The inverse of <code>has_role()</code>, this function tests for the <em>absence</em> of a
@@ -4517,10 +4747,10 @@ SELECT has_user( :user );
 
 <dl>
 <dt><code>:user</code></dt>
-<dd>Name of the user.</dd>
+<dd> Name of the user.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Checks to ensure that a database user exists. If the description is omitted,
@@ -4536,10 +4766,10 @@ SELECT hasnt_user( :user );
 
 <dl>
 <dt><code>:user</code></dt>
-<dd>Name of the user.</dd>
+<dd> Name of the user.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>The inverse of <code>has_user()</code>, this function tests for the <em>absence</em> of a
@@ -4555,10 +4785,10 @@ SELECT has_group( :group );
 
 <dl>
 <dt><code>:group</code></dt>
-<dd>Name of the group.</dd>
+<dd> Name of the group.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Checks to ensure that a database group exists. If the description is omitted,
@@ -4574,10 +4804,10 @@ SELECT hasnt_group( :group );
 
 <dl>
 <dt><code>:group</code></dt>
-<dd>Name of the group.</dd>
+<dd> Name of the group.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>The inverse of <code>has_group()</code>, this function tests for the <em>absence</em> of a
@@ -4593,10 +4823,10 @@ SELECT has_language( :language );
 
 <dl>
 <dt><code>:language</code></dt>
-<dd>Name of the language.</dd>
+<dd> Name of the language.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Checks to ensure that a procedural language exists. If the description is
@@ -4612,10 +4842,10 @@ SELECT hasnt_language( :language );
 
 <dl>
 <dt><code>:language</code></dt>
-<dd>Name of the language.</dd>
+<dd> Name of the language.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>The inverse of <code>has_language()</code>, this function tests for the <em>absence</em> of a
@@ -4633,13 +4863,13 @@ SELECT has_extension( :extension );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which the extension&#8217;s objects were installed.</dd>
+<dd> Schema in which the extension&#8217;s objects were installed.</dd>
 
 <dt><code>:extension</code></dt>
-<dd>Name of an extension.</dd>
+<dd> Name of an extension.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests whether or not an extension exists in the database. The
@@ -4664,13 +4894,13 @@ SELECT hasnt_extension( :extension );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which the extension&#8217;s objects would be installed.</dd>
+<dd> Schema in which the extension&#8217;s objects would be installed.</dd>
 
 <dt><code>:extension</code></dt>
-<dd>Name of an extension.</dd>
+<dd> Name of an extension.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_extension()</code>. The test passes if the
@@ -4695,16 +4925,16 @@ SELECT has_column( :table, :column );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table.</dd>
+<dd> Name of a table.</dd>
 
 <dt><code>:column</code></dt>
-<dd>Name of the column.</dd>
+<dd> Name of the column.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests whether or not a column exists in a given table, view, materialized view
@@ -4725,16 +4955,16 @@ SELECT hasnt_column( :table, :column );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table.</dd>
+<dd> Name of a table.</dd>
 
 <dt><code>:column</code></dt>
-<dd>Name of the column.</dd>
+<dd> Name of the column.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_column()</code>. The test passes if the
@@ -4752,16 +4982,16 @@ SELECT col_not_null( :table, :column );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table.</dd>
+<dd> Name of a table.</dd>
 
 <dt><code>:column</code></dt>
-<dd>Name of the column.</dd>
+<dd> Name of the column.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests whether the specified column has a <code>NOT NULL</code> constraint. The first
@@ -4784,16 +5014,16 @@ SELECT col_is_null( :table, :column );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table.</dd>
+<dd> Name of a table.</dd>
 
 <dt><code>:column</code></dt>
-<dd>Name of the column.</dd>
+<dd> Name of the column.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>col_not_null()</code>: the test passes if the
@@ -4816,16 +5046,16 @@ SELECT col_has_default( :table, :column );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table.</dd>
+<dd> Name of a table.</dd>
 
 <dt><code>:column</code></dt>
-<dd>Name of the column.</dd>
+<dd> Name of the column.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests whether or not a column has a default value. Fails if the column doesn&#8217;t
@@ -4847,16 +5077,16 @@ SELECT col_hasnt_default( :table, :column );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table.</dd>
+<dd> Name of a table.</dd>
 
 <dt><code>:column</code></dt>
-<dd>Name of the column.</dd>
+<dd> Name of the column.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>col_has_default()</code>. The test passes if the
@@ -4877,22 +5107,22 @@ SELECT col_type_is( :table, :column, :type );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table.</dd>
+<dd> Name of a table.</dd>
 
 <dt><code>:column</code></dt>
-<dd>Name of the column.</dd>
+<dd> Name of the column.</dd>
 
 <dt><code>:type_schema</code></dt>
-<dd>Schema in which to find the data type.</dd>
+<dd> Schema in which to find the data type.</dd>
 
 <dt><code>:type</code></dt>
-<dd>Name of a data type.</dd>
+<dd> Name of a data type.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that the specified column is of a particular type. If it
@@ -4946,19 +5176,19 @@ SELECT col_default_is( :table, :column, :default );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table.</dd>
+<dd> Name of a table.</dd>
 
 <dt><code>:column</code></dt>
-<dd>Name of the column.</dd>
+<dd> Name of the column.</dd>
 
 <dt><code>:default</code></dt>
-<dd>Default value expressed as a string.</dd>
+<dd> Default value expressed as a string.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the default value of a column. If it fails, it will emit diagnostics
@@ -4989,6 +5219,32 @@ string:</p>
 
 <pre><code>SELECT col_default_is( 'user', 'created_at', 'now()' );
 </code></pre>
+
+<p>But beware that the representation of special SQL syntax functions changed
+in PostgreSQL 10. Where previously a default of <code>CURRENT_USER</code> and friends
+used to be represented as functions:</p>
+
+<pre><code>SELECT col_default_is( 'widgets', 'created_by', '&quot;current_user&quot;()' );
+</code></pre>
+
+<p>As of PostgreSQL 10, they comply with the SQL spec to appear in uppercase
+and without trailining parentheses:</p>
+
+<pre><code>SELECT col_default_is( 'widgets', 'created_by', 'CURRENT_USER' );
+</code></pre>
+
+<p>If you need to support both variants, use <code>pg_version_num()</code> to decide
+which to use:</p>
+
+<pre><code>SELECT col_default_is(
+    'widgets', 'created_by',
+    CASE WHEN pg_version_num() &gt;= 100000 THEN 'CURRENT_USER ELSE '&quot;current_user&quot;()' END
+);
+</code></pre>
+
+<p>See the note in the
+<a href="https://www.postgresql.org/docs/current/functions-info.html">System Information Functions</a>
+documentation for a complete list.</p>
 
 <p>If the test fails, it will output useful diagnostics. For example, this test:</p>
 
@@ -5024,13 +5280,13 @@ SELECT has_pk( :table );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table.</dd>
+<dd> Name of a table.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests whether or not a table has a primary key. The first argument is the
@@ -5051,13 +5307,13 @@ SELECT hasnt_pk( :table );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table.</dd>
+<dd> Name of a table.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_pk()</code>. The test passes if the specified
@@ -5074,13 +5330,13 @@ SELECT has_fk( :table );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table.</dd>
+<dd> Name of a table.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests whether or not a table has a foreign key constraint. The first argument
@@ -5101,13 +5357,13 @@ SELECT hasnt_fk( :table );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table.</dd>
+<dd> Name of a table.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>has_fk()</code>. The test passes if the specified
@@ -5127,19 +5383,19 @@ SELECT col_is_pk( :table, :column );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table containing the primary key.</dd>
+<dd> Name of a table containing the primary key.</dd>
 
 <dt><code>:columns</code></dt>
-<dd>Array of the names of the primary key columns.</dd>
+<dd> Array of the names of the primary key columns.</dd>
 
 <dt><code>:column</code></dt>
-<dd>Name of the primary key column.</dd>
+<dd> Name of the primary key column.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests whether the specified column or columns in a table is/are the primary
@@ -5183,19 +5439,19 @@ SELECT col_isnt_pk( :table, :column );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table not containing the primary key.</dd>
+<dd> Name of a table not containing the primary key.</dd>
 
 <dt><code>:columns</code></dt>
-<dd>Array of the names of the primary key columns.</dd>
+<dd> Array of the names of the primary key columns.</dd>
 
 <dt><code>:column</code></dt>
-<dd>Name of the primary key column.</dd>
+<dd> Name of the primary key column.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>col_is_pk()</code>. The test passes if the
@@ -5215,19 +5471,19 @@ SELECT col_is_fk( :table, :column );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table containing the foreign key constraint.</dd>
+<dd> Name of a table containing the foreign key constraint.</dd>
 
 <dt><code>:columns</code></dt>
-<dd>Array of the names of the foreign key columns.</dd>
+<dd> Array of the names of the foreign key columns.</dd>
 
 <dt><code>:column</code></dt>
-<dd>Name of the foreign key column.</dd>
+<dd> Name of the foreign key column.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Just like <code>col_is_fk()</code>, except that it test that the column or array of
@@ -5254,19 +5510,19 @@ SELECT col_isnt_fk( :table, :column );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table not containing the foreign key constraint.</dd>
+<dd> Name of a table not containing the foreign key constraint.</dd>
 
 <dt><code>:columns</code></dt>
-<dd>Array of the names of the foreign key columns.</dd>
+<dd> Array of the names of the foreign key columns.</dd>
 
 <dt><code>:column</code></dt>
-<dd>Name of the foreign key column.</dd>
+<dd> Name of the foreign key column.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>col_is_fk()</code>. The test passes if the
@@ -5288,31 +5544,31 @@ SELECT fk_ok( :fk_table,  :fk_column,  :pk_table,   :pk_column );
 
 <dl>
 <dt><code>:fk_schema</code></dt>
-<dd>Schema in which to find the table with the foreign key</dd>
+<dd> Schema in which to find the table with the foreign key</dd>
 
 <dt><code>:fk_table</code></dt>
-<dd>Name of a table containing the foreign key.</dd>
+<dd> Name of a table containing the foreign key.</dd>
 
 <dt><code>:fk_columns</code></dt>
-<dd>Array of the names of the foreign key columns.</dd>
+<dd> Array of the names of the foreign key columns.</dd>
 
 <dt><code>:fk_column</code></dt>
-<dd>Name of the foreign key column.</dd>
+<dd> Name of the foreign key column.</dd>
 
 <dt><code>:pk_schema</code></dt>
-<dd>Schema in which to find the table with the primary key</dd>
+<dd> Schema in which to find the table with the primary key</dd>
 
 <dt><code>:pk_table</code></dt>
-<dd>Name of a table containing the primary key.</dd>
+<dd> Name of a table containing the primary key.</dd>
 
 <dt><code>:pk_columns</code></dt>
-<dd>Array of the names of the primary key columns.</dd>
+<dd> Array of the names of the primary key columns.</dd>
 
 <dt><code>:pk_column</code></dt>
-<dd>Name of the primary key column.</dd>
+<dd> Name of the primary key column.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function combines <code>col_is_fk()</code> and <code>col_is_pk()</code> into a single test that
@@ -5363,13 +5619,13 @@ SELECT has_unique( :table );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table containing the unique constraint.</dd>
+<dd> Name of a table containing the unique constraint.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests whether or not a table has a unique constraint. The first argument is
@@ -5395,19 +5651,19 @@ SELECT col_is_unique( table, column );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table containing the unique constraint.</dd>
+<dd> Name of a table containing the unique constraint.</dd>
 
 <dt><code>:columns</code></dt>
-<dd>Array of the names of the unique columns.</dd>
+<dd> Array of the names of the unique columns.</dd>
 
 <dt><code>:column</code></dt>
-<dd>Name of the unique column.</dd>
+<dd> Name of the unique column.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Just like <code>col_is_pk()</code>, except that it test that the column or array of
@@ -5447,13 +5703,13 @@ SELECT has_check( :table );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table containing the check constraint.</dd>
+<dd> Name of a table containing the check constraint.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests whether or not a table has a check constraint. The first argument is the
@@ -5485,19 +5741,19 @@ SELECT col_has_check( :table, :column );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table containing the check constraint.</dd>
+<dd> Name of a table containing the check constraint.</dd>
 
 <dt><code>:columns</code></dt>
-<dd>Array of the names of the check constraint columns.</dd>
+<dd> Array of the names of the check constraint columns.</dd>
 
 <dt><code>:column</code></dt>
-<dd>Name of the check constraint column.</dd>
+<dd> Name of the check constraint column.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Just like <code>col_is_pk()</code>, except that it test that the column or array of
@@ -5515,16 +5771,16 @@ SELECT index_is_unique( :index );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table containing the index.</dd>
+<dd> Name of a table containing the index.</dd>
 
 <dt><code>:index</code></dt>
-<dd>Name of the index.</dd>
+<dd> Name of the index.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests whether an index is unique.</p>
@@ -5541,16 +5797,16 @@ SELECT index_is_primary( :index );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table containing the index.</dd>
+<dd> Name of a table containing the index.</dd>
 
 <dt><code>:index</code></dt>
-<dd>Name of the index.</dd>
+<dd> Name of the index.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests whether an index is on a primary key.</p>
@@ -5567,13 +5823,13 @@ SELECT is_partitioned( :table );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the partitioned table.</dd>
+<dd> Schema in which to find the partitioned table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a partitioned table.</dd>
+<dd> Name of a partitioned table.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests whether a table is partitioned. The first argument is the schema name,
@@ -5595,13 +5851,13 @@ SELECT isnt_partitioned( :table );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table.</dd>
+<dd> Name of a table.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>is_partitioned()</code>. The test passes if the
@@ -5619,19 +5875,19 @@ SELECT is_parent( :child, :parent_table );
 
 <dl>
 <dt><code>:child_schema</code></dt>
-<dd>Schema in which to find the partition table.</dd>
+<dd> Schema in which to find the partition table.</dd>
 
 <dt><code>:child</code></dt>
-<dd>Name of a partition table.</dd>
+<dd> Name of a partition table.</dd>
 
 <dt><code>:parent_schema</code></dt>
-<dd>Schema in which to find the partitioned table.</dd>
+<dd> Schema in which to find the partitioned table.</dd>
 
 <dt><code>:parent_table</code></dt>
-<dd>Name of a partitioned table.</dd>
+<dd> Name of a partitioned table.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests that one table is a partition of another table. The partition (or child)
@@ -5653,16 +5909,16 @@ SELECT is_clustered( :index );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table containing the index.</dd>
+<dd> Name of a table containing the index.</dd>
 
 <dt><code>:index</code></dt>
-<dd>Name of the index.</dd>
+<dd> Name of the index.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests whether a table is clustered on the given index. A table is clustered on
@@ -5686,19 +5942,19 @@ SELECT is_indexed( :table, :column );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table containing the index.</dd>
+<dd> Name of a table containing the index.</dd>
 
 <dt><code>:columns</code></dt>
-<dd>Array of the columns and/or expressions in the index.</dd>
+<dd> Array of the columns and/or expressions in the index.</dd>
 
 <dt><code>:column</code></dt>
-<dd>Indexed column name or expression.</dd>
+<dd> Indexed column name or expression.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Checks that the specified columns or expressions are contained in a single
@@ -5718,19 +5974,19 @@ SELECT index_is_type( :index, :type );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table containing the index.</dd>
+<dd> Name of a table containing the index.</dd>
 
 <dt><code>:index</code></dt>
-<dd>Name of the index.</dd>
+<dd> Name of the index.</dd>
 
 <dt><code>:type</code></dt>
-<dd>The index Type.</dd>
+<dd> The index Type.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests to ensure that an index is of a particular type. At the time of this
@@ -5771,13 +6027,13 @@ SELECT can( :functions );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the functions.</dd>
+<dd> Schema in which to find the functions.</dd>
 
 <dt><code>:functions</code></dt>
-<dd>Array of function names.</dd>
+<dd> Array of function names.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Checks to be sure that <code>:schema</code> has <code>:functions</code> defined. This is subtly
@@ -5818,19 +6074,19 @@ SELECT function_lang_is( :function, :language );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the function.</dd>
+<dd> Schema in which to find the function.</dd>
 
 <dt><code>:function</code></dt>
-<dd>Function name.</dd>
+<dd> Function name.</dd>
 
 <dt><code>:args</code></dt>
-<dd>Array of data types for the function arguments.</dd>
+<dd> Array of data types for the function arguments.</dd>
 
 <dt><code>:language</code></dt>
-<dd>Name of the procedural language.</dd>
+<dd> Name of the procedural language.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests that a particular function is implemented in a particular procedural
@@ -5879,19 +6135,19 @@ SELECT function_returns( :function, :type );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the function.</dd>
+<dd> Schema in which to find the function.</dd>
 
 <dt><code>:function</code></dt>
-<dd>Function name.</dd>
+<dd> Function name.</dd>
 
 <dt><code>:args</code></dt>
-<dd>Array of data types for the function arguments.</dd>
+<dd> Array of data types for the function arguments.</dd>
 
-<dt><code>:Type</code></dt>
-<dd>Return value data type.</dd>
+<dt><code>:type</code></dt>
+<dd> Return value data type.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests that a particular function returns a particular data type. The <code>:args[]</code>
@@ -5946,16 +6202,16 @@ SELECT is_definer( :function );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the function.</dd>
+<dd> Schema in which to find the function.</dd>
 
 <dt><code>:function</code></dt>
-<dd>Function name.</dd>
+<dd> Function name.</dd>
 
 <dt><code>:args</code></dt>
-<dd>Array of data types for the function arguments.</dd>
+<dd> Array of data types for the function arguments.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests that a function is a security definer (i.e., a &#8220;setuid&#8221; function). If
@@ -5996,16 +6252,16 @@ SELECT isnt_definer( :function );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the function.</dd>
+<dd> Schema in which to find the function.</dd>
 
 <dt><code>:function</code></dt>
-<dd>Function name.</dd>
+<dd> Function name.</dd>
 
 <dt><code>:args</code></dt>
-<dd>Array of data types for the function arguments.</dd>
+<dd> Array of data types for the function arguments.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>is_definer()</code>. The test passes if the specified
@@ -6035,16 +6291,16 @@ SELECT is_strict( :function );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the function.</dd>
+<dd> Schema in which to find the function.</dd>
 
 <dt><code>:function</code></dt>
-<dd>Function name.</dd>
+<dd> Function name.</dd>
 
 <dt><code>:args</code></dt>
-<dd>Array of data types for the function arguments.</dd>
+<dd> Array of data types for the function arguments.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests that a function is a strict, meaning that the function returns null if
@@ -6085,16 +6341,16 @@ SELECT isnt_strict( :function );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the function.</dd>
+<dd> Schema in which to find the function.</dd>
 
 <dt><code>:function</code></dt>
-<dd>Function name.</dd>
+<dd> Function name.</dd>
 
 <dt><code>:args</code></dt>
-<dd>Array of data types for the function arguments.</dd>
+<dd> Array of data types for the function arguments.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>is_strict()</code>. The test passes if the specified
@@ -6103,45 +6359,6 @@ function is not strict.</p>
 <p>If the function does not exist, a handy diagnostic message will let you know:</p>
 
 <pre><code># Failed test 290: &quot;Function nasty() should be an aggregate function&quot;
-#     Function nasty() does not exist
-</code></pre>
-
-<p>But then you check with <code>has_function()</code> first, right?</p>
-
-<h3 id="isnt_aggregate"><code>isnt_aggregate()</code></h3>
-
-<pre><code>SELECT isnt_aggregate( :schema, :function, :args, :description );
-SELECT isnt_aggregate( :schema, :function, :args );
-SELECT isnt_aggregate( :schema, :function, :description );
-SELECT isnt_aggregate( :schema, :function );
-SELECT isnt_aggregate( :function, :args, :description );
-SELECT isnt_aggregate( :function, :args );
-SELECT isnt_aggregate( :function, :description );
-SELECT isnt_aggregate( :function );
-</code></pre>
-
-<p><strong>Parameters</strong></p>
-
-<dl>
-<dt><code>:schema</code></dt>
-<dd>Schema in which to find the function.</dd>
-
-<dt><code>:function</code></dt>
-<dd>Function name.</dd>
-
-<dt><code>:args</code></dt>
-<dd>Array of data types for the function arguments.</dd>
-
-<dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
-</dl>
-
-<p>This function is the inverse of <code>is_aggregate()</code>. The test passes if the specified
-function is not an aggregate function.</p>
-
-<p>If the function does not exist, a handy diagnostic message will let you know:</p>
-
-<pre><code># Failed test 290: &quot;Function nasty() should not be an aggregate function&quot;
 #     Function nasty() does not exist
 </code></pre>
 
@@ -6163,16 +6380,16 @@ SELECT is_aggregate( :function );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the function.</dd>
+<dd> Schema in which to find the function.</dd>
 
 <dt><code>:function</code></dt>
-<dd>Function name.</dd>
+<dd> Function name.</dd>
 
 <dt><code>:args</code></dt>
-<dd>Array of data types for the function arguments.</dd>
+<dd> Array of data types for the function arguments.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests that a function is an aggregate function. If the <code>:schema</code> argument is
@@ -6213,16 +6430,16 @@ SELECT isnt_aggregate( :function );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the function.</dd>
+<dd> Schema in which to find the function.</dd>
 
 <dt><code>:function</code></dt>
-<dd>Function name.</dd>
+<dd> Function name.</dd>
 
 <dt><code>:args</code></dt>
-<dd>Array of data types for the function arguments.</dd>
+<dd> Array of data types for the function arguments.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function is the inverse of <code>is_aggregate()</code>. The test passes if the specified
@@ -6252,19 +6469,19 @@ SELECT volatility_is( :function, :volatility );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the function.</dd>
+<dd> Schema in which to find the function.</dd>
 
 <dt><code>:function</code></dt>
-<dd>Function name.</dd>
+<dd> Function name.</dd>
 
 <dt><code>:args</code></dt>
-<dd>Array of data types for the function arguments.</dd>
+<dd> Array of data types for the function arguments.</dd>
 
 <dt><code>:volatility</code></dt>
-<dd>Volatility level.</dd>
+<dd> Volatility level.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the volatility of a function. Supported volatilities are &#8220;volatile&#8221;,
@@ -6312,22 +6529,22 @@ SELECT trigger_is( :table, :trigger, :function );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the table.</dd>
+<dd> Schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Table in which to find the trigger.</dd>
+<dd> Table in which to find the trigger.</dd>
 
 <dt><code>:trigger</code></dt>
-<dd>Trigger name.</dd>
+<dd> Trigger name.</dd>
 
 <dt><code>:func_schema</code></dt>
-<dd>Schema in which to find the trigger function.</dd>
+<dd> Schema in which to find the trigger function.</dd>
 
 <dt><code>:function</code></dt>
-<dd>Function name.</dd>
+<dd> Function name.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests that the specified trigger calls the named function. If not, it outputs
@@ -6354,10 +6571,10 @@ SELECT language_is_trusted( language );
 
 <dl>
 <dt><code>:language</code></dt>
-<dd>Name of a procedural language.</dd>
+<dd> Name of a procedural language.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests that the specified procedural language is trusted. See the <a href="http://www.postgresql.org/docs/current/static/sql-createlanguage.html">CREATE
@@ -6388,16 +6605,16 @@ SELECT enum_has_labels( :enum, :labels );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the enum.</dd>
+<dd> Schema in which to find the enum.</dd>
 
 <dt><code>:enum</code></dt>
-<dd>Enum name.</dd>
+<dd> Enum name.</dd>
 
 <dt><code>:labels</code></dt>
-<dd>An array of the enum labels.</dd>
+<dd> An array of the enum labels.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>This function tests that an enum consists of an expected list of labels. Enums
@@ -6426,19 +6643,19 @@ SELECT domain_type_is( :domain, :type );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the domain.</dd>
+<dd> Schema in which to find the domain.</dd>
 
 <dt><code>:domain</code></dt>
-<dd>Domain name.</dd>
+<dd> Domain name.</dd>
 
 <dt><code>:type_schema</code></dt>
-<dd>Schema in which to find the data type.</dd>
+<dd> Schema in which to find the data type.</dd>
 
 <dt><code>:type</code></dt>
-<dd>Domain data type.</dd>
+<dd> Domain data type.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the data type underlying a domain. The first two arguments are the
@@ -6488,19 +6705,19 @@ SELECT domain_type_isnt( :domain, :type );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema in which to find the domain.</dd>
+<dd> Schema in which to find the domain.</dd>
 
 <dt><code>:domain</code></dt>
-<dd>Domain name.</dd>
+<dd> Domain name.</dd>
 
 <dt><code>:type_schema</code></dt>
-<dd>Schema in which to find the data type.</dd>
+<dd> Schema in which to find the data type.</dd>
 
 <dt><code>:type</code></dt>
-<dd>Domain data type.</dd>
+<dd> Domain data type.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>The inverse of <code>domain_type_is()</code>, this function tests that a domain does
@@ -6527,13 +6744,13 @@ SELECT cast_context_is( :source_type, :target_type, :context );
 
 <dl>
 <dt><code>:source_type</code></dt>
-<dd>The type cast from.</dd>
+<dd> The type cast from.</dd>
 
 <dt><code>:target_type</code></dt>
-<dd>The type cast to.</dd>
+<dd> The type cast to.</dd>
 
 <dt><code>:context</code></dt>
-<dd>The context for the cast, one of &#8220;implicit&#8221;, &#8220;assignment&#8221;, or &#8220;explicit&#8221;.</dd>
+<dd> The context for the cast, one of &#8220;implicit&#8221;, &#8220;assignment&#8221;, or &#8220;explicit&#8221;.</dd>
 </dl>
 
 <p>Test that a cast from a source to a target data type has a particular context.
@@ -6578,10 +6795,10 @@ SELECT is_superuser( :user );
 
 <dl>
 <dt><code>:user</code></dt>
-<dd>Name of a PostgreSQL user.</dd>
+<dd> Name of a PostgreSQL user.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests that a database user is a super user. If the description is omitted, it
@@ -6604,10 +6821,10 @@ will default to &#8220;User <code>:user</code> should be a super user&#8221;. Ex
 
 <dl>
 <dt><code>:user</code></dt>
-<dd>Name of a PostgreSQL user.</dd>
+<dd> Name of a PostgreSQL user.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>The inverse of <code>is_superuser()</code>, this function tests that a database user is
@@ -6627,13 +6844,13 @@ SELECT is_member_of( :role, :member );
 
 <dl>
 <dt><code>:role</code></dt>
-<dd>Name of a PostgreSQL group role.</dd>
+<dd> Name of a PostgreSQL group role.</dd>
 
 <dt><code>:members</code></dt>
-<dd>Array of names of roles that should be members of the group role.</dd>
+<dd> Array of names of roles that should be members of the group role.</dd>
 
 <dt><code>:member</code></dt>
-<dd>Name of a role that should be a member of the group role.</dd>
+<dd> Name of a role that should be a member of the group role.</dd>
 
 <dt><code>:description</code></dt>
 <dd><p> A short description of the test.</p>
@@ -6669,16 +6886,16 @@ SELECT rule_is_instead( :table, :rule );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the table.</dd>
+<dd> Name of a schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of the table to which the rule is applied.</dd>
+<dd> Name of the table to which the rule is applied.</dd>
 
 <dt><code>:rule</code></dt>
-<dd>A rule name.</dd>
+<dd> A rule name.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Checks whether a rule on the specified relation is an <code>INSTEAD</code> rule. See the
@@ -6710,19 +6927,19 @@ SELECT rule_is_on( :table, :rule, :event );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the table.</dd>
+<dd> Name of a schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of the table to which the rule is applied.</dd>
+<dd> Name of the table to which the rule is applied.</dd>
 
 <dt><code>:rule</code></dt>
-<dd>A rule name.</dd>
+<dd> A rule name.</dd>
 
 <dt><code>:event</code></dt>
-<dd>Name of a rule event, one of &#8220;SELECT&#8221;, &#8220;INSERT&#8221;, &#8220;UPDATE&#8221;, or &#8220;DELETE&#8221;.</dd>
+<dd> Name of a rule event, one of &#8220;SELECT&#8221;, &#8220;INSERT&#8221;, &#8220;UPDATE&#8221;, or &#8220;DELETE&#8221;.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the event for a rule, which may be one of &#8220;SELECT&#8221;, &#8220;INSERT&#8221;, &#8220;UPDATE&#8221;,
@@ -6765,13 +6982,13 @@ SELECT db_owner_is ( :dbname, :user );
 
 <dl>
 <dt><code>:dbname</code></dt>
-<dd>Name of a database.</dd>
+<dd> Name of a database.</dd>
 
 <dt><code>:user</code></dt>
-<dd>Name of a user.</dd>
+<dd> Name of a user.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the ownership of the database. If the <code>:description</code> argument is
@@ -6806,13 +7023,13 @@ SELECT schema_owner_is ( :schemaname, :user );
 
 <dl>
 <dt><code>:schemaname</code></dt>
-<dd>Name of a schema.</dd>
+<dd> Name of a schema.</dd>
 
 <dt><code>:user</code></dt>
-<dd>Name of a user.</dd>
+<dd> Name of a user.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the ownership of the schema. If the <code>:description</code> argument is
@@ -6847,13 +7064,13 @@ SELECT tablespace_owner_is ( :tablespacename, :user );
 
 <dl>
 <dt><code>:tablespacename</code></dt>
-<dd>Name of a tablespace.</dd>
+<dd> Name of a tablespace.</dd>
 
 <dt><code>:user</code></dt>
-<dd>Name of a user.</dd>
+<dd> Name of a user.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the ownership of the tablespace. If the <code>:description</code> argument is
@@ -6890,16 +7107,16 @@ SELECT relation_owner_is ( :relation, :user );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which find to the <code>:relation</code>.</dd>
+<dd> Name of a schema in which find to the <code>:relation</code>.</dd>
 
 <dt><code>:relation</code></dt>
-<dd>Name of a relation.</dd>
+<dd> Name of a relation.</dd>
 
 <dt><code>:user</code></dt>
-<dd>Name of a user.</dd>
+<dd> Name of a user.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the ownership of a relation. Relations are tables, views, materialized
@@ -6942,16 +7159,16 @@ SELECT table_owner_is ( :table, :user );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the <code>:table</code>.</dd>
+<dd> Name of a schema in which to find the <code>:table</code>.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table.</dd>
+<dd> Name of a table.</dd>
 
 <dt><code>:user</code></dt>
-<dd>Name of a user.</dd>
+<dd> Name of a user.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the ownership of a table. If the <code>:description</code> argument is omitted, an
@@ -6995,16 +7212,16 @@ SELECT view_owner_is ( :view, :user );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the <code>:view</code>.</dd>
+<dd> Name of a schema in which to find the <code>:view</code>.</dd>
 
 <dt><code>:view</code></dt>
-<dd>Name of a view.</dd>
+<dd> Name of a view.</dd>
 
 <dt><code>:user</code></dt>
-<dd>Name of a user.</dd>
+<dd> Name of a user.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the ownership of a view. If the <code>:description</code> argument is omitted, an
@@ -7045,16 +7262,16 @@ SELECT materialized_view_owner_is ( :materialized_view, :user );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the <code>:materialized_view</code>.</dd>
+<dd> Name of a schema in which to find the <code>:materialized_view</code>.</dd>
 
 <dt><code>:materialized_view</code></dt>
-<dd>Name of a materialized view.</dd>
+<dd> Name of a materialized view.</dd>
 
 <dt><code>:user</code></dt>
-<dd>Name of a user.</dd>
+<dd> Name of a user.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the ownership of a materialized view. If the <code>:description</code> argument is
@@ -7095,16 +7312,16 @@ SELECT sequence_owner_is ( :sequence, :user );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the <code>:sequence</code>.</dd>
+<dd> Name of a schema in which to find the <code>:sequence</code>.</dd>
 
 <dt><code>:sequence</code></dt>
-<dd>Name of a sequence.</dd>
+<dd> Name of a sequence.</dd>
 
 <dt><code>:user</code></dt>
-<dd>Name of a user.</dd>
+<dd> Name of a user.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the ownership of a sequence. If the <code>:description</code> argument is omitted, an
@@ -7145,16 +7362,16 @@ SELECT composite_owner_is ( :composite, :user );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the <code>:composite</code> type.</dd>
+<dd> Name of a schema in which to find the <code>:composite</code> type.</dd>
 
 <dt><code>:composite</code></dt>
-<dd>Name of a composite type.</dd>
+<dd> Name of a composite type.</dd>
 
 <dt><code>:user</code></dt>
-<dd>Name of a user.</dd>
+<dd> Name of a user.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the ownership of a composite. If the <code>:description</code> argument is omitted, an
@@ -7195,16 +7412,16 @@ SELECT foreign_table_owner_is ( :foreign_table, :user );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the <code>:foreign_table</code>.</dd>
+<dd> Name of a schema in which to find the <code>:foreign_table</code>.</dd>
 
 <dt><code>:foreign_table</code></dt>
-<dd>Name of a foreign table.</dd>
+<dd> Name of a foreign table.</dd>
 
 <dt><code>:user</code></dt>
-<dd>Name of a user.</dd>
+<dd> Name of a user.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the ownership of a foreign table. If the <code>:description</code> argument is
@@ -7245,19 +7462,19 @@ SELECT index_owner_is ( :table, :index, :user );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the <code>:table, :index</code>.</dd>
+<dd> Name of a schema in which to find the <code>:table, :index</code>.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table.</dd>
+<dd> Name of a table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of an index on the table.</dd>
+<dd> Name of an index on the table.</dd>
 
 <dt><code>:user</code></dt>
-<dd>Name of a user.</dd>
+<dd> Name of a user.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the ownership of an index. If the <code>:description</code> argument is omitted, an
@@ -7298,19 +7515,19 @@ SELECT function_owner_is ( :function, :args, :user );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the <code>:function</code>.</dd>
+<dd> Name of a schema in which to find the <code>:function</code>.</dd>
 
 <dt><code>:function</code></dt>
-<dd>Name of a function.</dd>
+<dd> Name of a function.</dd>
 
 <dt><code>:args</code></dt>
-<dd>Array of data types of the function arguments.</dd>
+<dd> Array of data types of the function arguments.</dd>
 
 <dt><code>:user</code></dt>
-<dd>Name of a user.</dd>
+<dd> Name of a user.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the ownership of a function. If the <code>:description</code> argument is omitted,
@@ -7349,13 +7566,13 @@ SELECT language_owner_is ( :languagename, :user );
 
 <dl>
 <dt><code>:languagename</code></dt>
-<dd>Name of a language.</dd>
+<dd> Name of a language.</dd>
 
 <dt><code>:user</code></dt>
-<dd>Name of a user.</dd>
+<dd> Name of a user.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the ownership of a procedural language. If the <code>:description</code> argument
@@ -7393,16 +7610,16 @@ SELECT opclass_owner_is ( :opclass, :user );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the <code>:opclass</code>.</dd>
+<dd> Name of a schema in which to find the <code>:opclass</code>.</dd>
 
 <dt><code>:opclass</code></dt>
-<dd>Name of an operator class.</dd>
+<dd> Name of an operator class.</dd>
 
 <dt><code>:user</code></dt>
-<dd>Name of a user.</dd>
+<dd> Name of a user.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the ownership of an operator class. If the <code>:description</code> argument is
@@ -7443,16 +7660,16 @@ SELECT type_owner_is ( :type, :user );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the <code>:type</code>.</dd>
+<dd> Name of a schema in which to find the <code>:type</code>.</dd>
 
 <dt><code>:type</code></dt>
-<dd>Name of a type.</dd>
+<dd> Name of a type.</dd>
 
 <dt><code>:user</code></dt>
-<dd>Name of a user.</dd>
+<dd> Name of a user.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the ownership of a data type. If the <code>:description</code> argument is omitted,
@@ -7496,16 +7713,16 @@ SELECT database_privs_are ( :db, :role, :privileges );
 
 <dl>
 <dt><code>:db</code></dt>
-<dd>Name of a database.</dd>
+<dd> Name of a database.</dd>
 
 <dt><code>:role</code></dt>
-<dd>Name of a user or group role.</dd>
+<dd> Name of a user or group role.</dd>
 
 <dt><code>:privileges</code></dt>
-<dd>An array of table privileges the role should be granted to the database.</dd>
+<dd> An array of table privileges the role should be granted to the database.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the privileges granted to a role to access a database. The available
@@ -7516,8 +7733,6 @@ database privileges are:</p>
 <li>CONNECT</li>
 <li>TEMPORARY</li>
 </ul>
-
-<p>Although CONNECT is not available before PostgreSQL 8.2.</p>
 
 <p>If the <code>:description</code> argument is omitted, an appropriate description will be
 created. Examples:</p>
@@ -7571,16 +7786,16 @@ SELECT tablespace_privs_are ( :tablespace, :role, :privileges );
 
 <dl>
 <dt><code>:tablespace</code></dt>
-<dd>Name of a tablespace.</dd>
+<dd> Name of a tablespace.</dd>
 
 <dt><code>:role</code></dt>
-<dd>Name of a user or group role.</dd>
+<dd> Name of a user or group role.</dd>
 
 <dt><code>:privileges</code></dt>
-<dd>An array of table privileges the role should be granted to the tablespace.</dd>
+<dd> An array of table privileges the role should be granted to the tablespace.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the privileges granted to a role to access a tablespace. The available
@@ -7641,16 +7856,16 @@ SELECT schema_privs_are ( :schema, :role, :privileges );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema.</dd>
+<dd> Name of a schema.</dd>
 
 <dt><code>:role</code></dt>
-<dd>Name of a user or group role.</dd>
+<dd> Name of a user or group role.</dd>
 
 <dt><code>:privileges</code></dt>
-<dd>An array of table privileges the role should be granted to the schema.</dd>
+<dd> An array of table privileges the role should be granted to the schema.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the privileges granted to a role to access a schema. The available
@@ -7715,19 +7930,19 @@ SELECT table_privs_are ( :table, :role, :privileges );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the table.</dd>
+<dd> Name of a schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table.</dd>
+<dd> Name of a table.</dd>
 
 <dt><code>:role</code></dt>
-<dd>Name of a user or group role.</dd>
+<dd> Name of a user or group role.</dd>
 
 <dt><code>:privileges</code></dt>
-<dd>An array of table privileges the role should be granted to the table.</dd>
+<dd> An array of table privileges the role should be granted to the table.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the privileges granted to a role to access a table. The available
@@ -7803,19 +8018,19 @@ SELECT sequence_privs_are ( :sequence, :role, :privileges );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the sequence.</dd>
+<dd> Name of a schema in which to find the sequence.</dd>
 
 <dt><code>:sequence</code></dt>
-<dd>Name of a sequence.</dd>
+<dd> Name of a sequence.</dd>
 
 <dt><code>:role</code></dt>
-<dd>Name of a user or group role.</dd>
+<dd> Name of a user or group role.</dd>
 
 <dt><code>:privileges</code></dt>
-<dd>An array of sequence privileges the role should be granted to the sequence.</dd>
+<dd> An array of sequence privileges the role should be granted to the sequence.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the privileges granted to a role to access a sequence. The available
@@ -7885,19 +8100,19 @@ SELECT any_column_privs_are ( :table, :role, :privileges );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the table.</dd>
+<dd> Name of a schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table.</dd>
+<dd> Name of a table.</dd>
 
 <dt><code>:role</code></dt>
-<dd>Name of a user or group role.</dd>
+<dd> Name of a user or group role.</dd>
 
 <dt><code>:privileges</code></dt>
-<dd>An array of table privileges the role should be granted to the table.</dd>
+<dd> An array of table privileges the role should be granted to the table.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the privileges granted to access one or more of the columns in a table.
@@ -7968,22 +8183,22 @@ SELECT column_privs_are ( :table, :column, :role, :privileges );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the table.</dd>
+<dd> Name of a schema in which to find the table.</dd>
 
 <dt><code>:table</code></dt>
-<dd>Name of a table.</dd>
+<dd> Name of a table.</dd>
 
 <dt><code>:column</code></dt>
-<dd>Name of a column.</dd>
+<dd> Name of a column.</dd>
 
 <dt><code>:role</code></dt>
-<dd>Name of a user or group role.</dd>
+<dd> Name of a user or group role.</dd>
 
 <dt><code>:privileges</code></dt>
-<dd>An array of column privileges the role should be granted to the column.</dd>
+<dd> An array of column privileges the role should be granted to the column.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the privileges granted to a role to access a single column. The
@@ -8061,22 +8276,22 @@ SELECT function_privs_are ( :function, :args, :role, :privileges );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema in which to find the function.</dd>
+<dd> Name of a schema in which to find the function.</dd>
 
 <dt><code>:function</code></dt>
-<dd>Name of a function.</dd>
+<dd> Name of a function.</dd>
 
 <dt><code>:args</code></dt>
-<dd>Array of function arguments.</dd>
+<dd> Array of function arguments.</dd>
 
 <dt><code>:role</code></dt>
-<dd>Name of a user or group role.</dd>
+<dd> Name of a user or group role.</dd>
 
 <dt><code>:privileges</code></dt>
-<dd>An array of function privileges the role should be granted to the function.</dd>
+<dd> An array of function privileges the role should be granted to the function.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the privileges granted to a role to access a function. The available
@@ -8137,16 +8352,16 @@ SELECT language_privs_are ( :lang, :role, :privileges );
 
 <dl>
 <dt><code>:lang</code></dt>
-<dd>Name of a language.</dd>
+<dd> Name of a language.</dd>
 
 <dt><code>:role</code></dt>
-<dd>Name of a user or group role.</dd>
+<dd> Name of a user or group role.</dd>
 
 <dt><code>:privileges</code></dt>
-<dd>An array of table privileges the role should be granted to the language.</dd>
+<dd> An array of table privileges the role should be granted to the language.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the privileges granted to a role to access a language. The available
@@ -8207,16 +8422,16 @@ SELECT fdw_privs_are ( :fdw, :role, :privileges );
 
 <dl>
 <dt><code>:fdw</code></dt>
-<dd>Name of a foreign data wrapper.</dd>
+<dd> Name of a foreign data wrapper.</dd>
 
 <dt><code>:role</code></dt>
-<dd>Name of a user or group role.</dd>
+<dd> Name of a user or group role.</dd>
 
 <dt><code>:privileges</code></dt>
-<dd>An array of table privileges the role should be granted to the foreign data wrapper.</dd>
+<dd> An array of table privileges the role should be granted to the foreign data wrapper.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the privileges granted to a role to access a foreign data wrapper. The
@@ -8280,16 +8495,16 @@ SELECT server_privs_are ( :server, :role, :privileges );
 
 <dl>
 <dt><code>:server</code></dt>
-<dd>Name of a server.</dd>
+<dd> Name of a server.</dd>
 
 <dt><code>:role</code></dt>
-<dd>Name of a user or group role.</dd>
+<dd> Name of a user or group role.</dd>
 
 <dt><code>:privileges</code></dt>
-<dd>An array of table privileges the role should be granted to the server.</dd>
+<dd> An array of table privileges the role should be granted to the server.</dd>
 
 <dt><code>:description</code></dt>
-<dd>A short description of the test.</dd>
+<dd> A short description of the test.</dd>
 </dl>
 
 <p>Tests the privileges granted to a role to access a server. The available
@@ -8343,6 +8558,165 @@ something like:</p>
 #     Role slim does not exist
 </code></pre>
 
+<h3 id="policies_are"><code>policies_are()</code></h3>
+
+<pre><code>SELECT policies_are( :schema, :table, :policies, :description );
+SELECT policies_are( :schema, :table, :policies );
+SELECT policies_are( :table,  :policies, :description );
+SELECT policies_are( :table,  :policies );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd> Name of a schema in which to find the <code>:table</code>.</dd>
+
+<dt><code>:table</code></dt>
+<dd> Name of a table in which to find policies.</dd>
+
+<dt><code>:policies</code></dt>
+<dd> An array of policy names.</dd>
+
+<dt><code>:description</code></dt>
+<dd> A short description of the test.</dd>
+</dl>
+
+<p>This function tests that all of the policies on the named table are only the
+policies that <em>should</em> be on that table. If the <code>:schema</code> argument is omitted,
+the table must be visible in the search path, excluding <code>pg_catalog</code> and
+<code>information_schema</code>. If the description is omitted, a generally useful
+default description will be generated. Example:</p>
+
+<pre><code>SELECT policies_are(
+    'myschema',
+    'atable',
+    ARRAY[ 'atable_policy_one', 'atable_policy_two' ]
+);
+</code></pre>
+
+<p>In the event of a failure, you&#8217;ll see diagnostics listing the extra and/or
+missing policies, like so:</p>
+
+<pre><code># Failed test 13: &quot;Table myschema.atable should have the correct policies&quot;
+#     Extra policies:
+#         policy_for_atable
+#     Missing policies:
+#         atable_policy_two
+</code></pre>
+
+<h3 id="policy_roles_are"><code>policy_roles_are()</code></h3>
+
+<pre><code>SELECT policy_roles_are( :schema, :table, :policy, :roles, :description );
+SELECT policy_roles_are( :schema, :table, :policy, :roles );
+SELECT policy_roles_are( :table, :policy,  :roles, :description );
+SELECT policy_roles_are( :table, :policy,  :roles );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd> Name of a schema in which to find the <code>:table</code>.</dd>
+
+<dt><code>:table</code></dt>
+<dd> Name of a table to which <code>:policy</code> applies.</dd>
+
+<dt><code>:policy</code></dt>
+<dd> Name of a policy.</dd>
+
+<dt><code>:roles</code></dt>
+<dd> An array of role names to which <code>:policy</code> is applied.</dd>
+
+<dt><code>:description</code></dt>
+<dd> A short description of the test.</dd>
+</dl>
+
+<p>This function tests whether the roles to which policy applies are only the
+roles that <em>should</em> be on that policy. If the <code>:schema</code> argument is omitted,
+the table must be visible in the search path, excluding <code>pg_catalog</code> and
+<code>information_schema</code>. If the description is omitted, a generally useful
+default description will be generated. Example:</p>
+
+<pre><code>SELECT policy_roles_are(
+    'myschema',
+    'atable',
+    'apolicy'
+    ARRAY[ 'atable_apolicy_role_one', 'atable_apolicy_role_two' ]
+);
+</code></pre>
+
+<p>In the event of a failure, you&#8217;ll see diagnostics listing the extra and/or
+missing policy roles, like so:</p>
+
+<pre><code># Failed test 13: &quot;Policy apolicy for table myschema.atable should have the correct roles&quot;
+#     Extra policy roles:
+#         arole_one
+#     Missing policy roles:
+#         atable_apolicy_role_one
+</code></pre>
+
+<h3 id="policy_cmd_is"><code>policy_cmd_is()</code></h3>
+
+<pre><code>SELECT policy_cmd_is( :schema, :table, :policy, :command, :description );
+SELECT policy_cmd_is( :schema, :table, :policy, :command );
+SELECT policy_cmd_is( :table, :policy,  :command, :description );
+SELECT policy_cmd_is( :table, :policy,  :command );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd> Name of a schema in which to find the <code>:table</code>.</dd>
+
+<dt><code>:table</code></dt>
+<dd> Name of a table to which <code>:policy</code> applies.</dd>
+
+<dt><code>:policy</code></dt>
+<dd> Name of a policy.</dd>
+
+<dt><code>:command</code></dt>
+<dd> The command type to which the <code>:policy</code> is applied.</dd>
+
+<dt><code>:description</code></dt>
+<dd> A short description of the test.</dd>
+</dl>
+
+<p>This function tests whether the command to which policy applies is same as
+command that is given in function arguments.</p>
+
+<p>The available policy <code>:command</code> types are:</p>
+
+<ul>
+<li>SELECT</li>
+<li>INSERT</li>
+<li>UPDATE</li>
+<li>DELETE</li>
+<li>ALL</li>
+</ul>
+
+<p>If the <code>:schema</code> argument is omitted, the table must be visible in the search
+path, excluding <code>pg_catalog</code> and <code>information_schema</code>. If the <code>:description</code> is
+omitted (but <code>:schema</code> is present, be sure to cast <code>:policy</code> to name), a
+generally useful default description will be generated. Example:</p>
+
+<pre><code>SELECT policy_cmd_is(
+    'myschema',
+    'atable',
+    'apolicy'::NAME
+    'all'
+);
+</code></pre>
+
+<p>In the event of a failure, you&#8217;ll see diagnostics listing the extra and/or
+missing policy command, like so:</p>
+
+<pre><code># Failed test 13: &quot;Policy apolicy for table myschema.atable should apply to ALL command&quot;
+#         have: INSERT
+#         want: ALL
+</code></pre>
+
 <h1 id="notestforthewicked">No Test for the Wicked</h1>
 
 <p>There is more to pgTAP. Oh <em>so</em> much more! You can output your own
@@ -8367,7 +8741,7 @@ than just <code>\echo</code> or <code>SELECT foo</code>.</p>
 
 <dl>
 <dt><code>:lines</code></dt>
-<dd>A list of one or more SQL values of the same type.</dd>
+<dd> A list of one or more SQL values of the same type.</dd>
 </dl>
 
 <p>Returns a diagnostic message which is guaranteed not to interfere with test
@@ -8400,7 +8774,7 @@ data type) and they will be concatenated together.</p>
 
 <p>Sometimes running a test under certain conditions will cause the test script
 or function to die. A certain function or feature isn&#8217;t implemented (such as
-<code>pg_sleep()</code> prior to PostgreSQL 8.2), some resource isn&#8217;t available (like a
+<code>sha256()</code> prior to PostgreSQL 11), some resource isn&#8217;t available (like a
 procedural language), or a contrib module isn&#8217;t available. In these cases it&#8217;s
 necessary to skip tests, or declare that they are supposed to fail but will
 work in the future (a todo test).</p>
@@ -8417,10 +8791,10 @@ SELECT skip( :how_many );
 
 <dl>
 <dt><code>:why</code></dt>
-<dd>Reason for skipping the tests.</dd>
+<dd> Reason for skipping the tests.</dd>
 
 <dt><code>:how_many</code></dt>
-<dd>Number of tests to skip</dd>
+<dd> Number of tests to skip</dd>
 </dl>
 
 <p>Outputs SKIP test results. Use it in a conditional expression within a
@@ -8475,10 +8849,10 @@ SELECT todo( :how_many );
 
 <dl>
 <dt><code>:why</code></dt>
-<dd>Reason for marking tests as to dos.</dd>
+<dd> Reason for marking tests as to dos.</dd>
 
 <dt><code>:how_many</code></dt>
-<dd>Number of tests to mark as to dos.</dd>
+<dd> Number of tests to mark as to dos.</dd>
 </dl>
 
 <p>Declares a series of tests that you expect to fail and why. Perhaps it&#8217;s
@@ -8607,15 +8981,7 @@ version of PostgreSQL. For example:</p>
 <p>The revision level is in the tens position, the minor version in the thousands
 position, and the major version in the ten thousands position and above
 (assuming PostgreSQL 10 is ever released, it will be in the hundred thousands
-position). This value is the same as the <code>server_version_num</code> setting
-available in PostgreSQL 8.2 and higher, but supported by this function back to
-PostgreSQL 8.1:</p>
-
-<pre><code>try=% select current_setting( 'server_version_num'), pg_version_num();
- current_setting | pg_version_num
------------------+----------------
- 80304           |          80304
-</code></pre>
+position). This value is the same as the <code>server_version_num</code> setting.</p>
 
 <h3 id="os_name"><code>os_name()</code></h3>
 
@@ -8643,7 +9009,7 @@ depending on how good the pgTAP build process gets at detecting a OS.</p>
 
 <dl>
 <dt><code>:lines</code></dt>
-<dd>A list of one or more lines of TAP.</dd>
+<dd> A list of one or more lines of TAP.</dd>
 </dl>
 
 <p>Collects the results of one or more pgTAP tests and returns them all. Useful
@@ -8679,10 +9045,10 @@ when used in combination with <code>skip()</code>:</p>
 
 <dl>
 <dt><code>:opername</code></dt>
-<dd>Operator name.</dd>
+<dd> Operator name.</dd>
 
 <dt><code>:operoid</code></dt>
-<dd>Operator OID.</dd>
+<dd> Operator OID.</dd>
 </dl>
 
 <p>Similar to casting an operator OID to <code>regoperator</code>, only the schema is not
@@ -8703,7 +9069,7 @@ useful.</p>
 
 <dl>
 <dt><code>:any</code></dt>
-<dd>Any SQL value.</dd>
+<dd> Any SQL value.</dd>
 </dl>
 
 <p>Returns a <code>regtype</code> identifying the type of value passed to the function. This
@@ -8733,13 +9099,13 @@ SELECT findfuncs( :pattern );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Schema to search for functions.</dd>
+<dd> Schema to search for functions.</dd>
 
 <dt><code>:pattern</code></dt>
-<dd>Regular expression pattern against which to match function names.</dd>
+<dd> Regular expression pattern against which to match function names.</dd>
 
 <dt><code>:pattern</code></dt>
-<dd>Regular expression pattern to exclude functions with matching names.</dd>
+<dd> Regular expression pattern to exclude functions with matching names.</dd>
 </dl>
 
 <p>This function searches the named schema or, if no schema is passed, the search
@@ -8792,10 +9158,10 @@ SELECT do_tap();
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema containing pgTAP test functions.</dd>
+<dd> Name of a schema containing pgTAP test functions.</dd>
 
 <dt><code>:pattern</code></dt>
-<dd>Regular expression pattern against which to match function names.</dd>
+<dd> Regular expression pattern against which to match function names.</dd>
 </dl>
 
 <p>If you like you can create a whole slew of these batched tap functions, and
@@ -8846,10 +9212,10 @@ SELECT runtests( );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema containing pgTAP test functions.</dd>
+<dd> Name of a schema containing pgTAP test functions.</dd>
 
 <dt><code>:pattern</code></dt>
-<dd>Regular expression pattern against which to match function names.</dd>
+<dd> Regular expression pattern against which to match function names.</dd>
 </dl>
 
 <p>If you&#8217;d like pgTAP to plan, run all of your test functions, and finish, all
@@ -9008,30 +9374,30 @@ SELECT check_test( :test_output, :is_ok );
 
 <dl>
 <dt><code>:schema</code></dt>
-<dd>Name of a schema containing pgTAP test functions.</dd>
+<dd> Name of a schema containing pgTAP test functions.</dd>
 
 <dt><code>:test_output</code></dt>
-<dd>The output from your test. Usually it&#8217;s just returned by a call to the test
+<dd> The output from your test. Usually it&#8217;s just returned by a call to the test
 function itself. Required.</dd>
 
 <dt><code>:is_ok</code></dt>
-<dd>Boolean indicating whether or not the test is expected to pass. Required.</dd>
+<dd> Boolean indicating whether or not the test is expected to pass. Required.</dd>
 
 <dt><code>:name</code></dt>
-<dd>A brief name for your test, to make it easier to find failures in your test
+<dd> A brief name for your test, to make it easier to find failures in your test
 script. Optional.</dd>
 
 <dt><code>:want_description</code></dt>
-<dd>Expected test description to be output by the test. Optional. Use an empty
+<dd> Expected test description to be output by the test. Optional. Use an empty
 string to test that no description is output.</dd>
 
 <dt><code>:want_diag</code></dt>
-<dd>Expected diagnostic message output during the execution of a test. Must
+<dd> Expected diagnostic message output during the execution of a test. Must
 always follow whatever is output by the call to <code>ok()</code>. Optional. Use an
 empty string to test that no description is output.</dd>
 
 <dt><code>:match_diag</code></dt>
-<dd>Use <code>matches()</code> to compare the diagnostics rather than <code>:is()</code>. Useful for
+<dd> Use <code>matches()</code> to compare the diagnostics rather than <code>:is()</code>. Useful for
 those situations where you&#8217;re not sure what will be in the output, but you
 can match it with a regular expression.</dd>
 </dl>
@@ -9232,29 +9598,23 @@ for <code>cmp_ok()</code> and <code>isa_ok()</code> to work.</p></li>
 <li><p>The variadic forms of <code>diag()</code> and <code>collect_tap()</code> are not available.
 You can pass an array of TAP to <code>collect_tap()</code>, however.</p></li>
 <li><p>These permission-testing functions don&#8217;t work, because one cannot grant
-permissions on the relevant objects until 8.4:</p></li>
-<li><p> <code>has_any_column_privilege()</code></p></li>
-<li><p> <code>has_column_privilege()</code></p></li>
-<li><p> <code>has_foreign_data_wrapper_privilege()</code></p></li>
-<li><p> <code>has_server_privilege()</code></p></li>
-</ul>
-
-<h2 id="8.2anddown">8.2 and Down</h2>
+permissions on the relevant objects until 8.4:</p>
 
 <ul>
-<li><p>A patch is applied that removes <code>enum_has_labels()</code> and
-<code>language_owner_is()</code>, since neither are testable before 8.3.</p></li>
-<li><p>the <code>diag(anyelement)</code> function and <code>col_has_default()</code> cannot be used to
-test for columns specified with <code>DEFAULT NULL</code> (even though that&#8217;s the
-implied default default).</p></li>
-<li><p>The <code>has_enums()</code> function won&#8217;t work.</p></li>
-<li><p>A number of assignments casts are added to increase compatibility. The casts
-are:</p></li>
-<li><p> <code>boolean</code> to <code>text</code></p></li>
-<li><p> <code>text[]</code> to <code>text</code></p></li>
-<li><p> <code>name[]</code> to <code>text</code></p></li>
-<li><p> <code>regtype</code> to <code>text</code></p></li>
-<li><p>Two operators, <code>=</code> and <code>&lt;&gt;</code>, are added to compare <code>name[]</code> values.</p></li>
+<li><code>has_any_column_privilege()</code></li>
+<li><code>has_column_privilege()</code></li>
+<li><code>has_foreign_data_wrapper_privilege()</code></li>
+<li><code>has_server_privilege()</code></li>
+</ul></li>
+<li><p>These inheritance-testing functions are not available, because internally
+the use a recursive common table expression query not supported before 8.4:</p>
+
+<ul>
+<li><code>is_ancestor_of()</code></li>
+<li><code>isnt_ancestor_of()</code></li>
+<li><code>is_descendent_of()</code></li>
+<li><code>isnt_descendent_of()</code></li>
+</ul></li>
 </ul>
 
 <h1 id="metadata">Metadata</h1>
