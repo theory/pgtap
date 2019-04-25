@@ -6375,7 +6375,7 @@ BEGIN
                     END IF;
                 END IF;
 
-            EXCEPTION WHEN raise_exception THEN
+            EXCEPTION WHEN OTHERS THEN
                 -- Something went wrong. Record that fact.
                 errstate := SQLSTATE;
                 errmsg := SQLERRM;
