@@ -195,9 +195,9 @@ BEGIN
     END IF;
 
     IF exp_tests = 0 OR exp_tests IS NULL THEN
-         -- No plan. Output one now.
+        -- No plan. Output one now.
         exp_tests = curr_test;
-        RETURN NEXT '1..' || exp_tests;
+        --RETURN NEXT '1..' || exp_tests;
     END IF;
 
     IF curr_test <> exp_tests THEN
@@ -214,6 +214,11 @@ BEGIN
     ELSE
 
     END IF;
+
+    -- According to https://testanything.org/tap-specification.html
+    -- The plan: It must appear once, whether at the beginning or end of the output
+    RETURN NEXT '1..' || exp_tests;
+
     RETURN;
 END;
 $$ LANGUAGE plpgsql;
@@ -6356,7 +6361,7 @@ BEGIN
 
                 -- Emit the plan.
                 fnumb := COALESCE(_get('curr_test'), 0);
-                RETURN NEXT '    1..' || fnumb;
+                --RETURN NEXT '    1..' || fnumb;
 
                 -- Emit any error messages.
                 IF fnumb = 0 THEN
@@ -6374,6 +6379,9 @@ BEGIN
                         );
                     END IF;
                 END IF;
+                -- According to https://testanything.org/tap-specification.html
+                -- The plan: It must appear once, whether at the beginning or end of the output
+                RETURN NEXT '    1..' || fnumb;
 
             EXCEPTION WHEN raise_exception THEN
                 -- Something went wrong. Record that fact.
