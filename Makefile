@@ -388,12 +388,14 @@ $(TB_DIR)/:
 # Update test support
 #
 
-# If the specified version of pgtap doesn't exist, install it
+# If the specified version of pgtap doesn't exist, install it. Note that the
+# real work is done by the $(EXTENSION_DIR)/pgtap--%.sql rule below.
 pgtap-version-%: $(EXTENSION_DIR)/pgtap--%.sql
 	@true # Necessary to have a fake action here
 
 
-# Travis will complain if we reinstall too quickly, so be more intelligent about this
+# Travis will complain if we reinstall too quickly, so don't run make install
+# unless actually necessary.
 $(EXTENSION_DIR)/pgtap--$(EXTVERSION).sql: sql/pgtap--$(EXTVERSION).sql
 	$(MAKE) install
 
