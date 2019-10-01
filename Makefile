@@ -119,9 +119,6 @@ OSNAME := $(shell $(SHELL) ./getos.sh)
 
 sql/pgtap.sql: sql/pgtap.sql.in test/setup.sql
 	cp $< $@
-ifeq ($(shell echo $(VERSION) | grep -qE "^([98]|10)[.]" && echo yes || echo no),yes)
-	@true #patch -p0 < compat/install-10.patch
-endif
 ifeq ($(shell echo $(VERSION) | grep -qE "^(9[.][0123456]|8[.][1234])" && echo yes || echo no),yes)
 	patch -p0 < compat/install-9.6.patch
 endif
