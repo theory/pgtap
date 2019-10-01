@@ -163,7 +163,7 @@ endif
 EXTRA_CLEAN += sql/pgtap--0.98.0--0.99.0.sql
 sql/pgtap--0.98.0--0.99.0.sql: sql/pgtap--0.98.0--0.99.0.sql.in
 	cp $< $@
-ifeq ($(shell echo $(VERSION) | grep -qE "^[89][.]" && echo yes || echo no),yes)
+ifeq ($(shell echo $(VERSION) | grep -qE "^([89]|10)[.]" && echo yes || echo no),yes)
 	patch -p0 < compat/10/pgtap--0.98.0--0.99.0.patch
 endif
 
