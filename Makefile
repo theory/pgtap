@@ -72,7 +72,11 @@ endif
 # We need to do various things with the PostgreSQL version.
 VERSION = $(shell $(PG_CONFIG) --version | awk '{print $$2}')
 
-# We support 8.1 and later. TODO: update this
+#
+# Major version check
+#
+# TODO: update this
+# TODO9.1: update the $(TB_DIR) target below when de-supporting 9.1
 ifeq ($(shell echo $(VERSION) | grep -qE "^(7[.]|8[.]0)" && echo yes || echo no),yes)
 $(error pgTAP requires PostgreSQL 8.1 or later. This is $(VERSION))
 endif
@@ -406,7 +410,13 @@ test/sql/create.sql test/sql/update.sql: pgtap-version-$(EXTVERSION)
 test/sql/%.sql: test/schedule/%.sql
 	@(echo '\unset ECHO'; echo '-- GENERATED FILE! DO NOT EDIT!'; echo "-- Original file: $<"; cat $< ) > $@
 
-EXTRA_CLEAN += $(TB_DIR)/
+# Prior to 9.2, EXTRA_CLEAN just does rm -f, which obviously won't work with a directory.
+# TODO9.1: switch back to EXTRA_CLEAN when removing support for 9.1
+#EXTRA_CLEAN += $(TB_DIR)/
+clean: clean_tb_dir
+.PHONY: clean_tb_dir
+clean_tb_dir:
+	@rm -rf $(TB_DIR)
 $(TB_DIR)/:
 	@mkdir -p $@
 
