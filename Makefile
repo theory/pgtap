@@ -26,6 +26,14 @@ PARALLEL_CONN ?=
 # This controls what version to upgrade FROM when running updatecheck.
 UPDATE_FROM ?= 0.95.0
 
+#
+# Setup test variables
+#
+# We use the contents of test/sql to create a parallel test schedule. Note that
+# there is additional test setup below this; some variables must be set before
+# loading PGXS, some must be set afterwards.
+#
+
 # These are test files that need to end up in test/sql to make pg_regress
 # happy, but these should NOT be treated as regular regression tests
 SCHEDULE_TEST_FILES = $(wildcard test/schedule/*.sql)
@@ -52,6 +60,7 @@ REGRESS = --schedule $(TB_DIR)/run.sch
 # sort is necessary to remove dupes so install won't complain
 DATA         = $(sort $(wildcard sql/*--*.sql) $(_IN_PATCHED)) # NOTE! This gets reset below!
 
+# Locate PGXS and pg_config
 ifdef NO_PGXS
 top_builddir = ../..
 PG_CONFIG := $(top_builddir)/src/bin/pg_config/pg_config
@@ -63,7 +72,7 @@ endif
 # We need to do various things with the PostgreSQL version.
 VERSION = $(shell $(PG_CONFIG) --version | awk '{print $$2}')
 
-# We support 8.1 and later.
+# We support 8.1 and later. TODO: update this
 ifeq ($(shell echo $(VERSION) | grep -qE "^(7[.]|8[.]0)" && echo yes || echo no),yes)
 $(error pgTAP requires PostgreSQL 8.1 or later. This is $(VERSION))
 endif
@@ -105,29 +114,36 @@ else
 include $(PGXS)
 endif
 
+#
+# DISABLED TESTS
+#
+
+# Row security policy tests not supported by 9.4 and earlier.
+ifeq ($(shell echo $(VERSION) | grep -qE "^9[.][01234]|8[.]" && echo yes || echo no),yes)
+EXCLUDE_TEST_FILES += test/sql/policy.sql
+endif
+
+# Partition tests tests not supported by 9.x and earlier.
+ifeq ($(shell echo $(VERSION) | grep -qE "[89][.]" && echo yes || echo no),yes)
+EXCLUDE_TEST_FILES += test/sql/partitions.sql
+endif
+
 # Enum tests not supported by 8.2 and earlier.
 ifeq ($(shell echo $(VERSION) | grep -qE "8[.][12]" && echo yes || echo no),yes)
-##TESTS   := $(filter-out test/sql/enumtap.sql,$(TESTS))
-#REGRESS := $(filter-out enumtap,$(REGRESS))
 EXCLUDE_TEST_FILES += test/sql/enumtap.sql
 endif
 
 # Values tests not supported by 8.1 and earlier.
 ifeq ($(shell echo $(VERSION) | grep -qE "8[.][1]" && echo yes || echo no),yes)
-#TESTS   := $(filter-out test/sql/enumtap.sql sql/valueset.sql,$(TESTS))
-#REGRESS := $(filter-out enumtap valueset,$(REGRESS))
 EXCLUDE_TEST_FILES += test/sql/valueset.sql
 endif
 
-# Partition tests tests not supported by 9.x and earlier.
-ifeq ($(shell echo $(VERSION) | grep -qE "[89][.]" && echo yes || echo no),yes)
-#TESTS   := $(filter-out test/sql/partitions.sql,$(TESTS))
-#REGRESS := $(filter-out partitions,$(REGRESS))
-EXCLUDE_TEST_FILES += test/sql/partitions.sql
-endif
-
+#
+# Check for missing extensions
+#
 # NOTE! This currently MUST be after PGXS! The problem is that
 # $(DESTDIR)$(datadir) aren't being expanded.
+#
 EXTENSION_DIR = $(DESTDIR)$(datadir)/extension
 extension_control = $(shell file="$(EXTENSION_DIR)/$1.control"; [ -e "$$file" ] && echo "$$file")
 ifeq (,$(call extension_control,citext))
@@ -141,6 +157,7 @@ MISSING_EXTENSIONS += ltree
 endif
 EXTENSION_TEST_FILES += test/sql/extension.sql
 ifneq (,$(MISSING_EXTENSIONS))
+# NOTE: we emit a warning about this down below, but only when we're actually running a test.
 EXCLUDE_TEST_FILES += $(EXTENSION_TEST_FILES)
 endif
 
@@ -166,26 +183,26 @@ endif
 
 # Enum tests not supported by 8.2 and earlier.
 ifeq ($(shell echo $(VERSION) | grep -qE "^8[.][12]" && echo yes || echo no),yes)
-TESTS   := $(filter-out test/sql/enumtap.sql,$(TESTS))
-REGRESS := $(filter-out enumtap,$(REGRESS))
+#TESTS   := $(filter-out test/sql/enumtap.sql,$(TESTS))
+#REGRESS := $(filter-out enumtap,$(REGRESS))
 endif
 
 # Values tests not supported by 8.1 and earlier.
 ifeq ($(shell echo $(VERSION) | grep -qE "^8[.][1]" && echo yes || echo no),yes)
-TESTS   := $(filter-out test/sql/enumtap.sql sql/valueset.sql,$(TESTS))
-REGRESS := $(filter-out enumtap valueset,$(REGRESS))
+#TESTS   := $(filter-out test/sql/enumtap.sql sql/valueset.sql,$(TESTS))
+#REGRESS := $(filter-out enumtap valueset,$(REGRESS))
 endif
 
 # Partition tests tests not supported by 9.x and earlier.
 ifeq ($(shell echo $(VERSION) | grep -qE "^[89][.]" && echo yes || echo no),yes)
-TESTS   := $(filter-out test/sql/partitions.sql,$(TESTS))
-REGRESS := $(filter-out partitions,$(REGRESS))
+#TESTS   := $(filter-out test/sql/partitions.sql,$(TESTS))
+#REGRESS := $(filter-out partitions,$(REGRESS))
 endif
 
 # Row security policy tests not supported by 9.4 and earlier.
 ifeq ($(shell echo $(VERSION) | grep -qE "^9[.][01234]|8[.]" && echo yes || echo no),yes)
-TESTS   := $(filter-out test/sql/policy.sql,$(TESTS))
-REGRESS := $(filter-out policy,$(REGRESS))
+#TESTS   := $(filter-out test/sql/policy.sql,$(TESTS))
+#REGRESS := $(filter-out policy,$(REGRESS))
 endif
 
 # Determine the OS. Borrowed from Perl's Configure.
@@ -267,6 +284,7 @@ endif
 sql/uninstall_pgtap.sql: sql/pgtap.sql test/setup.sql
 	grep '^CREATE ' sql/pgtap.sql | $(PERL) -e 'for (reverse <STDIN>) { chomp; s/CREATE (OR REPLACE )?/DROP /; print "$$_;\n" }' | sed 's/DROP \(FUNCTION\|VIEW\|TYPE\) /DROP \1 IF EXISTS /' > sql/uninstall_pgtap.sql
 
+# Hmm... is there a race condition here? Will make remove $@ if the recipe dies part-way through?
 sql/pgtap-static.sql: sql/pgtap.sql.in
 	cp $< $@
 	sed -e 's,sql/pgtap,sql/pgtap-static,g' compat/install-10.patch | patch -p0
@@ -290,11 +308,6 @@ sql/pgtap-schema.sql: sql/pgtap-static.sql
 # Make sure that we build the regression tests.
 installcheck: test/setup.sql
 
-# In addition to installcheck, one can also run the tests through pg_prove.
-test: test/setup.sql
-	# Filter-out tests that intentionally fail. They should be tested by installcheck.
-	pg_prove --pset tuples_only=1 $(filter-out test/sql/run%,$(TESTS))
-
 html:
 	multimarkdown doc/pgtap.mmd > doc/pgtap.html
 	./tocgen doc/pgtap.html 2> doc/toc.html
@@ -313,6 +326,7 @@ regress: installcheck_deps
 updatecheck: updatecheck_deps install
 	$(MAKE) updatecheck_run || ([ -e regression.diffs ] && $${PAGER:-cat} regression.diffs; exit 1)
 
+# General dependencies for installcheck. Note that several other places add themselves as dependencies.
 .PHONY: installcheck_deps
 installcheck_deps: $(SCHEDULE_DEST_FILES) extension_check set_parallel_conn # More dependencies below
 
@@ -323,6 +337,12 @@ test: extension_check
 #
 # General test support
 #
+# In order to support parallel testing, we need to have a test schedule file,
+# which we build dynamically. Instead of cluttering the test directory, we use
+# a test build directiory ($(TB_DIR)). We also use $(TB_DIR) to drop some
+# additional artifacts, so that we can automatically determine if certain
+# dependencies (such as excluded tests) have changed since the last time we
+# ran.
 TB_DIR = test/build
 GENERATED_SCHEDULE_DEPS = $(TB_DIR)/tests $(TB_DIR)/exclude_tests
 REGRESS = --schedule $(TB_DIR)/run.sch # Set this again just to be safe
@@ -333,7 +353,7 @@ PARALLEL_TESTS = $(filter-out $(IGNORE_TESTS),$(filter-out $(SERIAL_TESTS),$(TES
 GENERATED_SCHEDULES = $(TB_DIR)/serial.sch $(TB_DIR)/parallel.sch
 installcheck: $(TB_DIR)/run.sch installcheck_deps
 
-# Parallel tests will use a connection for each $(PARALLEL_TESTS) if we let it,
+# Parallel tests will use $(PARALLEL_TESTS) number of connections if we let it,
 # but max_connections may not be set that high. You can set this manually to 1
 # for no parallelism
 #
@@ -376,7 +396,7 @@ $(TB_DIR)/run.sch: $(TB_DIR)/which_schedule $(GENERATED_SCHEDULES)
 # Don't generate noise if we're not running tests...
 .PHONY: extension_check
 extension_check: 
-	@[ -z "$(MISSING_EXTENSIONS)" ] || (echo; echo; echo "WARNING: Some mandatory extensions ($(MISSING_EXTENSIONS)) are not installed; ignoring tests: $(EXTENSION_TEST_FILES)"; echo; echo)
+	@[ -z "$(MISSING_EXTENSIONS)" ] || (echo; echo '***************************'; echo "WARNING: Some mandatory extensions ($(MISSING_EXTENSIONS)) are not installed; ignoring tests: $(EXTENSION_TEST_FILES)"; echo '***************************'; echo)
 
 
 # These tests have specific dependencies
