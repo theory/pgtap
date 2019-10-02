@@ -28,6 +28,7 @@ sudo pg_createcluster --start $PGVERSION test -p $PGPORT -- -A trust
 sudo easy_install pgxnclient
 
 test_make() {
+    set +ux
     # Many tests depend on install, so just use sudo for all of them
     if ! sudo make "$@"; then
         echo
@@ -35,8 +36,9 @@ test_make() {
         echo "make $@ failed"
         echo '!!!!!!!!!!!!!!!!'
         echo
-        failed=true
+        failed="$failed '$@'"
     fi
+    set -ux
 }
 
 test_make clean regress
@@ -47,9 +49,15 @@ echo $PGVERSION | grep -qE "8[.]|9[.][012]" || test_make clean updatecheck
 
 # Explicitly test these other targets
 
-for t in all test install html; do
+# TODO: install software necessary to allow testing the 'test' and 'html' targets
+for t in all install ; do
     test_make clean $t
     test_make $t
 done
 
-[ -z "$failed" ]
+if [ -n "$failed" ]; then
+    set +ux
+    # $failed will have a leading space if it's not empty
+    echo "These test targets failed:$failed"
+    exit 1
+fi
