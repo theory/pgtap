@@ -25,14 +25,31 @@ export PGUSER=postgres
 export PG_CONFIG=/usr/lib/postgresql/$PGVERSION/bin/pg_config
 sudo pg_createcluster --start $PGVERSION test -p $PGPORT -- -A trust
 
-make all
-
 sudo easy_install pgxnclient
 
-sudo make regress || failed=true # Don't exit yet if this failed
+test_make() {
+    # Many tests depend on install, so just use sudo for all of them
+    if ! sudo make "$@"; then
+        echo
+        echo '!!!!!!!!!!!!!!!!'
+        echo "make $@ failed"
+        echo '!!!!!!!!!!!!!!!!'
+        echo
+        failed=true
+    fi
+}
+
+test_make clean regress
 
 # pg_regress --launcher not supported prior to 9.1
 # There are some other failures in 9.1 and 9.2 (see https://travis-ci.org/decibel/pgtap/builds/358206497).
-echo $PGVERSION | grep -qE "8[.]|9[.][012]" || sudo make updatecheck # updatecheck depends on install, so must be sudo
+echo $PGVERSION | grep -qE "8[.]|9[.][012]" || test_make clean updatecheck
+
+# Explicitly test these other targets
+
+for t in all test install html; do
+    test_make clean $t
+    test_make $t
+done
 
 [ -z "$failed" ]
