@@ -214,7 +214,7 @@ OSNAME := $(shell $(SHELL) ./getos.sh)
 
 .PHONY: test
 
-# Target to remove ALL pgtap code. Useful when testing multiple versions of pgtap.
+# TARGET uninstall-all: remove ALL installed pgtap code. Unlike `make unintall`, this removes pgtap*, not just our defined targets. Useful when testing multiple versions of pgtap.
 uninstall-all:
 	rm -f $(EXTENSION_DIR)/pgtap*
 
@@ -325,11 +325,12 @@ html:
 # Actual test targets
 #
 
-# Run installcheck then output any diffs
+# TARGET regress: run installcheck then print any diffs from expected output.
 .PHONY: regress
 regress: installcheck_deps
 	$(MAKE) installcheck || ([ -e regression.diffs ] && $${PAGER:-cat} regression.diffs; exit 1)
 
+# TARGET updatecheck: install an older version of pgTap from PGXN (controlled by $UPDATE_FROM; 0.95.0 by default), update to the current version via ALTER EXTENSION, then run installcheck.
 .PHONY: updatecheck
 updatecheck: updatecheck_deps install
 	$(MAKE) updatecheck_run || ([ -e regression.diffs ] && $${PAGER:-cat} regression.diffs; exit 1)
@@ -471,8 +472,7 @@ updatecheck_run: updatecheck_setup installcheck
 # STOLEN FROM pgxntool
 #
 
-# make results: runs `make test` and copy all result files to expected
-# DO NOT RUN THIS UNLESS YOU'RE CERTAIN ALL YOUR TESTS ARE PASSING!
+# TARGET results: runs `make test` and copies all result files to test/expected/. DO NOT RUN THIS UNLESS YOU'RE CERTAIN ALL YOUR TESTS ARE PASSING!
 .PHONY: results
 results: installcheck result-rsync
 
