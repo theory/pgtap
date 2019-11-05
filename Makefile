@@ -185,39 +185,22 @@ $(warning must be installed from CPAN. To do so, simply run:)
 $(warning     cpan TAP::Parser::SourceHandler::pgTAP)
 endif
 
-# Enum tests not supported by 8.2 and earlier.
-ifeq ($(shell echo $(VERSION) | grep -qE "^8[.][12]" && echo yes || echo no),yes)
-#TESTS   := $(filter-out test/sql/enumtap.sql,$(TESTS))
-#REGRESS := $(filter-out enumtap,$(REGRESS))
-endif
-
-# Values tests not supported by 8.1 and earlier.
-ifeq ($(shell echo $(VERSION) | grep -qE "^8[.][1]" && echo yes || echo no),yes)
-#TESTS   := $(filter-out test/sql/enumtap.sql sql/valueset.sql,$(TESTS))
-#REGRESS := $(filter-out enumtap valueset,$(REGRESS))
-endif
-
-# Partition tests tests not supported by 9.x and earlier.
-ifeq ($(shell echo $(VERSION) | grep -qE "^[89][.]" && echo yes || echo no),yes)
-#TESTS   := $(filter-out test/sql/partitions.sql,$(TESTS))
-#REGRESS := $(filter-out partitions,$(REGRESS))
-endif
-
-# Row security policy tests not supported by 9.4 and earlier.
-ifeq ($(shell echo $(VERSION) | grep -qE "^9[.][01234]|8[.]" && echo yes || echo no),yes)
-#TESTS   := $(filter-out test/sql/policy.sql,$(TESTS))
-#REGRESS := $(filter-out policy,$(REGRESS))
-endif
+# Use a build directory to avoid cluttering up the main repo. (Maybe should just switch to VPATH builds?)
+# WARNING! Not everything uses this! TODO: move all targets into $(B_DIR)
+B_DIR ?= .build
 
 # Determine the OS. Borrowed from Perl's Configure.
 OSNAME := $(shell $(SHELL) ./getos.sh)
 
 .PHONY: test
 
-# TARGET uninstall-all: remove ALL installed pgtap code. Unlike `make unintall`, this removes pgtap*, not just our defined targets. Useful when testing multiple versions of pgtap.
+# TARGET uninstall-all: remove ALL installed versions of pgTap (rm pgtap*).
+# Unlike `make unintall`, this removes pgtap*, not just our defined targets.
+# Useful when testing multiple versions of pgtap.
 uninstall-all:
 	rm -f $(EXTENSION_DIR)/pgtap*
 
+# TODO: switch this whole thing to a perl or shell script that understands the file naming convention and how to compare that to $VERSION.
 sql/pgtap.sql: sql/pgtap.sql.in
 	cp $< $@
 ifeq ($(shell echo $(VERSION) | grep -qE "^(9[.][0123456]|8[.][1234])" && echo yes || echo no),yes)
@@ -250,7 +233,7 @@ endif
 	sed -e 's,MODULE_PATHNAME,$$libdir/pgtap,g' -e 's,__OS__,$(OSNAME),g' -e 's,__VERSION__,$(NUMVERSION),g' sql/pgtap.sql > sql/pgtap.tmp
 	mv sql/pgtap.tmp sql/pgtap.sql
 
-# Ugly hacks for now...
+# Ugly hacks for now... TODO: script that understands $VERSION and will apply all the patch files for that version
 EXTRA_CLEAN += sql/pgtap--0.99.0--1.0.0.sql
 sql/pgtap--0.99.0--1.0.0.sql: sql/pgtap--0.99.0--1.0.0.sql.in
 	cp $< $@
@@ -292,26 +275,33 @@ endif
 sql/uninstall_pgtap.sql: sql/pgtap.sql test/setup.sql
 	grep '^CREATE ' sql/pgtap.sql | $(PERL) -e 'for (reverse <STDIN>) { chomp; s/CREATE (OR REPLACE )?/DROP /; print "$$_;\n" }' | sed 's/DROP \(FUNCTION\|VIEW\|TYPE\) /DROP \1 IF EXISTS /' > sql/uninstall_pgtap.sql
 
-# Hmm... is there a race condition here? Will make remove $@ if the recipe dies part-way through?
+#
+# Support for static install files
+#
+
+# The use of $@.tmp is to eliminate the possibility of leaving an invalid pgtap-static.sql in case the recipe fails part-way through.
+# TODO: the sed command needs the equivalent of bash's PIPEFAIL; should just replace this with some perl magic
 sql/pgtap-static.sql: sql/pgtap.sql.in
-	cp $< $@
-	sed -e 's,sql/pgtap,sql/pgtap-static,g' compat/install-10.patch | patch -p0
-	sed -e 's,sql/pgtap,sql/pgtap-static,g' compat/install-9.6.patch | patch -p0
-	sed -e 's,sql/pgtap,sql/pgtap-static,g' compat/install-9.4.patch | patch -p0
-	sed -e 's,sql/pgtap,sql/pgtap-static,g' compat/install-9.2.patch | patch -p0
-	sed -e 's,sql/pgtap,sql/pgtap-static,g' compat/install-9.1.patch | patch -p0
-	sed -e 's,sql/pgtap,sql/pgtap-static,g' compat/install-9.0.patch | patch -p0
-	sed -e 's,sql/pgtap,sql/pgtap-static,g' compat/install-8.4.patch | patch -p0
-	sed -e 's,sql/pgtap,sql/pgtap-static,g' compat/install-8.3.patch | patch -p0
-	sed -e 's,MODULE_PATHNAME,$$libdir/pgtap,g' -e 's,__OS__,$(OSNAME),g' -e 's,__VERSION__,$(NUMVERSION),g' $@ > sql/pgtap-static.tmp
-	mv sql/pgtap-static.tmp $@
-EXTRA_CLEAN += sql/pgtap-static.sql
+	cp $< $@.tmp
+	for p in `ls compat/install-*.patch | sort -rn`; do \
+		echo; echo '***' "Patching pgtap-static.sql with $$p"; \
+		sed -e 's#sql/pgtap.sql#sql/pgtap-static.sql.tmp#g' "$$p" | patch -p0; \
+	done
+	sed -e 's#MODULE_PATHNAME#$$libdir/pgtap#g' -e 's#__OS__#$(OSNAME)#g' -e 's#__VERSION__#$(NUMVERSION)#g' $@.tmp > $@
+EXTRA_CLEAN += sql/pgtap-static.sql sql/pgtap-static.sql.tmp
 
 sql/pgtap-core.sql: sql/pgtap-static.sql
 	$(PERL) compat/gencore 0 sql/pgtap-static.sql > sql/pgtap-core.sql
 
 sql/pgtap-schema.sql: sql/pgtap-static.sql
 	$(PERL) compat/gencore 1 sql/pgtap-static.sql > sql/pgtap-schema.sql
+
+$(B_DIR)/static/: $(B_DIR)
+	mkdir -p $@
+
+# We don't lump this in with the $(B_DIR)/static target because that would run the risk of a failure of the cp command leaving an empty directory behind
+$(B_DIR)/static/%/: %/ $(B_DIR)/static
+	cp -R $< $@
 
 # Make sure that we build the regression tests.
 installcheck: test/setup.sql
@@ -425,6 +415,13 @@ clean_tb_dir:
 $(TB_DIR)/:
 	@mkdir -p $@
 
+clean: clean_b_dir
+.PHONY: clean_b_dir
+clean_b_dir:
+	@rm -rf $(B_DIR)
+$(B_DIR)/:
+	@mkdir -p $@
+
 
 #
 # Update test support
@@ -455,6 +452,8 @@ updatecheck_deps: pgtap-version-$(UPDATE_FROM) test/sql/update.sql
 .PHONY: updatecheck_setup
 # pg_regress --launcher not supported prior to 9.1
 # There are some other failures in 9.1 and 9.2 (see https://travis-ci.org/decibel/pgtap/builds/358206497).
+# TODO: find something that can generically compare majors (ie: GE91 from
+# https://github.com/decibel/pgxntool/blob/master/base.mk).
 updatecheck_setup: updatecheck_deps
 	@if echo $(VERSION) | grep -qE "8[.]|9[.][012]"; then echo "updatecheck is not supported prior to 9.3"; exit 1; fi
 	$(eval SETUP_SCH = test/schedule/update.sch)
