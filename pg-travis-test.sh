@@ -7,7 +7,18 @@ failed=''
 
 sudo apt-get update
 
-packages="python-setuptools postgresql-$PGVERSION postgresql-server-dev-$PGVERSION postgresql-common"
+get_packages() {
+    echo "postgresql-$1 postgresql-server-dev-$1"
+}
+get_path() {
+    echo "/usr/lib/postgresql/$1/bin/"
+}
+
+packages="python-setuptools postgresql-common $(get_packages $PGVERSION)"
+
+if [ -n "$UPGRADE_TO" ]; then
+    packages="$packages $(get_packages $UPGRADE_TO)"
+fi
 
 # bug: http://www.postgresql.org/message-id/20130508192711.GA9243@msgid.df7cb.de
 sudo update-alternatives --remove-all postmaster.1.gz
@@ -22,7 +33,7 @@ sudo apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-co
 
 export PGPORT=55435
 export PGUSER=postgres
-export PG_CONFIG=/usr/lib/postgresql/$PGVERSION/bin/pg_config
+export PG_CONFIG="$(get_path $PGVERSION)pg_config"
 sudo pg_createcluster --start $PGVERSION test -p $PGPORT -- -A trust
 
 sudo easy_install pgxnclient
@@ -54,6 +65,24 @@ for t in all install ; do
     test_make clean $t
     test_make $t
 done
+
+if [ -n "$UPGRADE_TO" ]; then
+    # Note that we shouldn't need to run this as root since it's creating a
+    # temporary install. We also use a different port number to avoid
+    # conflicting with existing clusters.
+    set +ux
+    test/test_MVU.sh 55667 "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)"
+    rc=$?
+    set -ux
+    if [ $rc -ne 0 ]; then
+        echo
+        echo '!!!!!!!!!!!!!!!!'
+        echo test/test_MVU.sh 55667 "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)" returned $0
+        echo '!!!!!!!!!!!!!!!!'
+        echo
+        failed="$failed 'test/test_MVU.sh'"
+    fi
+fi
 
 if [ -n "$failed" ]; then
     set +ux
