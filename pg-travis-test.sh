@@ -34,6 +34,7 @@ sudo apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-co
 export PGPORT=55435
 export PGUSER=postgres
 export PG_CONFIG="$(get_path $PGVERSION)pg_config"
+[ "$PG_CONFIG" != 'pg_config' ]
 sudo pg_createcluster --start $PGVERSION test -p $PGPORT -- -A trust
 
 sudo easy_install pgxnclient

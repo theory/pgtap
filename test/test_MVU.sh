@@ -103,7 +103,7 @@ export PGDATA=$old_dir
 export PGPORT
 
 banner "Creating old version temporary installation at $old_dir on port $PGPORT"
-initdb --no-sync
+initdb #TODO9.2: Add this back in when dropping 9.2 support: --no-sync
 echo "port = $PGPORT" >> $PGDATA/postgresql.conf
 echo "synchronous_commit = off" >> $PGDATA/postgresql.conf
 
@@ -126,7 +126,7 @@ export PGDATA=$new_dir
 export PATH="$NEW_PATH:$PATH"
 
 banner "Creating new version temporary installation at $new_dir on port $PGPORT"
-initdb --no-sync
+initdb #TODO9.2: Add this back in when dropping 9.2 support: --no-sync
 echo "port = $PGPORT" >> $PGDATA/postgresql.conf
 echo "synchronous_commit = off" >> $PGDATA/postgresql.conf
 
