@@ -19,6 +19,7 @@ if [ "$1" == '-s' ]; then
     # Useful error if we can't find sudo
     which sudo > /dev/null
     sudo=$(which sudo)
+    shift
 fi
 
 PGPORT=$1
