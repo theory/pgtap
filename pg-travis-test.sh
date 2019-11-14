@@ -39,18 +39,31 @@ sudo pg_createcluster --start $PGVERSION test -p $PGPORT -- -A trust
 
 sudo easy_install pgxnclient
 
+test_cmd() (
+if [ "$1" == '-s' ]; then
+    status="$2"
+    shift 2
+else
+    status="$1"
+fi
+
+set +ux
+"$@"
+rc=$?
+set -ux
+if [ $rc -ne 0 ]; then
+    echo
+    echo '!!!!!!!!!!!!!!!!'
+    echo "$@"
+    echo '!!!!!!!!!!!!!!!!'
+    echo
+    failed="$failed '$status'"
+fi
+)
+
 test_make() {
-    set +ux
     # Many tests depend on install, so just use sudo for all of them
-    if ! sudo make "$@"; then
-        echo
-        echo '!!!!!!!!!!!!!!!!'
-        echo "make $@ failed"
-        echo '!!!!!!!!!!!!!!!!'
-        echo
-        failed="$failed '$@'"
-    fi
-    set -ux
+    test_cmd -s "$@" sudo make "$@"
 }
 
 test_make clean regress
@@ -71,18 +84,7 @@ if [ -n "$UPGRADE_TO" ]; then
     # We need to tell test_MVU.sh to run some steps via sudo since we're
     # actually installing from pgxn into a system directory.  We also use a
     # different port number to avoid conflicting with existing clusters.
-    set +ux
-    test/test_MVU.sh 55667 "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)"
-    rc=$?
-    set -ux
-    if [ $rc -ne 0 ]; then
-        echo
-        echo '!!!!!!!!!!!!!!!!'
-        echo test/test_MVU.sh 55667 "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)" returned $0
-        echo '!!!!!!!!!!!!!!!!'
-        echo
-        failed="$failed 'test/test_MVU.sh'"
-    fi
+    test_cmd test/test_MVU.sh 55667 "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)"
 fi
 
 if [ -n "$failed" ]; then
