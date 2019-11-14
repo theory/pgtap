@@ -14,6 +14,13 @@ if [ "$1" == "-k" ]; then
     shift
 fi
 
+sudo=''
+if [ "$1" == '-s' ]; then
+    # Useful error if we can't find sudo
+    which sudo > /dev/null
+    sudo=$(which sudo)
+fi
+
 PGPORT=$1
 OLD_PATH="$2"
 NEW_PATH="$3"
@@ -108,7 +115,10 @@ echo "port = $PGPORT" >> $PGDATA/postgresql.conf
 echo "synchronous_commit = off" >> $PGDATA/postgresql.conf
 
 echo "Installing pgtap"
-( cd $(dirname $0)/.. && make clean install )
+# If user requested sudo then we need to use it for the install step. TODO:
+# it'd be nice to move this into the Makefile, if the PGXS make stuff allows
+# it...
+( cd $(dirname $0)/.. && $sudo make clean install )
 
 banner "Starting OLD postgres via" `which pg_ctl`
 pg_ctl start --wait

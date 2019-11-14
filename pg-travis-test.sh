@@ -68,6 +68,9 @@ for t in all install ; do
 done
 
 if [ -n "$UPGRADE_TO" ]; then
+    # We need to tell test_MVU.sh to run some steps via sudo since we're
+    # actually installing from pgxn into a system directory.  We also use a
+    # different port number to avoid conflicting with existing clusters.
     set +ux
     sudo test/test_MVU.sh 55667 "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)"
     rc=$?
@@ -75,7 +78,7 @@ if [ -n "$UPGRADE_TO" ]; then
     if [ $rc -ne 0 ]; then
         echo
         echo '!!!!!!!!!!!!!!!!'
-        echo sudo test/test_MVU.sh 55667 "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)" returned $0
+        echo test/test_MVU.sh 55667 "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)" returned $0
         echo '!!!!!!!!!!!!!!!!'
         echo
         failed="$failed 'test/test_MVU.sh'"
