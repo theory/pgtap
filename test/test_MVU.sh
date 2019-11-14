@@ -122,7 +122,7 @@ echo "Installing pgtap"
 ( cd $(dirname $0)/.. && $sudo make clean install )
 
 banner "Starting OLD postgres via" `which pg_ctl`
-pg_ctl start --wait
+pg_ctl start -w # older versions don't support --wait
 
 echo "Creating database"
 createdb
@@ -131,7 +131,7 @@ banner "Loading extension"
 psql -c 'CREATE EXTENSION pgtap'
 
 echo "Stopping OLD postgres via" `which pg_ctl`
-pg_ctl stop --wait
+pg_ctl sotp -w # older versions don't support --wait
 
 export PGDATA=$new_dir
 export PATH="$NEW_PATH:$PATH"
