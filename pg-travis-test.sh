@@ -68,17 +68,14 @@ for t in all install ; do
 done
 
 if [ -n "$UPGRADE_TO" ]; then
-    # Note that we shouldn't need to run this as root since it's creating a
-    # temporary install. We also use a different port number to avoid
-    # conflicting with existing clusters.
     set +ux
-    test/test_MVU.sh 55667 "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)"
+    sudo test/test_MVU.sh 55667 "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)"
     rc=$?
     set -ux
     if [ $rc -ne 0 ]; then
         echo
         echo '!!!!!!!!!!!!!!!!'
-        echo test/test_MVU.sh 55667 "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)" returned $0
+        echo sudo test/test_MVU.sh 55667 "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)" returned $0
         echo '!!!!!!!!!!!!!!!!'
         echo
         failed="$failed 'test/test_MVU.sh'"
