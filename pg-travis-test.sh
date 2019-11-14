@@ -72,7 +72,7 @@ if [ -n "$UPGRADE_TO" ]; then
     # actually installing from pgxn into a system directory.  We also use a
     # different port number to avoid conflicting with existing clusters.
     set +ux
-    sudo test/test_MVU.sh 55667 "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)"
+    test/test_MVU.sh 55667 "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)"
     rc=$?
     set -ux
     if [ $rc -ne 0 ]; then
