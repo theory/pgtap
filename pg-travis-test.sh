@@ -64,7 +64,7 @@ fi
 
 test_make() {
     # Many tests depend on install, so just use sudo for all of them
-    test_cmd -s "$@" sudo make "$@"
+    test_cmd -s "$*" sudo make "$@"
 }
 
 test_make clean regress
