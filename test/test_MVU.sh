@@ -139,7 +139,7 @@ fi
 
 banner "Creating old version temporary installation at $PGDATA on port $PGPORT"
 $old_initdb
-if [ $use_apt == y ]; then
+if [ $use_apt == n ]; then
     echo "port = $PGPORT" >> $PGDATA/postgresql.conf
     echo "synchronous_commit = off" >> $PGDATA/postgresql.conf
 else
