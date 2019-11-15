@@ -119,7 +119,7 @@ export PGPORT=$OLD_PORT
 
 if which pg_ctlcluster > /dev/null 2>&1; then
     # Looks like we're running in a apt / Debian / Ubuntu environment, so use their tooling
-    use_apt=y
+    separator='--'
     old_initdb="sudo pg_createcluster $OLD_VERSION test_pg_upgrade -p $OLD_PORT -d $old_dir"
     new_initdb="sudo pg_createcluster $NEW_VERSION test_pg_upgrade -p $NEW_PORT -d $new_dir"
     old_pg_ctl="sudo pg_ctlcluster $PGVERSION test_pg_upgrade"
@@ -127,7 +127,7 @@ if which pg_ctlcluster > /dev/null 2>&1; then
     # See also ../pg-travis-test.sh
     new_pg_upgrade=/usr/lib/postgresql/$PGVERSION/bin/pg_upgrade
 else
-    use_apt=n
+    separator=''
     old_initdb="$(find_at_path "$OLD_PATH" initdb) -N"
     new_initdb="$(find_at_path "$NEW_PATH" initdb) -N"
     # s/initdb/pg_ctl/g
@@ -139,7 +139,7 @@ fi
 
 banner "Creating old version temporary installation at $PGDATA on port $PGPORT"
 $old_initdb
-if [ $use_apt == n ]; then
+if [ -z "$separator" ]; then
     echo "port = $PGPORT" >> $PGDATA/postgresql.conf
     echo "synchronous_commit = off" >> $PGDATA/postgresql.conf
 else
@@ -156,7 +156,7 @@ echo "Installing pgtap"
 ( cd $(dirname $0)/.. && $sudo make clean install )
 
 banner "Starting OLD postgres via $old_pg_ctl"
-$old_pg_ctl start -w # older versions don't support --wait
+$old_pg_ctl start $separator -w # older versions don't support --wait
 
 echo "Creating database"
 createdb # Note this uses PGPORT
@@ -165,7 +165,7 @@ banner "Loading extension"
 psql -c 'CREATE EXTENSION pgtap' # Also uses PGPORT
 
 echo "Stopping OLD postgres via $old_pg_ctl"
-$old_pg_ctl stop -w # older versions don't support --wait
+$old_pg_ctl stop $separator -w # older versions don't support --wait
 
 export PGDATA=$new_dir
 export PGPORT=$NEW_PORT
