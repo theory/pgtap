@@ -120,8 +120,8 @@ export PGPORT=$OLD_PORT
 if which pg_ctlcluster > /dev/null 2>&1; then
     # Looks like we're running in a apt / Debian / Ubuntu environment, so use their tooling
     separator='--'
-    old_initdb="sudo pg_createcluster $OLD_VERSION test_pg_upgrade -p $OLD_PORT -d $old_dir"
-    new_initdb="sudo pg_createcluster $NEW_VERSION test_pg_upgrade -p $NEW_PORT -d $new_dir"
+    old_initdb="sudo pg_createcluster $OLD_VERSION test_pg_upgrade -p $OLD_PORT -d $old_dir -- -A trust"
+    new_initdb="sudo pg_createcluster $NEW_VERSION test_pg_upgrade -p $NEW_PORT -d $new_dir -- -A trust"
     old_pg_ctl="sudo pg_ctlcluster $PGVERSION test_pg_upgrade"
     new_pg_ctl=$old_pg_ctl
     # See also ../pg-travis-test.sh
