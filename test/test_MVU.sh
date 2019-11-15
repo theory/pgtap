@@ -100,7 +100,7 @@ NEW_VERSION=$4
 OLD_PATH=$5
 NEW_PATH=$6
 
-DBNAME=test_pgtap_upgrade
+PG_DATABASE=test_pgtap_upgrade
 
 check_bin "$OLD_PATH"
 check_bin "$NEW_PATH"
