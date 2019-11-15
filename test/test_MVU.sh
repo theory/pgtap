@@ -72,8 +72,8 @@ banner() {
     echo
 }
 
-find_in_path() (
-export PATH=$1
+find_at_path() (
+export PATH="$1:$PATH" # Unfortunately need to maintain old PATH to be able to find `which` :(
 out=$(which $2)
 [ -n "$out" ] || die 2 "unable to find $2"
 echo $out
@@ -95,8 +95,10 @@ fi
 
 OLD_PORT=$1
 NEW_PORT=$2
-OLD_PATH="$3"
-NEW_PATH="$4"
+OLD_VERSION=$3
+NEW_VERSION=$4
+OLD_PATH=$5
+NEW_PATH=$6
 
 DBNAME=test_pgtap_upgrade
 
@@ -117,23 +119,23 @@ export PGPORT=$OLD_PORT
 
 if which pg_ctlcluster > /dev/null 2>&1; then
     # Looks like we're running in a apt / Debian / Ubuntu environment, so use their tooling
-    use_apt=1
-    old_initdb="sudo pg_createcluster $PGVERSION test_pg_upgrade"
+    use_apt=y
+    old_initdb="sudo pg_createcluster $OLD_VERSION test_pg_upgrade -p $OLD_PORT -d $old_dir -- -N"
+    new_initdb="sudo pg_createcluster $NEW_VERSION test_pg_upgrade -p $NEW_PORT -d $new_dir -- -N"
     old_pg_ctl="sudo pg_ctlcluster $PGVERSION test_pg_upgrade"
-    new_initdb=$old_initdb
-    # s/initdb/pg_ctl/g
     new_pg_ctl=$old_pg_ctl
 else
-    old_initdb=$(find_at_path "$OLD_PATH" initdb)
-    new_initdb=$(find_at_path "$NEW_PATH" initdb)
+    use_apt=n
+    old_initdb="$(find_at_path "$OLD_PATH" initdb) -N"
+    new_initdb="$(find_at_path "$NEW_PATH" initdb) -N"
     # s/initdb/pg_ctl/g
     old_pg_ctl=$(find_at_path "$OLD_PATH" pg_ctl)
     new_pg_ctl=$(find_at_path "$NEW_PATH" pg_ctl)
 fi
 
 banner "Creating old version temporary installation at $PGDATA on port $PGPORT"
-$old_initdb -d $PGDATA -p $PGPORT
-if [ -z "$use_apt" ]; then
+$old_initdb
+if [ $use_apt == y ]; then
     echo "port = $PGPORT" >> $PGDATA/postgresql.conf
     echo "synchronous_commit = off" >> $PGDATA/postgresql.conf
 else
@@ -149,7 +151,7 @@ echo "Installing pgtap"
 # it...
 ( cd $(dirname $0)/.. && $sudo make clean install )
 
-banner "Starting OLD postgres via $ctl"
+banner "Starting OLD postgres via $old_pg_ctl"
 $old_pg_ctl start -w # older versions don't support --wait
 
 echo "Creating database"
@@ -158,14 +160,14 @@ createdb # Note this uses PGPORT
 banner "Loading extension"
 psql -c 'CREATE EXTENSION pgtap' # Also uses PGPORT
 
-echo "Stopping OLD postgres via $ctl"
+echo "Stopping OLD postgres via $old_pg_ctl"
 $old_pg_ctl stop -w # older versions don't support --wait
 
 export PGDATA=$new_dir
 export PGPORT=$NEW_PORT
 
 banner "Creating new version temporary installation at $PGDATA on port $PGPORT"
-$new_initdb -d $PGDATA -p $PGPORT
+$new_initdb
 echo "port = $PGPORT" >> $PGDATA/postgresql.conf
 echo "synchronous_commit = off" >> $PGDATA/postgresql.conf
 
