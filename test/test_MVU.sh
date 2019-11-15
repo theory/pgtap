@@ -8,26 +8,6 @@
 
 set -E -e -u -o pipefail 
 
-keep=''
-if [ "$1" == "-k" ]; then
-    keep=1
-    shift
-fi
-
-sudo=''
-if [ "$1" == '-s' ]; then
-    # Useful error if we can't find sudo
-    which sudo > /dev/null
-    sudo=$(which sudo)
-    shift
-fi
-
-PGPORT=$1
-OLD_PATH="$2"
-NEW_PATH="$3"
-
-DBNAME=test_pgtap_upgrade
-
 # ###########
 # TODO: break these functions into a library shell script so they can be used elsewhere
 
@@ -92,10 +72,36 @@ banner() {
     echo
 }
 
+find_in_path() (
+export PATH=$1
+out=$(which $2)
+[ -n "$out" ] || die 2 "unable to find $2"
+echo $out
+)
+
+keep=''
+if [ "$1" == "-k" ]; then
+    keep=1
+    shift
+fi
+
+sudo=''
+if [ "$1" == '-s' ]; then
+    # Useful error if we can't find sudo
+    which sudo > /dev/null
+    sudo=$(which sudo)
+    shift
+fi
+
+OLD_PORT=$1
+NEW_PORT=$2
+OLD_PATH="$3"
+NEW_PATH="$4"
+
+DBNAME=test_pgtap_upgrade
+
 check_bin "$OLD_PATH"
 check_bin "$NEW_PATH"
-
-export PATH="$OLD_PATH:$PATH"
 
 export TMPDIR=${TMPDIR:-${TEMP:-${TMP:-/tmp}}}
 debug 9 "\$TMPDIR=$TMPDIR"
@@ -107,13 +113,35 @@ if [ -n "$keep" ]; then
     trap "rm -rf '$upgrade_dir' '$old_dir' '$new_dir'" EXIT
 fi
 export PGDATA=$old_dir
+export PGPORT=$OLD_PORT
 
-export PGPORT
+if which pg_ctlcluster > /dev/null 2>&1; then
+    # Looks like we're running in a apt / Debian / Ubuntu environment, so use their tooling
+    use_apt=1
+    old_initdb="sudo pg_createcluster $PGVERSION test_pg_upgrade"
+    old_pg_ctl="sudo pg_ctlcluster $PGVERSION test_pg_upgrade"
+    new_initdb=$old_initdb
+    # s/initdb/pg_ctl/g
+    new_pg_ctl=$old_pg_ctl
+else
+    old_initdb=$(find_at_path "$OLD_PATH" initdb)
+    new_initdb=$(find_at_path "$NEW_PATH" initdb)
+    # s/initdb/pg_ctl/g
+    old_pg_ctl=$(find_at_path "$OLD_PATH" pg_ctl)
+    new_pg_ctl=$(find_at_path "$NEW_PATH" pg_ctl)
+fi
 
-banner "Creating old version temporary installation at $old_dir on port $PGPORT"
-initdb #TODO9.2: Add this back in when dropping 9.2 support: --no-sync
-echo "port = $PGPORT" >> $PGDATA/postgresql.conf
-echo "synchronous_commit = off" >> $PGDATA/postgresql.conf
+banner "Creating old version temporary installation at $PGDATA on port $PGPORT"
+$old_initdb -d $PGDATA -p $PGPORT
+if [ -z "$use_apt" ]; then
+    echo "port = $PGPORT" >> $PGDATA/postgresql.conf
+    echo "synchronous_commit = off" >> $PGDATA/postgresql.conf
+else
+    # Shouldn't need to muck with PGPORT... someone with a system using apt
+    # might want to figure out the synchronous_commit bit; it won't make a
+    # meaningful difference in Travis.
+    true
+fi
 
 echo "Installing pgtap"
 # If user requested sudo then we need to use it for the install step. TODO:
@@ -121,23 +149,23 @@ echo "Installing pgtap"
 # it...
 ( cd $(dirname $0)/.. && $sudo make clean install )
 
-banner "Starting OLD postgres via" `which pg_ctl`
-pg_ctl start -w # older versions don't support --wait
+banner "Starting OLD postgres via $ctl"
+$old_pg_ctl start -w # older versions don't support --wait
 
 echo "Creating database"
-createdb
+createdb # Note this uses PGPORT
 
 banner "Loading extension"
-psql -c 'CREATE EXTENSION pgtap'
+psql -c 'CREATE EXTENSION pgtap' # Also uses PGPORT
 
-echo "Stopping OLD postgres via" `which pg_ctl`
-pg_ctl sotp -w # older versions don't support --wait
+echo "Stopping OLD postgres via $ctl"
+$old_pg_ctl stop -w # older versions don't support --wait
 
 export PGDATA=$new_dir
-export PATH="$NEW_PATH:$PATH"
+export PGPORT=$NEW_PORT
 
-banner "Creating new version temporary installation at $new_dir on port $PGPORT"
-initdb #TODO9.2: Add this back in when dropping 9.2 support: --no-sync
+banner "Creating new version temporary installation at $PGDATA on port $PGPORT"
+$new_initdb -d $PGDATA -p $PGPORT
 echo "port = $PGPORT" >> $PGDATA/postgresql.conf
 echo "synchronous_commit = off" >> $PGDATA/postgresql.conf
 
