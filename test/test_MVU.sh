@@ -124,6 +124,8 @@ if which pg_ctlcluster > /dev/null 2>&1; then
     new_initdb="sudo pg_createcluster $NEW_VERSION test_pg_upgrade -p $NEW_PORT -d $new_dir -- -N"
     old_pg_ctl="sudo pg_ctlcluster $PGVERSION test_pg_upgrade"
     new_pg_ctl=$old_pg_ctl
+    # See also ../pg-travis-test.sh
+    new_pg_upgrade=/usr/lib/postgresql/$PGVERSION/bin/pg_upgrade
 else
     use_apt=n
     old_initdb="$(find_at_path "$OLD_PATH" initdb) -N"
@@ -131,6 +133,8 @@ else
     # s/initdb/pg_ctl/g
     old_pg_ctl=$(find_at_path "$OLD_PATH" pg_ctl)
     new_pg_ctl=$(find_at_path "$NEW_PATH" pg_ctl)
+
+    new_pg_upgrade=$(find_at_path "$NEW_PATH" pg_upgrade)
 fi
 
 banner "Creating old version temporary installation at $PGDATA on port $PGPORT"
@@ -173,4 +177,4 @@ echo "synchronous_commit = off" >> $PGDATA/postgresql.conf
 
 echo "Running pg_upgrade"
 cd $upgrade_dir
-pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH"
+$new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH"
