@@ -100,7 +100,7 @@ NEW_VERSION=$4
 OLD_PATH=$5
 NEW_PATH=$6
 
-PGDATABASE=test_pgtap_upgrade
+export PGDATABASE=test_pgtap_upgrade
 
 check_bin "$OLD_PATH"
 check_bin "$NEW_PATH"
@@ -111,9 +111,19 @@ debug 9 "\$TMPDIR=$TMPDIR"
 upgrade_dir=$(short_tmpdir test_pgtap_upgrade.upgrade)
 old_dir=$(short_tmpdir test_pgtap_upgrade.old)
 new_dir=$(short_tmpdir test_pgtap_upgrade.new)
-if [ -n "$keep" ]; then
-    trap "rm -rf '$upgrade_dir' '$old_dir' '$new_dir'" EXIT
-fi
+
+# Note: if this trap fires and removes the old directories with databases still
+# running we'll get a bunch of spew on STDERR. It'd be nice to have a trap that
+# knew what databases might actually be running.
+exit_trap() {
+    # Do not simply stick this command in the trap command; the quoting gets
+    # tricky, but the quoting is also damn critical to make sure rm -rf doesn't
+    # hose you if the temporary directory names have spaces in them!
+    rm -rf "$upgrade_dir" "$old_dir" "$new_dir"
+}
+[ -n "$keep" ] || trap exit_trap EXIT
+debug 5 "traps: $(trap -p)"
+
 export PGDATA=$old_dir
 export PGPORT=$OLD_PORT
 
@@ -137,6 +147,7 @@ else
     new_pg_upgrade=$(find_at_path "$NEW_PATH" pg_upgrade)
 fi
 
+
 banner "Creating old version temporary installation at $PGDATA on port $PGPORT"
 $old_initdb
 if [ -z "$separator" ]; then
@@ -149,17 +160,18 @@ else
     true
 fi
 
+banner "Starting OLD postgres via $old_pg_ctl"
+$old_pg_ctl start $separator -w # older versions don't support --wait
+
+echo "Creating database"
+createdb # Note this uses PGPORT, so no need to wrap.
+
 echo "Installing pgtap"
 # If user requested sudo then we need to use it for the install step. TODO:
 # it'd be nice to move this into the Makefile, if the PGXS make stuff allows
 # it...
 ( cd $(dirname $0)/.. && $sudo make clean install )
 
-banner "Starting OLD postgres via $old_pg_ctl"
-$old_pg_ctl start $separator -w # older versions don't support --wait
-
-echo "Creating database"
-createdb # Note this uses PGPORT
 
 banner "Loading extension"
 psql -c 'CREATE EXTENSION pgtap' # Also uses PGPORT
@@ -170,6 +182,7 @@ $old_pg_ctl stop $separator -w # older versions don't support --wait
 export PGDATA=$new_dir
 export PGPORT=$NEW_PORT
 
+
 banner "Creating new version temporary installation at $PGDATA on port $PGPORT"
 $new_initdb
 echo "port = $PGPORT" >> $PGDATA/postgresql.conf
@@ -178,3 +191,20 @@ echo "synchronous_commit = off" >> $PGDATA/postgresql.conf
 echo "Running pg_upgrade"
 cd $upgrade_dir
 $new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH"
+
+
+# TODO: turn this stuff on. It's pointless to test via `make regress` because
+# that creates a new install; need to figure out the best way to test the new
+# cluster
+exit
+banner "Testing UPGRADED cluster"
+
+# Run our tests against the upgraded cluster, but first make sure the old
+# cluster is still down, to ensure there's no chance of testing it instead.
+status=$($old_pg_ctl status) || die 3 "$old_pg_ctl status exited with $?"
+debug 1 "$old_pg_ctl status returned $status"
+[ "$status" == 'pg_ctl: no server running' ] || die 3 "old cluster is still running
+
+$old_pg_ctl status returned
+$status"
+( cd $(dirname $0)/..; $sudo make clean regress )
