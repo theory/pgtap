@@ -79,6 +79,21 @@ out=$(which $2)
 echo $out
 )
 
+modify_config() {
+    # See below for definition of ctl_separator
+    if [ -z "$ctl_separator" ]; then
+        echo "port = $PGPORT" >> $PGDATA/postgresql.conf
+        echo "synchronous_commit = off" >> $PGDATA/postgresql.conf
+    else
+        # Shouldn't need to muck with PGPORT... someone with a system using apt
+        # might want to figure out the synchronous_commit bit; it won't make a
+        # meaningful difference in Travis.
+        true
+    fi
+}
+
+#############################
+# Argument processing
 keep=''
 if [ "$1" == "-k" ]; then
     keep=1
@@ -120,7 +135,7 @@ exit_trap() {
     set +e
 
     # Force sudo on a debian system (see below)
-    [ -z "$separator" ] || sudo=$(which sudo)
+    [ -z "$ctl_separator" ] || sudo=$(which sudo)
 
     # Do not simply stick this command in the trap command; the quoting gets
     # tricky, but the quoting is also damn critical to make sure rm -rf doesn't
@@ -135,7 +150,7 @@ export PGPORT=$OLD_PORT
 
 if which pg_ctlcluster > /dev/null 2>&1; then
     # Looks like we're running in a apt / Debian / Ubuntu environment, so use their tooling
-    separator='--'
+    ctl_separator='--'
     old_initdb="sudo pg_createcluster $OLD_VERSION test_pg_upgrade -p $OLD_PORT -d $old_dir -- -A trust"
     new_initdb="sudo pg_createcluster $NEW_VERSION test_pg_upgrade -p $NEW_PORT -d $new_dir -- -A trust"
     old_pg_ctl="sudo pg_ctlcluster $PGVERSION test_pg_upgrade"
@@ -143,7 +158,7 @@ if which pg_ctlcluster > /dev/null 2>&1; then
     # See also ../pg-travis-test.sh
     new_pg_upgrade=/usr/lib/postgresql/$PGVERSION/bin/pg_upgrade
 else
-    separator=''
+    ctl_separator=''
     old_initdb="$(find_at_path "$OLD_PATH" initdb) -N"
     new_initdb="$(find_at_path "$NEW_PATH" initdb) -N"
     # s/initdb/pg_ctl/g
@@ -156,18 +171,10 @@ fi
 
 banner "Creating old version temporary installation at $PGDATA on port $PGPORT"
 $old_initdb
-if [ -z "$separator" ]; then
-    echo "port = $PGPORT" >> $PGDATA/postgresql.conf
-    echo "synchronous_commit = off" >> $PGDATA/postgresql.conf
-else
-    # Shouldn't need to muck with PGPORT... someone with a system using apt
-    # might want to figure out the synchronous_commit bit; it won't make a
-    # meaningful difference in Travis.
-    true
-fi
+modify_config
 
 banner "Starting OLD postgres via $old_pg_ctl"
-$old_pg_ctl start $separator -w # older versions don't support --wait
+$old_pg_ctl start $ctl_separator -w # older versions don't support --wait
 
 echo "Creating database"
 createdb # Note this uses PGPORT, so no need to wrap.
@@ -183,7 +190,7 @@ banner "Loading extension"
 psql -c 'CREATE EXTENSION pgtap' # Also uses PGPORT
 
 echo "Stopping OLD postgres via $old_pg_ctl"
-$old_pg_ctl stop $separator -w # older versions don't support --wait
+$old_pg_ctl stop $ctl_separator -w # older versions don't support --wait
 
 export PGDATA=$new_dir
 export PGPORT=$NEW_PORT
@@ -191,8 +198,7 @@ export PGPORT=$NEW_PORT
 
 banner "Creating new version temporary installation at $PGDATA on port $PGPORT"
 $new_initdb
-echo "port = $PGPORT" >> $PGDATA/postgresql.conf
-echo "synchronous_commit = off" >> $PGDATA/postgresql.conf
+modify_config
 
 echo "Running pg_upgrade"
 cd $upgrade_dir
