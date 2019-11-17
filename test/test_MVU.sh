@@ -156,8 +156,8 @@ if which pg_ctlcluster > /dev/null 2>&1; then
     new_pg_upgrade=/usr/lib/postgresql/$PGVERSION/bin/pg_upgrade
 else
     ctl_separator=''
-    old_initdb="$(find_at_path "$OLD_PATH" initdb) -N"
-    new_initdb="$(find_at_path "$NEW_PATH" initdb) -N"
+    old_initdb="$(find_at_path "$OLD_PATH" initdb) -D $old_dir -N"
+    new_initdb="$(find_at_path "$NEW_PATH" initdb) -D $new_dir -N"
     # s/initdb/pg_ctl/g
     old_pg_ctl=$(find_at_path "$OLD_PATH" pg_ctl)
     new_pg_ctl=$(find_at_path "$NEW_PATH" pg_ctl)
@@ -167,18 +167,27 @@ fi
 
 
 ##################################################################################################
-banner "Creating old version temporary installation at $PGDATA on port $PGPORT"
+banner "Creating old version temporary installation at $old_dir on port $OLD_PORT (in the background)"
+echo "Creating new version temporary installation at $new_dir on port $NEW_PORT (in the background)"
+$old_initdb &
+$new_initdb &
+
+echo Waiting...
+wait
+
+##################################################################################################
+banner "Starting OLD postgres via $old_pg_ctl"
 export PGDATA=$old_dir
 export PGPORT=$OLD_PORT
-$old_initdb
 modify_config
 
-banner "Starting OLD postgres via $old_pg_ctl"
 $old_pg_ctl start $ctl_separator -w # older versions don't support --wait
+if [ -n "$ctl_separator" ]; then
 ls -la /var/run/postgresql
 ls -la $old_dir
 ls -la /etc/postgresql/$PGVERSION/test_pg_upgrade
 grep socket /etc/postgresql/$PGVERSION/test_pg_upgrade/postgresql.conf
+fi
 
 echo "Creating database"
 createdb # Note this uses PGPORT, so no need to wrap.
@@ -199,13 +208,11 @@ $old_pg_ctl stop $ctl_separator -w # older versions don't support --wait
 
 
 ##################################################################################################
-banner "Creating new version temporary installation at $PGDATA on port $PGPORT"
+banner "Running pg_upgrade"
 export PGDATA=$new_dir
 export PGPORT=$NEW_PORT
-$new_initdb
 modify_config
 
-echo "Running pg_upgrade"
 cd $upgrade_dir
 $new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH"
 
