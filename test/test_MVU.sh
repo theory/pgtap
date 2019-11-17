@@ -116,10 +116,16 @@ new_dir=$(short_tmpdir test_pgtap_upgrade.new)
 # running we'll get a bunch of spew on STDERR. It'd be nice to have a trap that
 # knew what databases might actually be running.
 exit_trap() {
+    # No point in stopping on error in here...
+    set +e
+
+    # Force sudo on a debian system (see below)
+    [ -z "$separator" ] || sudo=${which sudo}
+
     # Do not simply stick this command in the trap command; the quoting gets
     # tricky, but the quoting is also damn critical to make sure rm -rf doesn't
     # hose you if the temporary directory names have spaces in them!
-    rm -rf "$upgrade_dir" "$old_dir" "$new_dir"
+    $sudo rm -rf "$upgrade_dir" "$old_dir" "$new_dir"
 }
 [ -n "$keep" ] || trap exit_trap EXIT
 debug 5 "traps: $(trap -p)"
