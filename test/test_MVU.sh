@@ -175,10 +175,10 @@ modify_config
 
 banner "Starting OLD postgres via $old_pg_ctl"
 $old_pg_ctl start $ctl_separator -w # older versions don't support --wait
-if [ $DEBUG -gt 3 ]; then
-    ls -la /var/run/postgresql
-    ls -la $old_dir
-fi
+ls -la /var/run/postgresql
+ls -la $old_dir
+ls -la /etc/postgresql/$PGVERSION/test_pg_upgrade
+grep socket /etc/postgresql/$PGVERSION/test_pg_upgrade/postgresql.conf
 
 echo "Creating database"
 createdb # Note this uses PGPORT, so no need to wrap.
