@@ -150,6 +150,7 @@ cluster_name=test_pg_upgrade
 if which pg_ctlcluster > /dev/null 2>&1; then
     # Looks like we're running in a apt / Debian / Ubuntu environment, so use their tooling
     ctl_separator='--'
+    export PGUSER=$USER
     old_initdb="sudo pg_createcluster $OLD_VERSION $cluster_name -u $USER -p $OLD_PORT -d $old_dir -- -A trust"
     new_initdb="sudo pg_createcluster $NEW_VERSION $cluster_name -u $USER -p $NEW_PORT -d $new_dir -- -A trust"
     old_pg_ctl="sudo pg_ctlcluster $PGVERSION test_pg_upgrade"
