@@ -31,10 +31,9 @@ sudo service postgresql stop
 echo 'exit 0' | sudo tee /etc/init.d/postgresql
 sudo chmod a+x /etc/init.d/postgresql
 
-cat /etc/passwd /etc/group*
-
 sudo apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $packages
 
+sudo cat /etc/passwd /etc/group*
 sudo usermod -a -G postgres $USER
 
 export PGPORT=55435
