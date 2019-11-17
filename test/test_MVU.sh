@@ -120,7 +120,7 @@ exit_trap() {
     set +e
 
     # Force sudo on a debian system (see below)
-    [ -z "$separator" ] || sudo=${which sudo}
+    [ -z "$separator" ] || sudo=$(which sudo)
 
     # Do not simply stick this command in the trap command; the quoting gets
     # tricky, but the quoting is also damn critical to make sure rm -rf doesn't
