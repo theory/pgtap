@@ -88,7 +88,8 @@ modify_config() {
         # Shouldn't need to muck with PGPORT... someone with a system using apt
         # might want to figure out the synchronous_commit bit; it won't make a
         # meaningful difference in Travis.
-        true
+        echo "synchronous_commit = off" >> /etc/postgresql/$1/$cluster_name/postgresql.conf
+        echo "unix_socket_directory = '/var/run/postgresql'" >> /etc/postgresql/$1/$cluster_name/postgresql.conf
     fi
 }
 
@@ -145,11 +146,12 @@ exit_trap() {
 [ -n "$keep" ] || trap exit_trap EXIT
 debug 5 "traps: $(trap -p)"
 
+cluster_name=test_pg_upgrade 
 if which pg_ctlcluster > /dev/null 2>&1; then
     # Looks like we're running in a apt / Debian / Ubuntu environment, so use their tooling
     ctl_separator='--'
-    old_initdb="sudo pg_createcluster $OLD_VERSION test_pg_upgrade -u $USER -p $OLD_PORT -d $old_dir -- -A trust"
-    new_initdb="sudo pg_createcluster $NEW_VERSION test_pg_upgrade -u $USER -p $NEW_PORT -d $new_dir -- -A trust"
+    old_initdb="sudo pg_createcluster $OLD_VERSION $cluster_name -u $USER -p $OLD_PORT -d $old_dir -- -A trust"
+    new_initdb="sudo pg_createcluster $NEW_VERSION $cluster_name -u $USER -p $NEW_PORT -d $new_dir -- -A trust"
     old_pg_ctl="sudo pg_ctlcluster $PGVERSION test_pg_upgrade"
     new_pg_ctl=$old_pg_ctl
     # See also ../pg-travis-test.sh
