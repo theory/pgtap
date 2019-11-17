@@ -33,8 +33,9 @@ sudo chmod a+x /etc/init.d/postgresql
 
 sudo apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $packages
 
-sudo cat /etc/passwd /etc/group*
 sudo usermod -a -G postgres $USER
+ls -la /etc/group*
+sudo cat /etc/passwd /etc/group*
 
 export PGPORT=55435
 export PGUSER=postgres
