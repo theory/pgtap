@@ -5,8 +5,6 @@
 set -eux
 failed=''
 
-cat /etc/passwd /etc/group*
-
 
 sudo apt-get update
 
@@ -32,6 +30,8 @@ sudo service postgresql stop
 # and make sure they don't come back
 echo 'exit 0' | sudo tee /etc/init.d/postgresql
 sudo chmod a+x /etc/init.d/postgresql
+
+cat /etc/passwd /etc/group*
 
 sudo apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $packages
 
