@@ -5,12 +5,16 @@
 set -eux
 failed=''
 
+cat /etc/passwd /etc/group*
+
+
 sudo apt-get update
 
 get_packages() {
     echo "postgresql-$1 postgresql-server-dev-$1"
 }
 get_path() {
+    # See also test/test_MVU.sh
     echo "/usr/lib/postgresql/$1/bin/"
 }
 
@@ -30,6 +34,8 @@ echo 'exit 0' | sudo tee /etc/init.d/postgresql
 sudo chmod a+x /etc/init.d/postgresql
 
 sudo apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $packages
+
+sudo usermod -a -G postgres $USER
 
 export PGPORT=55435
 export PGUSER=postgres
