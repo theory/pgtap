@@ -156,7 +156,7 @@ if which pg_ctlcluster > /dev/null 2>&1; then
     old_pg_ctl="sudo pg_ctlcluster $PGVERSION test_pg_upgrade"
     new_pg_ctl=$old_pg_ctl
     # See also ../pg-travis-test.sh
-    new_pg_upgrade=/usr/lib/postgresql/$PGVERSION/bin/pg_upgrade
+    new_pg_upgrade="$sudo /usr/lib/postgresql/$PGVERSION/bin/pg_upgrade"
 else
     ctl_separator=''
     old_initdb="$(find_at_path "$OLD_PATH" initdb) -N"
