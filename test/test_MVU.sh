@@ -145,9 +145,6 @@ exit_trap() {
 [ -n "$keep" ] || trap exit_trap EXIT
 debug 5 "traps: $(trap -p)"
 
-export PGDATA=$old_dir
-export PGPORT=$OLD_PORT
-
 if which pg_ctlcluster > /dev/null 2>&1; then
     # Looks like we're running in a apt / Debian / Ubuntu environment, so use their tooling
     ctl_separator='--'
@@ -169,14 +166,19 @@ else
 fi
 
 
+##################################################################################################
 banner "Creating old version temporary installation at $PGDATA on port $PGPORT"
+export PGDATA=$old_dir
+export PGPORT=$OLD_PORT
 $old_initdb
 modify_config
 
 banner "Starting OLD postgres via $old_pg_ctl"
 $old_pg_ctl start $ctl_separator -w # older versions don't support --wait
-ls -la /var/run/postgresql
-ls -la $old_dir $new_dir
+if [ $DEBUG -gt 3 ]; then
+    ls -la /var/run/postgresql
+    ls -la $old_dir
+fi
 
 echo "Creating database"
 createdb # Note this uses PGPORT, so no need to wrap.
@@ -194,11 +196,12 @@ psql -c 'CREATE EXTENSION pgtap' # Also uses PGPORT
 echo "Stopping OLD postgres via $old_pg_ctl"
 $old_pg_ctl stop $ctl_separator -w # older versions don't support --wait
 
+
+
+##################################################################################################
+banner "Creating new version temporary installation at $PGDATA on port $PGPORT"
 export PGDATA=$new_dir
 export PGPORT=$NEW_PORT
-
-
-banner "Creating new version temporary installation at $PGDATA on port $PGPORT"
 $new_initdb
 modify_config
 
