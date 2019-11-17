@@ -175,6 +175,8 @@ modify_config
 
 banner "Starting OLD postgres via $old_pg_ctl"
 $old_pg_ctl start $ctl_separator -w # older versions don't support --wait
+ls -la /var/run/postgresql
+ls -la $old_dir $new_dir
 
 echo "Creating database"
 createdb # Note this uses PGPORT, so no need to wrap.
@@ -202,7 +204,6 @@ modify_config
 
 echo "Running pg_upgrade"
 cd $upgrade_dir
-ls -la $old_dir $new_dir
 $new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH"
 
 
