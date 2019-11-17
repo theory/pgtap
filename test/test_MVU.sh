@@ -181,7 +181,7 @@ wait
 banner "Starting OLD postgres via $old_pg_ctl"
 export PGDATA=$old_dir
 export PGPORT=$OLD_PORT
-modify_config
+modify_config $OLD_VERSION
 
 $old_pg_ctl start $ctl_separator -w # older versions don't support --wait
 if [ -n "$ctl_separator" ]; then
@@ -213,7 +213,7 @@ $old_pg_ctl stop $ctl_separator -w # older versions don't support --wait
 banner "Running pg_upgrade"
 export PGDATA=$new_dir
 export PGPORT=$NEW_PORT
-modify_config
+modify_config $NEW_VERSION
 
 cd $upgrade_dir
 $new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH"
