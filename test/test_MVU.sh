@@ -238,11 +238,12 @@ $new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH" || rc=
 if [ $rc -ne 0 ]; then
     # Dump log, but only if we're not keeping the directory
     if [ -z "$keep" ]; then
-        for f in `ls`; do
+        for f in `ls *.log`; do
             echo; echo; echo; echo; echo; echo
-            echo "$f:"
+            echo "`pwd`/$f:"
             cat "$f"
         done
+        ls -la
     else
         error "pg_upgrade logs are at $upgrade_dir"
     fi
