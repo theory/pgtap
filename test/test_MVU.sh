@@ -94,10 +94,6 @@ modify_config() {
 
         echo "port = $PGPORT" >> $conf
         echo "synchronous_commit = off" >> $conf
-
-        guc=$(grep unix_socket_director $conf | sed -e 's/^# *//' | cut -d ' ' -f 1)
-        debug 4 "$0: guc = $guc"
-        echo "$guc = '/$TMPDIR'" >> $conf
     else
         conf=$(debian_conf $1)
         debug 6 "$0: conf = $conf"
@@ -108,7 +104,7 @@ modify_config() {
         # GUC changed somewhere between 9.1 and 9.5, so read config to figure out correct value
         guc=$(grep unix_socket_director $conf | sed -e 's/^# *//' | cut -d ' ' -f 1)
         debug 4 "$0: guc = $guc"
-        echo "$guc = '/var/run/postgresql'" >> $conf
+        echo "$guc = '/tmp" >> $conf
     fi
 }
 
@@ -171,7 +167,13 @@ cluster_name=test_pg_upgrade
 if which pg_ctlcluster > /dev/null 2>&1; then
     # Looks like we're running in a apt / Debian / Ubuntu environment, so use their tooling
     ctl_separator='--'
+
+    # Force socket path to normal for pg_upgrade
+    export PGHOST=/tmp
+
+    # And force current user
     export PGUSER=$USER
+
     old_initdb="sudo pg_createcluster $OLD_VERSION $cluster_name -u $USER -p $OLD_PORT -d $old_dir -- -A trust; ln -s $(debian_conf $OLD_VERSION) $old_dir/"
     new_initdb="sudo pg_createcluster $NEW_VERSION $cluster_name -u $USER -p $NEW_PORT -d $new_dir -- -A trust; ln -s $(debian_conf $NEW_VERSION) $new_dir/"
     old_pg_ctl="sudo pg_ctlcluster $PGVERSION test_pg_upgrade"
