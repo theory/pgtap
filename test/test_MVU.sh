@@ -92,9 +92,8 @@ modify_config() {
         conf="/etc/postgresql/$1/$cluster_name/postgresql.conf"
         debug 6 "$0: conf = $conf"
 
-        ls -la /etc/postgresql/$1/$cluster_name
-        ls -la $new_dir
-        ln -s $conf $new_dir/
+        debug 2 ln -s $conf $PGDATA/
+        ln -s $conf $PGDATA/
 
         # Shouldn't need to muck with PGPORT...
 
