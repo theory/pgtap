@@ -156,7 +156,7 @@ if which pg_ctlcluster > /dev/null 2>&1; then
     old_pg_ctl="sudo pg_ctlcluster $PGVERSION test_pg_upgrade"
     new_pg_ctl=$old_pg_ctl
     # See also ../pg-travis-test.sh
-    new_pg_upgrade=/usr/lib/postgresql/$PGVERSION/bin/pg_upgrade
+    new_pg_upgrade=/usr/lib/postgresql/$NEW_VERSION/bin/pg_upgrade
 else
     ctl_separator=''
     old_initdb="$(find_at_path "$OLD_PATH" initdb) -D $old_dir -N"
@@ -179,7 +179,7 @@ echo Waiting...
 wait
 
 ##################################################################################################
-banner "Starting OLD postgres via $old_pg_ctl"
+banner "Starting OLD $OLD_VERSION postgres via $old_pg_ctl"
 export PGDATA=$old_dir
 export PGPORT=$OLD_PORT
 modify_config $OLD_VERSION
@@ -188,8 +188,8 @@ $old_pg_ctl start $ctl_separator -w # older versions don't support --wait
 if [ -n "$ctl_separator" ]; then
 ls -la /var/run/postgresql
 ls -la $old_dir
-ls -la /etc/postgresql/$PGVERSION/test_pg_upgrade
-grep socket /etc/postgresql/$PGVERSION/test_pg_upgrade/postgresql.conf
+ls -la /etc/postgresql/$OLD_VERSION/test_pg_upgrade
+grep socket /etc/postgresql/$OLD_VERSION/test_pg_upgrade/postgresql.conf
 fi
 
 echo "Creating database"
@@ -217,6 +217,7 @@ export PGPORT=$NEW_PORT
 modify_config $NEW_VERSION
 
 cd $upgrade_dir
+echo $new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH"
 $new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH"
 
 

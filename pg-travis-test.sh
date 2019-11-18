@@ -16,34 +16,6 @@ get_path() {
     echo "/usr/lib/postgresql/$1/bin/"
 }
 
-packages="python-setuptools postgresql-common $(get_packages $PGVERSION)"
-
-if [ -n "$UPGRADE_TO" ]; then
-    packages="$packages $(get_packages $UPGRADE_TO)"
-fi
-
-# bug: http://www.postgresql.org/message-id/20130508192711.GA9243@msgid.df7cb.de
-sudo update-alternatives --remove-all postmaster.1.gz
-
-# stop all existing instances (because of https://github.com/travis-ci/travis-cookbooks/pull/221)
-sudo service postgresql stop
-# and make sure they don't come back
-echo 'exit 0' | sudo tee /etc/init.d/postgresql
-sudo chmod a+x /etc/init.d/postgresql
-
-sudo apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $packages
-
-# Make life easier for test_MVU.sh
-sudo usermod -a -G postgres $USER
-
-export PGPORT=55435
-export PGUSER=postgres
-export PG_CONFIG="$(get_path $PGVERSION)pg_config"
-[ "$PG_CONFIG" != 'pg_config' ]
-sudo pg_createcluster --start $PGVERSION test -p $PGPORT -- -A trust
-
-sudo easy_install pgxnclient
-
 test_cmd() (
 if [ "$1" == '-s' ]; then
     status="$2"
@@ -71,6 +43,41 @@ test_make() {
     # Many tests depend on install, so just use sudo for all of them
     test_cmd -s "$*" sudo make "$@"
 }
+
+########################################################
+# Install packages
+packages="python-setuptools postgresql-common $(get_packages $PGVERSION)"
+
+if [ -n "$UPGRADE_TO" ]; then
+    packages="$packages $(get_packages $UPGRADE_TO)"
+fi
+
+# bug: http://www.postgresql.org/message-id/20130508192711.GA9243@msgid.df7cb.de
+sudo update-alternatives --remove-all postmaster.1.gz
+
+# stop all existing instances (because of https://github.com/travis-ci/travis-cookbooks/pull/221)
+sudo service postgresql stop
+# and make sure they don't come back
+echo 'exit 0' | sudo tee /etc/init.d/postgresql
+sudo chmod a+x /etc/init.d/postgresql
+
+sudo apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $packages
+
+# Make life easier for test_MVU.sh
+sudo usermod -a -G postgres $USER
+
+
+    test_cmd test/test_MVU.sh -s 55667 55778 $PGVERSION $UPGRADE_TO "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)"
+exit 1
+
+# Setup cluster
+export PGPORT=55435
+export PGUSER=postgres
+export PG_CONFIG="$(get_path $PGVERSION)pg_config"
+[ "$PG_CONFIG" != 'pg_config' ]
+sudo pg_createcluster --start $PGVERSION test -p $PGPORT -- -A trust
+
+sudo easy_install pgxnclient
 
 test_make clean regress
 
