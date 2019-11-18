@@ -63,18 +63,20 @@ sudo chmod a+x /etc/init.d/postgresql
 
 sudo apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install $packages
 
+# Need to explicitly set which pg_config we want to use
+export PG_CONFIG="$(get_path $PGVERSION)pg_config"
+[ "$PG_CONFIG" != 'pg_config' ]
+
 # Make life easier for test_MVU.sh
 sudo usermod -a -G postgres $USER
 
 
-    test_cmd test/test_MVU.sh -s 55667 55778 $PGVERSION $UPGRADE_TO "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)"
+DEBUG=9    test_cmd test/test_MVU.sh -s 55667 55778 $PGVERSION $UPGRADE_TO "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)"
 exit 1
 
 # Setup cluster
 export PGPORT=55435
 export PGUSER=postgres
-export PG_CONFIG="$(get_path $PGVERSION)pg_config"
-[ "$PG_CONFIG" != 'pg_config' ]
 sudo pg_createcluster --start $PGVERSION test -p $PGPORT -- -A trust
 
 sudo easy_install pgxnclient

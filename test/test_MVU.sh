@@ -85,11 +85,16 @@ modify_config() {
         echo "port = $PGPORT" >> $PGDATA/postgresql.conf
         echo "synchronous_commit = off" >> $PGDATA/postgresql.conf
     else
-        # Shouldn't need to muck with PGPORT... someone with a system using apt
-        # might want to figure out the synchronous_commit bit; it won't make a
-        # meaningful difference in Travis.
+        # Shouldn't need to muck with PGPORT...
         echo "synchronous_commit = off" >> /etc/postgresql/$1/$cluster_name/postgresql.conf
-        echo "unix_socket_directory = '/var/run/postgresql'" >> /etc/postgresql/$1/$cluster_name/postgresql.conf
+
+        # GUC changed somewhere between 9.1 and 9.5, so read config to figure out correct value
+        local guc conf
+        conf="/etc/postgresql/$1/$cluster_name/postgresql.conf"
+        debug 6 "$0: conf = $conf"
+        guc=$(grep unix_socket_director $conf | sed -e 's/^# //' | cut -d ' ' -f 1)
+        debug 4 "$0: guc = $guc"
+        echo "$guc = '/var/run/postgresql'" >> $conf
     fi
 }
 
@@ -184,12 +189,12 @@ export PGDATA=$old_dir
 export PGPORT=$OLD_PORT
 modify_config $OLD_VERSION
 
+grep socket /etc/postgresql/$OLD_VERSION/test_pg_upgrade/postgresql.conf
 $old_pg_ctl start $ctl_separator -w # older versions don't support --wait
 if [ -n "$ctl_separator" ]; then
 ls -la /var/run/postgresql
 ls -la $old_dir
 ls -la /etc/postgresql/$OLD_VERSION/test_pg_upgrade
-grep socket /etc/postgresql/$OLD_VERSION/test_pg_upgrade/postgresql.conf
 fi
 
 echo "Creating database"
