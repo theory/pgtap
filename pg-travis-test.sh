@@ -5,7 +5,7 @@
 set -eux
 failed=''
 
-export DEBUG=9
+#export DEBUG=9
 export UPGRADE_TO=${UPGRADE_TO:-}
 
 sudo apt-get update
