@@ -8,6 +8,8 @@
 
 set -E -e -u -o pipefail 
 
+rc=0
+
 # ###########
 # TODO: break these functions into a library shell script so they can be used elsewhere
 
@@ -16,6 +18,7 @@ error() {
 }
 
 die() {
+    local rc # Kinda silly here, but be safe...
     rc=$1
     shift
     error "$@"
@@ -231,8 +234,11 @@ export PGDATA=$new_dir
 export PGPORT=$NEW_PORT
 modify_config $NEW_VERSION
 
-rc=0
 cd $upgrade_dir
+if [ $DEBUG -ge 9 ]; then
+    echo $old_dir; ls -la $old_dir
+    echo $new_dir; ls -la $new_dir
+fi
 echo $new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH"
 $new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH" || rc=$?
 if [ $rc -ne 0 ]; then
