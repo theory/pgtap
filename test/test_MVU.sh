@@ -99,7 +99,7 @@ modify_config() {
         # GUC changed somewhere between 9.1 and 9.5, so read config to figure out correct value
         guc=$(grep unix_socket_director $conf | sed -e 's/^# *//' | cut -d ' ' -f 1)
         debug 4 "$0: guc = $guc"
-        echo "$guc = '/tmp" >> $conf
+        echo "$guc = '/tmp'" >> $conf
     fi
 
     echo "synchronous_commit = off" >> $conf
