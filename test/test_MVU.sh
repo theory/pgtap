@@ -126,7 +126,7 @@ modify_config() {
         echo "port = $PGPORT" >> $conf
     else
         confDir="/etc/postgresql/$1/$cluster_name"
-        debug 6 "$0: conf = $conf"
+        debug 6 "$0: confDir = $confDir"
         debug_ls 9 -la $confDir
 
         debug 2 ln -s $confDir/postgresql.conf $PGDATA/
