@@ -79,6 +79,11 @@ out=$(which $2)
 echo $out
 )
 
+debian_conf() {
+    [ $# -eq 1 ] || die 99 "expected one arg: $0($@)"
+    echo "/etc/postgresql/$1/$cluster_name/postgresql.conf"
+}
+
 modify_config() {
     local guc conf
 
@@ -90,18 +95,18 @@ modify_config() {
         echo "port = $PGPORT" >> $conf
         echo "synchronous_commit = off" >> $conf
 
-        guc=$(grep unix_socket_director $conf | sed -e 's/^# //' | cut -d ' ' -f 1)
+        guc=$(grep unix_socket_director $conf | sed -e 's/^# *//' | cut -d ' ' -f 1)
         debug 4 "$0: guc = $guc"
         echo "$guc = '/$TMPDIR'" >> $conf
     else
-        conf="/etc/postgresql/$1/$cluster_name/postgresql.conf"
+        conf=$(debian_conf $1)
         debug 6 "$0: conf = $conf"
 
         # Shouldn't need to muck with PGPORT...
         echo "synchronous_commit = off" >> $conf
 
         # GUC changed somewhere between 9.1 and 9.5, so read config to figure out correct value
-        guc=$(grep unix_socket_director $conf | sed -e 's/^# //' | cut -d ' ' -f 1)
+        guc=$(grep unix_socket_director $conf | sed -e 's/^# *//' | cut -d ' ' -f 1)
         debug 4 "$0: guc = $guc"
         echo "$guc = '/var/run/postgresql'" >> $conf
     fi
@@ -167,8 +172,8 @@ if which pg_ctlcluster > /dev/null 2>&1; then
     # Looks like we're running in a apt / Debian / Ubuntu environment, so use their tooling
     ctl_separator='--'
     export PGUSER=$USER
-    old_initdb="sudo pg_createcluster $OLD_VERSION $cluster_name -u $USER -p $OLD_PORT -d $old_dir -- -A trust"
-    new_initdb="sudo pg_createcluster $NEW_VERSION $cluster_name -u $USER -p $NEW_PORT -d $new_dir -- -A trust"
+    old_initdb="sudo pg_createcluster $OLD_VERSION $cluster_name -u $USER -p $OLD_PORT -d $old_dir -- -A trust; ln -s $(debian_conf $OLD_VERSION) $old_dir/"
+    new_initdb="sudo pg_createcluster $NEW_VERSION $cluster_name -u $USER -p $NEW_PORT -d $new_dir -- -A trust; ln -s $(debian_conf $NEW_VERSION) $new_dir/"
     old_pg_ctl="sudo pg_ctlcluster $PGVERSION test_pg_upgrade"
     new_pg_ctl=$old_pg_ctl
     # See also ../pg-travis-test.sh
@@ -200,13 +205,7 @@ export PGDATA=$old_dir
 export PGPORT=$OLD_PORT
 modify_config $OLD_VERSION
 
-grep socket /etc/postgresql/$OLD_VERSION/test_pg_upgrade/postgresql.conf
 $old_pg_ctl start $ctl_separator -w # older versions don't support --wait
-if [ -n "$ctl_separator" ]; then
-ls -la /var/run/postgresql
-ls -la $old_dir
-ls -la /etc/postgresql/$OLD_VERSION/test_pg_upgrade
-fi
 
 echo "Creating database"
 createdb # Note this uses PGPORT, so no need to wrap.
