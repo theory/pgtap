@@ -33,6 +33,39 @@ debug() {
     [ $level -gt $DEBUG ] || error "$@"
 }
 
+debug_do() {
+    local level
+    level=$1
+    shift
+    [ $level -gt $DEBUG ] || ( "$@" )
+}
+
+debug_ls() {
+[ $1 -ge $DEBUG ] || return
+(
+level=$1
+shift
+
+# Look through each argument and see if more than one exist. If so, we don't
+# need to print what it is we're listing.
+location=''
+for a in "$@"; do
+    if [ -e "$a" ]; then
+        if [ -n "$location" ]; then
+            location=''
+            break
+        else
+            location=$a
+        fi
+    fi
+done
+
+error # blank line
+[ -z "$location" ] || error "$location"
+ls "$@" >&2
+)
+}
+
 byte_len() (
 [ $# -eq 1 ] || die 99 "Expected 1 argument, not $# ($@)"
 LANG=C LC_ALL=C
@@ -94,6 +127,7 @@ modify_config() {
     else
         conf="/etc/postgresql/$1/$cluster_name/postgresql.conf"
         debug 6 "$0: conf = $conf"
+        debug_ls 9 $(dirname $conf)
 
         debug 2 ln -s $conf $PGDATA/
         ln -s $conf $PGDATA/
