@@ -236,8 +236,8 @@ modify_config $NEW_VERSION
 
 cd $upgrade_dir
 if [ $DEBUG -ge 9 ]; then
-    echo $old_dir; ls -la $old_dir; egrep 'director|unix' $old_dir/postgresql.conf
-    echo $new_dir; ls -la $new_dir; egrep 'director|unix' $new_dir/postgresql.conf
+    echo $old_dir; ls -la $old_dir; egrep 'director|unix|conf' $old_dir/postgresql.conf
+    echo $new_dir; ls -la $new_dir; egrep 'director|unix|conf' $new_dir/postgresql.conf
 fi
 echo $new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH"
 $new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH" || rc=$?
