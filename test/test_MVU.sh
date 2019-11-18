@@ -80,18 +80,27 @@ echo $out
 )
 
 modify_config() {
+    local guc conf
+
     # See below for definition of ctl_separator
     if [ -z "$ctl_separator" ]; then
-        echo "port = $PGPORT" >> $PGDATA/postgresql.conf
-        echo "synchronous_commit = off" >> $PGDATA/postgresql.conf
-    else
-        # Shouldn't need to muck with PGPORT...
-        echo "synchronous_commit = off" >> /etc/postgresql/$1/$cluster_name/postgresql.conf
+        conf=$PGDATA/postgresql.conf
+        debug 6 "$0: conf = $conf"
 
-        # GUC changed somewhere between 9.1 and 9.5, so read config to figure out correct value
-        local guc conf
+        echo "port = $PGPORT" >> $conf
+        echo "synchronous_commit = off" >> $conf
+
+        guc=$(grep unix_socket_director $conf | sed -e 's/^# //' | cut -d ' ' -f 1)
+        debug 4 "$0: guc = $guc"
+        echo "$guc = '/$TMPDIR'" >> $conf
+    else
         conf="/etc/postgresql/$1/$cluster_name/postgresql.conf"
         debug 6 "$0: conf = $conf"
+
+        # Shouldn't need to muck with PGPORT...
+        echo "synchronous_commit = off" >> $conf
+
+        # GUC changed somewhere between 9.1 and 9.5, so read config to figure out correct value
         guc=$(grep unix_socket_director $conf | sed -e 's/^# //' | cut -d ' ' -f 1)
         debug 4 "$0: guc = $guc"
         echo "$guc = '/var/run/postgresql'" >> $conf
@@ -231,7 +240,7 @@ pwd
 ls -la
 if [ $rc -ne 0 ]; then
     # Dump log, but only if we're not keeping the directory
-    if [ -n "$keep" ]; then
+    if [ -z "$keep" ]; then
         for f in `ls`; do
             echo; echo; echo; echo; echo; echo
             echo "$f:"
