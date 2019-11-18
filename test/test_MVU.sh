@@ -92,6 +92,8 @@ modify_config() {
         conf="/etc/postgresql/$1/$cluster_name/postgresql.conf"
         debug 6 "$0: conf = $conf"
 
+        ls -la /etc/postgresql/$1/$cluster_name
+        ls -la $new_dir
         ln -s $conf $new_dir/
 
         # Shouldn't need to muck with PGPORT...
@@ -234,8 +236,6 @@ rc=0
 cd $upgrade_dir
 echo $new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH"
 $new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH" || rc=$?
-pwd
-ls -la
 if [ $rc -ne 0 ]; then
     # Dump log, but only if we're not keeping the directory
     if [ -z "$keep" ]; then
@@ -244,6 +244,8 @@ if [ $rc -ne 0 ]; then
             echo "$f:"
             cat "$f"
         done
+    else
+        error "pg_upgrade logs are at $upgrade_dir"
     fi
     die $rc "pg_upgrade returned $rc"
 fi
