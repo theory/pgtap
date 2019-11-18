@@ -79,11 +79,6 @@ out=$(which $2)
 echo $out
 )
 
-debian_conf() {
-    [ $# -eq 1 ] || die 99 "expected one arg: $0($@)"
-    echo "/etc/postgresql/$1/$cluster_name/postgresql.conf"
-}
-
 modify_config() {
     local guc conf
 
@@ -93,19 +88,21 @@ modify_config() {
         debug 6 "$0: conf = $conf"
 
         echo "port = $PGPORT" >> $conf
-        echo "synchronous_commit = off" >> $conf
     else
-        conf=$(debian_conf $1)
+        conf="/etc/postgresql/$1/$cluster_name/postgresql.conf"
         debug 6 "$0: conf = $conf"
 
+        ln -s $conf $new_dir/
+
         # Shouldn't need to muck with PGPORT...
-        echo "synchronous_commit = off" >> $conf
 
         # GUC changed somewhere between 9.1 and 9.5, so read config to figure out correct value
         guc=$(grep unix_socket_director $conf | sed -e 's/^# *//' | cut -d ' ' -f 1)
         debug 4 "$0: guc = $guc"
         echo "$guc = '/tmp" >> $conf
     fi
+
+    echo "synchronous_commit = off" >> $conf
 }
 
 #############################
@@ -174,8 +171,8 @@ if which pg_ctlcluster > /dev/null 2>&1; then
     # And force current user
     export PGUSER=$USER
 
-    old_initdb="sudo pg_createcluster $OLD_VERSION $cluster_name -u $USER -p $OLD_PORT -d $old_dir -- -A trust; ln -s $(debian_conf $OLD_VERSION) $old_dir/"
-    new_initdb="sudo pg_createcluster $NEW_VERSION $cluster_name -u $USER -p $NEW_PORT -d $new_dir -- -A trust; ln -s $(debian_conf $NEW_VERSION) $new_dir/"
+    old_initdb="sudo pg_createcluster $OLD_VERSION $cluster_name -u $USER -p $OLD_PORT -d $old_dir -- -A trust"
+    new_initdb="sudo pg_createcluster $NEW_VERSION $cluster_name -u $USER -p $NEW_PORT -d $new_dir -- -A trust"
     old_pg_ctl="sudo pg_ctlcluster $PGVERSION test_pg_upgrade"
     new_pg_ctl=$old_pg_ctl
     # See also ../pg-travis-test.sh
