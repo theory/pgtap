@@ -102,6 +102,7 @@ modify_config() {
 # Argument processing
 keep=''
 if [ "$1" == "-k" ]; then
+    debug 1 keeping results after exit
     keep=1
     shift
 fi
@@ -111,6 +112,7 @@ if [ "$1" == '-s' ]; then
     # Useful error if we can't find sudo
     which sudo > /dev/null
     sudo=$(which sudo)
+    debug 2 "sudo located at $sudo"
     shift
 fi
 
@@ -225,6 +227,8 @@ rc=0
 cd $upgrade_dir
 echo $new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH"
 $new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH" || rc=$?
+pwd
+ls -la
 if [ $rc -ne 0 ]; then
     # Dump log, but only if we're not keeping the directory
     if [ -n "$keep" ]; then
