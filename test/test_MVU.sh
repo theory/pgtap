@@ -13,6 +13,11 @@ rc=0
 # ###########
 # TODO: break these functions into a library shell script so they can be used elsewhere
 
+err_report() {
+  echo "errexit on line $(caller)" >&2
+}
+trap err_report ERR
+
 error() {
     echo "$@" >&2
 }
@@ -41,7 +46,7 @@ debug_do() {
 }
 
 debug_ls() {
-[ $1 -le $DEBUG ] || return # Reverse test since we *exit* if we shouldn't debug!
+[ $1 -le $DEBUG ] || return 0 # Reverse test since we *exit* if we shouldn't debug!
 (
 level=$1
 shift
