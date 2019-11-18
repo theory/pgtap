@@ -71,9 +71,6 @@ export PG_CONFIG="$(get_path $PGVERSION)pg_config"
 sudo usermod -a -G postgres $USER
 
 
-DEBUG=9    test_cmd test/test_MVU.sh -s 55667 55778 $PGVERSION $UPGRADE_TO "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)"
-exit 1
-
 # Setup cluster
 export PGPORT=55435
 export PGUSER=postgres
