@@ -221,15 +221,29 @@ export PGDATA=$new_dir
 export PGPORT=$NEW_PORT
 modify_config $NEW_VERSION
 
+rc=0
 cd $upgrade_dir
 echo $new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH"
-$new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH"
+$new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH" || rc=$?
+if [ $rc -ne 0 ]; then
+    # Dump log, but only if we're not keeping the directory
+    if [ -n "$keep" ]; then
+        for f in `ls`; do
+            echo; echo; echo; echo; echo; echo
+            echo "$f:"
+            cat "$f"
+        done
+    fi
+    die $rc "pg_upgrade returned $rc"
+fi
+
 
 
 # TODO: turn this stuff on. It's pointless to test via `make regress` because
 # that creates a new install; need to figure out the best way to test the new
 # cluster
 exit
+##################################################################################################
 banner "Testing UPGRADED cluster"
 
 # Run our tests against the upgraded cluster, but first make sure the old
