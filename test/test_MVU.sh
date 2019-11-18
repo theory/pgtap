@@ -46,7 +46,8 @@ debug_do() {
 }
 
 debug_ls() {
-[ $1 -le $DEBUG ] || return 0 # Reverse test since we *exit* if we shouldn't debug!
+[ $1 -le $DEBUG ] || return
+# Reverse test since we *exit* if we shouldn't debug!
 (
 level=$1
 shift
