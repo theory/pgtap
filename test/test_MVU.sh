@@ -115,39 +115,39 @@ out=$(which $2)
 echo $out
 )
 
-modify_config() {
-    local guc conf
+modify_config() (
+# See below for definition of ctl_separator
+if [ -z "$ctl_separator" ]; then
+    confDir=$PGDATA
+    conf=$confDir/postgresql.conf
+    debug 6 "$0: conf = $conf"
 
-    # See below for definition of ctl_separator
-    if [ -z "$ctl_separator" ]; then
-        conf=$PGDATA/postgresql.conf
-        debug 6 "$0: conf = $conf"
+    echo "port = $PGPORT" >> $conf
+else
+    confDir="/etc/postgresql/$1/$cluster_name"
+    conf="$confDir/postgresql.conf"
+    debug 6 "$0: confDir = $confDir conf=$conf"
+    debug_ls 9 -la $confDir
 
-        echo "port = $PGPORT" >> $conf
-    else
-        confDir="/etc/postgresql/$1/$cluster_name"
-        debug 6 "$0: confDir = $confDir"
-        debug_ls 9 -la $confDir
-
-        debug 2 ln -s $confDir/postgresql.conf $PGDATA/
-        ln -s $conf $PGDATA/
-        # Some versions also have a conf.d ...
-        if [ -e "$confDir/conf.d" ]; then
-            debug 2 ln -s $confDir/conf.d $PGDATA/
-            ln -s $confDir/conf.d $PGDATA/
-        fi
-        debug_ls 8 -la $PGDATA
-
-        # Shouldn't need to muck with PGPORT...
-
-        # GUC changed somewhere between 9.1 and 9.5, so read config to figure out correct value
-        guc=$(grep unix_socket_director $conf | sed -e 's/^# *//' | cut -d ' ' -f 1)
-        debug 4 "$0: guc = $guc"
-        echo "$guc = '/tmp'" >> $conf
+    debug 2 ln -s $conf $PGDATA/
+    ln -s $conf $PGDATA/
+    # Some versions also have a conf.d ...
+    if [ -e "$confDir/conf.d" ]; then
+        debug 2 ln -s $confDir/conf.d $PGDATA/
+        ln -s $confDir/conf.d $PGDATA/
     fi
+    debug_ls 8 -la $PGDATA
 
-    echo "synchronous_commit = off" >> $conf
-}
+    # Shouldn't need to muck with PGPORT...
+
+    # GUC changed somewhere between 9.1 and 9.5, so read config to figure out correct value
+    guc=$(grep unix_socket_director $conf | sed -e 's/^# *//' | cut -d ' ' -f 1)
+    debug 4 "$0: guc = $guc"
+    echo "$guc = '/tmp'" >> $conf
+fi
+
+echo "synchronous_commit = off" >> $conf
+)
 
 #############################
 # Argument processing
