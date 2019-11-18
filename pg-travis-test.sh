@@ -5,6 +5,7 @@
 set -eux
 failed=''
 
+export DEBUG=9
 
 sudo apt-get update
 
@@ -96,7 +97,7 @@ if [ -n "$UPGRADE_TO" ]; then
     # We need to tell test_MVU.sh to run some steps via sudo since we're
     # actually installing from pgxn into a system directory.  We also use a
     # different port number to avoid conflicting with existing clusters.
-    test_cmd DEBUG=9 test/test_MVU.sh -s 55667 55778 $PGVERSION $UPGRADE_TO "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)"
+    test_cmd test/test_MVU.sh -s 55667 55778 $PGVERSION $UPGRADE_TO "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)"
 fi
 
 if [ -n "$failed" ]; then
