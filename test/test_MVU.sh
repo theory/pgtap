@@ -122,12 +122,16 @@ if [ -z "$ctl_separator" ]; then
     conf=$confDir/postgresql.conf
     debug 6 "$0: conf = $conf"
 
+    debug 0 "Modifying NATIVE $conf"
+
     echo "port = $PGPORT" >> $conf
 else
     confDir="/etc/postgresql/$1/$cluster_name"
     conf="$confDir/postgresql.conf"
     debug 6 "$0: confDir = $confDir conf=$conf"
     debug_ls 9 -la $confDir
+
+    debug 0 "Modifying DEBIAN $confDir and $PGDATA"
 
     debug 2 ln -s $conf $PGDATA/
     ln -s $conf $PGDATA/
