@@ -328,6 +328,14 @@ regress: installcheck_deps
 updatecheck: updatecheck_deps install
 	$(MAKE) updatecheck_run || ([ -e regression.diffs ] && $${PAGER:-cat} regression.diffs; exit 1)
 
+# Runs installcheck but doesn't bomb on error. Used as a dependency for `make
+# results`. The other way to do this would be to add the installcheck target to
+# .IGNORE, like pgxntools does. I've opted not to do that since people may be
+# depending on the current behavior. :(
+.PHONY: installcheck_nofail
+installcheck_nofail: installcheck_deps
+	$(MAKE) installcheck || true
+
 # General dependencies for installcheck. Note that several other places add themselves as dependencies.
 .PHONY: installcheck_deps
 installcheck_deps: $(SCHEDULE_DEST_FILES) extension_check set_parallel_conn # More dependencies below
@@ -479,7 +487,7 @@ updatecheck_run: updatecheck_setup installcheck
 
 # TARGET results: runs `make test` and copies all result files to test/expected/. DO NOT RUN THIS UNLESS YOU'RE CERTAIN ALL YOUR TESTS ARE PASSING!
 .PHONY: results
-results: installcheck result-rsync
+results: installcheck_nofail result-rsync
 
 .PHONY:
 result-rsync:
