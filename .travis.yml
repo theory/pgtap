@@ -5,7 +5,6 @@ before_install:
   - sudo rm -vf /etc/apt/sources.list.d/pgdg-source.list
 script:
   - bash ./pg-travis-test.sh
-
 env:
   # WARNING! UPGRADE_TO tests pg_upgrade; UDPATE_FROM tests ALTER EXTENSION! Note UPGRADE vs UPDATE!
   - UPGRADE_TO=9.2 PGVERSION=9.1
