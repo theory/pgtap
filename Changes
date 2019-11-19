@@ -1,11 +1,100 @@
 Revision history for pgTAP
 ==========================
 
-0.98.0
+1.1.0
+--------------------------
+* Fix pgtap_version(), which incorrectly returned 0.99 when upgrading from
+  version 0.99.0 to 1.0.0.
+* Fix issue with using pg_upgrade to Postgres 11+ with pgTap installed.
+
+1.0.0 2019-02-21T22:39:42Z
+--------------------------
+* Fixed uninstall script generation to properly emit `DROP TYPE` statements.
+  Thanks to Kamen Naydenov for the PR (#181)!
+* Added policy test assertion functions for PostgreSQL 9.5 and higher:
+    + `policies_are()`
+    + `policy_roles_are()`
+    + `policy_cmd_is()`
+  Thanks to Kamen Naydenov for the PR (#185).
+* Fixed an issue with `has_function()` where a test would fail if arguments
+  are schema-qualified even though the schema is in the search path. Thanks to
+  Sandro Santilli for the bug report (#179) and PR (#180).
+* Added table inheritance testing functions:
+    + `has_inherited_tables()`
+    + `hasnt_inherited_tables()`
+    + `is_ancestor_of()`
+    + `isnt_ancestor_of()`
+    + `is_descendent_of()`
+    + `isnt_descendent_of()`
+  Thanks to Luca Ferrari for the inspiration.
+* Fixed `col_default_is()` to properly report special SQL syntax functions
+  like `CURRENT_USER` and `CURRENT_CATALOG` instead of evaluating them on
+  PostgreSQL 10 and higher.
+* Changed the uninstall script to use `DROP IF EXISTS` rather than just `DROP`
+  so that it works even with partial or failed installs. Thanks to Sandro
+  Santilli for the PR (#194).
+* Officially end support for PostgreSQL 8.2 and older.
+
+0.99.0 2018-09-16T20:55:41Z
+---------------------------
+* Updated introductory documentation. A lot has changed over the years!
+* Added the "Secrets of the pgTAP Mavens" section of the documentation.
+  Contributions wanted!
+* Fixed `pg_version_num()` to always return the value of `server_version_num`
+  on PostgreSQL 8.3 and higher, thus fixing a test failure on 10.1. Thanks to
+  Christoph Berg for the report (#148)!
+* Changed the diagnostic output of extra and missing values from the `*_are()`
+  functions to sort the extra and missing values. Fixes a test failure on
+  PostgreSQL 10, and generally makes the diagnostics more deterministic and
+  easier to read. Thanks to Michael Glaesemann for the report (#158)!
+* Fixed an issue on PostgreSQL 11, where the `pg_class.relhaspkey` column has
+  been removed. The primary key testing functions now refer to
+  `pg_index.indisprimary`, instead. Thanks to Keith Fiske for the report
+  (#174)!
+* Fixed an issue on PostgreSQL 11, where the `pg_proc.proisagg` column has
+  been replaced with the more generically useful `pg_proc.prokind`. Thanks to
+  Keith Fiske for the report (#174)!
+* Documented that a `RECORD` can be passed to `row_eq()` on PostgreSQL 11,
+  and fixed the tests to match this new functionality.
+* Removed tests that only ran on 8.0, support for which was discontinued in
+  v0.90.0.
+* Removed `test/sql/run*` tests, which intentionally fail, from the `test`
+  target in the `Makefile`. It's not meaningful to test them via `pg_prove`;
+  they must instead be tested by `make installcheck`, so their output can be
+  compared against output that varies by PostgreSQL version. Thanks to Jim Nasby
+  for the report (#172).
+* Fixed a bug where `have_fk()` would fail if the table had no primary key.
+  Thanks to @bigmodem for the report! (#171).
+
+0.98.0 2017-11-06T22:30:54Z
 ---------------------------
 * `make install` once again properly installs the versioned SQL file required
-  by `CREATE EXTENSION`. Thanks to Keith Fiske for the report (Issue #131) and
-  Jim Nasby for the fix (Issue #132).
+  by `CREATE EXTENSION`. Thanks to Keith Fiske for the reports (Issue #131,
+  Issue #143) and Jim Nasby for the fix (Issue #132).
+* Removed references to the Epic test framework, since its domain
+  (`epictest.org`) has expired and the project appears to no longer be
+  available online. Thanks to Andreas Brekken for the report (#140).
+* Fix failing version tests on PostgreSQL v10. Thanks to Erik Rijkers
+  for the patch.
+* Improved foreign tables test to account for varying message order for
+  diagnostic output. Thanks to Erik Rijkers for the patch.
+* Clarified the use of the `:schema` parameter to the extension-testing
+  functions in the documentation. Required since extensions do not belong to
+  schemas, but their objects may be specifically created in a schema. Thanks to
+  Jim Nasby for the report (#121)!
+* Updated the table-testing functions to also recognize partitioned tables:
+    + `has_table()`
+    + `hasnt_table()`
+    + `tables_are()`
+    + `table_owner_is()`
+* Added partition-testing assertion functions:
+    + `is_partitioned()`
+    + `isnt_partitioned()`
+    + `is_partition_of()`
+    + `partitions_are()`
+* Added the materialized view-testing assertion functions to the v0.95.0 upgrade
+  script; they were inadvertently omitted in the v0.95.0 release.
+* Fixed faling tests on Postgres 8.1.
 
 0.97.0 2016-11-28T22:18:29Z
 ---------------------------
@@ -17,12 +106,12 @@ Revision history for pgTAP
   expressions. Thanks to Rodolphe Quiédeville (PR #103).
 * Fixed `pg_version_num()` to work with the new version format coming in
   PostgreSQL 10.
-* Fix lives_ok() and throws_ok() to also trap ASSERT_FAILURE (PR #119).
-* Add negation functions isnt_aggregate() and isnt_definer(), which return the
-  opposite of is_aggregate() and is_definer(). Thanks to Rodolphe Quiédeville
-  (PR #106).
-* Add has_extension() and hasnt_extension(). Thanks to Rodolphe Quiédeville (PR
-  #101).
+* Fix `lives_ok()` and `throws_ok()` to also trap `ASSERT_FAILURE` (PR #119).
+* Add negation functions `isnt_aggregate()` and `isnt_definer()`, which return
+  the opposite of `is_aggregate()` and `is_definer()`. Thanks to Rodolphe
+  Quiédeville (PR #106).
+* Add `has_extension()` and `hasnt_extension()`. Thanks to Rodolphe Quiédeville
+  (PR #101).
  
 0.96.0 2016-05-16T20:53:57Z
 ---------------------------
@@ -48,7 +137,7 @@ Revision history for pgTAP
 
 0.95.0 2015-03-20T20:31:41Z
 ---------------------------
-* Added materialized-view testing assertions functions:
+* Added materialized view-testing assertion functions:
     + `materialized_views_are()`
     + `has_materialized_view()`
     + `hasnt_materialized_view()`
@@ -188,7 +277,7 @@ Revision history for pgTAP
 0.90.0 2011-12-03T20:18:16Z
 ---------------------------
 * Removed the "Supported Versions" section of the documentation. Suffice it to
-  say that pgTAP supports PostgreSQL 8.0 or higher.
+  say that pgTAP supports PostgreSQL 8.1 or higher.
 * Added a build target to create a portable copy of pgTAP that can be included
   in any distribution and should just work for tesing on PostgreSQL 8.3+. The
   new files are `pgtap-core.sql`, which contains the core functionality, and
