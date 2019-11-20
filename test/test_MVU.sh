@@ -309,10 +309,6 @@ fi
 
 
 
-# TODO: turn this stuff on. It's pointless to test via `make regress` because
-# that creates a new install; need to figure out the best way to test the new
-# cluster
-exit
 ##################################################################################################
 banner "Testing UPGRADED cluster"
 
@@ -324,4 +320,4 @@ debug 1 "$old_pg_ctl status returned $status"
 
 $old_pg_ctl status returned
 $status"
-( cd $(dirname $0)/..; $sudo make clean regress )
+( cd $(dirname $0)/..; make test )

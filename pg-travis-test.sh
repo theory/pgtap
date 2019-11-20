@@ -11,7 +11,7 @@ export UPGRADE_TO=${UPGRADE_TO:-}
 sudo apt-get update
 
 get_packages() {
-    echo "postgresql-$1 postgresql-server-dev-$1"
+    echo "libtap-parser-sourcehandler-pgtap-perl postgresql-$1 postgresql-server-dev-$1"
 }
 get_path() {
     # See also test/test_MVU.sh
