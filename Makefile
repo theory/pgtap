@@ -55,7 +55,7 @@ SERIAL_TESTS = coltap hastap
 # TODO: The first 2 of these fail because they have tests that intentionally
 # fail, which makes pg_prove return a failure. Add a mode to these test files
 # that will disable the failure tests.
-EXCLUDE_PG_PROVE_TESTS = runjusttests runnottests runtests
+PG_PROVE_EXCLUDE_TESTS = runjusttests runnotests runtests
 
 # This is a bit of a hack, but if REGRESS isn't set we can't installcheck, and
 # it must be set BEFORE including pgxs. Note this gets set again below
@@ -338,11 +338,23 @@ updatecheck: updatecheck_deps install
 installcheck_deps: $(SCHEDULE_DEST_FILES) extension_check set_parallel_conn # More dependencies below
 
 # In addition to installcheck, one can also run the tests through pg_prove.
-test: extension_check
-	pg_prove --pset tuples_only=1 $(call get_test_file $(PG_PROVE_ALL_TESTS))
+.PHONY: test-serial
+test-serial: extension_check
+	@echo Running pg_prove on SERIAL tests
+	pg_prove --pset tuples_only=1 \
+		$(PG_PROVE_SERIAL_FILES)
 
+.PHONY: test-parallel
 test-parallel: extension_check set_parallel_conn
-	pg_prove --pset tuples_only=1 -j $(PARALLEL_CONN) $(call get_test_file $(PG_PROVE_PARALLEL_TESTS))
+	@echo Running pg_prove on PARALLEL tests
+	pg_prove --pset tuples_only=1 \
+		-j $(PARALLEL_CONN) \
+		$(PG_PROVE_PARALLEL_FILES)
+
+.PHONY: test
+test: test-serial test-parallel
+	@echo
+	@echo WARNING: these tests are EXCLUDED from pg_prove testing: $(PG_PROVE_EXCLUDE_TESTS)
 
 #
 # General test support
@@ -360,8 +372,10 @@ REGRESS_OPTS = --inputdir=test --load-language=plpgsql --max-connections=$(PARAL
 SETUP_SCH = test/schedule/main.sch # schedule to use for test setup; this can be forcibly changed by some targets!
 IGNORE_TESTS = $(notdir $(EXCLUDE_TEST_FILES:.sql=))
 PARALLEL_TESTS = $(filter-out $(IGNORE_TESTS),$(filter-out $(SERIAL_TESTS),$(ALL_TESTS)))
-PG_PROVE_PARALLEL_TESTS = $(filter-out $(EXCLUDE_PG_PROVE_TESTS),$(PARALLEL_TESTS))
-PG_PROVE_ALL_TESTS = $(join $(PG_PROVE_PARALLEL_TESTS,$(filter-out $(EXCLUDE_PG_PROVE_TESTS),$(SERIAL_TESTS))))
+PG_PROVE_PARALLEL_TESTS = $(filter-out $(PG_PROVE_EXCLUDE_TESTS),$(PARALLEL_TESTS))
+PG_PROVE_SERIAL_TESTS = $(filter-out $(PG_PROVE_EXCLUDE_TESTS),$(SERIAL_TESTS))
+PG_PROVE_PARALLEL_FILES = $(call get_test_file,$(PG_PROVE_PARALLEL_TESTS))
+PG_PROVE_SERIAL_FILES = $(call get_test_file,$(PG_PROVE_SERIAL_TESTS))
 GENERATED_SCHEDULES = $(TB_DIR)/serial.sch $(TB_DIR)/parallel.sch
 
 # Convert test name to file name

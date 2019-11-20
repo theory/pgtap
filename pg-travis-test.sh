@@ -2,7 +2,7 @@
 
 # Based on https://gist.github.com/petere/6023944
 
-set -eux
+set -E -e -u -o pipefail 
 failed=''
 
 export DEBUG=1
@@ -26,7 +26,6 @@ else
     status="$1"
 fi
 
-set +ux
 echo
 echo #############################################################################
 echo "PG-TRAVIS: running $@"
@@ -34,7 +33,6 @@ echo ###########################################################################
 # Use || so as not to trip up -e
 rc=0
 "$@" || rc=$?
-set -ux
 if [ $rc -ne 0 ]; then
     echo
     echo '!!!!!!!!!!!!!!!! FAILURE !!!!!!!!!!!!!!!!'
@@ -108,7 +106,6 @@ if [ -n "$UPGRADE_TO" ]; then
 fi
 
 if [ -n "$failed" ]; then
-    set +ux
     # $failed will have a leading space if it's not empty
     echo "These test targets failed:$failed"
     exit 1
