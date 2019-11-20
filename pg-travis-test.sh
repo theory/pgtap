@@ -31,14 +31,15 @@ echo
 echo #############################################################################
 echo "PG-TRAVIS: running $@"
 echo #############################################################################
-"$@"
-rc=$?
+# Use || so as not to trip up -e
+rc=0
+"$@" || rc=$?
 set -ux
 if [ $rc -ne 0 ]; then
     echo
-    echo '!!!!!!!!!!!!!!!!'
-    echo "$@"
-    echo '!!!!!!!!!!!!!!!!'
+    echo '!!!!!!!!!!!!!!!! FAILURE !!!!!!!!!!!!!!!!'
+    echo "$@" returned $rc
+    echo '!!!!!!!!!!!!!!!! FAILURE !!!!!!!!!!!!!!!!'
     echo
     failed="$failed '$status'"
 fi
@@ -91,9 +92,11 @@ echo $PGVERSION | grep -qE "8[.]|9[.][012]" || test_make clean updatecheck
 
 # Explicitly test these other targets
 
-# TODO: install software necessary to allow testing the 'test' and 'html' targets
-for t in all install ; do
-    test_make clean $t
+# TODO: install software necessary to allow testing 'html' target
+for t in all install test ; do
+    # Test from a clean slate...
+    test_make uninstall clean $t
+    # And then test again
     test_make $t
 done
 

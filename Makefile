@@ -7,7 +7,6 @@ VERSION_FILES = sql/$(MAINEXT)--$(EXTVERSION).sql sql/$(MAINEXT)-core--$(EXTVERS
 BASE_FILES 	 = $(subst --$(EXTVERSION),,$(VERSION_FILES)) sql/uninstall_$(MAINEXT).sql
 _IN_FILES 	 = $(wildcard sql/*--*.sql.in)
 _IN_PATCHED	 = $(_IN_FILES:.in=)
-TESTS        = $(wildcard test/sql/*.sql)
 EXTRA_CLEAN  = $(VERSION_FILES) sql/pgtap.sql sql/uninstall_pgtap.sql sql/pgtap-core.sql sql/pgtap-schema.sql doc/*.html
 EXTRA_CLEAN  += $(wildcard sql/*.orig) # These are files left behind by patch
 DOCS         = doc/pgtap.mmd
@@ -47,10 +46,16 @@ SCHEDULE_FILES = $(wildcard test/schedule/*.sch)
 TEST_FILES 	= $(filter-out $(SCHEDULE_DEST_FILES),$(wildcard test/sql/*.sql))
 
 # Plain test names
-TESTS		= $(notdir $(TEST_FILES:.sql=))
+ALL_TESTS	= $(notdir $(TEST_FILES:.sql=))
 
 # Some tests fail when run in parallel
 SERIAL_TESTS = coltap hastap
+
+# Some tests fail when run by pg_prove
+# TODO: The first 2 of these fail because they have tests that intentionally
+# fail, which makes pg_prove return a failure. Add a mode to these test files
+# that will disable the failure tests.
+EXCLUDE_PG_PROVE_TESTS = runjusttests runnottests runtests
 
 # This is a bit of a hack, but if REGRESS isn't set we can't installcheck, and
 # it must be set BEFORE including pgxs. Note this gets set again below
@@ -334,7 +339,10 @@ installcheck_deps: $(SCHEDULE_DEST_FILES) extension_check set_parallel_conn # Mo
 
 # In addition to installcheck, one can also run the tests through pg_prove.
 test: extension_check
-	pg_prove --pset tuples_only=1 $(TEST_FILES)
+	pg_prove --pset tuples_only=1 $(call get_test_file $(PG_PROVE_ALL_TESTS))
+
+test-parallel: extension_check set_parallel_conn
+	pg_prove --pset tuples_only=1 -j $(PARALLEL_CONN) $(call get_test_file $(PG_PROVE_PARALLEL_TESTS))
 
 #
 # General test support
@@ -351,8 +359,14 @@ REGRESS = --schedule $(TB_DIR)/run.sch # Set this again just to be safe
 REGRESS_OPTS = --inputdir=test --load-language=plpgsql --max-connections=$(PARALLEL_CONN) --schedule $(SETUP_SCH) $(REGRESS_CONF)
 SETUP_SCH = test/schedule/main.sch # schedule to use for test setup; this can be forcibly changed by some targets!
 IGNORE_TESTS = $(notdir $(EXCLUDE_TEST_FILES:.sql=))
-PARALLEL_TESTS = $(filter-out $(IGNORE_TESTS),$(filter-out $(SERIAL_TESTS),$(TESTS)))
+PARALLEL_TESTS = $(filter-out $(IGNORE_TESTS),$(filter-out $(SERIAL_TESTS),$(ALL_TESTS)))
+PG_PROVE_PARALLEL_TESTS = $(filter-out $(EXCLUDE_PG_PROVE_TESTS),$(PARALLEL_TESTS))
+PG_PROVE_ALL_TESTS = $(join $(PG_PROVE_PARALLEL_TESTS,$(filter-out $(EXCLUDE_PG_PROVE_TESTS),$(SERIAL_TESTS))))
 GENERATED_SCHEDULES = $(TB_DIR)/serial.sch $(TB_DIR)/parallel.sch
+
+# Convert test name to file name
+get_test_file = $(addprefix test/sql/,$(addsuffix .sql,$(1)))
+
 installcheck: $(TB_DIR)/run.sch installcheck_deps
 
 # Parallel tests will use $(PARALLEL_TESTS) number of connections if we let it,
@@ -383,7 +397,7 @@ $(TB_DIR)/exclude_tests: $(TB_DIR)/
 	@[ "`cat $@ 2>/dev/null`" = "$(EXCLUDE_TEST)" ] || (echo "Rebuilding $@"; echo "$(EXCLUDE_TEST)" > $@)
 
 $(TB_DIR)/serial.sch: $(GENERATED_SCHEDULE_DEPS)
-	@(for f in $(IGNORE_TESTS); do echo "ignore: $$f"; done; for f in $(TESTS); do echo "test: $$f"; done) > $@
+	@(for f in $(IGNORE_TESTS); do echo "ignore: $$f"; done; for f in $(ALL_TESTS); do echo "test: $$f"; done) > $@
 
 $(TB_DIR)/parallel.sch: $(GENERATED_SCHEDULE_DEPS)
 	@( \

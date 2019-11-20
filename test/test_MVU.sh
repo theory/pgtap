@@ -316,15 +316,16 @@ banner "Testing UPGRADED cluster"
 
 # Run our tests against the upgraded cluster, but first make sure the old
 # cluster is still down, to ensure there's no chance of testing it instead.
+# Note that some versions of pg_ctl return different exit codes when the server
+# isn't running.
 rc=0
 status=$($old_pg_ctl status) || rc=$?
-[ $rc -eq 3 -a "$status" == 'pg_ctl: no server running' ] || die 3 "$old_pg_ctl status returned '$status' and exited with $?"
-debug 1 "$old_pg_ctl status returned $status"
+[ "$status" == 'pg_ctl: no server running' ] || die 3 "$old_pg_ctl status returned '$status' and exited with $?"
+debug 4 "$old_pg_ctl status exited with $rc"
+
+$new_pg_ctl start $ctl_separator -w || die $? "$new_pg_ctl start $ctl_separator -w returned $?"
 
 # We want to make sure to use the NEW pg_config
 export PG_CONFIG=$(find_at_path "$NEW_PATH" pg_config)
 [ -x "$PG_CONFIG" ] || ( debug_ls 1 "$NEW_PATH"; die 4 "unable to find executable pg_config at $NEW_PATH" )
-pwd
-ls -la
-ls -la ..
 ( cd $(dirname $0)/.. && make clean test )
