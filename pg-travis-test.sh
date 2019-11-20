@@ -4,8 +4,8 @@
 
 set -E -e -u -o pipefail 
 
-export DEBUG=1
-set -x
+#export DEBUG=1
+#set -x
 
 export UPGRADE_TO=${UPGRADE_TO:-}
 failed=''
@@ -21,7 +21,7 @@ get_path() {
 }
 
 # Do NOT use () here; we depend on being able to set failed
-test_cmd() (
+test_cmd() {
 #local status rc
 if [ "$1" == '-s' ]; then
     status="$2"
@@ -38,7 +38,6 @@ echo ###########################################################################
 rc=0
 ( "$@" ) || rc=$?
 if [ $rc -ne 0 ]; then
-    echo test >&2
     echo
     echo '!!!!!!!!!!!!!!!! FAILURE !!!!!!!!!!!!!!!!'
     echo "$@" returned $rc
@@ -46,12 +45,12 @@ if [ $rc -ne 0 ]; then
     echo
     failed="$failed '$status'"
 fi
-)
+}
 
 # Ensure test_cmd sets failed properly
 test_cmd fail > /dev/null 2>&1
 if [ -z "$failed" ]; then
-    echo "test_cmd did not set \$failed"
+    echo "code error: test_cmd() did not set \$failed"
     exit 91
 fi
 failed=''
