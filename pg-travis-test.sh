@@ -18,7 +18,9 @@ get_path() {
     echo "/usr/lib/postgresql/$1/bin/"
 }
 
+# Do NOT use () here; we depend on being able to set failed
 test_cmd() (
+local status rc
 if [ "$1" == '-s' ]; then
     status="$2"
     shift 2
@@ -30,10 +32,11 @@ echo
 echo #############################################################################
 echo "PG-TRAVIS: running $@"
 echo #############################################################################
-# Use || so as not to trip up -e
+# Use || so as not to trip up -e, and a sub-shell to be safe.
 rc=0
-"$@" || rc=$?
+( "$@" ) || rc=$?
 if [ $rc -ne 0 ]; then
+    error test
     echo
     echo '!!!!!!!!!!!!!!!! FAILURE !!!!!!!!!!!!!!!!'
     echo "$@" returned $rc
@@ -42,6 +45,11 @@ if [ $rc -ne 0 ]; then
     failed="$failed '$status'"
 fi
 )
+
+# Ensure test_cmd sets failed properly
+test_cmd fail > /dev/null 2>&1
+[ -n "$failed" ] || die 91 "test_cmd did not set \$failed"
+failed=''
 
 test_make() {
     # Many tests depend on install, so just use sudo for all of them
