@@ -285,27 +285,29 @@ export PGDATA=$new_dir
 export PGPORT=$NEW_PORT
 modify_config $NEW_VERSION
 
-cd $upgrade_dir
-if [ $DEBUG -ge 9 ]; then
-    echo $old_dir; ls -la $old_dir; egrep 'director|unix|conf' $old_dir/postgresql.conf
-    echo $new_dir; ls -la $new_dir; egrep 'director|unix|conf' $new_dir/postgresql.conf
-fi
-echo $new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH"
-$new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH" || rc=$?
-if [ $rc -ne 0 ]; then
-    # Dump log, but only if we're not keeping the directory
-    if [ -z "$keep" ]; then
-        for f in `ls *.log`; do
-            echo; echo; echo; echo; echo; echo
-            echo "`pwd`/$f:"
-            cat "$f"
-        done
-        ls -la
-    else
-        error "pg_upgrade logs are at $upgrade_dir"
+(
+    cd $upgrade_dir
+    if [ $DEBUG -ge 9 ]; then
+        echo $old_dir; ls -la $old_dir; egrep 'director|unix|conf' $old_dir/postgresql.conf
+        echo $new_dir; ls -la $new_dir; egrep 'director|unix|conf' $new_dir/postgresql.conf
     fi
-    die $rc "pg_upgrade returned $rc"
-fi
+    echo $new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH"
+    $new_pg_upgrade -d "$old_dir" -D "$new_dir" -b "$OLD_PATH" -B "$NEW_PATH" || rc=$?
+    if [ $rc -ne 0 ]; then
+        # Dump log, but only if we're not keeping the directory
+        if [ -z "$keep" ]; then
+            for f in `ls *.log`; do
+                echo; echo; echo; echo; echo; echo
+                echo "`pwd`/$f:"
+                cat "$f"
+            done
+            ls -la
+        else
+            error "pg_upgrade logs are at $upgrade_dir"
+        fi
+        die $rc "pg_upgrade returned $rc"
+    fi
+)
 
 
 
