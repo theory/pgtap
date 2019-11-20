@@ -334,7 +334,7 @@ $new_pg_ctl start $ctl_separator -w || die $? "$new_pg_ctl start $ctl_separator 
 $new_pg_ctl status # Should error if not running on most versions
 
 psql -E -c '\dx'
-psql -E -c 'SELECT pg_tap_version()'
+psql -E -c 'SELECT pgtap_version()'
 
 # We want to make sure to use the NEW pg_config
 export PG_CONFIG=$(find_at_path "$NEW_PATH" pg_config)
