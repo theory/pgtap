@@ -207,6 +207,11 @@ exit_trap() {
     # Force sudo on a debian system (see below)
     [ -z "$ctl_separator" ] || sudo=$(which sudo)
 
+    # Attempt to shut down any running clusters, otherwise we'll get log spew
+    # when the temporary directories vanish.
+    $old_pg_ctl stop 2> /dev/null
+    $new_pg_ctl stop 2> /dev/null
+
     # Do not simply stick this command in the trap command; the quoting gets
     # tricky, but the quoting is also damn critical to make sure rm -rf doesn't
     # hose you if the temporary directory names have spaces in them!
