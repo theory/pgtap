@@ -322,4 +322,7 @@ debug 1 "$old_pg_ctl status returned $status"
 # We want to make sure to use the NEW pg_config
 export PG_CONFIG=$(find_at_path "$NEW_PATH" pg_config)
 [ -x "$PG_CONFIG" ] || ( debug_ls 1 "$NEW_PATH"; die 4 "unable to find executable pg_config at $NEW_PATH" )
+pwd
+ls -la
+ls -la ..
 ( cd $(dirname $0)/.. && make clean test )
