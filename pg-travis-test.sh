@@ -3,10 +3,12 @@
 # Based on https://gist.github.com/petere/6023944
 
 set -E -e -u -o pipefail 
-failed=''
 
 export DEBUG=1
+set -x
+
 export UPGRADE_TO=${UPGRADE_TO:-}
+failed=''
 
 sudo apt-get update
 
@@ -90,6 +92,7 @@ sudo pg_createcluster --start $PGVERSION test -p $PGPORT -- -A trust
 
 sudo easy_install pgxnclient
 
+set +x
 test_make clean regress
 
 # pg_regress --launcher not supported prior to 9.1
