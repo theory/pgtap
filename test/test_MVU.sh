@@ -209,8 +209,8 @@ exit_trap() {
 
     # Attempt to shut down any running clusters, otherwise we'll get log spew
     # when the temporary directories vanish.
-    $old_pg_ctl stop 2> /dev/null
-    $new_pg_ctl stop 2> /dev/null
+    $old_pg_ctl stop > /dev/null 2>&1
+    $new_pg_ctl stop > /dev/null 2>&1
 
     # Do not simply stick this command in the trap command; the quoting gets
     # tricky, but the quoting is also damn critical to make sure rm -rf doesn't
@@ -232,17 +232,17 @@ if which pg_ctlcluster > /dev/null 2>&1; then
     export PGUSER=$USER
 
     old_initdb="sudo pg_createcluster $OLD_VERSION $cluster_name -u $USER -p $OLD_PORT -d $old_dir -- -A trust"
+    old_pg_ctl="sudo pg_ctlcluster $OLD_VERSION test_pg_upgrade"
     new_initdb="sudo pg_createcluster $NEW_VERSION $cluster_name -u $USER -p $NEW_PORT -d $new_dir -- -A trust"
-    old_pg_ctl="sudo pg_ctlcluster $PGVERSION test_pg_upgrade"
-    new_pg_ctl=$old_pg_ctl
+    new_pg_ctl="sudo pg_ctlcluster $NEW_VERSION test_pg_upgrade"
+
     # See also ../pg-travis-test.sh
     new_pg_upgrade=/usr/lib/postgresql/$NEW_VERSION/bin/pg_upgrade
 else
     ctl_separator=''
     old_initdb="$(find_at_path "$OLD_PATH" initdb) -D $old_dir -N"
-    new_initdb="$(find_at_path "$NEW_PATH" initdb) -D $new_dir -N"
-    # s/initdb/pg_ctl/g
     old_pg_ctl=$(find_at_path "$OLD_PATH" pg_ctl)
+    new_initdb="$(find_at_path "$NEW_PATH" initdb) -D $new_dir -N"
     new_pg_ctl=$(find_at_path "$NEW_PATH" pg_ctl)
 
     new_pg_upgrade=$(find_at_path "$NEW_PATH" pg_upgrade)
