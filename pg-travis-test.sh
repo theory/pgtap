@@ -38,7 +38,7 @@ echo ###########################################################################
 rc=0
 ( "$@" ) || rc=$?
 if [ $rc -ne 0 ]; then
-    error test
+    echo test >&2
     echo
     echo '!!!!!!!!!!!!!!!! FAILURE !!!!!!!!!!!!!!!!'
     echo "$@" returned $rc
@@ -50,7 +50,10 @@ fi
 
 # Ensure test_cmd sets failed properly
 test_cmd fail > /dev/null 2>&1
-[ -n "$failed" ] || die 91 "test_cmd did not set \$failed"
+if [ -z "$failed" ]; then
+    echo "test_cmd did not set \$failed"
+    exit 91
+fi
 failed=''
 
 test_make() {
