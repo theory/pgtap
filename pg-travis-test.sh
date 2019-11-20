@@ -9,6 +9,7 @@ set -E -e -u -o pipefail
 
 export UPGRADE_TO=${UPGRADE_TO:-}
 failed=''
+tests_run=0
 
 sudo apt-get update
 
@@ -34,6 +35,7 @@ echo
 echo #############################################################################
 echo "PG-TRAVIS: running $@"
 echo #############################################################################
+tests_run=$((tests_run + 1))
 # Use || so as not to trip up -e, and a sub-shell to be safe.
 rc=0
 ( "$@" ) || rc=$?
@@ -59,6 +61,38 @@ test_make() {
     # Many tests depend on install, so just use sudo for all of them
     test_cmd -s "$*" sudo make "$@"
 }
+
+########################################################
+# TEST TARGETS
+sanity() {
+    test_make clean regress
+}
+
+update() {
+    # pg_regress --launcher not supported prior to 9.1
+    # There are some other failures in 9.1 and 9.2 (see https://travis-ci.org/decibel/pgtap/builds/358206497).
+    echo $PGVERSION | grep -qE "8[.]|9[.][012]" || test_make clean updatecheck
+}
+
+all() {
+# TODO: install software necessary to allow testing 'html' target
+for t in all install test test-serial test-parallel ; do
+    # Test from a clean slate...
+    test_make uninstall clean $t
+    # And then test again
+    test_make $t
+done
+}
+
+upgrade() {
+if [ -n "$UPGRADE_TO" ]; then
+    # We need to tell test_MVU.sh to run some steps via sudo since we're
+    # actually installing from pgxn into a system directory.  We also use a
+    # different port number to avoid conflicting with existing clusters.
+    test_cmd test/test_MVU.sh -s 55667 55778 $PGVERSION $UPGRADE_TO "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)"
+fi
+}
+
 
 ########################################################
 # Install packages
@@ -95,30 +129,21 @@ sudo pg_createcluster --start $PGVERSION test -p $PGPORT -- -A trust
 sudo easy_install pgxnclient
 
 set +x
-test_make clean regress
-
-# pg_regress --launcher not supported prior to 9.1
-# There are some other failures in 9.1 and 9.2 (see https://travis-ci.org/decibel/pgtap/builds/358206497).
-echo $PGVERSION | grep -qE "8[.]|9[.][012]" || test_make clean updatecheck
-
-# Explicitly test these other targets
-
-# TODO: install software necessary to allow testing 'html' target
-for t in all install test ; do
-    # Test from a clean slate...
-    test_make uninstall clean $t
-    # And then test again
-    test_make $t
+for t in ${TARGETS:-sanity update upgrade all}; do
+    $t
 done
 
-if [ -n "$UPGRADE_TO" ]; then
-    # We need to tell test_MVU.sh to run some steps via sudo since we're
-    # actually installing from pgxn into a system directory.  We also use a
-    # different port number to avoid conflicting with existing clusters.
-    test_cmd test/test_MVU.sh -s 55667 55778 $PGVERSION $UPGRADE_TO "$(get_path $PGVERSION)" "$(get_path $UPGRADE_TO)"
+if [ $tests_run -gt 0 ]; then
+    plural=''
+    [ $tests_run -eq 1 ] || plural='s'
+    echo Ran $tests_run test$plural
+else
+    echo No tests were run!
+    exit 2
 fi
 
 if [ -n "$failed" ]; then
+    echo
     # $failed will have a leading space if it's not empty
     echo "These test targets failed:$failed"
     exit 1
