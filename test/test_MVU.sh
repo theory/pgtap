@@ -314,7 +314,7 @@ banner "Testing UPGRADED cluster"
 
 # Run our tests against the upgraded cluster, but first make sure the old
 # cluster is still down, to ensure there's no chance of testing it instead.
-status=$($old_pg_ctl status) || die 3 "$old_pg_ctl status exited with $?"
+status=$($old_pg_ctl status) || die 3 "$old_pg_ctl status returned '$status' but exited with $?"
 debug 1 "$old_pg_ctl status returned $status"
 [ "$status" == 'pg_ctl: no server running' ] || die 3 "old cluster is still running
 
