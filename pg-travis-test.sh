@@ -20,7 +20,7 @@ get_path() {
 
 # Do NOT use () here; we depend on being able to set failed
 test_cmd() (
-local status rc
+#local status rc
 if [ "$1" == '-s' ]; then
     status="$2"
     shift 2
