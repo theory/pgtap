@@ -323,14 +323,18 @@ banner "Testing UPGRADED cluster"
 # cluster is still down, to ensure there's no chance of testing it instead.
 # Note that some versions of pg_ctl return different exit codes when the server
 # isn't running.
+echo ensuring OLD cluster is stopped
 rc=0
 status=$($old_pg_ctl status) || rc=$?
 [ "$status" == 'pg_ctl: no server running' ] || die 3 "$old_pg_ctl status returned '$status' and exited with $?"
 debug 4 "$old_pg_ctl status exited with $rc"
 
+echo starting NEW cluster
 $new_pg_ctl start $ctl_separator -w || die $? "$new_pg_ctl start $ctl_separator -w returned $?"
-
 $new_pg_ctl status # Should error if not running on most versions
+
+psql -E -c '\dx'
+psql -E -c 'SELECT pg_tap_version()'
 
 # We want to make sure to use the NEW pg_config
 export PG_CONFIG=$(find_at_path "$NEW_PATH" pg_config)
