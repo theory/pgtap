@@ -372,6 +372,7 @@ add_exclude 9.6 10 test/sql/partitions.sql
 export EXCLUDE_TEST_FILES
 run_make clean test
 
+(cd $(dirname $0); pg_prove -v --pset tuples_only=1 test/sql/throwtap.sql)
 if [ -n "$EXCLUDE_TEST_FILES" ]; then
     banner "Rerunning test after a reinstall due to version differences"
     echo "Excluded tests: $EXCLUDE_TEST_FILES"
