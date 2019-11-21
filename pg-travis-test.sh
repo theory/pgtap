@@ -4,6 +4,12 @@
 
 set -E -e -u -o pipefail 
 
+#
+# NOTE: you can control what tests run by setting the TARGETS environment
+# variable for a particular branch in the Travis console
+#
+
+# You can set this to higher levels for more debug output
 #export DEBUG=1
 #set -x
 
@@ -76,14 +82,20 @@ update() {
 
 tests_run_by_target_all=5
 all() {
-# TODO: install software necessary to allow testing 'html' target
-# UPDATE tests_run_by_target_all IF YOU ADD ANY TESTS HERE!
-for t in all install test test-serial test-parallel ; do
-    # Test from a clean slate...
-    test_make uninstall clean $t
-    # And then test again
-    test_make $t
-done
+    # the test* targets use pg_prove, which assumes it's making a default psql
+    # connection to a database that has pgTap installed, so we need to set that
+    # up.
+    test_cmd createdb
+    test_cmd psql -Ec 'CREATE EXTENSION pgtap'
+
+    # TODO: install software necessary to allow testing 'html' target
+    # UPDATE tests_run_by_target_all IF YOU ADD ANY TESTS HERE!
+    for t in all install test test-serial test-parallel ; do
+        # Test from a clean slate...
+        test_make uninstall clean $t
+        # And then test again
+        test_make $t
+    done
 }
 
 upgrade() {
