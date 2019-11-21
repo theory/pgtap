@@ -349,7 +349,7 @@ export PG_CONFIG=$(find_at_path "$NEW_PATH" pg_config)
 # because they test functions not available in the previous version.
 int_ver() {
     local ver
-    ver=$(echo $1 | tr -d.)
+    ver=$(echo $1 | tr -d .)
     # "multiply" versions less than 7.0 by 10 so that version 10.x becomes 100,
     # 11 becomes 110, etc.
     [ $ver -ge 70 ] || ver="${ver}0"
