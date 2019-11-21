@@ -148,6 +148,11 @@ for t in ${TARGETS:-sanity update upgrade all}; do
     $t
 done
 
+pg_
+
+# You can use this to check tests 
+pg_prove -f --pset tuples_only=1 test/sql/unique.sql test/sql/check.sql || true
+
 if [ $tests_run -eq $total_tests ]; then
     echo Ran $tests_run tests
 elif [ $tests_run -gt 0 ]; then
