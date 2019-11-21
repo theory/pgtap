@@ -349,7 +349,7 @@ test-parallel: extension_check set_parallel_conn
 	@echo Running pg_prove on PARALLEL tests
 	pg_prove -f --pset tuples_only=1 \
 		-j $(PARALLEL_CONN) \
-		$(PG_PROVE_PARALLEL_FILES)
+		$(PG_PROVE_PARALLEL_FILES) -v
 
 .PHONY: test
 test: test-serial test-parallel
