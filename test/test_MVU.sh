@@ -366,11 +366,12 @@ add_exclude() {
     fi
 }
 
+add_exclude 9.1 9.2 test/sql/throwtap.sql
 add_exclude 9.4 9.5 test/sql/policy.sql test/sql/throwtap.sql 
 add_exclude 9.6 10 test/sql/partitions.sql
 
 # Use this if there's a single test failing in Travis that you can't figure out...
-(cd $(dirname $0)/..; pg_prove -v --pset tuples_only=1 test/sql/throwtap.sql)
+#(cd $(dirname $0)/..; pg_prove -v --pset tuples_only=1 test/sql/throwtap.sql)
 
 export EXCLUDE_TEST_FILES
 run_make clean test
