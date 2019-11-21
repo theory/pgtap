@@ -339,7 +339,7 @@ $new_pg_ctl start $ctl_separator -w || die $? "$new_pg_ctl start $ctl_separator 
 $new_pg_ctl status # Should error if not running on most versions
 
 psql -E -c '\dx'
-psql -E -c 'SELECT pgtap_version()'
+psql -E -c 'SELECT pgtap_version(), pg_version_num(), version();'
 
 # We want to make sure to use the NEW pg_config
 export PG_CONFIG=$(find_at_path "$NEW_PATH" pg_config)
@@ -369,6 +369,7 @@ add_exclude() {
 add_exclude 9.4 9.5 test/sql/policy.sql test/sql/throwtap.sql 
 add_exclude 9.6 10 test/sql/partitions.sql
 
+# Use this if there's a single test failing in Travis that you can't figure out...
 (cd $(dirname $0)/..; pg_prove -v --pset tuples_only=1 test/sql/throwtap.sql)
 
 export EXCLUDE_TEST_FILES
