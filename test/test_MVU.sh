@@ -374,7 +374,7 @@ run_make clean test
 
 if [ -n "$EXCLUDE_TEST_FILES" ]; then
     banner "Rerunning test after a reinstall due to version differences"
-    echo "Excluded tests: $EXCLUDED_TEST_FILES"
+    echo "Excluded tests: $EXCLUDE_TEST_FILES"
     export EXCLUDED_TEST_FILES=''
 
     # Need to build with the new version, then install
