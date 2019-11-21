@@ -369,7 +369,7 @@ add_exclude() {
 add_exclude 9.4 9.5 test/sql/policy.sql test/sql/throwtap.sql 
 add_exclude 9.6 10 test/sql/partitions.sql
 
-(cd $(dirname $0); pg_prove -v --pset tuples_only=1 test/sql/throwtap.sql)
+(cd $(dirname $0)/..; pg_prove -v --pset tuples_only=1 test/sql/throwtap.sql)
 
 export EXCLUDE_TEST_FILES
 run_make clean test
