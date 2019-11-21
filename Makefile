@@ -341,15 +341,15 @@ installcheck_deps: $(SCHEDULE_DEST_FILES) extension_check set_parallel_conn # Mo
 .PHONY: test-serial
 test-serial: extension_check
 	@echo Running pg_prove on SERIAL tests
-	pg_prove -f --pset tuples_only=1 \
+	pg_prove --pset tuples_only=1 \
 		$(PG_PROVE_SERIAL_FILES)
 
 .PHONY: test-parallel
 test-parallel: extension_check set_parallel_conn
 	@echo Running pg_prove on PARALLEL tests
-	pg_prove -f --pset tuples_only=1 \
+	pg_prove --pset tuples_only=1 \
 		-j $(PARALLEL_CONN) \
-		$(PG_PROVE_PARALLEL_FILES) -v
+		$(PG_PROVE_PARALLEL_FILES)
 
 .PHONY: test
 test: test-serial test-parallel
