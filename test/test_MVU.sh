@@ -122,6 +122,11 @@ out=$(which $2)
 echo $out
 )
 
+run_make() (
+cd $(dirname $0)/..
+$sudo make $@
+)
+
 modify_config() (
 # See below for definition of ctl_separator
 if [ -z "$ctl_separator" ]; then
@@ -273,8 +278,7 @@ echo "Installing pgtap"
 # If user requested sudo then we need to use it for the install step. TODO:
 # it'd be nice to move this into the Makefile, if the PGXS make stuff allows
 # it...
-( cd $(dirname $0)/.. && $sudo make clean install )
-
+run_make clean install 
 
 banner "Loading extension"
 psql -c 'CREATE EXTENSION pgtap' # Also uses PGPORT
@@ -329,6 +333,7 @@ status=$($old_pg_ctl status) || rc=$?
 [ "$status" == 'pg_ctl: no server running' ] || die 3 "$old_pg_ctl status returned '$status' and exited with $?"
 debug 4 "$old_pg_ctl status exited with $rc"
 
+# TODO: send log output to a file so it doesn't mix in with STDOUT
 echo starting NEW cluster
 $new_pg_ctl start $ctl_separator -w || die $? "$new_pg_ctl start $ctl_separator -w returned $?"
 $new_pg_ctl status # Should error if not running on most versions
@@ -339,4 +344,44 @@ psql -E -c 'SELECT pgtap_version()'
 # We want to make sure to use the NEW pg_config
 export PG_CONFIG=$(find_at_path "$NEW_PATH" pg_config)
 [ -x "$PG_CONFIG" ] || ( debug_ls 1 "$NEW_PATH"; die 4 "unable to find executable pg_config at $NEW_PATH" )
-( cd $(dirname $0)/.. && make clean test )
+
+# When crossing certain upgrade boundaries we need to exclude some tests
+# because they test functions not available in the previous version.
+int_ver() {
+    local ver
+    ver=$(echo $1 | tr -d.)
+    # "multiply" versions less than 7.0 by 10 so that version 10.x becomes 100,
+    # 11 becomes 110, etc.
+    [ $ver -ge 70 ] || ver="${ver}0"
+    echo $ver
+}
+EXCLUDE_TEST_FILES=''
+add_exclude() {
+    local old new
+    old=$(int_ver $1)
+    new=$(int_ver $2)
+    shift 2
+    if [ $(int_ver $OLD_VERSION) -le $old -a $(int_ver $NEW_VERSION) -ge $new ]; then
+        EXCLUDE_TEST_FILES="$EXCLUDE_TEST_FILES $@"
+    fi
+}
+
+add_exclude 9.4 9.5 test/sql/policy.sql test/sql/throwtap.sql 
+add_exclude 9.6 10 test/sql/partitions.sql
+
+export EXCLUDE_TEST_FILES
+run_make clean test
+
+if [ -n "$EXCLUDE_TEST_FILES" ]; then
+    banner "Rerunning test after a reinstall due to version differences"
+    echo "Excluded tests: $EXCLUDED_TEST_FILES"
+    export EXCLUDED_TEST_FILES=''
+
+    # Need to build with the new version, then install
+    run_make install
+
+    psql -E -c 'DROP EXTENSION pgtap; CREATE EXTENSION pgtap;'
+
+    run_make test
+fi
+

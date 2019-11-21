@@ -74,8 +74,10 @@ update() {
     echo $PGVERSION | grep -qE "8[.]|9[.][012]" || test_make clean updatecheck
 }
 
+tests_run_by_target_all=5
 all() {
 # TODO: install software necessary to allow testing 'html' target
+# UPDATE tests_run_by_target_all IF YOU ADD ANY TESTS HERE!
 for t in all install test test-serial test-parallel ; do
     # Test from a clean slate...
     test_make uninstall clean $t
@@ -129,14 +131,16 @@ sudo pg_createcluster --start $PGVERSION test -p $PGPORT -- -A trust
 sudo easy_install pgxnclient
 
 set +x
+total_tests=$((3 + $tests_run_by_target_all))
 for t in ${TARGETS:-sanity update upgrade all}; do
     $t
 done
 
-if [ $tests_run -gt 0 ]; then
-    plural=''
-    [ $tests_run -eq 1 ] || plural='s'
-    echo Ran $tests_run test$plural
+if [ $tests_run -eq $total_tests ]; then
+    echo Ran $tests_run tests
+elif [ $tests_run -gt 0 ]; then
+    echo "WARNING! ONLY RAN $tests_run OUT OF $total_tests TESTS!"
+    # We don't consider this an error...
 else
     echo No tests were run!
     exit 2
