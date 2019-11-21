@@ -147,8 +147,6 @@ for t in ${TARGETS:-sanity update upgrade all}; do
     $t
 done
 
-pg_
-
 # You can use this to check tests that are failing pg_prove
 pg_prove -f --pset tuples_only=1 test/sql/unique.sql test/sql/check.sql || true
 
