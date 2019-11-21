@@ -80,12 +80,11 @@ update() {
     echo $PGVERSION | grep -qE "8[.]|9[.][012]" || test_make clean updatecheck
 }
 
-tests_run_by_target_all=5
+tests_run_by_target_all=11 # 1 + 5 * 2
 all() {
     # the test* targets use pg_prove, which assumes it's making a default psql
     # connection to a database that has pgTap installed, so we need to set that
     # up.
-    test_cmd createdb
     test_cmd psql -Ec 'CREATE EXTENSION pgtap'
 
     # TODO: install software necessary to allow testing 'html' target
@@ -150,7 +149,7 @@ done
 
 pg_
 
-# You can use this to check tests 
+# You can use this to check tests that are failing pg_prove
 pg_prove -f --pset tuples_only=1 test/sql/unique.sql test/sql/check.sql || true
 
 if [ $tests_run -eq $total_tests ]; then
