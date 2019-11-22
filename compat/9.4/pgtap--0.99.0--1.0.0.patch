@@ -1,24 +1,6 @@
---- sql/pgtap.sql
-+++ sql/pgtap.sql
-@@ -670,7 +670,7 @@
-            '      caught: no exception' ||
-         E'\n      wanted: ' || COALESCE( errcode, 'an exception' )
-     );
--EXCEPTION WHEN OTHERS OR ASSERT_FAILURE THEN
-+EXCEPTION WHEN OTHERS THEN
-     IF (errcode IS NULL OR SQLSTATE = errcode)
-         AND ( errmsg IS NULL OR SQLERRM = errmsg)
-     THEN
-@@ -774,7 +774,7 @@
- BEGIN
-     EXECUTE code;
-     RETURN ok( TRUE, descr );
--EXCEPTION WHEN OTHERS OR ASSERT_FAILURE THEN
-+EXCEPTION WHEN OTHERS THEN
-     -- There should have been no exception.
-     GET STACKED DIAGNOSTICS
-         detail  = PG_EXCEPTION_DETAIL,
-@@ -9916,233 +9916,6 @@
+--- sql/pgtap--0.99.0--1.0.0.sql
++++ sql/pgtap--0.99.0--1.0.0.sql
+@@ -7,233 +7,6 @@ RETURNS text AS $$
      ), $2);
  $$ LANGUAGE SQL immutable;
  
@@ -249,6 +231,6 @@
 -    );
 -$$ LANGUAGE sql;
 -
- /******************** INHERITANCE ***********************************************/
- /*
-  * Internal function to test whether the specified table in the specified schema
+ CREATE OR REPLACE FUNCTION _funkargs ( NAME[] )
+ RETURNS TEXT AS $$
+ BEGIN

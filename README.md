@@ -1,4 +1,4 @@
-pgTAP 0.99.1
+pgTAP 1.1.0
 ============
 
 [pgTAP](http://pgtap.org) is a unit testing framework for PostgreSQL written
@@ -15,8 +15,8 @@ documentation in `doc/pgtap.mmd` or
 To build it, just do this:
 
     make
-    make installcheck
     make install
+    make installcheck
 
 If you encounter an error such as:
 

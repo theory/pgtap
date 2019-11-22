@@ -1,8 +1,40 @@
 Revision history for pgTAP
 ==========================
 
-0.99.1 (Dev toward 1.0.0)
+1.1.0
 --------------------------
+* Fix pgtap_version(), which incorrectly returned 0.99 when upgrading from
+  version 0.99.0 to 1.0.0.
+* Fix issue with using pg_upgrade to Postgres 11+ with pgTap installed.
+* Make description optional for col_not_null().
+
+1.0.0 2019-02-21T22:39:42Z
+--------------------------
+* Fixed uninstall script generation to properly emit `DROP TYPE` statements.
+  Thanks to Kamen Naydenov for the PR (#181)!
+* Added policy test assertion functions for PostgreSQL 9.5 and higher:
+    + `policies_are()`
+    + `policy_roles_are()`
+    + `policy_cmd_is()`
+  Thanks to Kamen Naydenov for the PR (#185).
+* Fixed an issue with `has_function()` where a test would fail if arguments
+  are schema-qualified even though the schema is in the search path. Thanks to
+  Sandro Santilli for the bug report (#179) and PR (#180).
+* Added table inheritance testing functions:
+    + `has_inherited_tables()`
+    + `hasnt_inherited_tables()`
+    + `is_ancestor_of()`
+    + `isnt_ancestor_of()`
+    + `is_descendent_of()`
+    + `isnt_descendent_of()`
+  Thanks to Luca Ferrari for the inspiration.
+* Fixed `col_default_is()` to properly report special SQL syntax functions
+  like `CURRENT_USER` and `CURRENT_CATALOG` instead of evaluating them on
+  PostgreSQL 10 and higher.
+* Changed the uninstall script to use `DROP IF EXISTS` rather than just `DROP`
+  so that it works even with partial or failed installs. Thanks to Sandro
+  Santilli for the PR (#194).
+* Officially end support for PostgreSQL 8.2 and older.
 
 0.99.0 2018-09-16T20:55:41Z
 ---------------------------
