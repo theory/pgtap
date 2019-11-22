@@ -10755,4 +10755,3 @@ RETURNS TEXT AS $$
         'Table ' || quote_ident( $1 ) || ' should not be a descendent of ' || quote_ident( $2)
     );
 $$ LANGUAGE SQL;
-
