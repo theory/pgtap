@@ -323,7 +323,6 @@ values. Here's an example, testing a hypothetical `users` table:
     CREATE OR REPLACE FUNCTION test_user(
     ) RETURNS SETOF TEXT AS $$
        SELECT is( nick, 'theory', 'Should have nick') FROM users;
-    END;
     $$ LANGUAGE sql;
 
 See below for details on the pgTAP assertion functions. Once you've defined
@@ -4197,6 +4196,7 @@ view or composite type.
 ### `col_not_null()` ###
 
     SELECT col_not_null( :schema, :table, :column, :description );
+    SELECT col_not_null( :schema, :table, :column );
     SELECT col_not_null( :table, :column, :description );
     SELECT col_not_null( :table, :column );
 
@@ -4226,6 +4226,7 @@ first, eh?
 ### `col_is_null()` ###
 
     SELECT col_is_null( :schema, :table, :column, :description );
+    SELECT col_is_null( :schema, :table, :column );
     SELECT col_is_null( :table, :column, :description );
     SELECT col_is_null( :table, :column );
 
