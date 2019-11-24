@@ -24,6 +24,7 @@ trap err_report ERR
 cd "$BASEDIR"/.. || die 3 "Unable to cd to $BASEDIR/.."
 
 export UPGRADE_TO=${UPGRADE_TO:-}
+FAST_FAIL=${FAST_FAIL:-}
 failed=''
 tests_run=0
 
@@ -71,12 +72,15 @@ fi
 }
 
 # Ensure test_cmd sets failed properly
+old_FAST_FAIL=$FAST_FAIL
+FAST_FAIL=''
 test_cmd fail > /dev/null 2>&1
 if [ -z "$failed" ]; then
     echo "code error: test_cmd() did not set \$failed"
     exit 91
 fi
 failed=''
+FAST_FAIL=$old_FAST_FAIL
 
 test_make() {
     # Many tests depend on install, so just use sudo for all of them
