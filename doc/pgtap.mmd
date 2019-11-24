@@ -1,4 +1,4 @@
-pgTAP 0.96.1
+pgTAP 1.1.0
 ============
 
 pgTAP is a unit testing framework for PostgreSQL written in PL/pgSQL and
@@ -9,6 +9,8 @@ used in the xUnit testing style.
 
 Synopsis
 ========
+
+    CREATE EXTENSION IF NOT EXISTS pgtap;
 
     SELECT plan( 23 );
     -- or SELECT * from no_plan();
@@ -96,28 +98,6 @@ You need to run the test suite using a super user, such as the default
 
     make installcheck PGUSER=postgres
 
-Once pgTAP is installed, you can add it to a database. If you're running
-PostgreSQL 9.1.0 or greater, it's a simple as connecting to a database as a
-super user and running:
-
-    CREATE EXTENSION pgtap;
-
-If you've upgraded your cluster to PostgreSQL 9.1 and already had pgTAP
-installed, you can upgrade it to a properly packaged extension with:
-
-    CREATE EXTENSION pgtap FROM unpackaged;
-
-For versions of PostgreSQL less than 9.1.0, you'll need to run the
-installation script:
-
-    psql -d mydb -f /path/to/pgsql/share/contrib/pgtap.sql
-
-If you want to install pgTAP and all of its supporting objects into a
-specific schema, use the `PGOPTIONS` environment variable to specify the
-schema, like so:
-
-    PGOPTIONS=--search_path=tap psql -d mydb -f pgTAP.sql
-
 Testing pgTAP with pgTAP
 ------------------------
 
@@ -142,15 +122,36 @@ You can use it to run the test suite as a database super user like so:
 Adding pgTAP to a Database
 --------------------------
 
-Once pgTAP has been built and tested, you can install it into a
-PL/pgSQL-enabled database:
+Once pgTAP is installed, you can add it to a database. If you're running
+PostgreSQL 9.1.0 or greater, it's a simple as connecting to a database as a
+super user and running:
 
-    psql -d dbname -f pgtap.sql
+    CREATE EXTENSION IF NOT EXISTS pgtap;
+
+If you've upgraded your cluster to PostgreSQL 9.1 and already had pgTAP
+installed, you can upgrade it to a properly packaged extension with:
+
+    CREATE EXTENSION pgtap FROM unpackaged;
 
 If you want pgTAP to be available to all new databases, install it into the
 "template1" database:
 
-    psql -d template1 -f pgtap.sql
+    psql -d template1 -C "CREATE EXTENSION pgtap"
+
+To uninstall pgTAP, use `DROP EXTENSION`:
+
+    DROP EXTENSION IF EXISTS pgtap;
+
+For versions of PostgreSQL less than 9.1.0, you'll need to run the
+installation script:
+
+    psql -d mydb -f /path/to/pgsql/share/contrib/pgtap.sql
+
+If you want to install pgTAP and all of its supporting objects into a
+specific schema, use the `PGOPTIONS` environment variable to specify the
+schema, like so:
+
+    PGOPTIONS=--search_path=tap psql -d mydb -f pgTAP.sql
 
 If you want to remove pgTAP from a database, run the `uninstall_pgtap.sql`
 script:
@@ -175,23 +176,22 @@ variables to keep the tests quiet, start a transaction, load the functions in
 your test script, and then rollback the transaction at the end of the script.
 Here's an example:
 
-    \set ECHO
+    \unset ECHO
     \set QUIET 1
     -- Turn off echo and keep things quiet.
 
     -- Format the output for nice TAP.
     \pset format unaligned
     \pset tuples_only true
-    \pset pager
+    \pset pager off
 
     -- Revert all changes on failure.
     \set ON_ERROR_ROLLBACK 1
     \set ON_ERROR_STOP true
-    \set QUIET 1
 
     -- Load the TAP functions.
     BEGIN;
-        \i pgtap.sql
+    \i pgtap.sql
 
     -- Plan the tests.
     SELECT plan(1);
@@ -202,16 +202,6 @@ Here's an example:
     -- Finish the tests and clean up.
     SELECT * FROM finish();
     ROLLBACK;
-
-Of course, if you already have the pgTAP functions in your testing database,
-you should skip `\i pgtap.sql` at the beginning of the script.
-
-The only other limitation is that the `pg_typeof()` function, which is
-written in C, will not be available in 8.3 and lower. You'll want to
-comment out its declaration in the bundled copy of `pgtap.sql` and then avoid
-using `cmp_ok()`, since that function relies on `pg_typeof()`. Note that
-`pg_typeof()` is included in PostgreSQL 8.4, so you won't need to avoid it on
-that version or higher.
 
 Now you're ready to run your test script!
 
@@ -270,12 +260,12 @@ Using pgTAP
 ===========
 
 The purpose of pgTAP is to provide a wide range of testing utilities that
-output TAP. TAP, or the "Test Anything Protocol", is an emerging standard for
-representing the output from unit tests. It owes its success to its format as
-a simple text-based interface that allows for practical machine parsing and
-high legibility for humans. TAP started life as part of the test harness for
-Perl but now has implementations in C/C++, Python, PHP, JavaScript, Perl, and
-now PostgreSQL.
+output TAP. TAP, or the "Test Anything Protocol", is a standard for
+representing the output from unit tests. It owes its success to its format as a
+simple text-based interface that allows for practical machine parsing and high
+legibility for humans. TAP started life as part of the test harness for Perl
+but now has implementations in C/C++, Python, PHP, JavaScript, Perl, and, of
+course, PostgreSQL.
 
 There are two ways to use pgTAP: 1) In simple test scripts that use a plan to
 describe the tests in the script; or 2) In xUnit-style test functions that you
@@ -291,7 +281,7 @@ many tests your script is going to run to protect against premature failure.
 The preferred way to do this is to declare a plan by calling the `plan()`
 function:
 
-    SELECT plan( 42 );
+    SELECT plan(42);
 
 There are rare cases when you will not know beforehand how many tests your
 script is going to run. In this case, you can declare that you have no plan.
@@ -320,23 +310,24 @@ What a sweet unit!
 
 If you're used to xUnit testing frameworks, you can collect all of your tests
 into database functions and run them all at once with `runtests()`. This is
-similar to how [PGUnit](http://en.dklab.ru/lib/dklab_pgunit/) and
-[Epic](http://www.epictest.org/) work. The `runtests()` function does all the
-work of finding and running your test functions in individual transactions. It
-even supports setup and teardown functions. To use it, write your unit test
-functions so that they return a set of text results, and then use the pgTAP
-assertion functions to return TAP values, like so:
+similar to how [PGUnit](http://en.dklab.ru/lib/dklab_pgunit/) works. The
+`runtests()` function does all the work of finding and running your test
+functions in individual transactions. It even supports setup and teardown
+functions. To use it, write your unit test functions so that they return a set
+of text results, and then use the pgTAP assertion functions to return TAP
+values. Here's an example, testing a hypothetical `users` table:
 
     CREATE OR REPLACE FUNCTION setup_insert(
     ) RETURNS SETOF TEXT AS $$
+    BEGIN
         RETURN NEXT is( MAX(nick), NULL, 'Should have no users') FROM users;
         INSERT INTO users (nick) VALUES ('theory');
+    END;
     $$ LANGUAGE plpgsql;
 
     CREATE OR REPLACE FUNCTION test_user(
     ) RETURNS SETOF TEXT AS $$
        SELECT is( nick, 'theory', 'Should have nick') FROM users;
-    END;
     $$ LANGUAGE sql;
 
 See below for details on the pgTAP assertion functions. Once you've defined
@@ -349,12 +340,12 @@ Each test function will run within its own transaction, and rolled back when
 the function completes (or after any teardown functions have run). The TAP
 results will be sent to your client.
 
-Test names
-----------
+Test Descriptions
+-----------------
 
 By convention, each test is assigned a number in order. This is largely done
-automatically for you. However, it's often very useful to assign a name to
-each test. Would you rather see this?
+automatically for you. However, it's often very useful to describe each test.
+Would you rather see this?
 
       ok 4
       not ok 5
@@ -369,35 +360,37 @@ Or this?
 The latter gives you some idea of what failed. It also makes it easier to find
 the test in your script, simply search for "simple exponential".
 
-All test functions take a name argument. It's optional, but highly suggested
-that you use it.
+All test functions take a description argument. It's optional, but highly
+suggested that you use it.
 
-Sometimes it's useful to extract test function names from pgtap output, especially when using xUnit style with Continuous Integration Server like Hudson or TeamCity.
-By default pgTAP displays this names as "comment", but you're able to change this behavior by overriding function `diag_test_name`:
+### xUnit Function Names ###
 
-### `diag_test_name()` ###
+Sometimes it's useful to extract xUnit test function names from TAP output,
+especially when using xUnit style with Continuous Integration Server like
+Hudson or TeamCity. By default pgTAP displays these names as comments, but
+you're able to change this behavior by overriding the function `diag_test_name`.
+For example:
 
     CREATE OR REPLACE FUNCTION diag_test_name(TEXT)
     RETURNS TEXT AS $$
         SELECT diag('test: ' || $1 );
     $$ LANGUAGE SQL;
 
-**Parameters**
-
-`:test_name`
-: A test name.
-
 This will show
+
     # test: my_example_test_function_name
+
 instead of
+
     # my_example_test_function_name()
-This makes easy handling test name and differing test names from comments.
+
+This simplifies parsing test names from TAP comments.
 
 I'm ok, you're not ok
 ---------------------
 
-The basic purpose of pgTAP--and of any TAP-emitting test framework, for that
-matter--is to print out either "ok #" or "not ok #", depending on whether a
+The basic purpose of pgTAP---and of any TAP-emitting test framework, for that
+matter---is to print out either "ok #" or "not ok #", depending on whether a
 given test succeeded or failed. Everything else is just gravy.
 
 All of the following functions return "ok" or "not ok" depending on whether
@@ -462,7 +455,7 @@ additional diagnostic:
 : Value to test.
 
 `:want`
-: Value that `:have` is expcted to be. Must be the same data type.
+: Value that `:have` is expected to be. Must be the same data type.
 
 `:description`
 : A short description of the test.
@@ -479,8 +472,8 @@ the result of that to determine if the test succeeded or failed. So these:
 
 are similar to these:
 
-    SELECT ok(   ultimate_answer() =  42, 'Meaning of Life' );
-    SELECT isnt( foo()             <> '', 'Got some foo'    );
+    SELECT ok( ultimate_answer() =  42, 'Meaning of Life' );
+    SELECT ok( foo() <> '', 'Got some foo' );
 
 (Mnemonic: "This is that." "This isn't that.")
 
@@ -507,7 +500,7 @@ Will produce something like this:
 So you can figure out what went wrong without re-running the test.
 
 You are encouraged to use `is()` and `isnt()` over `ok()` where possible. You
-can even use them to compar records in PostgreSQL 8.4 and later:
+can even use them to compare records in PostgreSQL 8.4 and later:
 
     SELECT is( users.*, ROW(1, 'theory', true)::users )
       FROM users
@@ -729,7 +722,7 @@ Use these functions very, very, very sparingly.
 Checks to see if the given value is of a particular type. The description and
 diagnostics of this test normally just refer to "the value". If you'd like
 them to be more specific, you can supply a `:name`. For example you might say
-"the return value" when yo're examing the result of a function call:
+"the return value" when you're examining the result of a function call:
 
     SELECT isa_ok( length('foo'), 'integer', 'The return value from length()' );
 
@@ -785,8 +778,8 @@ Since "my test" was declared with double quotes, it must be passed with double
 quotes. And since the call to "expect" included spaces (to keep it legible),
 the `EXECUTE` keyword was required.
 
-In PostgreSQL 8.2 and up, you can also use a `VALUES` statement, both in
-the query string or in a prepared statement. A useless example:
+You can also use a `VALUES` statement, both in the query string or in a
+prepared statement. A useless example:
 
     PREPARE myvals AS VALUES (1, 2), (3, 4);
     SELECT set_eq(
@@ -1181,8 +1174,8 @@ expect, you might do something like this:
         'active_users() should return active users'
     );
 
-Tip: If you're using PostgreSQL 8.2 and up and want to hard-code the values to
-compare, use a `VALUES` statement instead of a query, like so:
+Tip: If you want to hard-code the values to compare, use a `VALUES` statement
+instead of a query, like so:
 
     SELECT results_eq(
         'SELECT * FROM active_users()',
@@ -1199,12 +1192,11 @@ second argument may be an array:
     );
 
 In general, the use of prepared statements is highly recommended to keep your
-test code SQLish (you can even use `VALUES` in prepared statements in
-PostgreSQL 8.2 and up!). But note that, because `results_eq()` does a
-row-by-row comparison, the results of the two query arguments must be in
-exactly the same order, with exactly the same data types, in order to pass. In
-practical terms, it means that you must make sure that your results are never
-unambiguously ordered.
+test code SQLish (you can even use `VALUES` in prepared statements). But note
+that, because `results_eq()` does a row-by-row comparison, the results of the
+two query arguments must be in exactly the same order, with exactly the same
+data types, in order to pass. In practical terms, it means that you must make
+sure that your results are never unambiguously ordered.
 
 For example, say that you want to compare queries against a `persons` table.
 The simplest way to sort is by `name`, as in:
@@ -1424,7 +1416,7 @@ are *not* the same. The two queries can as usual be the names of prepared
 statements or strings containing an SQL query (see the
 [summary](#Pursuing+Your+Query) for query argument details), or even one of
 each. The two queries, however, must return results that are directly
-comparable -- that is, with the same number and types of columns in the same
+comparable --- that is, with the same number and types of columns in the same
 orders. If it happens that the query you're testing returns a single column,
 the second argument may be an array.
 
@@ -1541,7 +1533,7 @@ are *not* the same, including duplicates. The two queries can as usual be the
 names of prepared statements or strings containing an SQL query (see the
 [summary](#Pursuing+Your+Query) for query argument details), or even one of
 each. The two queries, however, must return results that are directly
-comparable -- that is, with the same number and types of columns in the same
+comparable --- that is, with the same number and types of columns in the same
 orders. If it happens that the query you're testing returns a single column,
 the second argument may be an array.
 
@@ -1647,11 +1639,16 @@ test fails.
 `:description`
 : A short description of the test.
 
-Compares the contents of a single row to a record. Due to the limitations of
-non-C functions in PostgreSQL, a bar `RECORD` value cannot be passed to the
-function. You must instead pass in a valid composite type value, and cast the
-record argument (the second argument) to the same type. Both explicitly
-created composite types and table types are supported. Thus, you can do this:
+Compares the contents of a single row to a record. On PostgreSQL 11 and later, a
+bare `RECORD` value may be passed:
+
+    SELECT row_eq( $$ SELECT 1, 'foo' $$, ROW(1, 'foo') );
+
+ue to the limitations of non-C functions in earlier versions of PostgreSQL, a
+bare `RECORD` value cannot be passed to the function. You must instead pass in a
+valid composite type value, and cast the record argument (the second argument)
+to the same type. Both explicitly created composite types and table types are
+supported. Thus, you can do this:
 
     CREATE TYPE sometype AS (
         id    INT,
@@ -1843,6 +1840,61 @@ missing tables, like so:
     #         users
     #         widgets
 
+### `partitions_are()` ###
+
+    SELECT partitions_are( :schema, :table, :partitions :description );
+    SELECT partitions_are( :schema, :table, :partitions );
+    SELECT partitions_are( :table, :partitions :description );
+    SELECT partitions_are( :table, :partitions );
+
+**Parameters**
+
+`:schema`
+: Name of a schema in which to find the partitioned table.
+
+`:table`
+: Name of a partitioned table.
+
+`:partitions`
+: An array of partition table names.
+
+`:description`
+: A short description of the test.
+
+This function tests that the named table has all of the specified partitions,
+and those are its only partitions. The test casts partition names to the
+`regclass` type; therefore, partition names should be specified relative to the
+search path. Those in the search path should not be schema-qualified, while
+those outside the search path should be schema-qualified. Partition names and
+schemas should be appropriately quoted as identifiers where appropriate.
+
+If the `:schema` argument is omitted, the partitioned table must be visible the
+search path. If the description is omitted, a generally useful default
+description will be generated. Example:
+
+    SELECT partitions_are(
+        'myschema', 'mylog',
+        ARRAY[ 'log1', 'log2', 'log3', 'log4' ]
+    );
+
+Example for partitions outside the search path and requiring identifier-quoting:
+
+    SELECT partitions_are(
+        'myschema', 'MyLog',
+        ARRAY[ 'hidden."Log 1"', 'hidden."Log 2"' ]
+    );
+
+In the event of a failure, you'll see diagnostics listing the extra and/or
+missing partitions, like so:
+
+    # Failed test 12: "Table myschema should have the correct partitions"
+    #     Extra partitions:
+    #         part4
+    #         hidden."Part 5"
+    #     Missing partitions:
+    #         part5
+    #         part6
+
 ### `foreign_tables_are()` ###
 
     SELECT foreign_tables_are( :schema, :foreign_tables, :description );
@@ -1942,11 +1994,12 @@ missing views, like so:
 `:description`
 : A short description of the test.
 
-This function tests that all of the materialized views in the named schema, or that are
-visible in the search path, are only the materialized views that *should* be there. If the
-`:schema` argument is omitted, materialized views will be sought in the search path,
-excluding `pg_catalog` and `information_schema` If the description is omitted,
-a generally useful default description will be generated. Example:
+This function tests that all of the materialized views in the named schema, or
+that are visible in the search path, are only the materialized views that
+*should* be there. If the `:schema` argument is omitted, materialized views
+will be sought in the search path, excluding `pg_catalog` and
+`information_schema` If the description is omitted, a generally useful default
+description will be generated. Example:
 
     SELECT materialized_views_are(
         'myschema',
@@ -2338,10 +2391,10 @@ missing opclasses, like so:
 : A short description of the test.
 
 This function tests that all of the rules on the named relation are only the
-rules that *should* be on that relation (a table, view or a materialized view). If the `:schema`
-argument is omitted, the rules must be visible in the search path, excluding
-`pg_catalog` and `information_schema`. If the description is omitted, a
-generally useful default description will be generated. Example:
+rules that *should* be on that relation (a table, view or a materialized view).
+If the `:schema` argument is omitted, the rules must be visible in the search
+path, excluding `pg_catalog` and `information_schema`. If the description is
+omitted, a generally useful default description will be generated. Example:
 
     SELECT rules_are(
         'myschema',
@@ -2481,7 +2534,7 @@ This function tests that all of the casts in the database are only the casts
 that *should* be in that database. Casts are specified as strings in a syntax
 similarly to how they're declared via `CREATE CAST`. The pattern is
 `:source_type AS :target_type`. If either type was created with double-quotes
-to force mixed case or special characers, then you must use double quotes in
+to force mixed case or special characters, then you must use double quotes in
 the cast strings. Example:
 
     SELECT casts_are(ARRAY[
@@ -2565,7 +2618,7 @@ missing operators, like so:
 **Parameters**
 
 `:schema`
-: Name of a schema in which to find extensions.
+: Name of a schema associated with the extensions.
 
 `:extensions`
 : An array of extension names.
@@ -2573,11 +2626,14 @@ missing operators, like so:
 `:description`
 : A short description of the test.
 
-This function tests that all of the extensions in the named schema, or that
-are visible in the search path, are only the extensions that *should* be
-there. If the `:schema` argument is omitted, all extensions will be checked.
-If the description is omitted, a generally useful default description will be
-generated. Example:
+This function tests all of the extensions that should be present. If `:schema`
+is specified, it will test only for extensions associated the named schema (via
+the `schema` parameter in the extension's control file, ov the `WITH SCHEMA`
+clause of the
+[CREATE EXTENSION](https://www.postgresql.org/docs/current/static/extend-extensions.html)
+statement). Otherwise it will check for all extension in the database,
+including pgTAP itself. If the description is omitted, a generally useful
+default description will be generated. Example:
 
     SELECT extensions_are(
         'myschema',
@@ -2697,11 +2753,11 @@ specified schema does *not* exist.
 `:description`
 : A short description of the test.
 
-This function tests whether or not a relation exists in the database.
-Relations are tables, views, materialized views, seqences, composite types, foreign tables, and
-toast tables. The first argument is a schema name, the second is a relation
-name, and the third is the test description. If you omit the schema, the
-relation must be visible in the search path. Example:
+This function tests whether or not a relation exists in the database. Relations
+are tables, views, materialized views, sequences, composite types, foreign
+tables, and toast tables. The first argument is a schema name, the second is a
+relation name, and the third is the test description. If you omit the schema,
+the relation must be visible in the search path. Example:
 
     SELECT has_relation('myschema', 'somerelation');
 
@@ -2844,10 +2900,10 @@ specified view does *not* exist.
 `:description`
 : A short description of the test.
 
-This function tests whether or not a materialized view exists in the database. The first
-argument is a schema name, the second is a materialized view name, and the third is the
-test description. If you omit the schema, the materialized view must be visible in the
-search path. Example:
+This function tests whether or not a materialized view exists in the database.
+The first argument is a schema name, the second is a materialized view name,
+and the third is the test description. If you omit the schema, the materialized
+view must be visible in the search path. Example:
 
     SELECT has_materialized_view('myschema', 'some_materialized_view');
 
@@ -2873,6 +2929,208 @@ exist".
 
 This function is the inverse of `has_view()`. The test passes if the
 specified materialized view does *not* exist.
+
+### `has_inherited_tables()`
+
+    SELECT has_inherited_tables( :schema, :table, :description );
+    SELECT has_inherited_tables( :schema, :table );
+    SELECT has_inherited_tables( :table, :description );
+    SELECT has_inherited_tables( :table );
+
+**Parameters**
+
+`:schema`
+: Name of a schema in which to search for the table that has children.
+
+`:table`
+: Name of the table that must have children.
+
+`:description`
+: A description of the test.
+
+This function checks that the specified table has other tables that inherit from
+it. If you find that the function call confuses the table name for a
+description, cast the table to the `NAME` type:
+
+    SELECT has_inherited_tables('myschema', 'sometable'::NAME);
+
+### `hasnt_inherited_tables()`
+
+    SELECT hasnt_inherited_tables( :schema, :table, :description );
+    SELECT hasnt_inherited_tables( :schema, :table );
+    SELECT hasnt_inherited_tables( :table, :description );
+    SELECT hasnt_inherited_tables( :table );
+
+**Parameters**
+
+`:schema`
+: Name of a schema in which to search for the table that must not have children.
+
+`:table`
+: Name of the table that must not have children.
+
+`:description`
+: A description of the test.
+
+This function checks that the specified table has no tables inheriting from it.
+It is the opposite of the function `has_inherited_tables()`. If you find that
+the function call confuses the table name for a description, cast the table to
+the `NAME` type:
+
+    SELECT hasnt_inherited_tables('myschema', 'sometable'::NAME);
+
+### `is_ancestor_of()`
+
+    SELECT is_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :depth, :description );
+    SELECT is_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :depth );
+    SELECT is_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :description );
+    SELECT is_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table );
+    SELECT is_ancestor_of( :ancestor_table, :descendent_table, :depth, :description );
+    SELECT is_ancestor_of( :ancestor_table, :descendent_table, :depth );
+    SELECT is_ancestor_of( :ancestor_table, :descendent_table, :description );
+    SELECT is_ancestor_of( :ancestor_table, :descendent_table );
+
+**Parameters**
+
+`:ancestor_schema`
+: Name of the schema in which the ancestor table must be found.
+
+`:ancestor_table`
+: Name of the ancestor table.
+
+`:descendent_schema`
+: Name of the schema in which the descendent table must be found.
+
+`:descendent_table`
+: Name of the descendent table.
+
+`:depth`
+: The inheritance distance between the two tables.
+
+`:description`
+: Description of the test.
+
+This function checks if the table marked as "ancestor" is effectively a table
+from which the "descendent" table inherits --- that there is an inheritance
+chain between the two tables. The optional depth argument specifies the length
+of the inheritance chain between the tables; if not specified, the inheritance
+distance may be of any length.  If the `:description` is omitted, a reasonable
+substitute will be created.
+
+ If you find that the function call seems to be getting confused, cast the
+ sequence to the `NAME` type:
+
+    SELECT is_ancestor_of('myschema', 'ancestor', 'myschema', 'descendent'::NAME);
+
+### `isnt_ancestor_of()`
+
+    SELECT isnt_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :depth, :description );
+    SELECT isnt_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :depth );
+    SELECT isnt_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :description );
+    SELECT isnt_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table );
+    SELECT isnt_ancestor_of( :ancestor_table, :descendent_table, :depth, :description );
+    SELECT isnt_ancestor_of( :ancestor_table, :descendent_table, :depth );
+    SELECT isnt_ancestor_of( :ancestor_table, :descendent_table, :description );
+    SELECT isnt_ancestor_of( :ancestor_table, :descendent_table );
+
+**Parameters**
+
+`:ancestor_schema`
+: Name of the schema in which the ancestor table must be found.
+
+`:ancestor_table`
+: Name of the ancestor table.
+
+`:descendent_schema`
+: Name of the schema in which the descendent table must be found.
+
+`:descendent_table`
+: Name of the descendent table.
+
+`:depth`
+: The inheritance distance between the two tables.
+
+`:description`
+: Description of the test.
+
+This function ensures that the table marked as "ancestor" is not a table from
+which "descendent" inherits --- that there is no inheritance chain between the
+two tables. If the optional depth argument is passed, the test enbsures only
+that the two tablesa are not related at that distance; they still might be an
+inheritance relationship between them. If the `:description` is omitted, a
+reasonable substitute will be created.
+
+ If you find that the function call seems to be getting confused, cast the
+ sequence to the `NAME` type:
+
+    SELECT isnt_ancestor_of('myschema', 'ancestor', 'myschema', 'descendent'::NAME);
+
+### `is_descendent_of()`
+
+    SELECT is_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :depth, :description );
+    SELECT is_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :depth );
+    SELECT is_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :description );
+    SELECT is_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table );
+    SELECT is_descendent_of( :descendent_table,  :ancestor_table, :depth, :description );
+    SELECT is_descendent_of( :descendent_table,  :ancestor_table, :depth );
+    SELECT is_descendent_of( :descendent_table,  :ancestor_table, :description );
+    SELECT is_descendent_of( :descendent_table,  :ancestor_table );
+
+**Parameters**
+
+`:descendent_schema`
+: Name of the schema in which the descendent table must be found.
+
+`:descendent_table`
+: Name of the descendent table.
+
+`:ancestor_schema`
+: Name of the schema in which the ancestor table must be found.
+
+`:ancestor_table`
+: Name of the ancestor table.
+
+`:depth`
+: The inheritance distance between the two tables.
+
+`:description`
+: Description of the test.
+
+This function provide exactly the same functionality as `is_ancestor_of()`, but
+with the ancestor and descendent arguments swapped.
+
+### `isnt_descendent_of()`
+
+    SELECT isnt_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :depth, :description );
+    SELECT isnt_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :depth );
+    SELECT isnt_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :description );
+    SELECT isnt_descendent_of( :descendent_table,  :ancestor_table, :depth, :description );
+    SELECT isnt_descendent_of( :descendent_table,  :ancestor_table, :depth );
+    SELECT isnt_descendent_of( :descendent_table,  :ancestor_table, :description );
+    SELECT isnt_descendent_of( :descendent_table,  :ancestor_table );
+
+**Parameters**
+
+`:ancestor_schema`
+: Name of the schema in which the ancestor table must be found.
+
+`:ancestor_table`
+: Name of the ancestor table.
+
+`:descendent_schema`
+: Name of the schema in which the descendent table must be found.
+
+`:descendent_table`
+: Name of the descendent table.
+
+`:depth`
+: The inheritance distance between the two tables.
+
+`:description`
+: Description of the test.
+
+This function provide exactly the same functionality as `isnt_ancestor_of()`,
+but with the ancestor and descendent arguments swapped.
 
 ### `has_sequence()` ###
 
@@ -3192,12 +3450,12 @@ enum does *not* exist.
     SELECT has_index( :schema, :table, :index, :columns );
     SELECT has_index( :schema, :table, :index, :column, :description );
     SELECT has_index( :schema, :table, :index, :column );
-    SELECT has_index( :table,  :index, :columns, :description );
-    SELECT has_index( :table,  :index, :columns, :description );
-    SELECT has_index( :table,  :index, :column, :description );
-    SELECT has_index( :schema, :table, :index, :column );
-    SELECT has_index( :table,  :index, :column );
+    SELECT has_index( :schema, :table, :index, :description );
     SELECT has_index( :schema, :table, :index );
+    SELECT has_index( :table,  :index, :columns, :description );
+    SELECT has_index( :table,  :index, :columns );
+    SELECT has_index( :table,  :index, :column, :description );
+    SELECT has_index( :table,  :index, :column );
     SELECT has_index( :table,  :index, :description );
     SELECT has_index( :table,  :index );
 
@@ -3216,12 +3474,12 @@ enum does *not* exist.
 : Array of the columns and/or expressions in the index.
 
 `:column`
-: Idexed column name or expression.
+: Indexed column name or expression.
 
 `:description`
 : A short description of the test.
 
-Checks for the existence of an index associated with the named table. The
+Checks for the existence of a named index associated with the named table. The
 `:schema` argument is optional, as is the column name or names or expression,
 and the description. The columns argument may be a string naming one column or
 expression, or an array of column names and/or expressions. For expressions,
@@ -3393,7 +3651,7 @@ rule does *not* exist.
 **Parameters**
 
 `:schema`
-: Name of a schema in which to not find the function.
+: Name of a schema in which to find the function.
 
 `:function`
 : Name of a function.
@@ -3831,6 +4089,54 @@ omitted, it will default to "Procedural language `:language` should exist".
 The inverse of `has_language()`, this function tests for the *absence* of a
 procedural language.
 
+### `has_extension()` ###
+
+    SELECT has_extension( :schema, :extension, :description );
+    SELECT has_extension( :schema, :extension );
+    SELECT has_extension( :extension, :description );
+    SELECT has_extension( :extension );
+
+**Parameters**
+
+`:schema`
+: Schema in which the extension's objects were installed.
+
+`:extension`
+: Name of an extension.
+
+`:description`
+: A short description of the test.
+
+This function tests whether or not an extension exists in the database. The
+first argument is the schema in which the extension objects were installed, the
+second the extension name, and the third the test description. If the schema is
+omitted, the may be associated with any schema or no schema. If the test
+description is omitted, it will be set to "Extension `:extension` should
+exist". Example:
+
+    SELECT has_extension('public', 'pgtap');
+
+### `hasnt_extension()` ###
+
+    SELECT hasnt_extension( :schema, :extension, :description );
+    SELECT hasnt_extension( :schema, :extension );
+    SELECT hasnt_extension( :extension, :description );
+    SELECT hasnt_extension( :extension );
+
+**Parameters**
+
+`:schema`
+: Schema in which the extension's objects would be installed.
+
+`:extension`
+: Name of an extension.
+
+`:description`
+: A short description of the test.
+
+This function is the inverse of `has_extension()`. The test passes if the
+specified extension does *not* exist.
+
 Table For One
 -------------
 
@@ -3861,10 +4167,10 @@ So we have the assertions to validate 'em.
 `:description`
 : A short description of the test.
 
-Tests whether or not a column exists in a given table, view, materialized view or composite
-type. The first argument is the schema name, the second the table name, the
-third the column name, and the fourth is the test description. If the schema
-is omitted, the table must be visible in the search path. If the test
+Tests whether or not a column exists in a given table, view, materialized view
+or composite type. The first argument is the schema name, the second the table
+name, the third the column name, and the fourth is the test description. If the
+schema is omitted, the table must be visible in the search path. If the test
 description is omitted, it will be set to "Column `:table.:column` should
 exist".
 
@@ -3889,12 +4195,13 @@ exist".
 : A short description of the test.
 
 This function is the inverse of `has_column()`. The test passes if the
-specified column does *not* exist in the specified table, view, materialized view or composite
-type.
+specified column does *not* exist in the specified table, view, materialized
+view or composite type.
 
 ### `col_not_null()` ###
 
     SELECT col_not_null( :schema, :table, :column, :description );
+    SELECT col_not_null( :schema, :table, :column );
     SELECT col_not_null( :table, :column, :description );
     SELECT col_not_null( :table, :column );
 
@@ -3924,6 +4231,7 @@ first, eh?
 ### `col_is_null()` ###
 
     SELECT col_is_null( :schema, :table, :column, :description );
+    SELECT col_is_null( :schema, :table, :column );
     SELECT col_is_null( :table, :column, :description );
     SELECT col_is_null( :table, :column );
 
@@ -4039,7 +4347,7 @@ description.
 If the table schema is omitted, the table must be visible in the search path.
 If the type schema is omitted, it must be visible in the search path;
 otherwise, the diagnostics will report the schema it's actually in. The schema
-can optinally be included in the `:type` argument, e.g., `'contrib.citext`.
+can optionally be included in the `:type` argument, e.g., `'contrib.citext`.
 
 If the test description is omitted, it will be set to "Column
 `:schema.:table.:column` should be type `:schema.:type`". Note that this test
@@ -4115,6 +4423,29 @@ You can also test for functional defaults. Just specify the function call as a
 string:
 
     SELECT col_default_is( 'user', 'created_at', 'now()' );
+
+But beware that the representation of special SQL syntax functions changed
+in PostgreSQL 10. Where previously a default of `CURRENT_USER` and friends
+used to be represented as functions:
+
+    SELECT col_default_is( 'widgets', 'created_by', '"current_user"()' );
+
+As of PostgreSQL 10, they comply with the SQL spec to appear in uppercase
+and without trailining parentheses:
+
+    SELECT col_default_is( 'widgets', 'created_by', 'CURRENT_USER' );
+
+If you need to support both variants, use `pg_version_num()` to decide
+which to use:
+
+    SELECT col_default_is(
+        'widgets', 'created_by',
+        CASE WHEN pg_version_num() >= 100000 THEN 'CURRENT_USER ELSE '"current_user"()' END
+    );
+
+See the note in the
+[System Information Functions](https://www.postgresql.org/docs/current/functions-info.html)
+documentation for a complete list.
 
 If the test fails, it will output useful diagnostics. For example, this test:
 
@@ -4623,6 +4954,83 @@ Tests whether an index is unique.
 
 Tests whether an index is on a primary key.
 
+### `is_partitioned()` ###
+
+    SELECT is_partitioned( :schema, :table, :description );
+    SELECT is_partitioned( :schema, :table );
+    SELECT is_partitioned( :table, :description);
+    SELECT is_partitioned( :table );
+
+**Parameters**
+
+`:schema`
+: Schema in which to find the partitioned table.
+
+`:table`
+: Name of a partitioned table.
+
+`:description`
+: A short description of the test.
+
+Tests whether a table is partitioned. The first argument is the schema name,
+the second the table name, the the third is the test description. If the schema
+is omitted, the table must be visible in the search path. If the test
+description is omitted, it will be set to "Table `:table` should be
+partitioned". Note that this test will fail if the table in question does not
+exist.
+
+### `isnt_partitioned()` ###
+
+    SELECT isnt_partitioned( :schema, :table, :description );
+    SELECT isnt_partitioned( :schema, :table );
+    SELECT isnt_partitioned( :table, :description);
+    SELECT isnt_partitioned( :table );
+
+**Parameters**
+
+`:schema`
+: Schema in which to find the table.
+
+`:table`
+: Name of a table.
+
+`:description`
+: A short description of the test.
+
+This function is the inverse of `is_partitioned()`. The test passes if the
+specified table is *not* partitioned, or if it does not exist.
+
+### `is_partition_of()` ###
+
+    SELECT is_parent( :child_schema, :child, :parent_schema, :parent_table, :description );
+    SELECT is_parent( :child_schema, :child, :parent_schema, :parent_table );
+    SELECT is_parent( :child, :parent_table, :description );
+    SELECT is_parent( :child, :parent_table );
+
+**Parameters**
+
+`:child_schema`
+: Schema in which to find the partition table.
+
+`:child`
+: Name of a partition table.
+
+`:parent_schema`
+: Schema in which to find the partitioned table.
+
+`:parent_table`
+: Name of a partitioned table.
+
+`:description`
+: A short description of the test.
+
+Tests that one table is a partition of another table. The partition (or child)
+table is specified first, the partitioned (or parent) table second. Without the
+schema parameters, both tables must be visible in the search path. If the
+test description is omitted, it will be set to "Table `:child_table` should be
+a partition of `:parent_table`". Note that this test will fail if either table
+does not exist.
+
 ### `is_clustered()` ###
 
     SELECT is_clustered( :schema, :table, :index, :description );
@@ -4648,6 +5056,39 @@ Tests whether a table is clustered on the given index. A table is clustered on
 an index when the SQL command `CLUSTER TABLE INDEXNAME` has been executed.
 Clustering reorganizes the table tuples so that they are stored on disk in the
 order defined by the index.
+
+### `is_indexed()` ###
+
+    SELECT is_indexed( :schema, :table, :columns, :description );
+    SELECT is_indexed( :schema, :table, :columns );
+    SELECT is_indexed( :table, :columns, :description );
+    SELECT is_indexed( :table, :columns );
+    SELECT is_indexed( :schema, :table, :column, :description );
+    SELECT is_indexed( :schema, :table, :column );
+    SELECT is_indexed( :table, :column, :description );
+    SELECT is_indexed( :table, :column );
+
+**Parameters**
+
+`:schema`
+: Schema in which to find the table.
+
+`:table`
+: Name of a table containing the index.
+
+`:columns`
+: Array of the columns and/or expressions in the index.
+
+`:column`
+: Indexed column name or expression.
+
+`:description`
+: A short description of the test.
+
+Checks that the specified columns or expressions are contained in a single
+index on the named table. Effectively like `has_index()` except that it
+doesn't require an index name and does require one or more column names or
+expressions in the defined for the index.
 
 ### `index_is_type()` ###
 
@@ -4723,7 +5164,7 @@ defined in `:schema` are not exactly the functions defined in `:functions`.
 If `:schema` is omitted, then `can()` will look for functions defined in
 schemas defined in the search path. No matter how many functions are listed in
 `:functions`, a single call to `can()` counts as one test. If you want
-otherwise, call `can()` once for each function -- or better yet, use
+otherwise, call `can()` once for each function --- or better yet, use
 `has_function()`. Example:
 
     SELECT can( 'pg_catalog', ARRAY['upper', 'lower'] );
@@ -4812,7 +5253,7 @@ But then you check with `has_function()` first, right?
 `:args`
 : Array of data types for the function arguments.
 
-`:Type`
+`:type`
 : Return value data type.
 
 `:description`
@@ -4896,6 +5337,42 @@ If the function does not exist, a handy diagnostic message will let you know:
 
 But then you check with `has_function()` first, right?
 
+### `isnt_definer()` ###
+
+    SELECT isnt_definer( :schema, :function, :args, :description );
+    SELECT isnt_definer( :schema, :function, :args );
+    SELECT isnt_definer( :schema, :function, :description );
+    SELECT isnt_definer( :schema, :function );
+    SELECT isnt_definer( :function, :args, :description );
+    SELECT isnt_definer( :function, :args );
+    SELECT isnt_definer( :function, :description );
+    SELECT isnt_definer( :function );
+
+**Parameters**
+
+`:schema`
+: Schema in which to find the function.
+
+`:function`
+: Function name.
+
+`:args`
+: Array of data types for the function arguments.
+
+`:description`
+: A short description of the test.
+
+
+This function is the inverse of `is_definer()`. The test passes if the specified
+function is not a security definer.
+
+If the function does not exist, a handy diagnostic message will let you know:
+
+    # Failed test 290: "Function nasty() should not be security definer"
+    #     Function nasty() does not exist
+
+But then you check with `has_function()` first, right?
+
 ### `is_strict()` ###
 
     SELECT is_strict( :schema, :function, :args, :description );
@@ -4971,7 +5448,7 @@ function is not strict.
 
 If the function does not exist, a handy diagnostic message will let you know:
 
-    # Failed test 290: "Function nasty() should be strict"
+    # Failed test 290: "Function nasty() should be an aggregate function"
     #     Function nasty() does not exist
 
 But then you check with `has_function()` first, right?
@@ -5016,7 +5493,42 @@ Examples:
 
 If the function does not exist, a handy diagnostic message will let you know:
 
-    # Failed test 290: "Function nasty() should be strict"
+    # Failed test 290: "Function nasty() should be an aggregate function"
+    #     Function nasty() does not exist
+
+But then you check with `has_function()` first, right?
+
+### `isnt_aggregate()` ###
+
+    SELECT isnt_aggregate( :schema, :function, :args, :description );
+    SELECT isnt_aggregate( :schema, :function, :args );
+    SELECT isnt_aggregate( :schema, :function, :description );
+    SELECT isnt_aggregate( :schema, :function );
+    SELECT isnt_aggregate( :function, :args, :description );
+    SELECT isnt_aggregate( :function, :args );
+    SELECT isnt_aggregate( :function, :description );
+    SELECT isnt_aggregate( :function );
+
+**Parameters**
+
+`:schema`
+: Schema in which to find the function.
+
+`:function`
+: Function name.
+
+`:args`
+: Array of data types for the function arguments.
+
+`:description`
+: A short description of the test.
+
+This function is the inverse of `is_aggregate()`. The test passes if the specified
+function is not an aggregate function.
+
+If the function does not exist, a handy diagnostic message will let you know:
+
+    # Failed test 290: "Function nasty() should not be an aggregate function"
     #     Function nasty() does not exist
 
 But then you check with `has_function()` first, right?
@@ -5265,7 +5777,7 @@ diagnostics that tell you so:
 
 The inverse of `domain_type_is()`, this function tests that a domain does
 *not* extend a particular data type. For example, a US postal code domain
-should probably extned the `text` type, not `integer`, since leading 0s are
+should probably extend the `text` type, not `integer`, since leading 0s are
 valid and required. Example:
 
     SELECT domain_type_isnt(
@@ -5613,9 +6125,10 @@ the diagnostics will look something like:
 `:description`
 : A short description of the test.
 
-Tests the ownership of a relation. Relations are tables, views, materialized views, seqences,
-composite types, foreign tables, and toast tables. If the `:description`
-argument is omitted, an appropriate description will be created. Examples:
+Tests the ownership of a relation. Relations are tables, views, materialized
+views, sequences, composite types, foreign tables, and toast tables. If the
+`:description` argument is omitted, an appropriate description will be created.
+Examples:
 
     SELECT relation_owner_is(
         'public', 'mytable', 'someuser',
@@ -5749,24 +6262,24 @@ diagnostics will look something like:
 `:description`
 : A short description of the test.
 
-Tests the ownership of a materialized view. If the `:description` argument is omitted, an
-appropriate description will be created. Examples:
+Tests the ownership of a materialized view. If the `:description` argument is
+omitted, an appropriate description will be created. Examples:
 
     SELECT view_owner_is(
-        'public', 'mymaterializedview', 'someuser',
-        'mymaterializedview should be owned by someuser'
+        'public', 'my_matview', 'someuser',
+        'my_matview should be owned by someuser'
     );
     SELECT materialized_view_owner_is( 'widgets', current_user );
 
-In the event that the test fails because the materialized view in question does not
-actually exist or is not visible, you will see an appropriate diagnostic such
-as:
+In the event that the test fails because the materialized view in question does
+not actually exist or is not visible, you will see an appropriate diagnostic
+such as:
 
     # Failed test 16: "Materialized view foo should be owned by www"
     #     Materialized view foo does not exist
 
-If the test fails because the materialized view is not owned by the specified user, the
-diagnostics will look something like:
+If the test fails because the materialized view is not owned by the specified
+user, the diagnostics will look something like:
 
     # Failed test 17: "Materialized view bar should be owned by root"
     #         have: postgres
@@ -6122,8 +6635,8 @@ user, the diagnostics will look something like:
     #         have: postgres
     #         want: root
 
-Prvileged Access
-----------------
+Privileged Access
+-----------------
 
 So we know who owns the objects. But what about other roles? Can they access
 database objects? Let's find out!
@@ -6153,8 +6666,6 @@ database privileges are:
 * CREATE
 * CONNECT
 * TEMPORARY
-
-Although CONNECT is not available before PostgreSQL 8.2.
 
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
@@ -6351,7 +6862,7 @@ table privileges are:
 * TRUNCATE
 * UPDATE
 
-Note that the privilege RULE is not available aftter PostgreSQL 8.1, and that
+Note that the privilege RULE is not available after PostgreSQL 8.1, and that
 TRIGGER was added in 8.4.
 
 If the `:description` argument is omitted, an appropriate description will be
@@ -6425,7 +6936,7 @@ sequence privileges are:
 * USAGE
 
 Note that sequence privileges were added in PostgreSQL 9.0, so this function
-will likley throw an exception on earlier versions.
+will likely throw an exception on earlier versions.
 
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
@@ -6498,7 +7009,7 @@ The available column privileges are:
 * UPDATE
 
 Note that column privileges were added in PostgreSQL 8.4, so this function
-will likley throw an exception on earlier versions.
+will likely throw an exception on earlier versions.
 
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
@@ -6574,7 +7085,7 @@ available column privileges are:
 * UPDATE
 
 Note that column privileges were added in PostgreSQL 8.4, so this function
-will likley throw an exception on earlier versions.
+will likely throw an exception on earlier versions.
 
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
@@ -6773,7 +7284,7 @@ available function privileges are:
 * USAGE
 
 Note that foreign data wrapper privileges were added in PostgreSQL 8.4, so
-this function will likley throw an exception on earlier versions.
+this function will likely throw an exception on earlier versions.
 
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
@@ -6792,13 +7303,13 @@ will list the extra permissions, like so:
     #           USAGE
 
 Likewise if the role is not granted some of the specified permissions on the
-fdw:
+FDW:
 
     # Failed test 15: "Role kurk should be granted USAGE on odbc"
     #     Missing privileges:
     #           USAGE
 
-In the event that the test fails because the fdw in question does not
+In the event that the test fails because the FDW in question does not
 actually exist or is not visible, you will see an appropriate diagnostic such
 as:
 
@@ -6836,7 +7347,7 @@ function privileges are:
 * USAGE
 
 Note that server privileges were added in PostgreSQL 8.4, so this function
-will likley throw an exception on earlier versions.
+will likely throw an exception on earlier versions.
 
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
@@ -6873,6 +7384,148 @@ something like:
 
     # Failed test 17: "Role slim should be granted USAGE on oltp"
     #     Role slim does not exist
+
+### `policies_are()` ###
+
+    SELECT policies_are( :schema, :table, :policies, :description );
+    SELECT policies_are( :schema, :table, :policies );
+    SELECT policies_are( :table,  :policies, :description );
+    SELECT policies_are( :table,  :policies );
+
+**Parameters**
+
+`:schema`
+: Name of a schema in which to find the `:table`.
+
+`:table`
+: Name of a table in which to find policies.
+
+`:policies`
+: An array of policy names.
+
+`:description`
+: A short description of the test.
+
+This function tests that all of the policies on the named table are only the
+policies that *should* be on that table. If the `:schema` argument is omitted,
+the table must be visible in the search path, excluding `pg_catalog` and
+`information_schema`. If the description is omitted, a generally useful
+default description will be generated. Example:
+
+    SELECT policies_are(
+        'myschema',
+        'atable',
+        ARRAY[ 'atable_policy_one', 'atable_policy_two' ]
+    );
+
+In the event of a failure, you'll see diagnostics listing the extra and/or
+missing policies, like so:
+
+    # Failed test 13: "Table myschema.atable should have the correct policies"
+    #     Extra policies:
+    #         policy_for_atable
+    #     Missing policies:
+    #         atable_policy_two
+
+### `policy_roles_are()` ###
+
+    SELECT policy_roles_are( :schema, :table, :policy, :roles, :description );
+    SELECT policy_roles_are( :schema, :table, :policy, :roles );
+    SELECT policy_roles_are( :table, :policy,  :roles, :description );
+    SELECT policy_roles_are( :table, :policy,  :roles );
+
+**Parameters**
+
+`:schema`
+: Name of a schema in which to find the `:table`.
+
+`:table`
+: Name of a table to which `:policy` applies.
+
+`:policy`
+: Name of a policy.
+
+`:roles`
+: An array of role names to which `:policy` is applied.
+
+`:description`
+: A short description of the test.
+
+This function tests whether the roles to which policy applies are only the
+roles that *should* be on that policy. If the `:schema` argument is omitted,
+the table must be visible in the search path, excluding `pg_catalog` and
+`information_schema`. If the description is omitted, a generally useful
+default description will be generated. Example:
+
+    SELECT policy_roles_are(
+        'myschema',
+        'atable',
+        'apolicy'
+        ARRAY[ 'atable_apolicy_role_one', 'atable_apolicy_role_two' ]
+    );
+
+In the event of a failure, you'll see diagnostics listing the extra and/or
+missing policy roles, like so:
+
+    # Failed test 13: "Policy apolicy for table myschema.atable should have the correct roles"
+    #     Extra policy roles:
+    #         arole_one
+    #     Missing policy roles:
+    #         atable_apolicy_role_one
+
+### `policy_cmd_is()` ###
+
+    SELECT policy_cmd_is( :schema, :table, :policy, :command, :description );
+    SELECT policy_cmd_is( :schema, :table, :policy, :command );
+    SELECT policy_cmd_is( :table, :policy,  :command, :description );
+    SELECT policy_cmd_is( :table, :policy,  :command );
+
+**Parameters**
+
+`:schema`
+: Name of a schema in which to find the `:table`.
+
+`:table`
+: Name of a table to which `:policy` applies.
+
+`:policy`
+: Name of a policy.
+
+`:command`
+: The command type to which the `:policy` is applied.
+
+`:description`
+: A short description of the test.
+
+This function tests whether the command to which policy applies is same as
+command that is given in function arguments.
+
+The available policy `:command` types are:
+
+* SELECT
+* INSERT
+* UPDATE
+* DELETE
+* ALL
+
+If the `:schema` argument is omitted, the table must be visible in the search
+path, excluding `pg_catalog` and `information_schema`. If the `:description` is
+omitted (but `:schema` is present, be sure to cast `:policy` to name), a
+generally useful default description will be generated. Example:
+
+    SELECT policy_cmd_is(
+        'myschema',
+        'atable',
+        'apolicy'::NAME
+        'all'
+    );
+
+In the event of a failure, you'll see diagnostics listing the extra and/or
+missing policy command, like so:
+
+    # Failed test 13: "Policy apolicy for table myschema.atable should apply to ALL command"
+    #         have: INSERT
+    #         want: ALL
 
 No Test for the Wicked
 ======================
@@ -6929,7 +7582,7 @@ Conditional Tests
 
 Sometimes running a test under certain conditions will cause the test script
 or function to die. A certain function or feature isn't implemented (such as
-`pg_sleep()` prior to PostgreSQL 8.2), some resource isn't available (like a
+`sha256()` prior to PostgreSQL 11), some resource isn't available (like a
 procedural language), or a contrib module isn't available. In these cases it's
 necessary to skip tests, or declare that they are supposed to fail but will
 work in the future (a todo test).
@@ -7111,7 +7764,7 @@ pgTAP was compiled. This function is useful for determining whether or not
 certain tests should be run or skipped (using `skip()`) depending on the
 version of PostgreSQL. For example:
 
-    SELECT CASE WHEN pg_version_num() < 80100
+    SELECT CASE WHEN pg_version_num() < 80300
         THEN skip('has_enum() not supported before 8.3' )
         ELSE has_enum( 'bug_status', 'mydesc' )
         END;
@@ -7119,14 +7772,7 @@ version of PostgreSQL. For example:
 The revision level is in the tens position, the minor version in the thousands
 position, and the major version in the ten thousands position and above
 (assuming PostgreSQL 10 is ever released, it will be in the hundred thousands
-position). This value is the same as the `server_version_num` setting
-available in PostgreSQL 8.2 and higher, but supported by this function back to
-PostgreSQL 8.1:
-
-    try=% select current_setting( 'server_version_num'), pg_version_num();
-     current_setting | pg_version_num
-    -----------------+----------------
-     80304           |          80304
+position). This value is the same as the `server_version_num` setting.
 
 ### `os_name()` ###
 
@@ -7187,7 +7833,7 @@ On PostgreSQL 8.4 and higher, it can take any number of arguments. Lower than
 `:operoid`
 : Operator OID.
 
-Similar to casting an operator OID to regoperator, only the schema is not
+Similar to casting an operator OID to `regoperator`, only the schema is not
 included in the display. For example:
 
     SELECT display_oper(oprname, oid ) FROM pg_operator;
@@ -7340,8 +7986,7 @@ failing tests.
 If you'd like pgTAP to plan, run all of your test functions, and finish, all
 in one fell swoop, use `runtests()`. This most closely emulates the xUnit
 testing environment, similar to the functionality of
-[PGUnit](http://en.dklab.ru/lib/dklab_pgunit/) and
-[Epic](http://www.epictest.org/). Example:
+[PGUnit](http://en.dklab.ru/lib/dklab_pgunit/). Example:
 
     SELECT * FROM runtests( 'testschema', '^test' );
 
@@ -7390,6 +8035,37 @@ back after each test function, and at the end of testing, leaving your
 database in largely the same condition as it was in when you started it (the
 one exception I'm aware of being sequences, which are not rolled back to the
 value used at the beginning of a rolled-back transaction).
+
+Secrets of the pgTAP Mavens
+===========================
+
+Over the years, a number of techniques have evolved to make all of our pgTAP
+testing lives easier. Here are some of them.
+
+Relational-style Loops
+----------------------
+
+Need to test a bunch of objects and find yourself looking for some kind of
+`for` loop to [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) off
+with? SQL doesn't have one, of course, but that's because it doesn't need one:
+the whole language is built around doing things to a bunch of rows. So take
+advantage of it: build relations with the
+[`VALUES`](https://www.postgresql.org/docs/current/static/sql-values.html)
+command! For example, to make sure you have a table in a defined list of
+schemas, try something like this:
+
+   SELECT has_table(sch, 'widgets', format('Has %I.widgets', sch))
+   FROM (VALUES('amazon'), ('starbucks'), ('boeing')) F(sch);
+
+Note the use of the
+[`format` function](https://www.postgresql.org/docs/current/static/functions-string.html#functions-string-format)
+to make a nice test description, too. Here's a more complicated example that
+uses a cross join to test that various columns are `NOT NULL` in a specific
+table in a bunch of schemas:
+
+    SELECT col_not_null(sch, 'table1', col)
+    FROM (VALUES('schema1'), ('schema1')) AS stmp (sch)
+    CROSS JOIN (VALUES('col_pk'), ('col2'), ('col3')) AS ctmp (col);
 
 Compose Yourself
 ================
@@ -7606,10 +8282,20 @@ instead:
 To see the specifics for each version of PostgreSQL, consult the files in the
 `compat/` directory in the pgTAP distribution.
 
-9.3 and Up
-----------
+10 and Up
+---------
 
 No changes. Everything should just work.
+
+9.6 and Down
+------------
+* The partition-testing functions are not available, because partitions were
+  not introduced until 10.
+
+9.4 and Down
+------------
+* lives_ok() and throws_ok() will not trap ASSERT_FAILURE, since asserts do not
+  exist prior to 9.5.
 
 9.2 and Down
 ------------
@@ -7654,32 +8340,18 @@ No changes. Everything should just work.
 * These permission-testing functions don't work, because one cannot grant
   permissions on the relevant objects until 8.4:
 
-  + `has_any_column_privilege()`
-  + `has_column_privilege()`
-  + `has_foreign_data_wrapper_privilege()`
-  + `has_server_privilege()`
+    + `has_any_column_privilege()`
+    + `has_column_privilege()`
+    + `has_foreign_data_wrapper_privilege()`
+    + `has_server_privilege()`
 
-8.2 and Down
-------------
+* These inheritance-testing functions are not available, because internally
+  the use a recursive common table expression query not supported before 8.4:
 
-* A patch is applied that removes `enum_has_labels()` and
-  `language_owner_is()`, since neither are testable before 8.3.
-
-* the `diag(anyelement)` function and `col_has_default()` cannot be used to
-  test for columns specified with `DEFAULT NULL` (even though that's the
-  implied default default).
-
-* The `has_enums()` function won't work.
-
-* A number of assignments casts are added to increase compatibility. The casts
-  are:
-
-  + `boolean` to `text`
-  + `text[]` to `text`
-  + `name[]` to `text`
-  + `regtype` to `text`
-
-* Two operators, `=` and `<>`, are added to compare `name[]` values.
+    + `is_ancestor_of()`
+    + `isnt_ancestor_of()`
+    + `is_descendent_of()`
+    + `isnt_descendent_of()`
 
 Metadata
 ========
@@ -7695,7 +8367,7 @@ Mail List
 ---------
 
 Join the pgTAP community by subscribing to the [pgtap-users mail
-list](http://pgfoundry.org/mailman/listinfo/pgtap-users). All questions,
+list](https://groups.google.com/forum/#!forum/pgtap-users). All questions,
 comments, suggestions, and bug reports are welcomed there.
 
 Author
@@ -7712,7 +8384,7 @@ Credits
 Copyright and License
 ---------------------
 
-Copyright (c) 2008-2016 David E. Wheeler. Some rights reserved.
+Copyright (c) 2008-2018 David E. Wheeler. Some rights reserved.
 
 Permission to use, copy, modify, and distribute this software and its
 documentation for any purpose, without fee, and without a written agreement is

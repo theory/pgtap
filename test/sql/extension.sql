@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(24);
+SELECT plan(72);
 --SELECT * FROM no_plan();
 
 -- This will be rolled back. :-)
@@ -15,8 +15,9 @@ BEGIN
     IF pg_version_num() >= 90100 THEN
         EXECUTE $E$
             CREATE SCHEMA someschema;
+            CREATE SCHEMA ci_schema;
             CREATE SCHEMA "empty schema";
-            CREATE EXTENSION IF NOT EXISTS citext;
+            CREATE EXTENSION IF NOT EXISTS citext SCHEMA ci_schema;
             CREATE EXTENSION IF NOT EXISTS isn SCHEMA someschema;
             CREATE EXTENSION IF NOT EXISTS ltree SCHEMA someschema;
         $E$;
@@ -38,7 +39,7 @@ BEGIN
         ) AS b LOOP RETURN NEXT tap.b; END LOOP;
 
         FOR tap IN SELECT* FROM check_test(
-            extensions_are( ARRAY['citext', 'isn', 'ltree', 'plpgsql'], 'Got em' ),
+            extensions_are( ARRAY['citext', 'isn', 'ltree', 'plpgsql', 'pgtap'], 'Got em' ),
             true,
             'extensions_are(exts, desc)',
             'Got em',
@@ -46,7 +47,7 @@ BEGIN
         ) AS b LOOP RETURN NEXT tap.b; END LOOP;
 
         FOR tap IN SELECT* FROM check_test(
-            extensions_are( ARRAY['citext', 'isn', 'ltree', 'plpgsql'] ),
+            extensions_are( ARRAY['citext', 'isn', 'ltree', 'plpgsql', 'pgtap'] ),
             true,
             'extensions_are(exts)',
             'Should have the correct extensions',
@@ -54,9 +55,9 @@ BEGIN
         ) AS b LOOP RETURN NEXT tap.b; END LOOP;
 
         FOR tap IN SELECT* FROM check_test(
-            extensions_are( 'public', ARRAY['citext'], 'Got em' ),
+            extensions_are( 'ci_schema', ARRAY['citext'], 'Got em' ),
             true,
-            'extensions_are(public, exts, desc)',
+            'extensions_are(ci_schema, exts, desc)',
             'Got em',
             ''
         ) AS b LOOP RETURN NEXT tap.b; END LOOP;
@@ -83,7 +84,7 @@ BEGIN
         ) AS b LOOP RETURN NEXT tap.b; END LOOP;
 
         FOR tap IN SELECT* FROM check_test(
-            extensions_are( ARRAY['citext', 'isn', 'ltree', 'nonesuch'] ),
+            extensions_are( ARRAY['citext', 'isn', 'ltree', 'pgtap', 'nonesuch'] ),
             false,
             'extensions_are(someexts)',
             'Should have the correct extensions',
@@ -91,6 +92,142 @@ BEGIN
         plpgsql
     Missing extensions:
         nonesuch'
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        /********************************************************************/
+        -- Test has_extension().
+        -- 8 tests
+    
+        FOR tap IN SELECT * FROM check_test(
+            has_extension( 'ci_schema', 'citext', 'desc' ),
+            true,
+            'has_extension( schema, name, desc )',
+            'desc',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            has_extension( 'ci_schema', 'citext'::name ),
+            true,
+            'has_extension( schema, name )',
+            'Extension citext should exist in schema ci_schema',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            has_extension( 'citext'::name, 'desc' ),
+            true,
+            'has_extension( name, desc )',
+            'desc',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            has_extension( 'citext' ),
+            true,
+            'has_extension( name )',
+            'Extension citext should exist',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            has_extension( 'public'::name, '__NON_EXISTS__'::name, 'desc' ),
+            false,
+            'has_extension( schema, name, desc ) fail',
+            'desc',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            has_extension( 'public'::name, '__NON_EXISTS__'::name ),
+            false,
+            'has_extension( schema, name ) fail',
+            'Extension "__NON_EXISTS__" should exist in schema public',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            has_extension( '__NON_EXISTS__'::name, 'desc' ),
+            false,
+            'has_extension( name, desc ) fail',
+            'desc',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            has_extension( '__NON_EXISTS__'::name ),
+            false,
+            'has_extension( name ) fail',
+            'Extension "__NON_EXISTS__" should exist',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        /********************************************************************/
+        -- Test hasnt_extension().
+        -- 8 tests
+    
+        FOR tap IN SELECT * FROM check_test(
+            hasnt_extension( 'public', '__NON_EXISTS__', 'desc' ),
+            true,
+            'hasnt_extension( schema, name, desc )',
+            'desc',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            hasnt_extension( 'public', '__NON_EXISTS__'::name ),
+            true,
+            'hasnt_extension( schema, name )',
+            'Extension "__NON_EXISTS__" should not exist in schema public',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            hasnt_extension( '__NON_EXISTS__'::name, 'desc' ),
+            true,
+            'hasnt_extension( name, desc )',
+            'desc',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            hasnt_extension( '__NON_EXISTS__' ),
+            true,
+            'hasnt_extension( name )',
+            'Extension "__NON_EXISTS__" should not exist',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            hasnt_extension( 'ci_schema', 'citext', 'desc' ),
+            false,
+            'hasnt_extension( schema, name, desc )',
+            'desc',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            hasnt_extension( 'ci_schema', 'citext'::name ),
+            false,
+            'hasnt_extension( schema, name )',
+            'Extension citext should not exist in schema ci_schema',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            hasnt_extension( 'citext', 'desc' ),
+            false,
+            'hasnt_extension( name, desc )',
+            'desc',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            hasnt_extension( 'citext' ),
+            false,
+            'hasnt_extension( name )',
+            'Extension citext should not exist',
+            ''
         ) AS b LOOP RETURN NEXT tap.b; END LOOP;
     ELSE
         FOR tap IN SELECT * FROM check_test(
@@ -128,7 +265,7 @@ BEGIN
         FOR tap IN SELECT * FROM check_test(
             pass('mumble'),
 	        true,
-            'extensions_are(public, exts, desc)',
+            'extensions_are(ci_schema, exts, desc)',
             'mumble',
             ''
         ) AS b LOOP RETURN NEXT tap.b; END LOOP;
@@ -156,6 +293,143 @@ BEGIN
             'mumble',
             ''
         ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        /********************************************************************/
+        -- Test has_extension().
+        -- 8 tests
+    
+        FOR tap IN SELECT * FROM check_test(
+            pass('mumble'),
+            true,
+            'has_extension( schema, name, desc )',
+            'mumble',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            pass('mumble'),
+            true,
+            'has_extension( schema, name )',
+            'mumble',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            pass('mumble'),
+            true,
+            'has_extension( name, desc )',
+            'mumble',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            pass('mumble'),
+            true,
+            'has_extension( name )',
+            'mumble',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            fail('mumble'),
+            false,
+            'has_extension( schema, name, desc ) fail',
+            'mumble',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            fail('mumble'),
+            false,
+            'has_extension( schema, name ) fail',
+            'mumble',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            fail('mumble'),
+            false,
+            'has_extension( name, desc ) fail',
+            'mumble',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            fail('mumble'),
+            false,
+            'has_extension( name ) fail',
+            'mumble',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        /********************************************************************/
+        -- Test hasnt_extension().
+        -- 8 tests
+    
+        FOR tap IN SELECT * FROM check_test(
+            pass('mumble'),
+            true,
+            'hasnt_extension( schema, name, desc )',
+            'mumble',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            pass('mumble'),
+            true,
+            'hasnt_extension( schema, name )',
+            'mumble',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            pass('mumble'),
+            true,
+            'hasnt_extension( name, desc )',
+            'mumble',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            pass('mumble'),
+            true,
+            'hasnt_extension( name )',
+            'mumble',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            fail('mumble'),
+            false,
+            'hasnt_extension( schema, name, desc )',
+            'mumble',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            fail('mumble'),
+            false,
+            'hasnt_extension( schema, name )',
+            'mumble',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            fail('mumble'),
+            false,
+            'hasnt_extension( name, desc )',
+            'mumble',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            fail('mumble'),
+            false,
+            'hasnt_extension( name )',
+            'mumble',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+    
     END IF;
     RETURN;
 END;

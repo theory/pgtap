@@ -16,16 +16,19 @@ SELECT is(
 );
 SELECT matches(
     pg_version(),
-    '^[89][.][[:digit:]]{1,2}([.][[:digit:]]{1,2}|devel|(alpha|beta|rc)[[:digit:]]+)$',
+    '(?x)'
+    '(?: ^[89][.][[:digit:]]{1,2}([.][[:digit:]]{1,2}|devel|(alpha|beta|rc)[[:digit:]]+) )'
+    '|'
+    '(?: ^1[[:digit:]] (?: [.] [[:digit:]]{1,2} | devel | (?:alpha|beta|rc)[[:digit:]]+))',
     'pg_version() should work'
 );
 
 SELECT CASE WHEN pg_version_num() < 81000
-    THEN pass( 'pg_version() should return same as "server_version" setting' )
+    THEN pass( 'pg_version_num() should return same as "server_version_num" setting' )
     ELSE is(
         pg_version_num(),
-        current_setting( 'server_version_num')::integer,
-        'pg_version() should return same as "server_version" setting'
+        current_setting('server_version_num')::integer,
+        'pg_version_num() should return same as "server_version_num" setting'
     )
     END;
 
@@ -36,7 +39,7 @@ SELECT is(
 );
 SELECT matches(
     pg_version_num()::text,
-    '^[89][[:digit:]]{4}$',
+    '^[89][[:digit:]]{4}$|^1[[:digit:]]{5}$',
     'pg_version_num() should be correct'
 );
 
@@ -52,9 +55,10 @@ SELECT is(
     'findfincs() should return distinct values'
 );
 
-SELECT matches(
-    pgtap_version()::text,
-    '^0[.][[:digit:]]{2}$',
+SELECT cmp_ok(
+    pgtap_version(),
+    '>=',
+    1.0,
     'pgtap_version() should work'
 );
 
