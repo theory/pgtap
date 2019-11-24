@@ -10,7 +10,7 @@ set -E -e -u -o pipefail
 #
 
 # You can set this to higher levels for more debug output
-export DEBUG=9
+#export DEBUG=9
 #set -x
 
 BASEDIR=`dirname $0`

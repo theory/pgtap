@@ -10,7 +10,7 @@ stderr() {
 }
 
 if [ -n "$MISSING_EXTENSIONS" ]; then
-    if [ -z "$ALLOW_MISSING_EXTENSIONS" ]; then
+    if [ -n "$ALLOW_MISSING_EXTENSIONS" ]; then
         stderr
         stderr '***************************'
         stderr "WARNING: Some mandatory extensions ($MISSING_EXTENSIONS) are not installed, ignoring tests: $EXTENSION_TEST_FILES"
