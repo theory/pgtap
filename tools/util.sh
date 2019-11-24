@@ -74,6 +74,8 @@ debug_ls() {
 
 error() {
   local stack lineno
+	stack=''
+	lineno=''
   while [ "$1" = "-s" -o "$1" = "-n" ]; do
     if [ "$1" = "-n" ]; then
       lineno=$2
