@@ -13,6 +13,12 @@ set -E -e -u -o pipefail
 #export DEBUG=1
 #set -x
 
+BASEDIR=`dirname $0`
+if ! . $BASEDIR/util.sh; then
+  echo "FATAL: error sourcing $BASEDIR/util.sh" 1>&2
+  exit 99
+fi
+
 export UPGRADE_TO=${UPGRADE_TO:-}
 failed=''
 tests_run=0
@@ -29,7 +35,7 @@ get_path() {
 
 # Do NOT use () here; we depend on being able to set failed
 test_cmd() {
-#local status rc
+local status rc
 if [ "$1" == '-s' ]; then
     status="$2"
     shift 2
@@ -44,11 +50,11 @@ echo ###########################################################################
 tests_run=$((tests_run + 1))
 # Use || so as not to trip up -e, and a sub-shell to be safe.
 rc=0
-( "$@" ) || rc=$?
+( cd .. && "$@" ) || rc=$?
 if [ $rc -ne 0 ]; then
     echo
     echo '!!!!!!!!!!!!!!!! FAILURE !!!!!!!!!!!!!!!!'
-    echo "$@" returned $rc
+    echo "cd .. && $@ returned $rc"
     echo '!!!!!!!!!!!!!!!! FAILURE !!!!!!!!!!!!!!!!'
     echo
     failed="$failed '$status'"
