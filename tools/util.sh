@@ -102,7 +102,7 @@ die() {
   shift
   error "$@"
   [ $DEBUG -le 0 ] || stacktrace 1
-  if [ -n "$DIE_EXTRA" ]; then
+  if [ -n "${DIE_EXTRA:-}" ]; then
     local lineno=''
     error
     error $DIE_EXTRA
