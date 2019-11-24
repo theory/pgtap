@@ -74,7 +74,7 @@ fi
 # Ensure test_cmd sets failed properly
 old_FAST_FAIL=$FAST_FAIL
 FAST_FAIL=''
-test_cmd fail > /dev/null 2>&1
+test_cmd fail > /dev/null
 if [ -z "$failed" ]; then
     echo "code error: test_cmd() did not set \$failed"
     exit 91
