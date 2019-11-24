@@ -19,6 +19,9 @@ if ! . $BASEDIR/util.sh; then
   exit 99
 fi
 
+# For sanity sake, ensure that we run from the top level directory
+cd "$BASEDIR"/..
+
 export UPGRADE_TO=${UPGRADE_TO:-}
 failed=''
 tests_run=0
@@ -35,7 +38,7 @@ get_path() {
 
 # Do NOT use () here; we depend on being able to set failed
 test_cmd() {
-local status rc
+local status rc cmd
 if [ "$1" == '-s' ]; then
     status="$2"
     shift 2
@@ -43,18 +46,21 @@ else
     status="$1"
 fi
 
+# NOTE! While this script is under tools/, we expect to be running from the main directory
+cmd="$@"
+
 echo
 echo #############################################################################
-echo "PG-TRAVIS: running $@"
+echo "PG-TRAVIS: running $cmd"
 echo #############################################################################
 tests_run=$((tests_run + 1))
 # Use || so as not to trip up -e, and a sub-shell to be safe.
 rc=0
-( cd .. && "$@" ) || rc=$?
+( $cmd ) || rc=$?
 if [ $rc -ne 0 ]; then
     echo
     echo '!!!!!!!!!!!!!!!! FAILURE !!!!!!!!!!!!!!!!'
-    echo "cd .. && $@ returned $rc"
+    echo "$cmd returned $rc"
     echo '!!!!!!!!!!!!!!!! FAILURE !!!!!!!!!!!!!!!!'
     echo
     failed="$failed '$status'"
