@@ -11,7 +11,7 @@ set -E -e -u -o pipefail
 
 # You can set this to higher levels for more debug output
 export DEBUG=9
-set -x
+#set -x
 
 BASEDIR=`dirname $0`
 if ! . $BASEDIR/util.sh; then
@@ -74,7 +74,7 @@ fi
 # Ensure test_cmd sets failed properly
 old_FAST_FAIL=$FAST_FAIL
 FAST_FAIL=''
-test_cmd fail > /dev/null
+test_cmd false > /dev/null # DO NOT redirect stderr, otherwise it's horrible to debug problems here!
 if [ -z "$failed" ]; then
     echo "code error: test_cmd() did not set \$failed"
     exit 91

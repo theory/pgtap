@@ -73,13 +73,14 @@ debug_ls() {
 }
 
 error() {
+  local stack lineno
   while [ "$1" = "-s" -o "$1" = "-n" ]; do
     if [ "$1" = "-n" ]; then
-      local lineno=$2
+      lineno=$2
       shift 2
     fi
     if [ "$1" = "-s" ]; then
-      local stack=1
+      stack=1
       shift
     fi
   done
@@ -160,3 +161,4 @@ out=$(which $2)
 echo $out
 )
 
+# vi: noexpandtab ts=2 sw=2
