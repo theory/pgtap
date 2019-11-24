@@ -18,9 +18,10 @@ if ! . $BASEDIR/util.sh; then
   echo "FATAL: error sourcing $BASEDIR/util.sh" 1>&2
   exit 99
 fi
+trap err_report ERR
 
 # For sanity sake, ensure that we run from the top level directory
-cd "$BASEDIR"/..
+cd "$BASEDIR"/.. || die 3 "Unable to cd to $BASEDIR/.."
 
 export UPGRADE_TO=${UPGRADE_TO:-}
 failed=''

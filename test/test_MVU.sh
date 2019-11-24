@@ -13,18 +13,11 @@ if ! . $BASEDIR/../tools/util.sh; then
   echo "FATAL: error sourcing $BASEDIR/../tools/util.sh" 1>&2
   exit 99
 fi
+trap err_report ERR
 
 debug 19 "Arguments: $@"
 
 rc=0
-
-# ###########
-# TODO: break these functions into a library shell script so they can be used elsewhere
-
-err_report() {
-  stderr "errexit on line $(caller)" >&2
-}
-trap err_report ERR
 
 
 byte_len() (

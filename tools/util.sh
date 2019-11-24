@@ -147,6 +147,12 @@ stacktrace () {
   ) 1>&2
 }
 
+# This is intended to be used by a trap, ie:
+# trap err_report ERR
+err_report() {
+  stderr "errexit on line $(caller)" >&2
+}
+
 find_at_path() (
 export PATH="$1:$PATH" # Unfortunately need to maintain old PATH to be able to find `which` :(
 out=$(which $2)
