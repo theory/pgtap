@@ -4,7 +4,7 @@ before_install:
   - sudo sh ./apt.postgresql.org.sh
   - sudo rm -vf /etc/apt/sources.list.d/pgdg-source.list
 script:
-  - bash ./pg-travis-test.sh
+  - bash tools/pg-travis-test.sh
 
 env:
   # WARNING! UPGRADE_TO tests pg_upgrade; UDPATE_FROM tests ALTER EXTENSION! Note UPGRADE vs UPDATE!
