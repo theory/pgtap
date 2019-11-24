@@ -26,8 +26,6 @@ export UPGRADE_TO=${UPGRADE_TO:-}
 failed=''
 tests_run=0
 
-sudo apt-get update
-
 get_packages() {
     echo "libtap-parser-sourcehandler-pgtap-perl postgresql-$1 postgresql-server-dev-$1"
 }
@@ -56,7 +54,7 @@ echo ###########################################################################
 tests_run=$((tests_run + 1))
 # Use || so as not to trip up -e, and a sub-shell to be safe.
 rc=0
-( $cmd ) || rc=$?
+( "$cmd" ) || rc=$?
 if [ $rc -ne 0 ]; then
     echo
     echo '!!!!!!!!!!!!!!!! FAILURE !!!!!!!!!!!!!!!!'
@@ -94,10 +92,11 @@ update() {
 
 tests_run_by_target_all=11 # 1 + 5 * 2
 all() {
+    local tests_run_start=$tests_run 
     # the test* targets use pg_prove, which assumes it's making a default psql
     # connection to a database that has pgTap installed, so we need to set that
     # up.
-    test_cmd psql -Ec 'CREATE EXTENSION pgtap'
+    test_cmd -s "all(): psql create extension" psql -Ec 'CREATE EXTENSION pgtap'
 
     # TODO: install software necessary to allow testing 'html' target
     # UPDATE tests_run_by_target_all IF YOU ADD ANY TESTS HERE!
@@ -107,6 +106,8 @@ all() {
         # And then test again
         test_make $t
     done
+    local commands_run=$(($tests_run - $tests_run_start))
+    [ $commands_run -eq $tests_run_by_target_all ] || die 92 "all() expected to run $tests_run_by_target_all but actually ran $commands_run tests"
 }
 
 upgrade() {
@@ -126,6 +127,8 @@ packages="python-setuptools postgresql-common $(get_packages $PGVERSION)"
 if [ -n "$UPGRADE_TO" ]; then
     packages="$packages $(get_packages $UPGRADE_TO)"
 fi
+
+sudo apt-get update
 
 # bug: http://www.postgresql.org/message-id/20130508192711.GA9243@msgid.df7cb.de
 sudo update-alternatives --remove-all postmaster.1.gz
@@ -160,7 +163,7 @@ for t in ${TARGETS:-sanity update upgrade all}; do
 done
 
 # You can use this to check tests that are failing pg_prove
-pg_prove -f --pset tuples_only=1 test/sql/unique.sql test/sql/check.sql || true
+#pg_prove -f --pset tuples_only=1 test/sql/unique.sql test/sql/check.sql || true
 
 if [ $tests_run -eq $total_tests ]; then
     echo Ran $tests_run tests
