@@ -352,14 +352,6 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    has_view( 'foo', '__SDFSDFD__' ),
-    false,
-    'has_view(sch, non-existent view)',
-    'View "foo.__SDFSDFD__" should exist',
-    ''
-);
-
-SELECT * FROM check_test(
     has_view( 'pg_tables', 'yowza' ),
     true,
     'has_view(view, desc)',
@@ -384,7 +376,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    has_view( 'foo', '__SDFSDFD__', 'desc' ),
+    has_view( 'foo', '__SDFSDFD__' ),
     false,
     'has_view(sch, non-existent view, desc)',
     'View "foo.__SDFSDFD__" should not exist',
