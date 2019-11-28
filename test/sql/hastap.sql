@@ -360,6 +360,14 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
+    has_view( 'foo', '__SDFSDFD__' ),
+    false,
+    'has_view(sch, non-existent view)',
+    'desc',
+    ''
+);
+
+SELECT * FROM check_test(
     has_view( 'pg_tables', 'yowza' ),
     true,
     'has_view(view, desc)',
@@ -371,6 +379,14 @@ SELECT * FROM check_test(
     has_view( 'information_schema', 'tables', 'desc' ),
     true,
     'has_view(sch, view, desc)',
+    'desc',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_view( 'information_schema', 'tables' ),
+    true,
+    'has_view(sch, view)',
     'desc',
     ''
 );
@@ -403,6 +419,14 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
+    hasnt_view( 'foo', '__SDFSDFD__' ),
+    true,
+    'hasnt_view(sch, non-existent view)',
+    'desc',
+    ''
+);
+
+SELECT * FROM check_test(
     hasnt_view( 'pg_tables', 'yowza' ),
     false,
     'hasnt_view(view, desc)',
@@ -414,6 +438,14 @@ SELECT * FROM check_test(
     hasnt_view( 'information_schema', 'tables', 'desc' ),
     false,
     'hasnt_view(sch, view, desc)',
+    'desc',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_view( 'information_schema', 'tables' ),
+    false,
+    'hasnt_view(sch, view)',
     'desc',
     ''
 );
