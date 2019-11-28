@@ -1097,7 +1097,7 @@ RETURNS TEXT AS $$
     SELECT ok( NOT _rexists( 'v', $1, $2 ), $3 );
 $$ LANGUAGE SQL;
 
--- hasnt_table( schema, table )
+-- hasnt_view( schema, table )
 CREATE OR REPLACE FUNCTION hasnt_view ( NAME, NAME )
 RETURNS TEXT AS $$
     SELECT ok(
