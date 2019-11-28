@@ -352,18 +352,10 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    has_view( 'foo', '__SDFSDFD__', 'desc' ),
-    false,
-    'has_view(sch, non-existent view, desc)',
-    'desc',
-    ''
-);
-
-SELECT * FROM check_test(
     has_view( 'foo', '__SDFSDFD__' ),
     false,
     'has_view(sch, non-existent view)',
-    'desc',
+    'View "foo.__SDFSDFD__" should exist',
     ''
 );
 
@@ -387,7 +379,15 @@ SELECT * FROM check_test(
     has_view( 'information_schema', 'tables' ),
     true,
     'has_view(sch, view)',
-    'desc',
+    'View "information_schema.tables" should exist',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_view( 'foo', '__SDFSDFD__', 'desc' ),
+    false,
+    'has_view(sch, non-existent view, desc)',
+    'View "foo.__SDFSDFD__" should not exist',
     ''
 );
 
@@ -419,14 +419,6 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    hasnt_view( 'foo', '__SDFSDFD__' ),
-    true,
-    'hasnt_view(sch, non-existent view)',
-    'desc',
-    ''
-);
-
-SELECT * FROM check_test(
     hasnt_view( 'pg_tables', 'yowza' ),
     false,
     'hasnt_view(view, desc)',
@@ -447,6 +439,14 @@ SELECT * FROM check_test(
     false,
     'hasnt_view(sch, view)',
     'desc',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_view( 'foo', '__SDFSDFD__' ),
+    true,
+    'hasnt_view(sch, non-existent view)',
+    'View "foo.__SDFSDFD__" should not exist',
     ''
 );
 
