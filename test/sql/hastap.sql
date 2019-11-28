@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(884);
+SELECT plan(888);
 --SELECT * FROM no_plan();
 
 -- This will be rolled back. :-)
