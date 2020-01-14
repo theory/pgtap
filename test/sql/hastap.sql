@@ -48,8 +48,8 @@ CREATE DOMAIN public."myDomain" AS TEXT CHECK(TRUE);
 
 CREATE SEQUENCE public.someseq;
 
-CREATE SCHEMA someschema;
 
+CREATE SCHEMA someschema;
 RESET client_min_messages;
 
 /****************************************************************************/
@@ -446,7 +446,7 @@ SELECT * FROM check_test(
     hasnt_view( 'foo', '__SDFSDFD__'::name ),
     true,
     'hasnt_view(sch, non-existent view)',
-    'View "foo.__SDFSDFD__" should not exist',
+    'View foo."__SDFSDFD__" should not exist',
     ''
 );
 
