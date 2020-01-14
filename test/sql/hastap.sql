@@ -371,7 +371,7 @@ SELECT * FROM check_test(
     has_view( 'information_schema', 'tables'::name ),
     true,
     'has_view(sch, view)',
-    'View "information_schema.tables" should exist',
+    'View information_schema.tables should exist',
     ''
 );
 
