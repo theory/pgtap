@@ -143,7 +143,7 @@ ok 140 - hasnt_view(sch, view) should have the proper description
 ok 141 - hasnt_view(sch, view) should have the proper diagnostics
 ok 142 - hasnt_view(sch, non-existent view) should pass
 ok 143 - hasnt_view(sch, non-existent view) should have the proper description
-ok 144 - hasnt_view(sch, non-existent view, ) should have the proper diagnostics
+ok 144 - hasnt_view(sch, non-existent view) should have the proper diagnostics
 ok 145 - has_sequence(non-existent sequence) should fail
 ok 146 - has_sequence(non-existent sequence) should have the proper description
 ok 147 - has_sequence(non-existent sequence) should have the proper diagnostics
