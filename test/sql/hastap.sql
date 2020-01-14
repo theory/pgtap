@@ -430,7 +430,7 @@ SELECT * FROM check_test(
     hasnt_view( 'information_schema', 'tables'::name ),
     false,
     'hasnt_view(sch, view)',
-    'desc',
+    'View information_schema.tables should not exist',
     ''
 );
 
