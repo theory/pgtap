@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(896);
+SELECT plan(897);
 --SELECT * FROM no_plan();
 
 -- This will be rolled back. :-)
@@ -348,6 +348,14 @@ SELECT * FROM check_test(
     false,
     'has_view(non-existent view, desc)',
     'howdy',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_view( 'foo', '__SDFSDFD__', 'desc' ),
+    false,
+    'has_view(sch, non-existent view, desc)',
+    'desc',
     ''
 );
 
