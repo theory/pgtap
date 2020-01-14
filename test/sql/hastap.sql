@@ -376,10 +376,10 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    has_view( 'foo', '__SDFSDFD__' ),
+    has_view( 'foo', '__SDFSDFD__'::name ),
     false,
     'has_view(sch, non-existent view, desc)',
-    'View "foo.__SDFSDFD__" should not exist',
+    'View foo."__SDFSDFD__" should not exist',
     ''
 );
 
