@@ -18,6 +18,7 @@ Revision history for pgTAP
   identifier. Thanks to Matt DeLuco for the report (#216)!
 * Fixed the `col_not_null()` drop statements in the uninstall script. Thanks
   to Kyle L. Jensen for the report (#252).
+* Added `isnt_member_of()` (#38, #204).
 
 1.1.0 2019-11-25T19:05:38Z
 --------------------------
@@ -36,7 +37,7 @@ Revision history for pgTAP
   version 0.99.0 to 1.0.0 (#214).
 * Fix issue with using pg_upgrade to PostgreSQL 11+ with pgTap installed (#201,
   #215).
-* Start using `DEFAULT` in functions. Previously
+* Start using `DEFAULT` in functions.
 * Add automated testing of extension upgrade scripts (#128), as well as testing
   of pg_upgrade with pgTap installed (#218, #222).
 
