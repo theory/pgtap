@@ -18,6 +18,7 @@ Revision history for pgTAP
   identifier. Thanks to Matt DeLuco for the report (#216)!
 * Fixed the `col_not_null()` drop statements in the uninstall script. Thanks
   to Kyle L. Jensen for the report (#252).
+* Added `hasnt_operator()`, `hasnt_leftop()`, `hasnt_rightop()` (#38).
 
 1.1.0 2019-11-25T19:05:38Z
 --------------------------
