@@ -981,78 +981,74 @@ SELECT * FROM check_test(
     false,
     'results_eq(values, values) mismatch',
     '',
-    CASE WHEN pg_version_num() < 80400 THEN '    Results differ beginning at row 1:' ELSE '    Number of columns or their types differ between the queries:' END || '
+    CASE WHEN pg_version_num() >= 90200 THEN
+      '    Number of columns or their types differ between the queries:
         have: (1,foo)
-        want: (foo,1)'
+        want: (foo,1)
+        ERROR: cannot compare dissimilar column types integer and text at record column 1'
+    ELSE
+      '    Number of columns or their types differ between the queries:
+        have: (1,foo)
+        want: (foo,1)
+        ERROR: details not available in pg <= 9.1'
+    END
 );
 
--- Handle failure due to more subtle column mismatch, valid only on 8.4.
-CREATE OR REPLACE FUNCTION subtlefail() RETURNS SETOF TEXT AS $$
-DECLARE
-    tap record;
-BEGIN
-    IF pg_version_num() < 80400 THEN
-        -- 8.3 and earlier cast records to text, so subtlety is out.
-        -- Fake out pg_regress by running equivalent tests with fail().
-        FOR tap IN SELECT * FROM check_test(
-            fail('whatever'),
-            false,
-            'results_eq(values, values) subtle mismatch',
-            'whatever',
-            ''
-        ) AS a(b) LOOP RETURN NEXT tap.b; END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            fail('whatever'),
-            false,
-            'results_eq(values, values) integer type mismatch',
-            'whatever',
-            ''
-        ) AS a(b) LOOP RETURN NEXT tap.b; END LOOP;
-
+-- Handle failure due to more subtle column mismatch
+SELECT * FROM check_test(
+    results_eq(
+        'VALUES (1, ''foo''::varchar), (2, ''bar''::varchar)',
+        'VALUES (1, ''foo''), (2, ''bar'')'
+    ),
+    false,
+    'results_eq(values, values) subtle mismatch',
+    '',
+    CASE WHEN pg_version_num() >= 90200 THEN
+      '    Number of columns or their types differ between the queries
+        ERROR: cannot compare dissimilar column types character varying and text at record column 2'
     ELSE
-        -- 8.4 does true record comparisions, yay!
-        FOR tap IN SELECT * FROM check_test(
-            results_eq(
-                'VALUES (1, ''foo''::varchar), (2, ''bar''::varchar)',
-                'VALUES (1, ''foo''), (2, ''bar'')'
-            ),
-            false,
-            'results_eq(values, values) subtle mismatch',
-            '',
-            '    Number of columns or their types differ between the queries' ) AS a(b) LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
+      '    Number of columns or their types differ between the queries
+        ERROR: details not available in pg <= 9.1'
+    END
+);
 
-        FOR tap IN SELECT * FROM check_test(
-            results_eq(
-                'VALUES (1::int), (2::int)',
-                'VALUES (1::bigint), (2::bigint)'
-            ),
-            false,
-            'results_eq(values, values) integer type mismatch',
-            '',
-            '    Number of columns or their types differ between the queries' ) AS a(b) LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-    END IF;
-    RETURN;
-END;
-$$ LANGUAGE plpgsql;
-SELECT * FROM subtlefail();
+SELECT * FROM check_test(
+    results_eq(
+        'VALUES (1::int), (2::int)',
+        'VALUES (1::bigint), (2::bigint)'
+    ),
+    false,
+    'results_eq(values, values) integer type mismatch',
+    '',
+    CASE WHEN pg_version_num() >= 90200 THEN
+      '    Number of columns or their types differ between the queries
+        ERROR: cannot compare dissimilar column types integer and bigint at record column 1'
+    ELSE
+      '    Number of columns or their types differ between the queries
+        ERROR: details not available in pg <= 9.1'
+    END
+);
 
 -- Handle failure due to column count mismatch.
 SELECT * FROM check_test(
     results_eq(
         'SELECT pk from dubs ORDER BY pk LIMIT 2',
-        'SELECT name, pk from dubs ORDER BY pk LIMIT 2'
+        'SELECT pk, name from dubs ORDER BY pk LIMIT 2'
     ),
     false,
     'results_eq(values, values) fail column count',
     '',
-    CASE WHEN pg_version_num() < 80400 THEN '    Results differ beginning at row 1:' ELSE '    Number of columns or their types differ between the queries:' END || '
+    CASE WHEN pg_version_num() >= 90200 THEN
+      '    Number of columns or their types differ between the queries:
         have: (1)
-        want: (foo,1)'
+        want: (1,foo)
+        ERROR: cannot compare record types with different numbers of columns'
+    ELSE
+      '    Number of columns or their types differ between the queries:
+        have: (1)
+        want: (1,foo)
+        ERROR: details not available in pg <= 9.1'
+    END
 );
 
 -- Compare with cursors.
@@ -2162,71 +2158,61 @@ SELECT * FROM check_test(
     ''
 );
 
--- Handle failure due to more subtle column mismatch, valid only on 8.4.
-CREATE OR REPLACE FUNCTION subtlefail() RETURNS SETOF TEXT AS $$
-DECLARE
-    tap record;
-BEGIN
-    IF pg_version_num() < 80400 THEN
-        -- 8.3 and earlier cast records to text, so subtlety is out.
-        RETURN NEXT pass('results_ne(values, values) mismatch should fail');
-        RETURN NEXT pass('results_ne(values, values) mismatch should have the proper description');
-        RETURN NEXT pass('results_ne(values, values) mismatch should have the proper diagnostics');
-        RETURN NEXT pass('results_ne(values, values) subtle mismatch should fail');
-        RETURN NEXT pass('results_ne(values, values) subtle mismatch should have the proper description');
-        RETURN NEXT pass('results_ne(values, values) subtle mismatch should have the proper diagnostics');
-        RETURN NEXT pass('results_ne(values, values) fail column count should fail');
-        RETURN NEXT pass('results_ne(values, values) fail column count should have the proper description');
-        RETURN NEXT pass('results_ne(values, values) fail column count should have the proper diagnostics');
+-- Handle failure due to column mismatch.
+SELECT * FROM check_test(
+    results_ne( 'VALUES (1, ''foo''), (2, ''bar'')', 'VALUES (''foo'', 1), (''bar'', 2)' ),
+    false,
+    'results_ne(values, values) mismatch',
+    '',
+    CASE WHEN pg_version_num() >= 90200 THEN
+      '    Number of columns or their types differ between the queries:
+        have: (1,foo)
+        want: (foo,1)
+        ERROR: cannot compare dissimilar column types integer and text at record column 1'
     ELSE
-        -- 8.4 does true record comparisions, yay!
-        -- Handle failure due to column mismatch.
-        FOR tap IN SELECT * FROM check_test(
-            results_ne( 'VALUES (1, ''foo''), (2, ''bar'')', 'VALUES (''foo'', 1), (''bar'', 2)' ),
-            false,
-            'results_ne(values, values) mismatch',
-            '',
-            '    Columns differ between queries:
+      '    Number of columns or their types differ between the queries:
         have: (1,foo)
-        want: (foo,1)'
-        ) AS a(b) LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
+        want: (foo,1)
+        ERROR: details not available in pg <= 9.1'
+    END
+);
 
-        -- Handle failure due to subtle column mismatch.
-        FOR tap IN SELECT * FROM check_test(
-            results_ne(
-                'VALUES (1, ''foo''::varchar), (2, ''bar''::varchar)',
-                'VALUES (1, ''foo''), (2, ''bar'')'
-            ),
-            false,
-            'results_ne(values, values) subtle mismatch',
-            '',
-            '    Columns differ between queries:
-        have: (1,foo)
-        want: (1,foo)' ) AS a(b) LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
+-- Handle failure due to subtle column mismatch.
+SELECT * FROM check_test(
+    results_ne(
+        'VALUES (1, ''foo''::varchar), (2, ''bar''::varchar)',
+        'VALUES (1, ''foo''), (2, ''bar'')'
+    ),
+    false,
+    'results_ne(values, values) subtle mismatch',
+    '',
+    CASE WHEN pg_version_num() >= 90200 THEN
+      '    Number of columns or their types differ between the queries
+        ERROR: cannot compare dissimilar column types character varying and text at record column 2'
+    ELSE
+      '    Number of columns or their types differ between the queries
+        ERROR: details not available in pg <= 9.1'
+    END
+);
 
-        -- Handle failure due to column count mismatch.
-        FOR tap IN SELECT * FROM check_test(
-            results_ne( 'VALUES (1), (2)', 'VALUES (''foo'', 1), (''bar'', 2)' ),
-            false,
-            'results_ne(values, values) fail column count',
-            '',
-            '    Columns differ between queries:
+-- Handle failure due to column count mismatch.
+SELECT * FROM check_test(
+    results_ne( 'VALUES (1), (2)', 'VALUES (1, ''foo''), (2, ''bar'')' ),
+    false,
+    'results_ne(values, values) fail column count',
+    '',
+    CASE WHEN pg_version_num() >= 90200 THEN
+      '    Number of columns or their types differ between the queries:
         have: (1)
-        want: (foo,1)'
-        )  AS a(b) LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-    END IF;
-    RETURN;
-END;
-$$ LANGUAGE plpgsql;
-SELECT * FROM subtlefail();
-
+        want: (1,foo)
+        ERROR: cannot compare record types with different numbers of columns'
+    ELSE
+      '    Number of columns or their types differ between the queries:
+        have: (1)
+        want: (1,foo)
+        ERROR: details not available in pg <= 9.1'
+    END
+);
 
 -- Compare with cursors.
 CLOSE cwant;
