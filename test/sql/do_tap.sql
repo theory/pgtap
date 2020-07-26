@@ -53,7 +53,7 @@ SELECT is(
 
 SELECT is(
     findfuncs('foo'),
-    CASE WHEN pg_version_num() < 80300 THEN NULL ELSE '{}'::text[] END,
+    '{}'::text[],
     'findfuncs(unknown) should find no tests'
 );
 

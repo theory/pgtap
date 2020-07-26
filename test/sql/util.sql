@@ -23,14 +23,11 @@ SELECT matches(
     'pg_version() should work'
 );
 
-SELECT CASE WHEN pg_version_num() < 81000
-    THEN pass( 'pg_version_num() should return same as "server_version_num" setting' )
-    ELSE is(
-        pg_version_num(),
-        current_setting('server_version_num')::integer,
-        'pg_version_num() should return same as "server_version_num" setting'
-    )
-    END;
+SELECT is(
+    pg_version_num(),
+    current_setting('server_version_num')::integer,
+    'pg_version_num() should return same as "server_version_num" setting'
+);
 
 SELECT is(
     pg_typeof( pg_version_num() ),
@@ -72,18 +69,8 @@ baz',
     'collect_tap(text[]) should simply collect tap'
 );
 
-CREATE FUNCTION test_variadic() RETURNS TEXT AS $$
-BEGIN
-    IF pg_version_num() >= 80400 THEN
-        RETURN collect_tap('foo', 'bar', 'baz');
-    ELSE
-        RETURN collect_tap(ARRAY['foo', 'bar', 'baz']);
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
-
 SELECT is(
-    test_variadic(),
+    collect_tap('foo', 'bar', 'baz'),
     'foo
 bar
 baz',

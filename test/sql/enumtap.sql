@@ -297,79 +297,54 @@ SELECT * FROM check_test(
 
 /****************************************************************************/
 -- Make sure that we properly handle reordered labels.
-CREATE FUNCTION test_alter_enum() RETURNS SETOF TEXT AS $$
-DECLARE
-    tap record;
-    expect TEXT[];
-    labels TEXT;
-BEGIN
-    IF pg_version_num() >= 90100 THEN
-        -- Mimic ALTER TYPE ADD VALUE by reordering labels.
-        EXECUTE $E$
-            UPDATE pg_catalog.pg_enum
-               SET enumsortorder = CASE enumlabel
-                   WHEN 'closed' THEN 4
-                   WHEN 'open' THEN 5
-                   ELSE 6
-               END
-             WHERE enumtypid IN (
-                 SELECT t.oid
-                   FROM pg_catalog.pg_type t
-                   JOIN pg_catalog.pg_namespace n ON t.typnamespace = n.oid
-                  WHERE n.nspname = 'public'
-                    AND t.typname = 'bug_status'
-                    AND t.typtype = 'e'
-            );
-        $E$;
-        expect := ARRAY['closed', 'open', 'new'];
-    ELSE
-        expect := ARRAY['new', 'open', 'closed'];
-    END IF;
-    labels := array_to_string(expect, ', ');
 
-    FOR tap IN SELECT * FROM check_test(
-        enum_has_labels( 'public', 'bug_status', expect, 'mydesc' ),
-        true,
-        'enum_has_labels(schema, altered_enum, labels, desc)',
-        'mydesc',
-        ''
-    ) AS b LOOP
-        RETURN NEXT tap.b;
-    END LOOP;
+-- Mimic ALTER TYPE ADD VALUE by reordering labels.
+UPDATE pg_catalog.pg_enum
+   SET enumsortorder = CASE enumlabel
+       WHEN 'closed' THEN 4
+       WHEN 'open' THEN 5
+       ELSE 6
+   END
+ WHERE enumtypid IN (
+     SELECT t.oid
+       FROM pg_catalog.pg_type t
+       JOIN pg_catalog.pg_namespace n ON t.typnamespace = n.oid
+      WHERE n.nspname = 'public'
+        AND t.typname = 'bug_status'
+        AND t.typtype = 'e'
+);
 
-    FOR tap IN SELECT * FROM check_test(
-        enum_has_labels( 'public', 'bug_status', expect ),
-        true,
-        'enum_has_labels(schema, altered_enum, labels)',
-        'Enum public.bug_status should have labels ('|| labels || ')',
-        ''
-    ) AS b LOOP
-        RETURN NEXT tap.b;
-    END LOOP;
+SELECT * FROM check_test(
+    enum_has_labels( 'public', 'bug_status', ARRAY['closed', 'open', 'new'], 'mydesc' ),
+    true,
+    'enum_has_labels(schema, altered_enum, labels, desc)',
+    'mydesc',
+    ''
+);
 
-    FOR tap IN SELECT * FROM check_test(
-        enum_has_labels( 'bug_status', expect, 'mydesc' ),
-        true,
-        'enum_has_labels(altered_enum, labels, desc)',
-        'mydesc',
-        ''
-    ) AS b LOOP
-        RETURN NEXT tap.b;
-    END LOOP;
+SELECT * FROM check_test(
+    enum_has_labels( 'public', 'bug_status', ARRAY['closed', 'open', 'new'] ),
+    true,
+    'enum_has_labels(schema, altered_enum, labels)',
+    'Enum public.bug_status should have labels (closed, open, new)',
+    ''
+);
 
-    FOR tap IN SELECT * FROM check_test(
-        enum_has_labels( 'bug_status', expect ),
-        true,
-        'enum_has_labels(altered_enum, labels)',
-        'Enum bug_status should have labels (' || labels || ')',
-        ''
-    ) AS b LOOP
-        RETURN NEXT tap.b;
-    END LOOP;
-END;
-$$ LANGUAGE PLPGSQL;
+SELECT * FROM check_test(
+    enum_has_labels( 'bug_status', ARRAY['closed', 'open', 'new'], 'mydesc' ),
+    true,
+    'enum_has_labels(altered_enum, labels, desc)',
+    'mydesc',
+    ''
+);
 
-SELECT * FROM test_alter_enum();
+SELECT * FROM check_test(
+    enum_has_labels( 'bug_status', ARRAY['closed', 'open', 'new'] ),
+    true,
+    'enum_has_labels(altered_enum, labels)',
+    'Enum bug_status should have labels (closed, open, new)',
+    ''
+);
 
 /****************************************************************************/
 -- Finish the tests and clean up.

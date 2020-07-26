@@ -46,22 +46,13 @@ Note that in some cases we get what appears to be a duplicate context message, b
             END;
             $F$;
         $E$;
-    ELSIF pg_version_num() >= 80400 THEN
+    ELSE
         EXECUTE $E$
             CREATE OR REPLACE FUNCTION __die() RETURNS VOID LANGUAGE plpgsql AS $F$
             BEGIN
             RAISE EXCEPTION 'This test should die, but not halt execution.
 Note that in some cases we get what appears to be a duplicate context message, but that is due to Postgres itself.'
                 USING DETAIL = 'DETAIL';
-            END;
-            $F$;
-        $E$;
-    ELSE
-        EXECUTE $E$
-            CREATE OR REPLACE FUNCTION __die() RETURNS VOID LANGUAGE plpgsql AS $F$
-            BEGIN
-            RAISE EXCEPTION 'This test should die, but not halt execution.
-Note that in some cases we get what appears to be a duplicate context message, but that is due to Postgres itself.';
             END;
             $F$;
         $E$;

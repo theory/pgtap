@@ -2102,306 +2102,6 @@ SELECT * FROM check_test(
 );
 
 /****************************************************************************/
--- Test has_foreign_table() and hasnt_foreign_table().
-CREATE FUNCTION test_fdw() RETURNS SETOF TEXT AS $$
-DECLARE
-    tap record;
-BEGIN   
-    IF pg_version_num() >= 90100 THEN
-        EXECUTE $E$
-            CREATE FOREIGN DATA WRAPPER dummy;
-            CREATE SERVER foo FOREIGN DATA WRAPPER dummy;
-            CREATE FOREIGN TABLE public.my_fdw (id int) SERVER foo;
-        $E$;
-
-        FOR tap IN SELECT * FROM check_test(
-            has_foreign_table( '__SDFSDFD__' ),
-            false,
-            'has_foreign_table(non-existent table)',
-            'Foreign table "__SDFSDFD__" should exist',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            has_foreign_table( '__SDFSDFD__', 'lol'::name ),
-            false,
-            'has_foreign_table(non-existent schema, tab)',
-            'Foreign table "__SDFSDFD__".lol should exist',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            has_foreign_table( '__SDFSDFD__', 'lol' ),
-            false,
-            'has_foreign_table(non-existent table, desc)',
-            'lol',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            has_foreign_table( 'foo', '__SDFSDFD__', 'desc' ),
-            false,
-            'has_foreign_table(sch, non-existent table, desc)',
-            'desc',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            has_foreign_table( 'my_fdw', 'lol' ),
-            true,
-            'has_foreign_table(tab, desc)',
-            'lol',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            has_foreign_table( 'public', 'my_fdw', 'desc' ),
-            true,
-            'has_foreign_table(sch, tab, desc)',
-            'desc',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        -- It should ignore views and types.
-        FOR tap IN SELECT * FROM check_test(
-            has_foreign_table( 'pg_catalog', 'pg_foreign_tables', 'desc' ),
-            false,
-            'has_foreign_table(sch, view, desc)',
-            'desc',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            has_foreign_table( 'sometype', 'desc' ),
-            false,
-            'has_foreign_table(type, desc)',
-            'desc',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            hasnt_foreign_table( '__SDFSDFD__' ),
-            true,
-            'hasnt_foreign_table(non-existent table)',
-            'Foreign table "__SDFSDFD__" should not exist',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            hasnt_foreign_table( '__SDFSDFD__', 'lol'::name ),
-            true,
-            'hasnt_foreign_table(non-existent schema, tab)',
-            'Foreign table "__SDFSDFD__".lol should not exist',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            hasnt_foreign_table( '__SDFSDFD__', 'lol' ),
-            true,
-            'hasnt_foreign_table(non-existent table, desc)',
-            'lol',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            hasnt_foreign_table( 'foo', '__SDFSDFD__', 'desc' ),
-            true,
-            'hasnt_foreign_table(sch, non-existent tab, desc)',
-            'desc',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            hasnt_foreign_table( 'my_fdw', 'lol' ),
-            false,
-            'hasnt_foreign_table(tab, desc)',
-            'lol',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            hasnt_foreign_table( 'public', 'my_fdw', 'desc' ),
-            false,
-            'hasnt_foreign_table(sch, tab, desc)',
-            'desc',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-    ELSE
-        -- Fake it with has_table().
-        FOR tap IN SELECT * FROM check_test(
-            has_table( '__SDFSDFD__' ),
-            false,
-            'has_foreign_table(non-existent table)',
-            'Table "__SDFSDFD__" should exist',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            has_table( '__SDFSDFD__', 'lol'::name ),
-            false,
-            'has_foreign_table(non-existent schema, tab)',
-            'Table "__SDFSDFD__".lol should exist',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            has_table( '__SDFSDFD__', 'lol' ),
-            false,
-            'has_foreign_table(non-existent table, desc)',
-            'lol',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            has_table( 'foo', '__SDFSDFD__', 'desc' ),
-            false,
-            'has_foreign_table(sch, non-existent table, desc)',
-            'desc',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            has_table( 'pg_type', 'lol' ),
-            true,
-            'has_foreign_table(tab, desc)',
-            'lol',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            has_table( 'pg_catalog', 'pg_type', 'desc' ),
-            true,
-            'has_foreign_table(sch, tab, desc)',
-            'desc',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        -- It should ignore views and types.
-        FOR tap IN SELECT * FROM check_test(
-            has_table( 'pg_catalog', 'pg_foreign_tables', 'desc' ),
-            false,
-            'has_foreign_table(sch, view, desc)',
-            'desc',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            has_table( 'sometype', 'desc' ),
-            false,
-            'has_foreign_table(type, desc)',
-            'desc',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            hasnt_table( '__SDFSDFD__' ),
-            true,
-            'hasnt_foreign_table(non-existent table)',
-            'Table "__SDFSDFD__" should not exist',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            hasnt_table( '__SDFSDFD__', 'lol'::name ),
-            true,
-            'hasnt_foreign_table(non-existent schema, tab)',
-            'Table "__SDFSDFD__".lol should not exist',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            hasnt_table( '__SDFSDFD__', 'lol' ),
-            true,
-            'hasnt_foreign_table(non-existent table, desc)',
-            'lol',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            hasnt_table( 'foo', '__SDFSDFD__', 'desc' ),
-            true,
-            'hasnt_foreign_table(sch, non-existent tab, desc)',
-            'desc',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            hasnt_table( 'pg_type', 'lol' ),
-            false,
-            'hasnt_foreign_table(tab, desc)',
-            'lol',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            hasnt_table( 'pg_catalog', 'pg_type', 'desc' ),
-            false,
-            'hasnt_foreign_table(sch, tab, desc)',
-            'desc',
-            ''
-        ) AS b LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-    END IF;
-    RETURN;
-END;
-$$ LANGUAGE PLPGSQL;
-
-/****************************************************************************/
 -- Test has_relation().
 
 SELECT * FROM check_test(
@@ -2504,7 +2204,125 @@ SELECT * FROM check_test(
     ''
 );
 
-SELECT * FROM test_fdw();
+/****************************************************************************/
+-- Test has_foreign_table() and hasnt_foreign_table().
+
+CREATE FOREIGN DATA WRAPPER dummy;
+CREATE SERVER foo FOREIGN DATA WRAPPER dummy;
+CREATE FOREIGN TABLE public.my_fdw (id int) SERVER foo;
+
+SELECT * FROM check_test(
+    has_foreign_table( '__SDFSDFD__' ),
+    false,
+    'has_foreign_table(non-existent table)',
+    'Foreign table "__SDFSDFD__" should exist',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_foreign_table( '__SDFSDFD__', 'lol'::name ),
+    false,
+    'has_foreign_table(non-existent schema, tab)',
+    'Foreign table "__SDFSDFD__".lol should exist',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_foreign_table( '__SDFSDFD__', 'lol' ),
+    false,
+    'has_foreign_table(non-existent table, desc)',
+    'lol',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_foreign_table( 'foo', '__SDFSDFD__', 'desc' ),
+    false,
+    'has_foreign_table(sch, non-existent table, desc)',
+    'desc',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_foreign_table( 'my_fdw', 'lol' ),
+    true,
+    'has_foreign_table(tab, desc)',
+    'lol',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_foreign_table( 'public', 'my_fdw', 'desc' ),
+    true,
+    'has_foreign_table(sch, tab, desc)',
+    'desc',
+    ''
+);
+
+-- It should ignore views and types.
+SELECT * FROM check_test(
+    has_foreign_table( 'pg_catalog', 'pg_foreign_tables', 'desc' ),
+    false,
+    'has_foreign_table(sch, view, desc)',
+    'desc',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_foreign_table( 'sometype', 'desc' ),
+    false,
+    'has_foreign_table(type, desc)',
+    'desc',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_foreign_table( '__SDFSDFD__' ),
+    true,
+    'hasnt_foreign_table(non-existent table)',
+    'Foreign table "__SDFSDFD__" should not exist',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_foreign_table( '__SDFSDFD__', 'lol'::name ),
+    true,
+    'hasnt_foreign_table(non-existent schema, tab)',
+    'Foreign table "__SDFSDFD__".lol should not exist',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_foreign_table( '__SDFSDFD__', 'lol' ),
+    true,
+    'hasnt_foreign_table(non-existent table, desc)',
+    'lol',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_foreign_table( 'foo', '__SDFSDFD__', 'desc' ),
+    true,
+    'hasnt_foreign_table(sch, non-existent tab, desc)',
+    'desc',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_foreign_table( 'my_fdw', 'lol' ),
+    false,
+    'hasnt_foreign_table(tab, desc)',
+    'lol',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_foreign_table( 'public', 'my_fdw', 'desc' ),
+    false,
+    'hasnt_foreign_table(sch, tab, desc)',
+    'desc',
+    ''
+);
 
 /****************************************************************************/
 -- Test has_materialized_view().
@@ -2513,7 +2331,7 @@ CREATE FUNCTION test_has_materialized_view() RETURNS SETOF TEXT AS $$
 DECLARE
     tap record;
 BEGIN
-    IF pg_version_num() >= 93000 THEN
+    IF pg_version_num() >= 90300 THEN
         EXECUTE $E$
             CREATE MATERIALIZED VIEW public.mview AS SELECT * FROM public.sometab;
         $E$;
@@ -2629,7 +2447,7 @@ CREATE FUNCTION test_hasnt_materialized_views_are() RETURNS SETOF TEXT AS $$
 DECLARE
     tap record;
 BEGIN
-    IF pg_version_num() >= 93000 THEN
+    IF pg_version_num() >= 90300 THEN
 
         FOR tap IN SELECT * FROM check_test(
             hasnt_materialized_view( '__SDFSDFD__' ),

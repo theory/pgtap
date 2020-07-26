@@ -77,22 +77,9 @@ SELECT is(diag(11.2), '# 11.2', 'diag(numeric)');
 SELECT is(diag(NOW()), '# ' || NOW(), 'diag(timestamptz)');
 
 -- Try variadic anyarray
-CREATE FUNCTION test_variadic() RETURNS SETOF TEXT AS $$
-BEGIN
-    IF pg_version_num() >= 80400 THEN
-        RETURN NEXT is(diag('foo'::text, 'bar', 'baz'), '# foobarbaz', 'variadic text');
-        RETURN NEXT is(diag(1::int, 3, 4), '# 134', 'variadic int');
-        RETURN NEXT is(diag('foo', 'bar', 'baz'), '# foobarbaz', 'variadic unknown');
-    ELSE
-        RETURN NEXT pass('variadic text');
-        RETURN NEXT pass('variadic int');
-        RETURN NEXT pass('variadic unknown');
-        RETURN;
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
-
-SELECT * FROM test_variadic();
+SELECT is(diag('foo'::text, 'bar', 'baz'), '# foobarbaz', 'variadic text');
+SELECT is(diag(1::int, 3, 4), '# 134', 'variadic int');
+SELECT is(diag('foo', 'bar', 'baz'), '# foobarbaz', 'variadic unknown');
 
 /****************************************************************************/
 -- Check no_plan.
