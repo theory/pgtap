@@ -6882,6 +6882,7 @@ DECLARE
     have_found BOOLEAN;
     want_found BOOLEAN;
     rownum     INTEGER := 1;
+    err_msg    text := 'details not available in pg <= 9.1';
 BEGIN
     FETCH have INTO have_rec;
     have_found := FOUND;
@@ -6905,12 +6906,13 @@ BEGIN
     RETURN ok( true, $3 );
 EXCEPTION
     WHEN datatype_mismatch THEN
+        GET STACKED DIAGNOSTICS err_msg = MESSAGE_TEXT;
         RETURN ok( false, $3 ) || E'\n' || diag(
             E'    Number of columns or their types differ between the queries' ||
             CASE WHEN have_rec::TEXT = want_rec::text THEN '' ELSE E':\n' ||
                 '        have: ' || CASE WHEN have_found THEN have_rec::text ELSE 'NULL' END || E'\n' ||
                 '        want: ' || CASE WHEN want_found THEN want_rec::text ELSE 'NULL' END
-            END
+            END || E'\n        ERROR: ' || err_msg
         );
 END;
 $$ LANGUAGE plpgsql;
@@ -7039,6 +7041,7 @@ DECLARE
     want_rec   RECORD;
     have_found BOOLEAN;
     want_found BOOLEAN;
+    err_msg    text := 'details not available in pg <= 9.1';
 BEGIN
     FETCH have INTO have_rec;
     have_found := FOUND;
@@ -7057,10 +7060,13 @@ BEGIN
     RETURN ok( false, $3 );
 EXCEPTION
     WHEN datatype_mismatch THEN
+        GET STACKED DIAGNOSTICS err_msg = MESSAGE_TEXT;
         RETURN ok( false, $3 ) || E'\n' || diag(
-            E'    Columns differ between queries:\n' ||
-            '        have: ' || CASE WHEN have_found THEN have_rec::text ELSE 'NULL' END || E'\n' ||
-            '        want: ' || CASE WHEN want_found THEN want_rec::text ELSE 'NULL' END
+            E'    Number of columns or their types differ between the queries' ||
+            CASE WHEN have_rec::TEXT = want_rec::text THEN '' ELSE E':\n' ||
+                '        have: ' || CASE WHEN have_found THEN have_rec::text ELSE 'NULL' END || E'\n' ||
+                '        want: ' || CASE WHEN want_found THEN want_rec::text ELSE 'NULL' END
+            END || E'\n        ERROR: ' || err_msg
         );
 END;
 $$ LANGUAGE plpgsql;

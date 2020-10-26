@@ -36,3 +36,88 @@ BEGIN
     RETURN thing;
 END;
 $$ LANGUAGE plpgsql;
+
+-- results_eq( cursor, cursor, description )
+CREATE OR REPLACE FUNCTION results_eq( refcursor, refcursor, text )
+RETURNS TEXT AS $$
+DECLARE
+    have       ALIAS FOR $1;
+    want       ALIAS FOR $2;
+    have_rec   RECORD;
+    want_rec   RECORD;
+    have_found BOOLEAN;
+    want_found BOOLEAN;
+    rownum     INTEGER := 1;
+    err_msg    text := 'details not available in pg <= 9.1';
+BEGIN
+    FETCH have INTO have_rec;
+    have_found := FOUND;
+    FETCH want INTO want_rec;
+    want_found := FOUND;
+    WHILE have_found OR want_found LOOP
+        IF have_rec IS DISTINCT FROM want_rec OR have_found <> want_found THEN
+            RETURN ok( false, $3 ) || E'\n' || diag(
+                '    Results differ beginning at row ' || rownum || E':\n' ||
+                '        have: ' || CASE WHEN have_found THEN have_rec::text ELSE 'NULL' END || E'\n' ||
+                '        want: ' || CASE WHEN want_found THEN want_rec::text ELSE 'NULL' END
+            );
+        END IF;
+        rownum = rownum + 1;
+        FETCH have INTO have_rec;
+        have_found := FOUND;
+        FETCH want INTO want_rec;
+        want_found := FOUND;
+    END LOOP;
+
+    RETURN ok( true, $3 );
+EXCEPTION
+    WHEN datatype_mismatch THEN
+        GET STACKED DIAGNOSTICS err_msg = MESSAGE_TEXT;
+        RETURN ok( false, $3 ) || E'\n' || diag(
+            E'    Number of columns or their types differ between the queries' ||
+            CASE WHEN have_rec::TEXT = want_rec::text THEN '' ELSE E':\n' ||
+                '        have: ' || CASE WHEN have_found THEN have_rec::text ELSE 'NULL' END || E'\n' ||
+                '        want: ' || CASE WHEN want_found THEN want_rec::text ELSE 'NULL' END
+            END || E'\n        ERROR: ' || err_msg
+        );
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION results_ne( refcursor, refcursor, text )
+RETURNS TEXT AS $$
+DECLARE
+    have       ALIAS FOR $1;
+    want       ALIAS FOR $2;
+    have_rec   RECORD;
+    want_rec   RECORD;
+    have_found BOOLEAN;
+    want_found BOOLEAN;
+    err_msg    text := 'details not available in pg <= 9.1';
+BEGIN
+    FETCH have INTO have_rec;
+    have_found := FOUND;
+    FETCH want INTO want_rec;
+    want_found := FOUND;
+    WHILE have_found OR want_found LOOP
+        IF have_rec IS DISTINCT FROM want_rec OR have_found <> want_found THEN
+            RETURN ok( true, $3 );
+        ELSE
+            FETCH have INTO have_rec;
+            have_found := FOUND;
+            FETCH want INTO want_rec;
+            want_found := FOUND;
+        END IF;
+    END LOOP;
+    RETURN ok( false, $3 );
+EXCEPTION
+    WHEN datatype_mismatch THEN
+        GET STACKED DIAGNOSTICS err_msg = MESSAGE_TEXT;
+        RETURN ok( false, $3 ) || E'\n' || diag(
+            E'    Number of columns or their types differ between the queries' ||
+            CASE WHEN have_rec::TEXT = want_rec::text THEN '' ELSE E':\n' ||
+                '        have: ' || CASE WHEN have_found THEN have_rec::text ELSE 'NULL' END || E'\n' ||
+                '        want: ' || CASE WHEN want_found THEN want_rec::text ELSE 'NULL' END
+            END || E'\n        ERROR: ' || err_msg
+        );
+END;
+$$ LANGUAGE plpgsql;
