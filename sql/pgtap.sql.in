@@ -1983,40 +1983,43 @@ RETURNS NAME[] AS $$
 $$ LANGUAGE sql;
 
 -- col_is_pk( schema, table, column, description )
-CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME, NAME[], TEXT )
+-- col_is_pk( schema, table, column )
+CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME, NAME[], TEXT DEFAULT NULL )
 RETURNS TEXT AS $$
-    SELECT is( _ckeys( $1, $2, 'p' ), $3, $4 );
+    SELECT is( _ckeys( $1, $2, 'p' ), $3,
+               coalesce( $4,
+               'Columns ' || quote_ident( $1 ) || '.' || quote_ident( $2 )
+                          || '(' || _ident_array_to_string( $3, ', ' ) || ') should be a primary key' ) );
 $$ LANGUAGE sql;
 
--- col_is_pk( table, column, description )
-CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME[], TEXT )
-RETURNS TEXT AS $$
-    SELECT is( _ckeys( $1, 'p' ), $2, $3 );
-$$ LANGUAGE sql;
-
--- col_is_pk( table, column[] )
-CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME[] )
-RETURNS TEXT AS $$
-    SELECT col_is_pk( $1, $2, 'Columns ' || quote_ident($1) || '(' || _ident_array_to_string($2, ', ') || ') should be a primary key' );
-$$ LANGUAGE sql;
 
 -- col_is_pk( schema, table, column, description )
-CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME, NAME, TEXT )
+-- col_is_pk( schema, table, column )
+CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME, NAME, TEXT DEFAULT NULL )
 RETURNS TEXT AS $$
-    SELECT col_is_pk( $1, $2, ARRAY[$3], $4 );
+        SELECT is( _ckeys( $1, $2, 'p' ), ARRAY[ $3 ]::NAME[],
+                   coalesce( $4,
+                            'Column ' || quote_ident( $1 ) || '.' || quote_ident( $2 )
+                            || '(' || quote_ident( $3 ) || ') should be a primary key' ) );
 $$ LANGUAGE sql;
 
 -- col_is_pk( table, column, description )
-CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME, TEXT )
+-- col_is_pk( table, column )
+CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME[], TEXT DEFAULT NULL )
 RETURNS TEXT AS $$
-    SELECT col_is_pk( $1, ARRAY[$2], $3 );
+    SELECT is( _ckeys( $1, 'p' ), $2,
+               coalesce( $3,  'Columns '  || quote_ident( $1 )
+                             || '(' || _ident_array_to_string( $2, ', ' ) || ') should be a primary key' ) );
 $$ LANGUAGE sql;
 
--- col_is_pk( table, column )
-CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME )
+
+-- col_is_pk( table, column, description )
+CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME, TEXT DEFAULT NULL )
 RETURNS TEXT AS $$
-    SELECT col_is_pk( $1, $2, 'Column ' || quote_ident($1) || '(' || quote_ident($2) || ') should be a primary key' );
+    SELECT col_is_pk( $1, ARRAY[$2]::name[],
+                      coalesce( $3, 'Column ' || quote_ident( $1 ) || '(' || quote_ident( $2 ) || ') should be a primary key' ) );
 $$ LANGUAGE sql;
+
 
 -- col_isnt_pk( schema, table, column, description )
 CREATE OR REPLACE FUNCTION col_isnt_pk ( NAME, NAME, NAME[], TEXT )
