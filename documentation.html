@@ -15,7 +15,7 @@
   <body>
     <div id="main">
       <!-- DOC INTRO HERE -->
-<h1 id="pgtap1.0.0">pgTAP 1.0.0</h1>
+<h1 id="pgtap1.1.0">pgTAP 1.1.0</h1>
 
 <p>pgTAP is a unit testing framework for PostgreSQL written in PL/pgSQL and
 PL/SQL. It includes a comprehensive collection of
@@ -277,9 +277,7 @@ used in the xUnit testing style.</p>
 <li><a href="#9.4anddown">9.4 and Down</a></li>
 <li><a href="#9.2anddown">9.2 and Down</a></li>
 <li><a href="#9.1anddown">9.1 and Down</a></li>
-<li><a href="#9.0anddown">9.0 and Down</a></li>
-<li><a href="#8.4anddown">8.4 and Down</a></li>
-<li><a href="#8.3anddown">8.3 and Down</a></li></ul></li>
+<li><a href="#9.0anddown">9.0 and Down</a></li></ul></li>
 <li><a href="#metadata">Metadata</a><ul>
 <li><a href="#publicrepository">Public Repository</a></li>
 <li><a href="#maillist">Mail List</a></li>
@@ -605,6 +603,12 @@ discrepancy between the planned number of tests and the number actually run:</p>
 <pre><code>SELECT * FROM finish();
 </code></pre>
 
+<p>If you need to throw an exception if some test failed, you can pass an
+option to <code>finish()</code>.</p>
+
+<pre><code>SELECT * FROM finish(true);
+</code></pre>
+
 <h2 id="whatasweetunit">What a sweet unit!</h2>
 
 <p>If you&#8217;re used to xUnit testing frameworks, you can collect all of your tests
@@ -627,7 +631,6 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION test_user(
 ) RETURNS SETOF TEXT AS $$
    SELECT is( nick, 'theory', 'Should have nick') FROM users;
-END;
 $$ LANGUAGE sql;
 </code></pre>
 
@@ -4974,6 +4977,7 @@ view or composite type.</p>
 <h3 id="col_not_null"><code>col_not_null()</code></h3>
 
 <pre><code>SELECT col_not_null( :schema, :table, :column, :description );
+SELECT col_not_null( :schema, :table, :column );
 SELECT col_not_null( :table, :column, :description );
 SELECT col_not_null( :table, :column );
 </code></pre>
@@ -5006,6 +5010,7 @@ first, eh?</p>
 <h3 id="col_is_null"><code>col_is_null()</code></h3>
 
 <pre><code>SELECT col_is_null( :schema, :table, :column, :description );
+SELECT col_is_null( :schema, :table, :column );
 SELECT col_is_null( :table, :column, :description );
 SELECT col_is_null( :table, :column );
 </code></pre>
@@ -9524,15 +9529,9 @@ But either way, <em>do</em> test your diagnostics!</p>
 <h1 id="compatibility">Compatibility</h1>
 
 <p>Here are some notes on how pgTAP is built for particular versions of
-PostgreSQL. This helps you to understand any side-effects. If you&#8217;d rather not
-have these changes in your schema, build <code>pgTAP</code> with a schema just for it,
-instead:</p>
-
-<pre><code>make TAPSCHEMA=tap
-</code></pre>
-
-<p>To see the specifics for each version of PostgreSQL, consult the files in the
-<code>compat/</code> directory in the pgTAP distribution.</p>
+PostgreSQL. This helps you to understand any side-effects. To see the specifics
+for each version of PostgreSQL, consult the files in the <code>compat/</code> directory in
+the pgTAP distribution.</p>
 
 <h2 id="10andup">10 and Up</h2>
 
@@ -9555,6 +9554,7 @@ exist prior to 9.5.</li>
 <h2 id="9.2anddown">9.2 and Down</h2>
 
 <ul>
+<li>Lacks full automated testing. Recommend using 9.4 or higher.</li>
 <li>Diagnostic output from <code>lives_ok()</code> and xUnit function exceptions will not
 include schema, table, column, data type, or constraint information, since
 such diagnostics were not introduced until 9.3.</li>
@@ -9563,6 +9563,7 @@ such diagnostics were not introduced until 9.3.</li>
 <h2 id="9.1anddown">9.1 and Down</h2>
 
 <ul>
+<li>Lacks full automated testing. Recommend using 9.4 or higher.</li>
 <li>Diagnostic output from <code>lives_ok()</code> and xUnit function exceptions will not
 error context or details, since such diagnostics were not introduced until
 9.2.</li>
@@ -9570,52 +9571,7 @@ error context or details, since such diagnostics were not introduced until
 
 <h2 id="9.0anddown">9.0 and Down</h2>
 
-<ul>
-<li>The <code>foreign_table_owner_is()</code> function will not work, because, of course,
-there were no foreign tables until 9.1.</li>
-<li>The <code>extensions_are()</code> functions are not available, because extensions were
-not introduced until 9.1.</li>
-</ul>
-
-<h2 id="8.4anddown">8.4 and Down</h2>
-
-<ul>
-<li><p>The <code>sequence_privs_are()</code> function does not work, because privileges could
-not be granted on sequences before 9.0.</p></li>
-<li><p>The <code>triggers_are()</code> function does not ignore internally-created triggers.</p></li>
-</ul>
-
-<h2 id="8.3anddown">8.3 and Down</h2>
-
-<ul>
-<li><p>A patch is applied to modify <code>results_eq()</code> and <code>row_eq()</code> to cast records
-to text before comparing them. This means that things will mainly be
-correct, but it also means that two queries with incompatible types that
-convert to the same text string may be considered incorrectly equivalent.</p></li>
-<li><p>A C function, <code>pg_typeof()</code>, is built and installed in a DSO. This is for
-compatibility with the same function that ships in 8.4 core, and is required
-for <code>cmp_ok()</code> and <code>isa_ok()</code> to work.</p></li>
-<li><p>The variadic forms of <code>diag()</code> and <code>collect_tap()</code> are not available.
-You can pass an array of TAP to <code>collect_tap()</code>, however.</p></li>
-<li><p>These permission-testing functions don&#8217;t work, because one cannot grant
-permissions on the relevant objects until 8.4:</p>
-
-<ul>
-<li><code>has_any_column_privilege()</code></li>
-<li><code>has_column_privilege()</code></li>
-<li><code>has_foreign_data_wrapper_privilege()</code></li>
-<li><code>has_server_privilege()</code></li>
-</ul></li>
-<li><p>These inheritance-testing functions are not available, because internally
-the use a recursive common table expression query not supported before 8.4:</p>
-
-<ul>
-<li><code>is_ancestor_of()</code></li>
-<li><code>isnt_ancestor_of()</code></li>
-<li><code>is_descendent_of()</code></li>
-<li><code>isnt_descendent_of()</code></li>
-</ul></li>
-</ul>
+<p>No longer supported.</p>
 
 <h1 id="metadata">Metadata</h1>
 
