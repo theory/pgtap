@@ -27,7 +27,7 @@ pg_prove -d testdb --runtests</code></pre>
 
 <h1 id="Description">Description</h1>
 
-<p><code>pg_prove</code> is a command-line application to run one or more <a href="http://pgtap.org/">pgTAP</a> tests in a PostgreSQL database. The output of the tests is harvested and processed by <a href="http://search.cpan.org/perldoc?TAP::Harness">TAP::Harness</a> in order to summarize the results of the test.</p>
+<p><code>pg_prove</code> is a command-line application to run one or more <a href="https://pgtap.org/">pgTAP</a> tests in a PostgreSQL database. The output of the tests is harvested and processed by <a href="https://metacpan.org/pod/TAP::Harness">TAP::Harness</a> in order to summarize the results of the test.</p>
 
 <p>Tests can be written and run in one of two ways, as SQL scripts or as xUnit-style database functions.</p>
 
@@ -215,7 +215,7 @@ pg_prove -p 666</code></pre>
 <pre><code>pg_prove --pset tuples_only=0
 pg_prove -P null=[NULL]</code></pre>
 
-<p>Specifies printing options in the style of <code>\pset</code> in the <code>psql</code> program. See <a href="http://www.postgresql.org/docs/current/static/app-psql.html">http://www.postgresql.org/docs/current/static/app-psql.html</a> for details on the supported options.</p>
+<p>Specifies printing options in the style of <code>\pset</code> in the <code>psql</code> program. See <a href="https://www.postgresql.org/docs/current/static/app-psql.html">https://www.postgresql.org/docs/current/static/app-psql.html</a> for details on the supported options.</p>
 
 </dd>
 <dt><code>-S</code></dt>
@@ -228,7 +228,7 @@ pg_prove -P null=[NULL]</code></pre>
 <pre><code>pg_prove --set MY_CONTRACT=321
 pg_prove -S TEST_SEARCH_PATH=test,public</code></pre>
 
-<p>Sets local variables for psql in the style of <code>\set</code> in the <code>psql</code> program. See <a href="http://www.postgresql.org/docs/current/static/app-psql.html">http://www.postgresql.org/docs/current/static/app-psql.html</a> for details on the supported options.</p>
+<p>Sets local variables for psql in the style of <code>\set</code> in the <code>psql</code> program. See <a href="https://www.postgresql.org/docs/current/static/app-psql.html">https://www.postgresql.org/docs/current/static/app-psql.html</a> for details on the supported options.</p>
 
 </dd>
 <dt><code>--runtests</code></dt>
@@ -338,7 +338,7 @@ pg_prove --recurse sql/</code></pre>
 
 <pre><code>pg_prove --harness TAP::Harness::Color</code></pre>
 
-<p>Specify a subclass of <a href="http://search.cpan.org/perldoc?TAP::Harness">TAP::Harness</a> to use for the test harness. Defaults to TAP::Harness (unless <code>--archive</code> is specified, in which case it uses <a href="http://search.cpan.org/perldoc?TAP::Harness::Archive">TAP::Harness::Archive</a>).</p>
+<p>Specify a subclass of <a href="https://metacpan.org/pod/TAP::Harness">TAP::Harness</a> to use for the test harness. Defaults to TAP::Harness (unless <code>--archive</code> is specified, in which case it uses <a href="https://metacpan.org/pod/TAP::Harness::Archive">TAP::Harness::Archive</a>).</p>
 
 </dd>
 <dt><code>-j</code></dt>
@@ -366,7 +366,7 @@ pg_prove --recurse sql/</code></pre>
 
 <p>Under Windows and VMS the option file is named <i>_proverc</i> rather than <i>.proverc</i> and is sought only in the current directory.</p>
 
-<p>Due to how options are loaded you cannot use <i>.proverc</i> for <code>pg_prove</code>-specific options, only <code>prove</code> options. However, &lt;pg_prove&gt; does support all of the usual libpq <a href="http://www.postgresql.org/docs/current/static/libpq-envars.html">Environment Variables</a>.</p>
+<p>Due to how options are loaded you cannot use <i>.proverc</i> for <code>pg_prove</code>-specific options, only <code>prove</code> options. However, &lt;pg_prove&gt; does support all of the usual libpq <a href="https://www.postgresql.org/docs/current/static/libpq-envars.html">Environment Variables</a>.</p>
 
 </dd>
 <dt><code>--norc</code></dt>
@@ -630,7 +630,7 @@ pg_prove -c</code></pre>
 
 <p>Display test results in color. Colored test output is the default, but if output is not to a terminal, color is disabled.</p>
 
-<p>Requires <a href="http://search.cpan.org/perldoc?Term::ANSIColor">Term::ANSIColor</a> on Unix-like platforms and <a href="http://search.cpan.org/perldoc?Win32::Console">Win32::Console</a> on Windows. If the necessary module is not installed colored output will not be available.</p>
+<p>Requires <a href="https://metacpan.org/pod/Term::ANSIColor">Term::ANSIColor</a> on Unix-like platforms and <a href="https://metacpan.org/pod/Win32::Console">Win32::Console</a> on Windows. If the necessary module is not installed colored output will not be available.</p>
 
 </dd>
 <dt><code>--nocolor</code></dt>
@@ -676,7 +676,7 @@ pg_prove -a test_output.tar</code></pre>
 <pre><code>pg_prove --formatter TAP::Formatter::File
 pg_prove -f TAP::Formatter::Console</code></pre>
 
-<p>The name of the class to use to format output. The default is <a href="http://search.cpan.org/perldoc?TAP::Formatter::Console">TAP::Formatter::Console</a>, or <a href="http://search.cpan.org/perldoc?TAP::Formatter::File">TAP::Formatter::File</a> if the output isn&#39;t a TTY.</p>
+<p>The name of the class to use to format output. The default is <a href="https://metacpan.org/pod/TAP::Formatter::Console">TAP::Formatter::Console</a>, or <a href="https://metacpan.org/pod/TAP::Formatter::File">TAP::Formatter::File</a> if the output isn&#39;t a TTY.</p>
 
 </dd>
 <dt><code>--count</code></dt>
@@ -754,7 +754,7 @@ pg_prove -V</code></pre>
 
 <h1 id="Copyright">Copyright</h1>
 
-<p>Copyright (c) 2008-2016 David E. Wheeler. Some Rights Reserved.</p>
+<p>Copyright (c) 2008-2018 David E. Wheeler. Some Rights Reserved.</p>
 <!-- END DOCS -->
     </div>
     <div id="menu">
