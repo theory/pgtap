@@ -18,7 +18,20 @@ Revision history for pgTAP
   identifier. Thanks to Matt DeLuco for the report (#216)!
 * Fixed the `col_not_null()` drop statements in the uninstall script. Thanks
   to Kyle L. Jensen for the report (#252).
-* Added `hasnt_operator()`, `hasnt_leftop()`, `hasnt_rightop()` (#38).
+* Removed straggler references to Postgres 9.0 and earlier, including
+  conditional tests.
+* Updated all relevant URLs to use https instead of http.
+* Added instructions to install the extension on a host with PostgreSQL running
+  and with the contrib modules installed. Thanks to F. Eugene Aumson for the
+  report (#276).
+* Fixed test failures due to changes in PostgreSQL 14. Thanks to Christoph Berg
+  for the report (#277).
+* Added `isnt_member_of()` (#38, #204). Thanks to Wolfgang Walther for the
+  pull request (#249).
+* Added docker files for local test environment. Thanks to Wolfgang Walther for
+  the pull request (#250).
+* Added `hasnt_operator()`, `hasnt_leftop()`, `hasnt_rightop()` (#38). Thanks to
+  Wolfgang Walther for the pull request (#251).
 
 1.1.0 2019-11-25T19:05:38Z
 --------------------------
@@ -37,7 +50,7 @@ Revision history for pgTAP
   version 0.99.0 to 1.0.0 (#214).
 * Fix issue with using pg_upgrade to PostgreSQL 11+ with pgTap installed (#201,
   #215).
-* Start using `DEFAULT` in functions. Previously
+* Start using `DEFAULT` in functions.
 * Add automated testing of extension upgrade scripts (#128), as well as testing
   of pg_upgrade with pgTap installed (#218, #222).
 
@@ -221,7 +234,7 @@ Revision history for pgTAP
     + `has_foreign_table(:schema, :table)`
     + `hasnt_foreign_table(:schema, :table)`
 * Fixed the format of SKIP output to match the
-  [TAP spec](http://podwiki.hexten.net/TAP/TAP.html#Skippingtests).
+  [TAP spec](https://testanything.org/tap-specification.html#skipping-tests).
 * Fixed incorrect handling of leading space when comparing diagnostic output
   in `check_test()`.
 * Fixed an installation issue on PostgreSQL 9.3.2.
@@ -374,7 +387,7 @@ Revision history for pgTAP
 * Removed `pg_prove` and `pg_tapgen` from the distribution. They must now be
   installed separately from CPAN. If it's not installed, the intaller will
   issue a warning.
-* Added `META.json` and distributed on [PGXN](http://pgxn.org/).
+* Added `META.json` and distributed on [PGXN](https://pgxn.org/).
 * Rearranged the source directory layout to more closely match the [preferred
   PGXN layout](http://manager.pgxn.org/howto#new-order).
 
@@ -815,4 +828,4 @@ Revision history for pgTAP
 0.01  2008-06-07T05:24:27Z
 --------------------------
 * Initial public release. Announcement at
-  http://justatheory.com/computers/databases/postgresql/introducing_pgtap.html
+  https://justatheory.com/2008/06/introducing-pgtap/
