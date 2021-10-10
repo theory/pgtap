@@ -3,7 +3,7 @@ pgTAP 1.1.0
 
 pgTAP is a unit testing framework for PostgreSQL written in PL/pgSQL and
 PL/SQL. It includes a comprehensive collection of
-[TAP](http://testanything.org)-emitting assertion functions, as well as the
+[TAP](https://testanything.org)-emitting assertion functions, as well as the
 ability to integrate with other TAP-emitting test frameworks. It can also be
 used in the xUnit testing style.
 
@@ -51,7 +51,10 @@ Synopsis
 Installation
 ============
 
-For the impatient, to install pgTAP into a PostgreSQL database, just do this:
+pgTAP must be installed on a host with PostgreSQL server running; it cannot
+be installed remotely.
+
+To install pgTAP into a PostgreSQL database, just do this:
 
     make
     make install
@@ -62,7 +65,7 @@ If you encounter an error such as:
     "Makefile", line 8: Need an operator
 
 You need to use GNU make, which may well be installed on your system as
-'gmake':
+`gmake`:
 
     gmake
     gmake install
@@ -74,7 +77,7 @@ If you encounter an error such as:
 
 Or:
 
-    Makefile:52: *** pgTAP requires PostgreSQL 8.1 or later. This is .  Stop.
+    Makefile:52: *** pgTAP requires PostgreSQL 9.1 or later. This is .  Stop.
 
 Be sure that you have `pg_config` installed and in your path. If you used a
 package management system such as RPM to install PostgreSQL, be sure that the
@@ -83,9 +86,9 @@ to find it:
 
     env PG_CONFIG=/path/to/pg_config make && make install && make installcheck
 
-And finally, if all that fails (and if you're on PostgreSQL 8.1, it likely
-will), copy the entire distribution directory to the `contrib/` subdirectory
-of the PostgreSQL source tree and try it there without `pg_config`:
+And finally, if all that fails, copy the entire distribution directory to the
+`contrib/` subdirectory of the PostgreSQL source tree and try it there without
+`pg_config`:
 
     env NO_PGXS=1 make && make install && make installcheck
 
@@ -98,13 +101,43 @@ You need to run the test suite using a super user, such as the default
 
     make installcheck PGUSER=postgres
 
+If you encounter an error such as:
+
+    ERROR: Missing extensions required for testing: citext isn ltree
+
+Install the PostgreSQL
+[Additional Supplied Modules](https://www.postgresql.org/docs/current/contrib.html),
+which are required to run the tests. If you used a package management system
+such as RPM to install PostgreSQL, install the `-contrib` package.
+
+Once pgTAP is installed, you can add it to a database by connecting as a super
+user and running:
+
+    CREATE EXTENSION pgtap;
+
+If you've upgraded your cluster to PostgreSQL 9.1 and already had pgTAP
+installed, you can upgrade it to a properly packaged extension with:
+
+    CREATE EXTENSION pgtap FROM unpackaged;
+
+If you want to install pgTAP and all of its supporting objects into a
+specific schema, use the `PGOPTIONS` environment variable to specify the
+schema, like so:
+
+    PGOPTIONS=--search_path=tap psql -d mydb -f pgTAP.sql
+
+If you want to install pgTAP and all of its supporting objects into a specific
+schema, use the `SCHEMA` clause to specify the schema, like so:
+
+    CREATE EXTENSION pgtap SCHEMA tap;
+
 Testing pgTAP with pgTAP
 ------------------------
 
 In addition to the PostgreSQL-standard `installcheck` target, the `test`
-target uses the `pg_prove` Perl program to do its testing, which will be
-installed with the
-[TAP::Parser::SourceHandler::pgTAP](http://search.cpan.org/dist/TAP-Parser-SourceHandler-pgTAP)
+target uses the `pg_prove` Perl program to do its testing, which needs
+to be installed separately from
+[TAP::Parser::SourceHandler::pgTAP](https://metacpan.org/module/TAP::Parser::SourceHandler::pgTAP)
 CPAN distribution. You'll need to make sure that you use a database with
 PL/pgSQL loaded, or else the tests won't work. `pg_prove` supports a number of
 environment variables that you might need to use, including all the usual
@@ -118,6 +151,30 @@ PostgreSQL client environment variables:
 You can use it to run the test suite as a database super user like so:
 
     make test PGUSER=postgres
+
+To run the tests in a local docker environment using the latest version
+of PostgreSQL, run:
+
+    cd test
+    docker compose build test
+    # start the postgres server in a docker container in the background
+    docker compose up -d test
+    # run the regression tests
+    docker compose exec test make install installcheck
+    # run the tests with pg_prove
+    # "run" builds and installs pgTAP, runs "CREATE EXTENSION"
+    # and then runs make test
+    docker compose exec test run
+    # Shut down the postgres container
+    docker compose down
+
+To test with a different version of PostgreSQL, set the environment variable
+`$pgtag` to one of the [PostgreSQL Docker](https://hub.docker.com/_/postgres)
+tags:
+
+    export pgtag=12-alpine
+
+Then run the above commands.
 
 Adding pgTAP to a Database
 --------------------------
@@ -218,7 +275,7 @@ Using `pg_prove`
 
 Or save yourself some effort -- and run a batch of tests scripts or all of
 your xUnit test functions at once -- by using `pg_prove`, available in the
-[TAP::Parser::SourceHandler::pgTAP](http://search.cpan.org/dist/TAP-Parser-SourceHandler-pgTAP)
+[TAP::Parser::SourceHandler::pgTAP](https://metacpan.org/module/TAP::Parser::SourceHandler::pgTAP)
 CPAN distribution. If you're not relying on `installcheck`, your test scripts
 can be a lot less verbose; you don't need to set all the extra variables,
 because `pg_prove` takes care of that for you:
@@ -500,7 +557,7 @@ Will produce something like this:
 So you can figure out what went wrong without re-running the test.
 
 You are encouraged to use `is()` and `isnt()` over `ok()` where possible. You
-can even use them to compare records in PostgreSQL 8.4 and later:
+can even use them to compare records:
 
     SELECT is( users.*, ROW(1, 'theory', true)::users )
       FROM users
@@ -751,7 +808,7 @@ an unnecessary PITA. Each of the query-executing functions in this section
 thus support an alternative to make your tests more SQLish: using prepared
 statements.
 
-[Prepared statements](http://www.postgresql.org/docs/current/static/sql-prepare.html)
+[Prepared statements](https://www.postgresql.org/docs/current/static/sql-prepare.html)
 allow you to just write SQL and simply
 pass the prepared statement names to test functions. For example, the above
 example can be rewritten as:
@@ -826,7 +883,7 @@ error-prone as you think they should be.
 : An SQL statement or the name of a prepared statement, passed as a string.
 
 `:errcode`
-: A [PostgreSQL error code](http://www.postgresql.org/docs/current/static/errcodes-appendix.html
+: A [PostgreSQL error code](https://www.postgresql.org/docs/current/static/errcodes-appendix.html
 "Appendix A. PostgreSQL Error Codes")
 
 `:errmsg`
@@ -848,9 +905,9 @@ five-character string (if it happens to consist only of numbers and you pass
 it as an integer, it will still work). If this value is not `NULL`,
 `throws_ok()` will check the thrown exception to ensure that it is the
 expected exception. For a complete list of error codes, see [Appendix
-A.](http://www.postgresql.org/docs/current/static/errcodes-appendix.html
+A.](https://www.postgresql.org/docs/current/static/errcodes-appendix.html
 "Appendix A. PostgreSQL Error Codes") in the [PostgreSQL
-documentation](http://www.postgresql.org/docs/current/static/).
+documentation](https://www.postgresql.org/docs/current/static/).
 
 The third argument is an error message. This will be most useful for functions
 you've written that raise exceptions, so that you can test the exception
@@ -1273,25 +1330,13 @@ will be represented as "NULL":
     #         have: (1,Anna)
     #         want: NULL
 
-On PostgreSQL 8.4 or higher, if the number of columns varies between result
-sets, or if results are of different data types, you'll get diagnostics like
-so:
+If the number of columns varies between result sets, or if results are of
+different data types, you'll get diagnostics like so:
 
     # Failed test 148
     #     Number of columns or their types differ between the queries:
     #         have: (1)
     #         want: (foo,1)
-
-On PostgreSQL 8.3 and down, the rows are cast to text for comparison, rather
-than compared as `record` objects. The downside to this necessity is that the
-test cannot detect incompatibilities in column numbers or types, or
-differences in columns that convert to the same text representation. For
-example, a `NULL` column will be equivalent to an empty string. As a result,
-pgTAP will not show the `have` and `want` values if they are the same, just
-the error message, like so:
-
-    # Failed test 149
-    #     Number of columns or their types differ between the queries
 
 ### `results_ne()` ###
 
@@ -1330,9 +1375,6 @@ want is `results_eq()` or `set_ne()`. But this function is included for
 completeness and is kind of cute, so enjoy. If a `results_ne()` test fails,
 however, there will be no diagnostics, because, well, the results will be the
 same!
-
-Note that the caveats for `results_ne()` on PostgreSQL 8.3 and down apply to
-`results_ne()` as well.
 
 ### `set_eq()` ###
 
@@ -1634,7 +1676,7 @@ test fails.
 : An SQL statement or the name of a prepared statement, passed as a string.
 
 `:record`
-: A row or value, also known as a [composite type](http://www.postgresql.org/docs/current/static/rowtypes.html).
+: A row or value, also known as a [composite type](https://www.postgresql.org/docs/current/static/rowtypes.html).
 
 `:description`
 : A short description of the test.
@@ -2501,10 +2543,9 @@ missing domains, like so:
 : A short description of the test.
 
 Tests that all of the enums in the named schema are the only enums in that
-schema. Enums are supported in PostgreSQL 8.3 and up. If the `:schema`
-argument is omitted, the enums must be visible in the search path, excluding
-`pg_catalog` and `information_schema`. If the description is omitted, a
-generally useful default description will be generated. Example:
+schema. If the `:schema` argument is omitted, the enums must be visible in the
+search path, excluding `pg_catalog` and `information_schema`. If the description
+is omitted, a generally useful default description will be generated. Example:
 
     SELECT enums_are('myschema', ARRAY[ 'timezone', 'state' ]);
 
@@ -3413,11 +3454,11 @@ domain does *not* exist.
 `:description`
 : A short description of the test.
 
-This function tests whether or not a enum exists in the database. Enums are
-supported in PostgreSQL 8.3 or higher. The first argument is a schema name,
-the second is the an enum name, and the third is the test description. If you
-omit the schema, the enum must be visible in the search path. If you omit the
-test description, it will be set to "Enum `:enum` should exist". Example:
+This function tests whether or not a enum exists in the database. The first
+argument is a schema name, the second is the an enum name, and the third is the
+test description. If you omit the schema, the enum must be visible in the search
+path. If you omit the test description, it will be set to "Enum `:enum` should
+exist". Example:
 
     SELECT has_enum( 'myschema', 'someenum' );
 
@@ -3852,14 +3893,47 @@ cast does *not* exist.
 
 Tests for the presence of a binary operator. If the operator exists with the
 given schema, name, left and right arguments, and return value, the test will
-fail. If the operator does not exist, the test will fail. Example:
+pass. If the operator does not exist, the test will fail. Example:
 
     SELECT has_operator( 'integer', 'pg_catalog', '<=', 'integer', 'boolean' );
 
 If you omit the schema name, then the operator must be visible in the search
 path. If you omit the test description, pgTAP will generate a reasonable one
-for you. The return value is also optional. If you need to test for a left or
-right unary operator, use `has_leftop()` or `has_rightop()` instead.
+for you. The return value is also optional. If you need to test for a left
+(prefix) or right (postfix) unary operator, use `has_leftop()` or
+`has_rightop()` instead.
+
+### `hasnt_operator()` ###
+
+    SELECT hasnt_operator( :left_type, :schema, :name, :right_type, :return_type, :description );
+    SELECT hasnt_operator( :left_type, :schema, :name, :right_type, :return_type );
+    SELECT hasnt_operator( :left_type, :name, :right_type, :return_type, :description );
+    SELECT hasnt_operator( :left_type, :name, :right_type, :return_type );
+    SELECT hasnt_operator( :left_type, :name, :right_type, :description );
+    SELECT hasnt_operator( :left_type, :name, :right_type );
+
+**Parameters**
+
+`:left_type`
+: Data type of the left operand.
+
+`:schema`
+: Schema in which to find the operator.
+
+`:name`
+: Name of the operator.
+
+`:right_type`
+: Data type of the right operand.
+
+`:return_type`
+: Data type of the return value.
+
+`:description`
+: A short description of the test.
+
+This function is the inverse of `has_operator()`. The test passes if the
+specified operator does *not* exist.
 
 ### `has_leftop()` ###
 
@@ -3887,15 +3961,44 @@ right unary operator, use `has_leftop()` or `has_rightop()` instead.
 `:description`
 : A short description of the test.
 
-Tests for the presence of a left-unary operator. If the operator exists with
-the given schema, name, right argument, and return value, the test will fail.
-If the operator does not exist, the test will fail. Example:
+Tests for the presence of a left-unary (prefix) operator. If the operator
+exists with the given schema, name, right argument, and return value, the
+test will fail. If the operator does not exist, the test will fail. Example:
 
     SELECT has_leftop( 'pg_catalog', '!!', 'bigint', 'numeric' );
 
 If you omit the schema name, then the operator must be visible in the search
 path. If you omit the test description, pgTAP will generate a reasonable one
 for you. The return type is also optional.
+
+### `hasnt_leftop()` ###
+
+    SELECT hasnt_leftop( :schema, :name, :type, :return_type, :description );
+    SELECT hasnt_leftop( :schema, :name, :type, :return_type );
+    SELECT hasnt_leftop( :name, :type, :return_type, :description );
+    SELECT hasnt_leftop( :name, :type, :return_type );
+    SELECT hasnt_leftop( :name, :type, :description );
+    SELECT hasnt_leftop( :name, :type );
+
+**Parameters**
+
+`:schema`
+: Schema in which to find the operator.
+
+`:name`
+: Name of the operator.
+
+`:type`
+: Data type of the operand.
+
+`:return_type`
+: Data type of the return value.
+
+`:description`
+: A short description of the test.
+
+This function is the inverse of `has_leftop()`. The test passes if the
+specified operator does *not* exist.
 
 ### `has_rightop()` ###
 
@@ -3923,15 +4026,45 @@ for you. The return type is also optional.
 `:description`
 : A short description of the test.
 
-Tests for the presence of a right-unary operator. If the operator exists with
-the given left argument, schema, name, and return value, the test will fail.
-If the operator does not exist, the test will fail. Example:
+Tests for the presence of a right-unary (postfix) operator, supported through
+PostgreSQL 13. If the operator exists with the given left argument, schema,
+name, and return value, the test will fail. If the operator does not exist,
+the test will fail. Example:
 
     SELECT has_rightop( 'bigint', 'pg_catalog', '!', 'numeric' );
 
 If you omit the schema name, then the operator must be visible in the search
 path. If you omit the test description, pgTAP will generate a reasonable one
 for you. The return type is also optional.
+
+### `hasnt_rightop()` ###
+
+    SELECT hasnt_rightop( :schema, :name, :type, :return_type, :description );
+    SELECT hasnt_rightop( :schema, :name, :type, :return_type );
+    SELECT hasnt_rightop( :name, :type, :return_type, :description );
+    SELECT hasnt_rightop( :name, :type, :return_type );
+    SELECT hasnt_rightop( :name, :type, :description );
+    SELECT hasnt_rightop( :name, :type );
+
+**Parameters**
+
+`:schema`
+: Schema in which to find the operator.
+
+`:name`
+: Name of the operator.
+
+`:type`
+: Data type of the operand.
+
+`:return_type`
+: Data type of the return value.
+
+`:description`
+: A short description of the test.
+
+This function is the inverse of `hasnt_rightop()`. The test passes if the
+specified operator does *not* exist.
 
 ### `has_opclass()` ###
 
@@ -4425,9 +4558,7 @@ that this test will fail if the table or column in question does not exist.
 The default argument must have an unambiguous type in order for the call to
 succeed. If you see an error such as 'ERROR: could not determine polymorphic
 type because input has type "unknown"', it's because you forgot to cast the
-expected value, probably a `NULL` (which, by the way, you can only properly
-test for in PostgreSQL 8.3 and later), to its proper type. IOW, this will
-fail:
+expected value, probably a `NULL`, to its proper type. IOW, this will fail:
 
     SELECT col_default_is( 'tab', age, NULL );
 
@@ -4456,7 +4587,7 @@ which to use:
 
     SELECT col_default_is(
         'widgets', 'created_by',
-        CASE WHEN pg_version_num() >= 100000 THEN 'CURRENT_USER ELSE '"current_user"()' END
+        CASE WHEN pg_version_num() >= 100000 THEN 'CURRENT_USER' ELSE '"current_user"()' END
     );
 
 See the note in the
@@ -5588,7 +5719,7 @@ But then you check with `has_function()` first, right?
 
 Tests the volatility of a function. Supported volatilities are "volatile",
 "stable", and "immutable". Consult the [`CREATE FUNCTION`
-documentation](http://www.postgresql.org/docs/current/static/sql-createfunction.html)
+documentation](https://www.postgresql.org/docs/current/static/sql-createfunction.html)
 for details. The function name is required. If the `:schema` argument is
 omitted, then the function must be visible in the search path. If the
 `:args[]` argument is passed, then the function with that argument signature
@@ -5671,7 +5802,7 @@ other database objects.
 : A short description of the test.
 
 Tests that the specified procedural language is trusted. See the [CREATE
-LANGUAGE](http://www.postgresql.org/docs/current/static/sql-createlanguage.html
+LANGUAGE](https://www.postgresql.org/docs/current/static/sql-createlanguage.html
 "CREATE LANGUAGE") documentation for details on trusted and untrusted
 procedural languages. If the `:description` argument is not passed, a suitably
 useful default will be created.
@@ -5707,10 +5838,9 @@ far.
 `:description`
 : A short description of the test.
 
-This function tests that an enum consists of an expected list of labels. Enums
-are supported in PostgreSQL 8.3 or higher. The first argument is a schema
-name, the second an enum name, the third an array of enum labels, and the
-fourth a description. Example:
+This function tests that an enum consists of an expected list of labels.The
+first argument is a schema name, the second an enum name, the third an array of
+enum labels, and the fourth a description. Example:
 
     SELECT enum_has_labels( 'myschema', 'someenum', ARRAY['foo', 'bar'] );
 
@@ -5840,7 +5970,7 @@ varying", and not "VARCHAR".
 
 The The supported contexts are "implicit", "assignment", and "explicit". You
 can also just pass in "i", "a", or "e". Consult the PostgreSQL [`CREATE
-CAST`](http://www.postgresql.org/docs/current/static/sql-createcast.html)
+CAST`](https://www.postgresql.org/docs/current/static/sql-createcast.html)
 documentation for the differences between these contexts (hint: they
 correspond to the default context, `AS IMPLICIT`, and `AS ASSIGNMENT`). If you
 don't supply a test description, pgTAP will create a reasonable one for you.
@@ -5936,6 +6066,45 @@ If the group role does not exist, the diagnostics will tell you that, instead.
 But you use `has_role()` to make sure the role exists before you check its
 members, don't you? Of course you do.
 
+### `isnt_member_of()` ###
+
+    SELECT isnt_member_of( :role, :members, :description );
+    SELECT isnt_member_of( :role, :members );
+    SELECT isnt_member_of( :role, :member, :description );
+    SELECT isnt_member_of( :role, :member );
+
+**Parameters**
+
+`:role`
+: Name of a PostgreSQL group role.
+
+`:members`
+: Array of names of roles that should *not* be members of the group role.
+
+`:member`
+: Name of a role that should *not* be a member of the group role.
+
+`:description`
+: A short description of the test.
+
+    SELECT isnt_member_of( 'meanies', 'anna' 'Anna should not be a meanie' );
+    SELECT isnt_member_of( 'sweeties', ARRAY['dr_evil', 'dr_no' ] );
+
+The inverse of `is_member_of()`, checks whether a group role does not contain
+a member role or none of an array of member roles. If the description is
+omitted, it will default to "Should not have members of role `:role`." On
+failure, `isnt_member_of()` will output diagnostics listing the missing member
+roles, like so:
+
+    # Failed test 371: "Should not have members of role sweeties"
+    #     Members, who should not be in sweeties role:
+    #         dr_evil
+    #         dr_no
+
+If the group role does not exist, the diagnostics will tell you that, instead.
+But you use `has_role()` to make sure the role exists before you check its
+members, don't you? Of course you do.
+
 ### `rule_is_instead()` ###
 
     SELECT rule_is_instead( :schema, :table, :rule, :description );
@@ -5959,7 +6128,7 @@ members, don't you? Of course you do.
 
 Checks whether a rule on the specified relation is an `INSTEAD` rule. See the
 [`CREATE RULE`
-Documentation](http://www.postgresql.org/docs/current/static/sql-createrule.html)
+Documentation](https://www.postgresql.org/docs/current/static/sql-createrule.html)
 for details. If the `:schema` argument is omitted, the relation must be
 visible in the search path. If the `:description` argument is omitted, an
 appropriate description will be created. An example:
@@ -6552,9 +6721,8 @@ diagnostics will look something like:
 `:description`
 : A short description of the test.
 
-Tests the ownership of a procedural language. If the `:description` argument
-is omitted, an appropriate description will be created. Works on PostgreSQL
-8.3 and higher. Examples:
+Tests the ownership of a procedural language. If the `:description` argument is
+omitted, an appropriate description will be created. Examples:
 
     SELECT language_owner_is( 'plpgsql', 'larry', 'Larry should own plpgsql' );
     SELECT language_owner_is( 'plperl', current_user );
@@ -6887,9 +7055,6 @@ table privileges are:
 * TRUNCATE
 * UPDATE
 
-Note that the privilege RULE is not available after PostgreSQL 8.1, and that
-TRIGGER was added in 8.4.
-
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
 
@@ -7033,9 +7198,6 @@ The available column privileges are:
 * SELECT
 * UPDATE
 
-Note that column privileges were added in PostgreSQL 8.4, so this function
-will likely throw an exception on earlier versions.
-
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
 
@@ -7108,9 +7270,6 @@ available column privileges are:
 * REFERENCES
 * SELECT
 * UPDATE
-
-Note that column privileges were added in PostgreSQL 8.4, so this function
-will likely throw an exception on earlier versions.
 
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
@@ -7308,9 +7467,6 @@ available function privileges are:
 
 * USAGE
 
-Note that foreign data wrapper privileges were added in PostgreSQL 8.4, so
-this function will likely throw an exception on earlier versions.
-
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
 
@@ -7370,9 +7526,6 @@ Tests the privileges granted to a role to access a server. The available
 function privileges are:
 
 * USAGE
-
-Note that server privileges were added in PostgreSQL 8.4, so this function
-will likely throw an exception on earlier versions.
 
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
@@ -7597,10 +7750,9 @@ Which would produce:
     # but yours is set to en_US.ISO8859-1.
     # As a result, some tests may fail. YMMV.
 
-You can pass data of any type to `diag()` on PostgreSQL 8.3 and higher and it
-will all be converted to text for the diagnostics. On PostgreSQL 8.4 and
-higher, you can pass any number of arguments (as long as they are all the same
-data type) and they will be concatenated together.
+You can pass data of any type to `diag()` and it will all be converted to text
+for the diagnostics. You can als pass any number of arguments (as long as they
+are all the same data type) and they will be concatenated together.
 
 Conditional Tests
 -----------------
@@ -7775,9 +7927,9 @@ the stringified version number displayed in the first part of the core
 `version()` function and stored in the "server_version" setting:
 
     try=% select current_setting( 'server_version'), pg_version();
-     current_setting | pg_version
+     current_setting | pg_version 
     -----------------+------------
-     8.3.4           | 8.3.4
+     12.2            | 12.2
     (1 row)
 
 ### `pg_version_num()` ###
@@ -7838,14 +7990,6 @@ when used in combination with `skip()`:
            skip('Collation-specific test', 4)
       END;
 
-On PostgreSQL 8.4 and higher, it can take any number of arguments. Lower than
-8.4 requires the explicit use of an array:
-
-    SELECT collect_tap(ARRAY[
-        ok(true, 'This should pass'),
-        ok(false, 'This should fail)
-    ]);
-
 ### `display_oper()` ###
 
     SELECT display_oper( :opername, :operoid );
@@ -7883,11 +8027,6 @@ executing the comparison, but might be generally useful.
      pg_typeof | pg_typeof
     -----------+-----------
      integer   | numeric
-
-*Note:* pgTAP does not build `pg_typeof()` on PostgreSQL 8.4 or higher,
-because it's in core in 8.4. You only need to worry about this if you depend
-on the function being in particular schema. It will always be in `pg_catalog`
-in 8.4 and higher.
 
 ### `findfuncs()` ###
 
@@ -8355,7 +8494,7 @@ comments, suggestions, and bug reports are welcomed there.
 Author
 ------
 
-[David E. Wheeler](http://justatheory.com/)
+[David E. Wheeler](https://justatheory.com/)
 
 Credits
 -------
@@ -8366,7 +8505,7 @@ Credits
 Copyright and License
 ---------------------
 
-Copyright (c) 2008-2018 David E. Wheeler. Some rights reserved.
+Copyright (c) 2008-2020 David E. Wheeler. Some rights reserved.
 
 Permission to use, copy, modify, and distribute this software and its
 documentation for any purpose, without fee, and without a written agreement is

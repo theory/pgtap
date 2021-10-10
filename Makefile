@@ -80,7 +80,7 @@ endif
 # We need to do various things with the PostgreSQL version.
 VERSION = $(shell $(PG_CONFIG) --version | awk '{print $$2}')
 $(info )
-$(info GNUmake running against Postgres version $(VERSION), with pg_config located at $(shell dirname `which "$(PG_CONFIG)"`))
+$(info GNUmake running against Postgres version $(VERSION), with pg_config located at $(shell dirname `command -v "$(PG_CONFIG)"`))
 $(info )
 
 #
@@ -134,7 +134,7 @@ EXCLUDE_TEST_FILES += test/sql/policy.sql
 endif
 
 # Partition tests tests not supported by 9.x and earlier.
-ifeq ($(shell echo $(VERSION) | grep -qE "[89][.]" && echo yes || echo no),yes)
+ifeq ($(shell echo $(VERSION) | grep -qE "^[89][.]" && echo yes || echo no),yes)
 EXCLUDE_TEST_FILES += test/sql/partitions.sql
 endif
 
@@ -163,10 +163,10 @@ endif
 
 # We need Perl.
 ifneq (,$(findstring missing,$(PERL)))
-PERL := $(shell which perl)
+PERL := $(shell command -v perl)
 else
 ifndef PERL
-PERL := $(shell which perl)
+PERL := $(shell command -v perl)
 endif
 endif
 
@@ -254,7 +254,7 @@ ifeq ($(shell echo $(VERSION) | grep -qE "^(9[.][012]|8[.][1234])" && echo yes |
 endif
 
 sql/uninstall_pgtap.sql: sql/pgtap.sql test/setup.sql
-	grep '^CREATE ' sql/pgtap.sql | $(PERL) -e 'for (reverse <STDIN>) { chomp; s/CREATE (OR REPLACE )?/DROP /; print "$$_;\n" }' | sed 's/DROP \(FUNCTION\|VIEW\|TYPE\) /DROP \1 IF EXISTS /' > sql/uninstall_pgtap.sql
+	grep '^CREATE ' sql/pgtap.sql | $(PERL) -e 'for (reverse <STDIN>) { chomp; s/CREATE (OR REPLACE )?/DROP /; print "$$_;\n" }' | sed 's/DROP \(FUNCTION\|VIEW\|TYPE\) /DROP \1 IF EXISTS /' | sed -E 's/ (DEFAULT|=)[ ]+[a-zA-Z0-9]+//g' > sql/uninstall_pgtap.sql
 
 #
 # Support for static install files
