@@ -15,11 +15,11 @@
   <body>
     <div id="main">
       <!-- DOC INTRO HERE -->
-<h1 id="pgtap1.1.0">pgTAP 1.1.0</h1>
+<h1 id="pgtap1.2.0">pgTAP 1.2.0</h1>
 
 <p>pgTAP is a unit testing framework for PostgreSQL written in PL/pgSQL and
 PL/SQL. It includes a comprehensive collection of
-<a href="http://testanything.org">TAP</a>-emitting assertion functions, as well as the
+<a href="https://testanything.org">TAP</a>-emitting assertion functions, as well as the
 ability to integrate with other TAP-emitting test frameworks. It can also be
 used in the xUnit testing style.</p>
       <!-- END DOC INTRO HERE -->
@@ -146,8 +146,11 @@ used in the xUnit testing style.</p>
 <li><a href="#has_cast"><code>has_cast()</code></a></li>
 <li><a href="#hasnt_cast"><code>hasnt_cast()</code></a></li>
 <li><a href="#has_operator"><code>has_operator()</code></a></li>
+<li><a href="#hasnt_operator"><code>hasnt_operator()</code></a></li>
 <li><a href="#has_leftop"><code>has_leftop()</code></a></li>
+<li><a href="#hasnt_leftop"><code>hasnt_leftop()</code></a></li>
 <li><a href="#has_rightop"><code>has_rightop()</code></a></li>
+<li><a href="#hasnt_rightop"><code>hasnt_rightop()</code></a></li>
 <li><a href="#has_opclass"><code>has_opclass()</code></a></li>
 <li><a href="#hasnt_opclass"><code>hasnt_opclass()</code></a></li>
 <li><a href="#has_role"><code>has_role()</code></a></li>
@@ -198,8 +201,14 @@ used in the xUnit testing style.</p>
 <li><a href="#isnt_definer"><code>isnt_definer()</code></a></li>
 <li><a href="#is_strict"><code>is_strict()</code></a></li>
 <li><a href="#isnt_strict"><code>isnt_strict()</code></a></li>
+<li><a href="#is_normal_function"><code>is_normal_function()</code></a></li>
+<li><a href="#isnt_normal_function"><code>isnt_normal_function()</code></a></li>
 <li><a href="#is_aggregate"><code>is_aggregate()</code></a></li>
 <li><a href="#isnt_aggregate"><code>isnt_aggregate()</code></a></li>
+<li><a href="#is_window"><code>is_window()</code></a></li>
+<li><a href="#isnt_window"><code>isnt_window()</code></a></li>
+<li><a href="#is_procedure"><code>is_procedure()</code></a></li>
+<li><a href="#isnt_procedure"><code>isnt_procedure()</code></a></li>
 <li><a href="#volatility_is"><code>volatility_is()</code></a></li>
 <li><a href="#trigger_is"><code>trigger_is()</code></a></li></ul></li>
 <li><a href="#databasedeets">Database Deets</a><ul>
@@ -211,6 +220,7 @@ used in the xUnit testing style.</p>
 <li><a href="#is_superuser"><code>is_superuser()</code></a></li>
 <li><a href="#isnt_superuser"><code>isnt_superuser()</code></a></li>
 <li><a href="#is_member_of"><code>is_member_of()</code></a></li>
+<li><a href="#isnt_member_of"><code>isnt_member_of()</code></a></li>
 <li><a href="#rule_is_instead"><code>rule_is_instead()</code></a></li>
 <li><a href="#rule_is_on"><code>rule_is_on()</code></a></li></ul></li>
 <li><a href="#whoownsme">Who owns me?</a><ul>
@@ -272,7 +282,8 @@ used in the xUnit testing style.</p>
 <li><a href="#testingtestfunctions">Testing Test Functions</a><ul>
 <li><a href="#check_test"><code>check_test()</code></a></li></ul></li></ul></li>
 <li><a href="#compatibility">Compatibility</a><ul>
-<li><a href="#10andup">10 and Up</a></li>
+<li><a href="#11andup">11 and Up</a></li>
+<li><a href="#10anddown">10 and Down</a></li>
 <li><a href="#9.6anddown">9.6 and Down</a></li>
 <li><a href="#9.4anddown">9.4 and Down</a></li>
 <li><a href="#9.2anddown">9.2 and Down</a></li>
@@ -331,7 +342,10 @@ SELECT fail(:test_description);
 
 <h1 id="installation">Installation</h1>
 
-<p>For the impatient, to install pgTAP into a PostgreSQL database, just do this:</p>
+<p>pgTAP must be installed on a host with PostgreSQL server running; it cannot
+be installed remotely.</p>
+
+<p>To install pgTAP into a PostgreSQL database, just do this:</p>
 
 <pre><code>make
 make install
@@ -344,7 +358,7 @@ make installcheck
 </code></pre>
 
 <p>You need to use GNU make, which may well be installed on your system as
-&#8216;gmake&#8217;:</p>
+<code>gmake</code>:</p>
 
 <pre><code>gmake
 gmake install
@@ -358,7 +372,7 @@ gmake installcheck
 
 <p>Or:</p>
 
-<pre><code>Makefile:52: *** pgTAP requires PostgreSQL 8.1 or later. This is .  Stop.
+<pre><code>Makefile:52: *** pgTAP requires PostgreSQL 9.1 or later. This is .  Stop.
 </code></pre>
 
 <p>Be sure that you have <code>pg_config</code> installed and in your path. If you used a
@@ -369,9 +383,9 @@ to find it:</p>
 <pre><code>env PG_CONFIG=/path/to/pg_config make &amp;&amp; make install &amp;&amp; make installcheck
 </code></pre>
 
-<p>And finally, if all that fails (and if you&#8217;re on PostgreSQL 8.1, it likely
-will), copy the entire distribution directory to the <code>contrib/</code> subdirectory
-of the PostgreSQL source tree and try it there without <code>pg_config</code>:</p>
+<p>And finally, if all that fails, copy the entire distribution directory to the
+<code>contrib/</code> subdirectory of the PostgreSQL source tree and try it there without
+<code>pg_config</code>:</p>
 
 <pre><code>env NO_PGXS=1 make &amp;&amp; make install &amp;&amp; make installcheck
 </code></pre>
@@ -387,12 +401,47 @@ of the PostgreSQL source tree and try it there without <code>pg_config</code>:</
 <pre><code>make installcheck PGUSER=postgres
 </code></pre>
 
+<p>If you encounter an error such as:</p>
+
+<pre><code>ERROR: Missing extensions required for testing: citext isn ltree
+</code></pre>
+
+<p>Install the PostgreSQL
+<a href="https://www.postgresql.org/docs/current/contrib.html">Additional Supplied Modules</a>,
+which are required to run the tests. If you used a package management system
+such as RPM to install PostgreSQL, install the <code>-contrib</code> package.</p>
+
+<p>Once pgTAP is installed, you can add it to a database by connecting as a super
+user and running:</p>
+
+<pre><code>CREATE EXTENSION pgtap;
+</code></pre>
+
+<p>If you&#8217;ve upgraded your cluster to PostgreSQL 9.1 and already had pgTAP
+installed, you can upgrade it to a properly packaged extension with:</p>
+
+<pre><code>CREATE EXTENSION pgtap FROM unpackaged;
+</code></pre>
+
+<p>If you want to install pgTAP and all of its supporting objects into a
+specific schema, use the <code>PGOPTIONS</code> environment variable to specify the
+schema, like so:</p>
+
+<pre><code>PGOPTIONS=--search_path=tap psql -d mydb -f pgTAP.sql
+</code></pre>
+
+<p>If you want to install pgTAP and all of its supporting objects into a specific
+schema, use the <code>SCHEMA</code> clause to specify the schema, like so:</p>
+
+<pre><code>CREATE EXTENSION pgtap SCHEMA tap;
+</code></pre>
+
 <h2 id="testingpgtapwithpgtap">Testing pgTAP with pgTAP</h2>
 
 <p>In addition to the PostgreSQL-standard <code>installcheck</code> target, the <code>test</code>
-target uses the <code>pg_prove</code> Perl program to do its testing, which will be
-installed with the
-<a href="http://search.cpan.org/dist/TAP-Parser-SourceHandler-pgTAP">TAP::Parser::SourceHandler::pgTAP</a>
+target uses the <code>pg_prove</code> Perl program to do its testing, which needs
+to be installed separately from
+<a href="https://metacpan.org/module/TAP::Parser::SourceHandler::pgTAP">TAP::Parser::SourceHandler::pgTAP</a>
 CPAN distribution. You&#8217;ll need to make sure that you use a database with
 PL/pgSQL loaded, or else the tests won&#8217;t work. <code>pg_prove</code> supports a number of
 environment variables that you might need to use, including all the usual
@@ -409,6 +458,32 @@ PostgreSQL client environment variables:</p>
 
 <pre><code>make test PGUSER=postgres
 </code></pre>
+
+<p>To run the tests in a local docker environment using the latest version
+of PostgreSQL, run:</p>
+
+<pre><code>cd test
+docker compose build test
+# start the postgres server in a docker container in the background
+docker compose up -d test
+# run the regression tests
+docker compose exec test make install installcheck
+# run the tests with pg_prove
+# &quot;run&quot; builds and installs pgTAP, runs &quot;CREATE EXTENSION&quot;
+# and then runs make test
+docker compose exec test run
+# Shut down the postgres container
+docker compose down
+</code></pre>
+
+<p>To test with a different version of PostgreSQL, set the environment variable
+<code>$pgtag</code> to one of the <a href="https://hub.docker.com/_/postgres">PostgreSQL Docker</a>
+tags:</p>
+
+<pre><code>export pgtag=12-alpine
+</code></pre>
+
+<p>Then run the above commands.</p>
 
 <h2 id="addingpgtaptoadatabase">Adding pgTAP to a Database</h2>
 
@@ -516,7 +591,7 @@ loading of the test functions &#8211; in the event of an uncaught exception.</p>
 
 <p>Or save yourself some effort &#8211; and run a batch of tests scripts or all of
 your xUnit test functions at once &#8211; by using <code>pg_prove</code>, available in the
-<a href="http://search.cpan.org/dist/TAP-Parser-SourceHandler-pgTAP">TAP::Parser::SourceHandler::pgTAP</a>
+<a href="https://metacpan.org/module/TAP::Parser::SourceHandler::pgTAP">TAP::Parser::SourceHandler::pgTAP</a>
 CPAN distribution. If you&#8217;re not relying on <code>installcheck</code>, your test scripts
 can be a lot less verbose; you don&#8217;t need to set all the extra variables,
 because <code>pg_prove</code> takes care of that for you:</p>
@@ -606,7 +681,7 @@ discrepancy between the planned number of tests and the number actually run:</p>
 <p>If you need to throw an exception if some test failed, you can pass an
 option to <code>finish()</code>.</p>
 
-<pre><code>SELECT * FROM finish(true);
+<pre><code>SELECT * FROM finish(true);    
 </code></pre>
 
 <h2 id="whatasweetunit">What a sweet unit!</h2>
@@ -822,7 +897,7 @@ SELECT is( :foo::text, :bar::text, 'Is foo the same as bar?' );
 <p>So you can figure out what went wrong without re-running the test.</p>
 
 <p>You are encouraged to use <code>is()</code> and <code>isnt()</code> over <code>ok()</code> where possible. You
-can even use them to compare records in PostgreSQL 8.4 and later:</p>
+can even use them to compare records:</p>
 
 <pre><code>SELECT is( users.*, ROW(1, 'theory', true)::users )
   FROM users
@@ -936,7 +1011,7 @@ SELECT ialike( :this, :like );
 <dd> A short description of the test.</dd>
 </dl>
 
-<p>Similar to <code>matches()</code>, <code>alike()</code> matches <code>:hve</code> against the SQL <code>LIKE</code>
+<p>Similar to <code>matches()</code>, <code>alike()</code> matches <code>:have</code> against the SQL <code>LIKE</code>
 pattern <code>:like</code>. <code>ialike()</code> matches case-insensitively.</p>
 
 <p>So this:</p>
@@ -1111,7 +1186,7 @@ an unnecessary PITA. Each of the query-executing functions in this section
 thus support an alternative to make your tests more SQLish: using prepared
 statements.</p>
 
-<p><a href="http://www.postgresql.org/docs/current/static/sql-prepare.html">Prepared statements</a>
+<p><a href="https://www.postgresql.org/docs/current/static/sql-prepare.html">Prepared statements</a>
 allow you to just write SQL and simply
 pass the prepared statement names to test functions. For example, the above
 example can be rewritten as:</p>
@@ -1191,7 +1266,7 @@ SELECT throws_ok( :sql );
 <dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:errcode</code></dt>
-<dd> A <a href="http://www.postgresql.org/docs/current/static/errcodes-appendix.html">PostgreSQL error code</a></dd>
+<dd> A <a href="https://www.postgresql.org/docs/current/static/errcodes-appendix.html">PostgreSQL error code</a></dd>
 
 <dt><code>:errmsg</code></dt>
 <dd> An error message.</dd>
@@ -1212,8 +1287,8 @@ statement to execute the query and catch any exception.</p>
 five-character string (if it happens to consist only of numbers and you pass
 it as an integer, it will still work). If this value is not <code>NULL</code>,
 <code>throws_ok()</code> will check the thrown exception to ensure that it is the
-expected exception. For a complete list of error codes, see <a href="http://www.postgresql.org/docs/current/static/errcodes-appendix.html">Appendix
-A.</a> in the <a href="http://www.postgresql.org/docs/current/static/">PostgreSQL
+expected exception. For a complete list of error codes, see <a href="https://www.postgresql.org/docs/current/static/errcodes-appendix.html">Appendix
+A.</a> in the <a href="https://www.postgresql.org/docs/current/static/">PostgreSQL
 documentation</a>.</p>
 
 <p>The third argument is an error message. This will be most useful for functions
@@ -1676,26 +1751,13 @@ will be represented as &#8220;NULL&#8221;:</p>
 #         want: NULL
 </code></pre>
 
-<p>On PostgreSQL 8.4 or higher, if the number of columns varies between result
-sets, or if results are of different data types, you&#8217;ll get diagnostics like
-so:</p>
+<p>If the number of columns varies between result sets, or if results are of
+different data types, you&#8217;ll get diagnostics like so:</p>
 
 <pre><code># Failed test 148
 #     Number of columns or their types differ between the queries:
 #         have: (1)
 #         want: (foo,1)
-</code></pre>
-
-<p>On PostgreSQL 8.3 and down, the rows are cast to text for comparison, rather
-than compared as <code>record</code> objects. The downside to this necessity is that the
-test cannot detect incompatibilities in column numbers or types, or
-differences in columns that convert to the same text representation. For
-example, a <code>NULL</code> column will be equivalent to an empty string. As a result,
-pgTAP will not show the <code>have</code> and <code>want</code> values if they are the same, just
-the error message, like so:</p>
-
-<pre><code># Failed test 149
-#     Number of columns or their types differ between the queries
 </code></pre>
 
 <h3 id="results_ne"><code>results_ne()</code></h3>
@@ -1738,9 +1800,6 @@ want is <code>results_eq()</code> or <code>set_ne()</code>. But this function is
 completeness and is kind of cute, so enjoy. If a <code>results_ne()</code> test fails,
 however, there will be no diagnostics, because, well, the results will be the
 same!</p>
-
-<p>Note that the caveats for <code>results_ne()</code> on PostgreSQL 8.3 and down apply to
-<code>results_ne()</code> as well.</p>
 
 <h3 id="set_eq"><code>set_eq()</code></h3>
 
@@ -2082,7 +2141,7 @@ SELECT row_eq( :sql, :record );
 <dd> An SQL statement or the name of a prepared statement, passed as a string.</dd>
 
 <dt><code>:record</code></dt>
-<dd> A row or value, also known as a <a href="http://www.postgresql.org/docs/current/static/rowtypes.html">composite type</a>.</dd>
+<dd> A row or value, also known as a <a href="https://www.postgresql.org/docs/current/static/rowtypes.html">composite type</a>.</dd>
 
 <dt><code>:description</code></dt>
 <dd> A short description of the test.</dd>
@@ -2094,7 +2153,7 @@ bare <code>RECORD</code> value may be passed:</p>
 <pre><code>SELECT row_eq( $$ SELECT 1, 'foo' $$, ROW(1, 'foo') );
 </code></pre>
 
-<p>ue to the limitations of non-C functions in earlier versions of PostgreSQL, a
+<p>Due to the limitations of non-C functions in earlier versions of PostgreSQL, a
 bare <code>RECORD</code> value cannot be passed to the function. You must instead pass in a
 valid composite type value, and cast the record argument (the second argument)
 to the same type. Both explicitly created composite types and table types are
@@ -3061,10 +3120,9 @@ SELECT enums_are( :enums );
 </dl>
 
 <p>Tests that all of the enums in the named schema are the only enums in that
-schema. Enums are supported in PostgreSQL 8.3 and up. If the <code>:schema</code>
-argument is omitted, the enums must be visible in the search path, excluding
-<code>pg_catalog</code> and <code>information_schema</code>. If the description is omitted, a
-generally useful default description will be generated. Example:</p>
+schema. If the <code>:schema</code> argument is omitted, the enums must be visible in the
+search path, excluding <code>pg_catalog</code> and <code>information_schema</code>. If the description
+is omitted, a generally useful default description will be generated. Example:</p>
 
 <pre><code>SELECT enums_are('myschema', ARRAY[ 'timezone', 'state' ]);
 </code></pre>
@@ -3442,6 +3500,7 @@ specified table does <em>not</em> exist.</p>
 <h3 id="has_view"><code>has_view()</code></h3>
 
 <pre><code>SELECT has_view( :schema, :view, :description );
+SELECT has_view( :schema, :view );
 SELECT has_view( :view, :description );
 SELECT has_view( :view );
 </code></pre>
@@ -3473,6 +3532,7 @@ exist&#8221;.</p>
 <h3 id="hasnt_view"><code>hasnt_view()</code></h3>
 
 <pre><code>SELECT hasnt_view( :schema, :view, :description );
+SELECT hasnt_view( :schema, :view );
 SELECT hasnt_view( :view, :description );
 SELECT hasnt_view( :view );
 </code></pre>
@@ -4090,11 +4150,11 @@ SELECT has_enum( enum );
 <dd> A short description of the test.</dd>
 </dl>
 
-<p>This function tests whether or not a enum exists in the database. Enums are
-supported in PostgreSQL 8.3 or higher. The first argument is a schema name,
-the second is the an enum name, and the third is the test description. If you
-omit the schema, the enum must be visible in the search path. If you omit the
-test description, it will be set to &#8220;Enum <code>:enum</code> should exist&#8221;. Example:</p>
+<p>This function tests whether or not a enum exists in the database. The first
+argument is a schema name, the second is the an enum name, and the third is the
+test description. If you omit the schema, the enum must be visible in the search
+path. If you omit the test description, it will be set to &#8220;Enum <code>:enum</code> should
+exist&#8221;. Example:</p>
 
 <pre><code>SELECT has_enum( 'myschema', 'someenum' );
 </code></pre>
@@ -4204,6 +4264,21 @@ incorrect, the diagnostics will look more like this:</p>
 <pre><code>#       have: &quot;idx_baz&quot; ON public.sometab(lower(name))
 #       want: &quot;idx_baz&quot; ON public.sometab(lower(lname))
 </code></pre>
+
+<p>Note that unlike most other column parameter arguments in pgTAP, mixed-case
+column mames crated with double-quotes must be double-quoted when passed
+to <code>has_index()</code>, like so:</p>
+
+<pre><code>SELECT has_index(
+    'myschema',
+    'sometable',
+    'myindex',
+    ARRAY[ 'id', '&quot;Name&quot;', 'lower(&quot;foo-bar&quot;)' ]
+);
+</code></pre>
+
+<p>This caveat applies only to column names, not to table and schema names,
+which should omit double-quoting.</p>
 
 <h3 id="hasnt_index"><code>hasnt_index()</code></h3>
 
@@ -4562,15 +4637,51 @@ SELECT has_operator( :left_type, :name, :right_type );
 
 <p>Tests for the presence of a binary operator. If the operator exists with the
 given schema, name, left and right arguments, and return value, the test will
-fail. If the operator does not exist, the test will fail. Example:</p>
+pass. If the operator does not exist, the test will fail. Example:</p>
 
 <pre><code>SELECT has_operator( 'integer', 'pg_catalog', '&lt;=', 'integer', 'boolean' );
 </code></pre>
 
 <p>If you omit the schema name, then the operator must be visible in the search
 path. If you omit the test description, pgTAP will generate a reasonable one
-for you. The return value is also optional. If you need to test for a left or
-right unary operator, use <code>has_leftop()</code> or <code>has_rightop()</code> instead.</p>
+for you. The return value is also optional. If you need to test for a left
+(prefix) or right (postfix) unary operator, use <code>has_leftop()</code> or
+<code>has_rightop()</code> instead.</p>
+
+<h3 id="hasnt_operator"><code>hasnt_operator()</code></h3>
+
+<pre><code>SELECT hasnt_operator( :left_type, :schema, :name, :right_type, :return_type, :description );
+SELECT hasnt_operator( :left_type, :schema, :name, :right_type, :return_type );
+SELECT hasnt_operator( :left_type, :name, :right_type, :return_type, :description );
+SELECT hasnt_operator( :left_type, :name, :right_type, :return_type );
+SELECT hasnt_operator( :left_type, :name, :right_type, :description );
+SELECT hasnt_operator( :left_type, :name, :right_type );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:left_type</code></dt>
+<dd> Data type of the left operand.</dd>
+
+<dt><code>:schema</code></dt>
+<dd> Schema in which to find the operator.</dd>
+
+<dt><code>:name</code></dt>
+<dd> Name of the operator.</dd>
+
+<dt><code>:right_type</code></dt>
+<dd> Data type of the right operand.</dd>
+
+<dt><code>:return_type</code></dt>
+<dd> Data type of the return value.</dd>
+
+<dt><code>:description</code></dt>
+<dd> A short description of the test.</dd>
+</dl>
+
+<p>This function is the inverse of <code>has_operator()</code>. The test passes if the
+specified operator does <em>not</em> exist.</p>
 
 <h3 id="has_leftop"><code>has_leftop()</code></h3>
 
@@ -4601,9 +4712,9 @@ SELECT has_leftop( :name, :type );
 <dd> A short description of the test.</dd>
 </dl>
 
-<p>Tests for the presence of a left-unary operator. If the operator exists with
-the given schema, name, right argument, and return value, the test will fail.
-If the operator does not exist, the test will fail. Example:</p>
+<p>Tests for the presence of a left-unary (prefix) operator. If the operator
+exists with the given schema, name, right argument, and return value, the
+test will fail. If the operator does not exist, the test will fail. Example:</p>
 
 <pre><code>SELECT has_leftop( 'pg_catalog', '!!', 'bigint', 'numeric' );
 </code></pre>
@@ -4611,6 +4722,38 @@ If the operator does not exist, the test will fail. Example:</p>
 <p>If you omit the schema name, then the operator must be visible in the search
 path. If you omit the test description, pgTAP will generate a reasonable one
 for you. The return type is also optional.</p>
+
+<h3 id="hasnt_leftop"><code>hasnt_leftop()</code></h3>
+
+<pre><code>SELECT hasnt_leftop( :schema, :name, :type, :return_type, :description );
+SELECT hasnt_leftop( :schema, :name, :type, :return_type );
+SELECT hasnt_leftop( :name, :type, :return_type, :description );
+SELECT hasnt_leftop( :name, :type, :return_type );
+SELECT hasnt_leftop( :name, :type, :description );
+SELECT hasnt_leftop( :name, :type );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd> Schema in which to find the operator.</dd>
+
+<dt><code>:name</code></dt>
+<dd> Name of the operator.</dd>
+
+<dt><code>:type</code></dt>
+<dd> Data type of the operand.</dd>
+
+<dt><code>:return_type</code></dt>
+<dd> Data type of the return value.</dd>
+
+<dt><code>:description</code></dt>
+<dd> A short description of the test.</dd>
+</dl>
+
+<p>This function is the inverse of <code>has_leftop()</code>. The test passes if the
+specified operator does <em>not</em> exist.</p>
 
 <h3 id="has_rightop"><code>has_rightop()</code></h3>
 
@@ -4641,9 +4784,10 @@ SELECT has_rightop( :name, :type );
 <dd> A short description of the test.</dd>
 </dl>
 
-<p>Tests for the presence of a right-unary operator. If the operator exists with
-the given left argument, schema, name, and return value, the test will fail.
-If the operator does not exist, the test will fail. Example:</p>
+<p>Tests for the presence of a right-unary (postfix) operator, supported through
+PostgreSQL 13. If the operator exists with the given left argument, schema,
+name, and return value, the test will fail. If the operator does not exist,
+the test will fail. Example:</p>
 
 <pre><code>SELECT has_rightop( 'bigint', 'pg_catalog', '!', 'numeric' );
 </code></pre>
@@ -4651,6 +4795,38 @@ If the operator does not exist, the test will fail. Example:</p>
 <p>If you omit the schema name, then the operator must be visible in the search
 path. If you omit the test description, pgTAP will generate a reasonable one
 for you. The return type is also optional.</p>
+
+<h3 id="hasnt_rightop"><code>hasnt_rightop()</code></h3>
+
+<pre><code>SELECT hasnt_rightop( :schema, :name, :type, :return_type, :description );
+SELECT hasnt_rightop( :schema, :name, :type, :return_type );
+SELECT hasnt_rightop( :name, :type, :return_type, :description );
+SELECT hasnt_rightop( :name, :type, :return_type );
+SELECT hasnt_rightop( :name, :type, :description );
+SELECT hasnt_rightop( :name, :type );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd> Schema in which to find the operator.</dd>
+
+<dt><code>:name</code></dt>
+<dd> Name of the operator.</dd>
+
+<dt><code>:type</code></dt>
+<dd> Data type of the operand.</dd>
+
+<dt><code>:return_type</code></dt>
+<dd> Data type of the return value.</dd>
+
+<dt><code>:description</code></dt>
+<dd> A short description of the test.</dd>
+</dl>
+
+<p>This function is the inverse of <code>hasnt_rightop()</code>. The test passes if the
+specified operator does <em>not</em> exist.</p>
 
 <h3 id="has_opclass"><code>has_opclass()</code></h3>
 
@@ -5207,9 +5383,7 @@ that this test will fail if the table or column in question does not exist.</p>
 <p>The default argument must have an unambiguous type in order for the call to
 succeed. If you see an error such as &#8216;ERROR: could not determine polymorphic
 type because input has type &#8220;unknown&#8221;&#8217;, it&#8217;s because you forgot to cast the
-expected value, probably a <code>NULL</code> (which, by the way, you can only properly
-test for in PostgreSQL 8.3 and later), to its proper type. IOW, this will
-fail:</p>
+expected value, probably a <code>NULL</code>, to its proper type. IOW, this will fail:</p>
 
 <pre><code>SELECT col_default_is( 'tab', age, NULL );
 </code></pre>
@@ -5243,7 +5417,7 @@ which to use:</p>
 
 <pre><code>SELECT col_default_is(
     'widgets', 'created_by',
-    CASE WHEN pg_version_num() &gt;= 100000 THEN 'CURRENT_USER ELSE '&quot;current_user&quot;()' END
+    CASE WHEN pg_version_num() &gt;= 100000 THEN 'CURRENT_USER' ELSE '&quot;current_user&quot;()' END
 );
 </code></pre>
 
@@ -5967,6 +6141,16 @@ index on the named table. Effectively like <code>has_index()</code> except that 
 doesn&#8217;t require an index name and does require one or more column names or
 expressions in the defined for the index.</p>
 
+<p>Note that unlike most other column parameter arguments in pgTAP, mixed-case
+column mames crated with double-quotes must be double-quoted when passed
+to <code>is_indexed()</code>, like so:</p>
+
+<pre><code>SELECT is_indexed( 'widgets', '&quot;Name&quot;' );
+</code></pre>
+
+<p>This caveat applies only to column names, not to table and schema names,
+which should omit double-quoting.</p>
+
 <h3 id="index_is_type"><code>index_is_type()</code></h3>
 
 <pre><code>SELECT index_is_type( :schema, :table, :index, :type, :description );
@@ -6369,6 +6553,96 @@ function is not strict.</p>
 
 <p>But then you check with <code>has_function()</code> first, right?</p>
 
+<h3 id="is_normal_function"><code>is_normal_function()</code></h3>
+
+<pre><code>SELECT is_normal_function( :schema, :function, :args, :description );
+SELECT is_normal_function( :schema, :function, :args );
+SELECT is_normal_function( :schema, :function, :description );
+SELECT is_normal_function( :schema, :function );
+SELECT is_normal_function( :function, :args, :description );
+SELECT is_normal_function( :function, :args );
+SELECT is_normal_function( :function, :description );
+SELECT is_normal_function( :function );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd> Schema in which to find the function.</dd>
+
+<dt><code>:function</code></dt>
+<dd> Function name.</dd>
+
+<dt><code>:args</code></dt>
+<dd> Array of data types for the function arguments.</dd>
+
+<dt><code>:description</code></dt>
+<dd> A short description of the test.</dd>
+</dl>
+
+<p>Tests that a function is a normal function &#8212; that is, not an aggregate,
+window, or procedural function. If the <code>:schema</code> argument is omitted, then the
+function must be visible in the search path. If the <code>:args[]</code> argument is
+passed, then the function with that argument signature will be the one tested;
+otherwise, a function with any signature will be checked (pass an empty array to
+specify a function with an empty signature). If the <code>:description</code> is omitted, a
+reasonable substitute will be created. Fails if the function is not a normal
+function or if the function does not exist. Examples:</p>
+
+<pre><code>SELECT is_normal_function( 'myschema', 'foo',  ARRAY['integer', 'text'] );
+SELECT is_normal_function( 'do_something' );
+SELECT is_normal_function( 'do_something', ARRAY['integer'] );
+SELECT is_normal_function( 'do_something', ARRAY['numeric'] );
+</code></pre>
+
+<p>If no such function exists, a handy diagnostic message will let you know:</p>
+
+<pre><code># Failed test 290: &quot;Function nasty() should be a normal function&quot;
+#     Function nasty() does not exist
+</code></pre>
+
+<p>But then you check with <code>has_function()</code> first, right?</p>
+
+<h3 id="isnt_normal_function"><code>isnt_normal_function()</code></h3>
+
+<pre><code>SELECT isnt_normal_function( :schema, :function, :args, :description );
+SELECT isnt_normal_function( :schema, :function, :args );
+SELECT isnt_normal_function( :schema, :function, :description );
+SELECT isnt_normal_function( :schema, :function );
+SELECT isnt_normal_function( :function, :args, :description );
+SELECT isnt_normal_function( :function, :args );
+SELECT isnt_normal_function( :function, :description );
+SELECT isnt_normal_function( :function );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd> Schema in which to find the function.</dd>
+
+<dt><code>:function</code></dt>
+<dd> Function name.</dd>
+
+<dt><code>:args</code></dt>
+<dd> Array of data types for the function arguments.</dd>
+
+<dt><code>:description</code></dt>
+<dd> A short description of the test.</dd>
+</dl>
+
+<p>This function is the inverse of <code>is_normal_function()</code>. The test passes if the
+specified function exists and is not a normal function.</p>
+
+<p>If no such function exists, a handy diagnostic message will let you know:</p>
+
+<pre><code># Failed test 290: &quot;Function nasty() should not be a normal function&quot;
+#     Function nasty() does not exist
+</code></pre>
+
+<p>But then you check with <code>has_function()</code> first, right?</p>
+
 <h3 id="is_aggregate"><code>is_aggregate()</code></h3>
 
 <pre><code>SELECT is_aggregate( :schema, :function, :args, :description );
@@ -6398,11 +6672,12 @@ SELECT is_aggregate( :function );
 </dl>
 
 <p>Tests that a function is an aggregate function. If the <code>:schema</code> argument is
-omitted, then the function must be visible in the search path. If the
-<code>:args[]</code> argument is passed, then the function with that argument signature
-will be the one tested; otherwise, a function with any signature will be
-checked (pass an empty array to specify a function with an empty signature).
-If the <code>:description</code> is omitted, a reasonable substitute will be created.
+omitted, then the function must be visible in the search path. If the <code>:args[]</code>
+argument is passed, then the function with that argument signature will be the
+one tested; otherwise, a function with any signature will be checked (pass an
+empty array to specify a function with an empty signature). If the
+<code>:description</code> is omitted, a reasonable substitute will be created. Fails if the
+function is not an aggregate function, or if the function does not exist.
 Examples:</p>
 
 <pre><code>SELECT is_aggregate( 'myschema', 'foo',  ARRAY['integer', 'text'] );
@@ -6411,7 +6686,7 @@ SELECT is_aggregate( 'do_something', ARRAY['integer'] );
 SELECT is_aggregate( 'do_something', ARRAY['numeric'] );
 </code></pre>
 
-<p>If the function does not exist, a handy diagnostic message will let you know:</p>
+<p>If no such function exists, a handy diagnostic message will let you know:</p>
 
 <pre><code># Failed test 290: &quot;Function nasty() should be an aggregate function&quot;
 #     Function nasty() does not exist
@@ -6447,12 +6722,190 @@ SELECT isnt_aggregate( :function );
 <dd> A short description of the test.</dd>
 </dl>
 
-<p>This function is the inverse of <code>is_aggregate()</code>. The test passes if the specified
-function is not an aggregate function.</p>
+<p>This function is the inverse of <code>is_aggregate()</code>. The test passes if the
+specified function exists and is not an aggregate function.</p>
 
-<p>If the function does not exist, a handy diagnostic message will let you know:</p>
+<p>If no such function exists, a handy diagnostic message will let you know:</p>
 
 <pre><code># Failed test 290: &quot;Function nasty() should not be an aggregate function&quot;
+#     Function nasty() does not exist
+</code></pre>
+
+<p>But then you check with <code>has_function()</code> first, right?</p>
+
+<h3 id="is_window"><code>is_window()</code></h3>
+
+<pre><code>SELECT is_window( :schema, :function, :args, :description );
+SELECT is_window( :schema, :function, :args );
+SELECT is_window( :schema, :function, :description );
+SELECT is_window( :schema, :function );
+SELECT is_window( :function, :args, :description );
+SELECT is_window( :function, :args );
+SELECT is_window( :function, :description );
+SELECT is_window( :function );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd> Schema in which to find the function.</dd>
+
+<dt><code>:function</code></dt>
+<dd> Function name.</dd>
+
+<dt><code>:args</code></dt>
+<dd> Array of data types for the function arguments.</dd>
+
+<dt><code>:description</code></dt>
+<dd> A short description of the test.</dd>
+</dl>
+
+<p>Tests that a function is a window function. If the <code>:schema</code> argument is
+omitted, then the function must be visible in the search path. If the <code>:args[]</code>
+argument is passed, then the function with that argument signature will be the
+one tested; otherwise, a function with any signature will be checked (pass an
+empty array to specify a function with an empty signature). If the
+<code>:description</code> is omitted, a reasonable substitute will be created. Fails if the
+function is not a window function or if the function does not exist. Examples:</p>
+
+<pre><code>SELECT is_window( 'myschema', 'foo',  ARRAY['integer', 'text'] );
+SELECT is_window( 'do_something' );
+SELECT is_window( 'do_something', ARRAY['integer'] );
+SELECT is_window( 'do_something', ARRAY['numeric'] );
+</code></pre>
+
+<p>If no such function exists, a handy diagnostic message will let you know:</p>
+
+<pre><code># Failed test 290: &quot;Function nasty() should be a window function&quot;
+#     Function nasty() does not exist
+</code></pre>
+
+<p>But then you check with <code>has_function()</code> first, right?</p>
+
+<h3 id="isnt_window"><code>isnt_window()</code></h3>
+
+<pre><code>SELECT isnt_window( :schema, :function, :args, :description );
+SELECT isnt_window( :schema, :function, :args );
+SELECT isnt_window( :schema, :function, :description );
+SELECT isnt_window( :schema, :function );
+SELECT isnt_window( :function, :args, :description );
+SELECT isnt_window( :function, :args );
+SELECT isnt_window( :function, :description );
+SELECT isnt_window( :function );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd> Schema in which to find the function.</dd>
+
+<dt><code>:function</code></dt>
+<dd> Function name.</dd>
+
+<dt><code>:args</code></dt>
+<dd> Array of data types for the function arguments.</dd>
+
+<dt><code>:description</code></dt>
+<dd> A short description of the test.</dd>
+</dl>
+
+<p>This function is the inverse of <code>is_window()</code>. The test passes if the
+specified function exists and is not a window function.</p>
+
+<p>If no such function exists, a handy diagnostic message will let you know:</p>
+
+<pre><code># Failed test 290: &quot;Function nasty() should not be a window function&quot;
+#     Function nasty() does not exist
+</code></pre>
+
+<p>But then you check with <code>has_function()</code> first, right?</p>
+
+<h3 id="is_procedure"><code>is_procedure()</code></h3>
+
+<pre><code>SELECT is_procedure( :schema, :function, :args, :description );
+SELECT is_procedure( :schema, :function, :args );
+SELECT is_procedure( :schema, :function, :description );
+SELECT is_procedure( :schema, :function );
+SELECT is_procedure( :function, :args, :description );
+SELECT is_procedure( :function, :args );
+SELECT is_procedure( :function, :description );
+SELECT is_procedure( :function );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd> Schema in which to find the function.</dd>
+
+<dt><code>:function</code></dt>
+<dd> Function name.</dd>
+
+<dt><code>:args</code></dt>
+<dd> Array of data types for the function arguments.</dd>
+
+<dt><code>:description</code></dt>
+<dd> A short description of the test.</dd>
+</dl>
+
+<p>Tests that a function is a procedural function. If the <code>:schema</code> argument is
+omitted, then the function must be visible in the search path. If the <code>:args[]</code>
+argument is passed, then the function with that argument signature will be the
+one tested; otherwise, a function with any signature will be checked (pass an
+empty array to specify a function with an empty signature). If the
+<code>:description</code> is omitted, a reasonable substitute will be created. Fails if the
+function is not a procedure or if the function does not exist. Examples:</p>
+
+<pre><code>SELECT is_procedure( 'myschema', 'foo',  ARRAY['integer', 'text'] );
+SELECT is_procedure( 'do_something' );
+SELECT is_procedure( 'do_something', ARRAY['integer'] );
+SELECT is_procedure( 'do_something', ARRAY['numeric'] );
+</code></pre>
+
+<p>If no such function exists, a handy diagnostic message will let you know:</p>
+
+<pre><code># Failed test 290: &quot;Function nasty() should be a procedure&quot;
+#     Function nasty() does not exist
+</code></pre>
+
+<p>But then you check with <code>has_function()</code> first, right?</p>
+
+<h3 id="isnt_procedure"><code>isnt_procedure()</code></h3>
+
+<pre><code>SELECT isnt_procedure( :schema, :function, :args, :description );
+SELECT isnt_procedure( :schema, :function, :args );
+SELECT isnt_procedure( :schema, :function, :description );
+SELECT isnt_procedure( :schema, :function );
+SELECT isnt_procedure( :function, :args, :description );
+SELECT isnt_procedure( :function, :args );
+SELECT isnt_procedure( :function, :description );
+SELECT isnt_procedure( :function );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:schema</code></dt>
+<dd> Schema in which to find the function.</dd>
+
+<dt><code>:function</code></dt>
+<dd> Function name.</dd>
+
+<dt><code>:args</code></dt>
+<dd> Array of data types for the function arguments.</dd>
+
+<dt><code>:description</code></dt>
+<dd> A short description of the test.</dd>
+</dl>
+
+<p>This function is the inverse of <code>is_procedure()</code>. The test passes if the
+specified function exists and is not a procedure.</p>
+
+<p>If no such function exists, a handy diagnostic message will let you know:</p>
+
+<pre><code># Failed test 290: &quot;Function nasty() should not be a procedure&quot;
 #     Function nasty() does not exist
 </code></pre>
 
@@ -6490,7 +6943,7 @@ SELECT volatility_is( :function, :volatility );
 </dl>
 
 <p>Tests the volatility of a function. Supported volatilities are &#8220;volatile&#8221;,
-&#8220;stable&#8221;, and &#8220;immutable&#8221;. Consult the <a href="http://www.postgresql.org/docs/current/static/sql-createfunction.html"><code>CREATE FUNCTION</code>
+&#8220;stable&#8221;, and &#8220;immutable&#8221;. Consult the <a href="https://www.postgresql.org/docs/current/static/sql-createfunction.html"><code>CREATE FUNCTION</code>
 documentation</a>
 for details. The function name is required. If the <code>:schema</code> argument is
 omitted, then the function must be visible in the search path. If the
@@ -6582,7 +7035,7 @@ SELECT language_is_trusted( language );
 <dd> A short description of the test.</dd>
 </dl>
 
-<p>Tests that the specified procedural language is trusted. See the <a href="http://www.postgresql.org/docs/current/static/sql-createlanguage.html">CREATE
+<p>Tests that the specified procedural language is trusted. See the <a href="https://www.postgresql.org/docs/current/static/sql-createlanguage.html">CREATE
 LANGUAGE</a> documentation for details on trusted and untrusted
 procedural languages. If the <code>:description</code> argument is not passed, a suitably
 useful default will be created.</p>
@@ -6622,10 +7075,9 @@ SELECT enum_has_labels( :enum, :labels );
 <dd> A short description of the test.</dd>
 </dl>
 
-<p>This function tests that an enum consists of an expected list of labels. Enums
-are supported in PostgreSQL 8.3 or higher. The first argument is a schema
-name, the second an enum name, the third an array of enum labels, and the
-fourth a description. Example:</p>
+<p>This function tests that an enum consists of an expected list of labels.The
+first argument is a schema name, the second an enum name, the third an array of
+enum labels, and the fourth a description. Example:</p>
 
 <pre><code>SELECT enum_has_labels( 'myschema', 'someenum', ARRAY['foo', 'bar'] );
 </code></pre>
@@ -6769,7 +7221,7 @@ Example:</p>
 varying&#8221;, and not &#8220;VARCHAR&#8221;.</p>
 
 <p>The The supported contexts are &#8220;implicit&#8221;, &#8220;assignment&#8221;, and &#8220;explicit&#8221;. You
-can also just pass in &#8220;i&#8221;, &#8220;a&#8221;, or &#8220;e&#8221;. Consult the PostgreSQL <a href="http://www.postgresql.org/docs/current/static/sql-createcast.html"><code>CREATE
+can also just pass in &#8220;i&#8221;, &#8220;a&#8221;, or &#8220;e&#8221;. Consult the PostgreSQL <a href="https://www.postgresql.org/docs/current/static/sql-createcast.html"><code>CREATE
 CAST</code></a>
 documentation for the differences between these contexts (hint: they
 correspond to the default context, <code>AS IMPLICIT</code>, and <code>AS ASSIGNMENT</code>). If you
@@ -6879,6 +7331,49 @@ diagnostics listing the missing member roles, like so:</p>
 But you use <code>has_role()</code> to make sure the role exists before you check its
 members, don&#8217;t you? Of course you do.</p>
 
+<h3 id="isnt_member_of"><code>isnt_member_of()</code></h3>
+
+<pre><code>SELECT isnt_member_of( :role, :members, :description );
+SELECT isnt_member_of( :role, :members );
+SELECT isnt_member_of( :role, :member, :description );
+SELECT isnt_member_of( :role, :member );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:role</code></dt>
+<dd> Name of a PostgreSQL group role.</dd>
+
+<dt><code>:members</code></dt>
+<dd> Array of names of roles that should <em>not</em> be members of the group role.</dd>
+
+<dt><code>:member</code></dt>
+<dd> Name of a role that should <em>not</em> be a member of the group role.</dd>
+
+<dt><code>:description</code></dt>
+<dd><p> A short description of the test.</p>
+
+<p>SELECT isnt_member_of( &#8216;meanies&#8217;, &#8216;anna&#8217; &#8216;Anna should not be a meanie&#8217; );
+SELECT isnt_member_of( &#8216;sweeties&#8217;, ARRAY[&#8216;dr_evil&#8217;, &#8216;dr_no&#8217; ] );</p></dd>
+</dl>
+
+<p>The inverse of <code>is_member_of()</code>, checks whether a group role does not contain
+a member role or none of an array of member roles. If the description is
+omitted, it will default to &#8220;Should not have members of role <code>:role</code>.&#8221; On
+failure, <code>isnt_member_of()</code> will output diagnostics listing the missing member
+roles, like so:</p>
+
+<pre><code># Failed test 371: &quot;Should not have members of role sweeties&quot;
+#     Members, who should not be in sweeties role:
+#         dr_evil
+#         dr_no
+</code></pre>
+
+<p>If the group role does not exist, the diagnostics will tell you that, instead.
+But you use <code>has_role()</code> to make sure the role exists before you check its
+members, don&#8217;t you? Of course you do.</p>
+
 <h3 id="rule_is_instead"><code>rule_is_instead()</code></h3>
 
 <pre><code>SELECT rule_is_instead( :schema, :table, :rule, :description );
@@ -6904,7 +7399,7 @@ SELECT rule_is_instead( :table, :rule );
 </dl>
 
 <p>Checks whether a rule on the specified relation is an <code>INSTEAD</code> rule. See the
-<a href="http://www.postgresql.org/docs/current/static/sql-createrule.html"><code>CREATE RULE</code>
+<a href="https://www.postgresql.org/docs/current/static/sql-createrule.html"><code>CREATE RULE</code>
 Documentation</a>
 for details. If the <code>:schema</code> argument is omitted, the relation must be
 visible in the search path. If the <code>:description</code> argument is omitted, an
@@ -7580,9 +8075,8 @@ SELECT language_owner_is ( :languagename, :user );
 <dd> A short description of the test.</dd>
 </dl>
 
-<p>Tests the ownership of a procedural language. If the <code>:description</code> argument
-is omitted, an appropriate description will be created. Works on PostgreSQL
-8.3 and higher. Examples:</p>
+<p>Tests the ownership of a procedural language. If the <code>:description</code> argument is
+omitted, an appropriate description will be created. Examples:</p>
 
 <pre><code>SELECT language_owner_is( 'plpgsql', 'larry', 'Larry should own plpgsql' );
 SELECT language_owner_is( 'plperl', current_user );
@@ -7964,9 +8458,6 @@ table privileges are:</p>
 <li>UPDATE</li>
 </ul>
 
-<p>Note that the privilege RULE is not available after PostgreSQL 8.1, and that
-TRIGGER was added in 8.4.</p>
-
 <p>If the <code>:description</code> argument is omitted, an appropriate description will be
 created. Examples:</p>
 
@@ -8130,9 +8621,6 @@ The available column privileges are:</p>
 <li>UPDATE</li>
 </ul>
 
-<p>Note that column privileges were added in PostgreSQL 8.4, so this function
-will likely throw an exception on earlier versions.</p>
-
 <p>If the <code>:description</code> argument is omitted, an appropriate description will be
 created. Examples:</p>
 
@@ -8215,9 +8703,6 @@ available column privileges are:</p>
 <li>SELECT</li>
 <li>UPDATE</li>
 </ul>
-
-<p>Note that column privileges were added in PostgreSQL 8.4, so this function
-will likely throw an exception on earlier versions.</p>
 
 <p>If the <code>:description</code> argument is omitted, an appropriate description will be
 created. Examples:</p>
@@ -8446,9 +8931,6 @@ available function privileges are:</p>
 <li>USAGE</li>
 </ul>
 
-<p>Note that foreign data wrapper privileges were added in PostgreSQL 8.4, so
-this function will likely throw an exception on earlier versions.</p>
-
 <p>If the <code>:description</code> argument is omitted, an appropriate description will be
 created. Examples:</p>
 
@@ -8518,9 +9000,6 @@ function privileges are:</p>
 <ul>
 <li>USAGE</li>
 </ul>
-
-<p>Note that server privileges were added in PostgreSQL 8.4, so this function
-will likely throw an exception on earlier versions.</p>
 
 <p>If the <code>:description</code> argument is omitted, an appropriate description will be
 created. Examples:</p>
@@ -8770,10 +9249,9 @@ SELECT diag(
 # As a result, some tests may fail. YMMV.
 </code></pre>
 
-<p>You can pass data of any type to <code>diag()</code> on PostgreSQL 8.3 and higher and it
-will all be converted to text for the diagnostics. On PostgreSQL 8.4 and
-higher, you can pass any number of arguments (as long as they are all the same
-data type) and they will be concatenated together.</p>
+<p>You can pass data of any type to <code>diag()</code> and it will all be converted to text
+for the diagnostics. You can als pass any number of arguments (as long as they
+are all the same data type) and they will be concatenated together.</p>
 
 <h2 id="conditionaltests">Conditional Tests</h2>
 
@@ -8961,9 +9439,9 @@ the stringified version number displayed in the first part of the core
 <code>version()</code> function and stored in the &#8220;server_version&#8221; setting:</p>
 
 <pre><code>try=% select current_setting( 'server_version'), pg_version();
- current_setting | pg_version
+ current_setting | pg_version 
 -----------------+------------
- 8.3.4           | 8.3.4
+ 12.2            | 12.2
 (1 row)
 </code></pre>
 
@@ -9032,15 +9510,6 @@ when used in combination with <code>skip()</code>:</p>
   END;
 </code></pre>
 
-<p>On PostgreSQL 8.4 and higher, it can take any number of arguments. Lower than
-8.4 requires the explicit use of an array:</p>
-
-<pre><code>SELECT collect_tap(ARRAY[
-    ok(true, 'This should pass'),
-    ok(false, 'This should fail)
-]);
-</code></pre>
-
 <h3 id="display_oper"><code>display_oper()</code></h3>
 
 <pre><code>SELECT display_oper( :opername, :operoid );
@@ -9086,11 +9555,6 @@ executing the comparison, but might be generally useful.</p>
 -----------+-----------
  integer   | numeric
 </code></pre>
-
-<p><em>Note:</em> pgTAP does not build <code>pg_typeof()</code> on PostgreSQL 8.4 or higher,
-because it&#8217;s in core in 8.4. You only need to worry about this if you depend
-on the function being in particular schema. It will always be in <code>pg_catalog</code>
-in 8.4 and higher.</p>
 
 <h3 id="findfuncs"><code>findfuncs()</code></h3>
 
@@ -9533,9 +9997,16 @@ PostgreSQL. This helps you to understand any side-effects. To see the specifics
 for each version of PostgreSQL, consult the files in the <code>compat/</code> directory in
 the pgTAP distribution.</p>
 
-<h2 id="10andup">10 and Up</h2>
+<h2 id="11andup">11 and Up</h2>
 
 <p>No changes. Everything should just work.</p>
+
+<h2 id="10anddown">10 and Down</h2>
+
+<ul>
+<li>The stored procedure-testing funtions are not available, because stored
+procedures were not introduced until 11.</li>
+</ul>
 
 <h2 id="9.6anddown">9.6 and Down</h2>
 
@@ -9589,7 +10060,7 @@ comments, suggestions, and bug reports are welcomed there.</p>
 
 <h2 id="author">Author</h2>
 
-<p><a href="http://justatheory.com/">David E. Wheeler</a></p>
+<p><a href="https://justatheory.com/">David E. Wheeler</a></p>
 
 <h2 id="credits">Credits</h2>
 
@@ -9600,7 +10071,7 @@ comments, suggestions, and bug reports are welcomed there.</p>
 
 <h2 id="copyrightandlicense">Copyright and License</h2>
 
-<p>Copyright (c) 2008&#8211;2018 David E. Wheeler. Some rights reserved.</p>
+<p>Copyright (c) 2008&#8211;2021 David E. Wheeler. Some rights reserved.</p>
 
 <p>Permission to use, copy, modify, and distribute this software and its
 documentation for any purpose, without fee, and without a written agreement is
