@@ -20,6 +20,11 @@ Revision history for pgTAP
 * Added a note on the use of temporary tables to the `fk_ok()` documentation, as
   well as a test to ensure the suggested expressions work. Thanks to Jim Nasby
   for highlighting the special treatment of the temporary schema (#109).
+* Updated function-testing functions to allow short names for argument types, so
+  that they can be specified as, e.g., `int` and `bool` rather than `integer`
+  and `boolean`. The return value argument to `function_returns` and and data
+  type tests such as `col_type_is` and `cast_context_is` must still use full
+  type names. Thanks to @wphilips53 for the suggestion (#292).
 
 1.2.0 2021-12-05T18:08:13Z
 --------------------------
@@ -435,7 +440,7 @@ Revision history for pgTAP
 0.24 2010-05-24T23:33:22Z
 --------------------------
 * Got `sql/artap.sql` tests passing again when building with `$TAPSCHEMA` set.
-* Changed to saner source URL in `contrib/pgtap.spec`.
+* Changed to nicer source URL in `contrib/pgtap.spec`.
 * Fixed a bug in `has_member()` where it failed to confirm that users were
   actually members of a group.
 * Fixed a bug where `display_type()` would include the schema name in its
