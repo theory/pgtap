@@ -134,24 +134,70 @@ RETURNS BOOLEAN AS $$
     );
 $$ LANGUAGE sql;
 
-CREATE OR REPLACE VIEW tap_funky
- AS SELECT p.oid         AS oid,
-           n.nspname     AS schema,
-           p.proname     AS name,
-           pg_catalog.pg_get_userbyid(p.proowner) AS owner,
-           array_to_string(p.proargtypes::regtype[], ',') AS args,
-           CASE p.proretset WHEN TRUE THEN 'setof ' ELSE '' END
-             || p.prorettype::regtype AS returns,
-           p.prolang     AS langoid,
-           p.proisstrict AS is_strict,
-           p.prokind     AS kind,
-           p.prosecdef   AS is_definer,
-           p.proretset   AS returns_set,
-           p.provolatile::char AS volatility,
-           pg_catalog.pg_function_is_visible(p.oid) AS is_visible
-      FROM pg_catalog.pg_proc p
-      JOIN pg_catalog.pg_namespace n ON p.pronamespace = n.oid
-;
+-- _unnest_args( proargnames, proallargtypes, proargmodes)
+CREATE OR REPLACE FUNCTION public._unnest_args( _TEXT, _OID, _CHAR)
+ returns 
+ 	table(table_args text, table_types name, 
+ 		  input_args text, input_types name,
+ 		  inout_args text, inout_types name,
+ 		  variadic_args text, variadic_types name,
+ 		  out_args text, out_types name)
+AS $$
+	select 
+        string_agg(_table_arg,',') 		filter(where _table_arg is not null) as _table_args,
+        string_agg(_table_type,',') 	filter(where _table_type is not null) as _table_types,
+        string_agg(_input_arg,',') 		filter(where _input_arg is not null) as _input_args,
+        string_agg(_input_type,',') 	filter(where _input_type is not null) as _input_types,
+        string_agg(_inout_arg,',') 		filter(where _inout_arg is not null) as _inout_args,
+        string_agg(_inout_type,',') 	filter(where _inout_type is not null) as _inout_types,
+        string_agg(_variadic_arg,',') 	filter(where _variadic_arg is not null) as _variadic_args,
+        string_agg(_variadic_type,',') 	filter(where _variadic_type is not null) as _variadic_types,
+        string_agg(_out_arg,',') 		filter(where _out_arg is not null) as _out_args,
+        string_agg(_out_type,',') 		filter(where _out_type is not null) as _out_types
+    from (
+        select 	
+            (case when io_type = 't' then arg_name else null end) as _table_arg,
+            (case when io_type = 't' then p.typname else null end) as _table_type,
+            (case when io_type = 'i' then arg_name else null end) as _input_arg,
+            (case when io_type = 'i' then p.typname else null end) as _input_type,
+            (case when io_type = 'b' then arg_name else null end) as _inout_arg,
+            (case when io_type = 'b' then p.typname else null end) as _inout_type,
+            (case when io_type = 'v' then arg_name else null end) as _variadic_arg,
+            (case when io_type = 'v' then p.typname else null end) as _variadic_type,
+            (case when io_type = 'o' then arg_name else null end) as _out_arg,
+            (case when io_type = 'o' then p.typname else null end) as _out_type
+        from (
+            select unnest($1)::text as arg_name, unnest($2)::oid as arg_type, unnest($3)::char as io_type
+        ) t1
+        inner join pg_catalog.pg_type p
+        on t1.arg_type = p."oid" 
+    ) t2;
+$$  LANGUAGE sql;
+
+CREATE OR REPLACE VIEW public.tap_funky
+AS SELECT p.oid,
+    n.nspname AS schema,
+    p.proname AS name,
+    pg_get_userbyid(p.proowner) AS owner,
+    array_to_string(p.proargtypes::regtype[], ','::text) AS args,
+        CASE p.proretset
+            WHEN true THEN 'setof '::text
+            ELSE ''::text
+        END || p.prorettype::regtype AS returns,
+    p.prolang AS langoid,
+    p.proisstrict AS is_strict,
+    public._prokind(p.oid) AS kind,
+    p.prosecdef AS is_definer,
+    p.proretset AS returns_set,
+    p.provolatile::character(1) AS volatility,
+    pg_function_is_visible(p.oid) AS is_visible,
+    u.table_args::text, u.table_types::text, 
+  	u.input_args::text, u.input_types::text,
+  	u.inout_args::text, u.inout_types::text,
+  	u.variadic_args::text, u.variadic_types::text,
+  	u.out_args::text, u.out_types::text
+FROM pg_proc p, public._unnest_args(p.proargnames,  p.proallargtypes, p.proargmodes) u, pg_namespace n 
+where p.pronamespace = n.oid;
 
 CREATE OR REPLACE FUNCTION _agg ( NAME, NAME, NAME[] )
 RETURNS BOOLEAN AS $$
