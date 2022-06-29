@@ -137,11 +137,11 @@ $$ LANGUAGE sql;
 -- _unnest_args( proargnames, proallargtypes, proargmodes)
 CREATE OR REPLACE FUNCTION public._unnest_args( _TEXT, _OID, _CHAR)
  returns 
- 	table(table_args text, table_types name, 
- 		  input_args text, input_types name,
- 		  inout_args text, inout_types name,
- 		  variadic_args text, variadic_types name,
- 		  out_args text, out_types name)
+ 	table(table_args text, table_types text, 
+ 		  input_args text, input_types text,
+ 		  inout_args text, inout_types text,
+ 		  variadic_args text, variadic_types text,
+ 		  out_args text, out_types text)
 AS $$
 	select 
         string_agg(_table_arg,',') 		filter(where _table_arg is not null) as _table_args,
