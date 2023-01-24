@@ -54,11 +54,25 @@ Installation
 pgTAP must be installed on a host with PostgreSQL server running; it cannot
 be installed remotely.
 
-To install pgTAP into a PostgreSQL database, just do this:
+If you are using Linux, you may (depending on your distribution) be able to 
+use you distribution's package management system to install pgTAP.  For instance,
+on Debian, Ubuntu, or Linux Mint pgTAP can be installed with the command:
+
+    sudo apt-get install pgtap
+
+On other systems pgTAP has to be downloaded and built.  First, download pgTAP from
+https://pgxn.org/dist/pgtap/ (click the green download button in the upper-right).
+
+Next, extract the downloaded zip file, and (at the command line) navigate to the extracted folder.
+
+Finally, to build pgTAP and install it into a PostgreSQL database, run the following commands:
 
     make
     make install
     make installcheck
+
+Potential Issues
+----------------
 
 If you encounter an error such as:
 
