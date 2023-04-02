@@ -168,16 +168,26 @@ RETURNS TEXT AS $$
         AND contype = 'x';
 $$ LANGUAGE sql;
 
+-- _relcomp array-to-array
+CREATE OR REPLACE FUNCTION _relcomp( anyarray, anyarray, TEXT, TEXT )
+RETURNS TEXT AS $$
+    SELECT _docomp(
+        _temptable( $1, '__taphave__' ),
+        _temptable( $2, '__tapwant__' ),
+        $3, $4
+    );
+$$ LANGUAGE sql;
+
 -- set_eq( array, array, description )
 CREATE OR REPLACE FUNCTION set_eq(anyarray, anyarray, TEXT)
 RETURNS TEXT AS $$
-    SELECT ok($1 @> $2 AND $2 @> $1, $3);
+    SELECT _relcomp($1, $2, $3);
 $$ LANGUAGE sql;
 
 -- set_eq( array, array )
 CREATE OR REPLACE FUNCTION set_eq(anyarray, anyarray)
 RETURNS TEXT AS $$
-    SELECT set_eq($1, $2, 'arrays have identical contents')
+    SELECT _relcomp($1, $2, '')
 $$ LANGUAGE sql;
 
 -- table_comment_has(schema, table, comment, description)

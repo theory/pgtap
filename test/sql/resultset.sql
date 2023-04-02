@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(545);
+SELECT plan(560);
 --SELECT * FROM no_plan();
 
 -- This will be rolled back. :-)
@@ -1670,6 +1670,68 @@ SELECT * FROM check_test(
     '    Columns differ between queries:
         have: (integer,text)
         want: (text)'
+);
+
+/****************************************************************************/
+-- Test set_eq() with dual arrays.
+SELECT * FROM check_test(
+    set_eq(
+        ARRAY['Angel', 'Andrea', 'Angelina', 'Antonio', 'Anthony', 'Anna', 'Andrew' ],
+        ARRAY['Andrew', 'Anna', 'Anthony', 'Antonio', 'Angelina', 'Andrea', 'Angel' ],
+        'whatever'
+    ),
+    true,
+    'set_eq(array, array, desc)',
+    'whatever',
+    ''
+);
+
+SELECT * FROM check_test(
+    set_eq(
+        ARRAY['Angel', 'Andrea', 'Angelina', 'Antonio', 'Anthony', 'Anna', 'Andrew' ],
+        ARRAY['Andrew', 'Anna', 'Anthony', 'Antonio', 'Angelina', 'Andrea', 'Angel' ]
+    ),
+    true,
+    'set_eq(array, array)',
+    '',
+    ''
+);
+
+SELECT * FROM check_test(
+    set_eq(
+        ARRAY['Angel', 'Andrea', 'Angelina', 'Antonio', 'Anthony', 'Anna', 'Andrew' ],
+        ARRAY['Andrew', 'Anna', 'Anthony', 'Antonio', 'Angelina', 'Andrea', 'Angel', 'Andrew', 'Anna' ]
+    ),
+    true,
+    'set_eq(array, dupe array)',
+    '',
+    ''
+);
+
+-- Fail with an extra record.
+SELECT * FROM check_test(
+    set_eq(
+        ARRAY['Angel', 'Andrea', 'Angelina', 'Antonio', 'Anthony', 'Anna', 'Andrew' ],
+        ARRAY['Andrew', 'Anna', 'Antonio', 'Angelina', 'Andrea', 'Angel' ]
+    ),
+    false,
+    'set_eq(array, array) extra record',
+    '',
+    '    Extra records:
+        (Anthony)'
+);
+
+-- Fail with a missing record.
+SELECT * FROM check_test(
+    set_eq(
+        ARRAY['Angel', 'Andrea', 'Angelina', 'Antonio', 'Anthony', 'Anna', 'Andrew' ],
+        ARRAY['Andrew', 'Anna', 'Anthony', 'Alan', 'Antonio', 'Angelina', 'Andrea', 'Angel' ]
+    ),
+    false,
+    'set_eq(array, array) missing record',
+    '',
+    '    Missing records:
+        (Alan)'
 );
 
 /****************************************************************************/
