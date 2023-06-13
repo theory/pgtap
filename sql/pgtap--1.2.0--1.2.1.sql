@@ -155,3 +155,99 @@ CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME, NAME )
 RETURNS TEXT AS $$
     SELECT col_is_pk( $1, $2, $3, 'Column ' || quote_ident($1) || '.' || quote_ident($2) || '(' || quote_ident($3) || ') should be a primary key' );
 $$ LANGUAGE sql;
+
+-- col_has_exclusion(schema, table, columns, description)
+CREATE OR REPLACE FUNCTION col_has_exclusion(TEXT, TEXT, TEXT[], TEXT)
+RETURNS TEXT AS $$
+    SELECT ok(array_agg(attr.attname)::TEXT[] @> $3 AND $3 @> array_agg(attr.attname)::TEXT[])
+    FROM pg_constraint AS con
+    JOIN LATERAL unnest(con.conkey) AS attnums (num) ON TRUE
+    JOIN pg_attribute AS attr ON attr.attrelid = con.conrelid
+        AND attr.attnum = attnums.num
+    WHERE conrelid = format('%1$I.%2$I', $1, $2)::regclass
+        AND contype = 'x';
+$$ LANGUAGE sql;
+
+-- _relcomp array-to-array
+CREATE OR REPLACE FUNCTION _relcomp( anyarray, anyarray, TEXT, TEXT )
+RETURNS TEXT AS $$
+    SELECT _docomp(
+        _temptable( $1, '__taphave__' ),
+        _temptable( $2, '__tapwant__' ),
+        $3, $4
+    );
+$$ LANGUAGE sql;
+
+-- set_eq( array, array, description )
+CREATE OR REPLACE FUNCTION set_eq(anyarray, anyarray, TEXT)
+RETURNS TEXT AS $$
+    SELECT _relcomp($1, $2, $3);
+$$ LANGUAGE sql;
+
+-- set_eq( array, array )
+CREATE OR REPLACE FUNCTION set_eq(anyarray, anyarray)
+RETURNS TEXT AS $$
+    SELECT _relcomp($1, $2, '')
+$$ LANGUAGE sql;
+
+-- table_comment_has(schema, table, comment, description)
+CREATE OR REPLACE FUNCTION table_comment_has(TEXT, TEXT, TEXT, TEXT)
+RETURNS TEXT AS $$
+    SELECT ok(COUNT(*) >= 1, $4)
+    FROM pg_description
+    JOIN LATERAL regexp_split_to_table(description, '\n') AS lines (line) ON TRUE
+    WHERE objoid = format('%1$I.%2$I', $1, $2)::regclass
+        AND objsubid = 0
+        AND trim(line) ILIKE $3
+$$ LANGUAGE sql;
+
+-- table_comment_has(schema, table, comment)
+CREATE OR REPLACE FUNCTION table_comment_has(TEXT, TEXT, TEXT)
+RETURNS TEXT AS $$
+    SELECT table_comment_has($1, $2, $3, 'table comment contains expected line');
+$$ LANGUAGE sql;
+
+-- column_comment_has(schema, table, column, comment, description)
+CREATE OR REPLACE FUNCTION column_comment_has(TEXT, TEXT, TEXT, TEXT, TEXT)
+RETURNS TEXT AS $$
+    SELECT ok(COUNT(*) >= 1, $5)
+    FROM pg_description
+    JOIN pg_attribute AS attr
+        ON attr.attrelid = pg_description.objoid
+        AND attr.attnum = pg_description.objsubid
+    JOIN LATERAL regexp_split_to_table(description, '\n') AS lines (line) ON TRUE
+    WHERE objoid = format('%1$I.%2$I', $1, $2)::regclass
+        AND attr.attname = $3::name
+        AND trim(line) ILIKE $4
+$$ LANGUAGE sql;
+
+-- column_comment_has(schema, table, column, comment)
+CREATE OR REPLACE FUNCTION column_comment_has(TEXT, TEXT, TEXT, TEXT)
+RETURNS TEXT AS $$
+    SELECT column_comment_has($1, $2, $3, $4, 'column comment contains expected line');
+$$ LANGUAGE sql;
+
+-- function_comment_has(schema, function, comment, description)
+CREATE OR REPLACE FUNCTION function_comment_has(TEXT, TEXT, TEXT, TEXT)
+RETURNS TEXT AS $$
+    SELECT ok(COUNT(*) >= 1, $4)
+    FROM pg_description
+    JOIN LATERAL regexp_split_to_table(description, '\n') AS lines (line) ON TRUE
+    WHERE objoid = format('%1$I.%2$I', $1, $2)::regproc
+        AND objsubid = 0
+        AND trim(line) ILIKE $3
+$$ LANGUAGE sql;
+
+-- function_comment_has(schema, function, comment)
+CREATE OR REPLACE FUNCTION function_comment_has(TEXT, TEXT, TEXT)
+RETURNS TEXT AS $$
+    SELECT function_comment_has($1, $2, $3, 'function comment contains expected line');
+$$ LANGUAGE sql;
+
+-- rls_is_enabled(schema, table, desired_value)
+CREATE OR REPLACE FUNCTION rls_is_enabled(TEXT, TEXT, BOOLEAN)
+RETURNS TEXT AS $$
+    SELECT ok(relrowsecurity IS NOT DISTINCT FROM $3)
+    FROM pg_class
+    WHERE oid = format('%1$I.%2$I', $1, $2)::regclass
+$$ LANGUAGE sql;

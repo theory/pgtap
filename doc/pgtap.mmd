@@ -1378,10 +1378,12 @@ same!
 
 ### `set_eq()` ###
 
-    SELECT set_eq( :sql, :sql,   :description );
-    SELECT set_eq( :sql, :sql                 );
-    SELECT set_eq( :sql, :array, :description );
-    SELECT set_eq( :sql, :array               );
+    SELECT set_eq( :sql,   :sql,   :description );
+    SELECT set_eq( :sql,   :sql                 );
+    SELECT set_eq( :sql,   :array, :description );
+    SELECT set_eq( :sql,   :array               );
+    SELECT set_eq( :array, :array, :description );
+    SELECT set_eq( :array, :array               );
 
 **Parameters**
 
@@ -5068,6 +5070,30 @@ that do have check constraints, if any:
 Just like `col_is_pk()`, except that it test that the column or array of
 columns have a check constraint on them.
 
+### `col_has_exclusion()` ###
+
+    SELECT col_has_check( :schema, :table, :columns, :description );
+
+**Parameters**
+
+`:schema`
+: Schema in which to find the table.
+
+`:table`
+: Name of a table containing the exclusion constraint.
+
+`:columns`
+: Array of the names of the exclusion constraint columns.
+
+`:column`
+: Name of the exclusion constraint column.
+
+`:description`
+: A short description of the test.
+
+Just like `col_is_check()`, except that it tests that the column array has
+an exclusion constraint on them.
+
 ### `index_is_unique()` ###
 
     SELECT index_is_unique( :schema, :table, :index, :description );
@@ -7959,6 +7985,93 @@ missing policy command, like so:
     # Failed test 13: "Policy apolicy for table myschema.atable should apply to ALL command"
     #         have: INSERT
     #         want: ALL
+
+### `rls_is_enabled()` ###
+
+    SELECT rls_is_enabled( :schema, :table, :desired_value );
+
+Test whether [row-level security](https://www.postgresql.org/docs/current/ddl-rowsecurity.html)
+is enabled (`:desired_value` true) or disabled (`:desired_value` false).
+
+**Parameters**
+
+`:schema`
+: Name of a schema in which to find the `:table`.
+
+`:table`
+: Name of a table which has RLS enabled or not.
+
+`:desired_value`
+: `true` to assert that the table has RLS enabled, `false` to assert it's disabled.
+
+Commentary
+----------
+
+### `table_comment_has()` ###
+
+    SELECT table_comment_has( :schema, :table, :comment );
+    SELECT table_comment_has( :schema, :table, :comment, :description );
+
+Assert that a table comment contains a full line of text (delimited by `\n`).
+
+**Parameters**
+
+`:schema`
+: Name of a schema in which to find the `:table`.
+
+`:table`
+: Name of a table which has a comment set.
+
+`:comment`
+: The line the table comment should include.
+
+`:description`
+: A short description of the test.
+
+### `column_comment_has()` ###
+
+    SELECT column_comment_has( :schema, :table, :column, :comment );
+    SELECT column_comment_has( :schema, :table, :column, :comment, :description );
+
+Assert that a comment comment contains a full line of text (delimited by `\n`).
+
+**Parameters**
+
+`:schema`
+: Name of a schema in which to find the `:table`.
+
+`:table`
+: Name of a table including `:column`.
+
+`:column`
+: Name of a column which has a comment set.
+
+`:comment`
+: The line the column comment should include.
+
+`:description`
+: A short description of the test.
+
+### `function_comment_has()` ###
+
+    SELECT function_comment_has( :schema, :function, :comment );
+    SELECT function_comment_has( :schema, :function, :comment, :description );
+
+Assert that a function comment contains a full line of text (delimited by `\n`).
+
+**Parameters**
+
+`:schema`
+: Name of a schema in which to find the `:function`.
+
+`:function`
+: Name of a function which has RLS enabled or not.
+
+`:comment`
+: The line the function comment should include.
+
+`:description`
+: A short description of the test.
 
 No Test for the Wicked
 ======================
