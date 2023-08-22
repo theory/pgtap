@@ -1489,6 +1489,14 @@ BEGIN
         );
     END IF;
 
+    -- Check want_type as provided before trying the resolved type name
+    -- (see https://github.com/theory/pgtap/issues/315).
+    want_type := quote_ident($4) || '.' || $5;
+    IF have_type = want_type THEN
+        -- We're good to go.
+        RETURN ok( true, $6 );
+    END IF;
+
     want_type := quote_ident($4) || '.' || _quote_ident_like($5, have_type);
     IF have_type = want_type THEN
         -- We're good to go.
@@ -1529,6 +1537,14 @@ BEGIN
             '   Column ' || COALESCE(quote_ident($1) || '.', '')
             || quote_ident($2) || '.' || quote_ident($3) || ' does not exist'
         );
+    END IF;
+
+    -- Check want_type as provided before trying the resolved type name
+    -- (see https://github.com/theory/pgtap/issues/315).
+    want_type := $4;
+    IF have_type = want_type THEN
+        -- We're good to go.
+        RETURN ok( true, $5 );
     END IF;
 
     want_type := _quote_ident_like($4, have_type);

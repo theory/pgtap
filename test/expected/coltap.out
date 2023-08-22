@@ -1,5 +1,5 @@
 \unset ECHO
-1..243
+1..249
 ok 1 - col_not_null( sch, tab, col, desc ) should pass
 ok 2 - col_not_null( sch, tab, col, desc ) should have the proper description
 ok 3 - col_not_null( sch, tab, col, desc ) should have the proper diagnostics
@@ -243,3 +243,9 @@ ok 240 - col_default_is( tab, col, LOCALTIME ) should have the proper diagnostic
 ok 241 - col_default_is( tab, col, LOCALTIMESTAMP ) should pass
 ok 242 - col_default_is( tab, col, LOCALTIMESTAMP ) should have the proper description
 ok 243 - col_default_is( tab, col, LOCALTIMESTAMP ) should have the proper diagnostics
+ok 244 - col_type_is with interval second(0) should pass
+ok 245 - col_type_is with interval second(0) should have the proper description
+ok 246 - col_type_is with interval second(0) should have the proper diagnostics
+ok 247 - col_type_is with pg_catalog.interval second(0) should pass
+ok 248 - col_type_is with pg_catalog.interval second(0) should have the proper description
+ok 249 - col_type_is with pg_catalog.interval second(0) should have the proper diagnostics

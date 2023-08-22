@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(243);
+SELECT plan(249);
 --SELECT * from no_plan();
 
 CREATE TYPE public."myType" AS (
@@ -29,7 +29,8 @@ CREATE TABLE public.sometab(
     ltime   TIME DEFAULT LOCALTIME,
     ltstz   TIMESTAMPTZ DEFAULT LOCALTIMESTAMP,
     plain   INTEGER,
-    camel   "myType"
+    camel   "myType",
+    ivsec   INTERVAL SECOND(0)
 );
 
 CREATE OR REPLACE FUNCTION fakeout( eok boolean, name text )
@@ -652,6 +653,22 @@ BEGIN
 END;
 $$;
 SELECT * FROM ckreserve();
+
+SELECT * FROM check_test(
+    col_type_is( 'sometab', 'ivsec', 'interval second(0)', 'should be interval second(0)' ),
+    true,
+    'col_type_is with interval second(0)',
+    'should be interval second(0)',
+    ''
+);
+
+SELECT * FROM check_test(
+    col_type_is( 'public', 'sometab', 'ivsec', 'pg_catalog', 'interval second(0)', 'should be interval second(0)' ),
+    true,
+    'col_type_is with pg_catalog.interval second(0)',
+    'should be interval second(0)',
+    ''
+);
 
 /****************************************************************************/
 -- Finish the tests and clean up.
