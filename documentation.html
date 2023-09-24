@@ -14,6 +14,8 @@
 
   <body>
     <div id="main">
+<h1 id="pgtap1.3.1">pgTAP 1.3.1</h1>
+
 <p>pgTAP is a unit testing framework for PostgreSQL written in PL/pgSQL and
 PL/SQL. It includes a comprehensive collection of
 <a href="https://testanything.org">TAP</a>-emitting assertion functions, as well as the
@@ -22,7 +24,6 @@ used in the xUnit testing style.</p>
       <div id="toc">
 <h1>Contents</h1>
 <ul>
-<li><a href="#pgtap1.3.0">pgTAP 1.3.0</a></li>
 <li><a href="#synopsis">Synopsis</a></li>
 <li><a href="#installation">Installation</a><ul>
 <li><a href="#potentialissues">Potential Issues</a></li>
@@ -268,7 +269,8 @@ used in the xUnit testing style.</p>
 <li><a href="#os_name"><code>os_name()</code></a></li>
 <li><a href="#collect_tap"><code>collect_tap()</code></a></li>
 <li><a href="#display_oper"><code>display_oper()</code></a></li>
-<li><a href="#pg_typeof"><code>pg_typeof()</code></a></li>
+<li><a href="#parse_type"><code>parse_type()</code></a></li>
+<li><a href="#format_type_string"><code>format_type_string()</code></a></li>
 <li><a href="#findfuncs"><code>findfuncs()</code></a></li></ul></li>
 <li><a href="#tapthatbatch">Tap that Batch</a><ul>
 <li><a href="#do_tap"><code>do_tap()</code></a></li>
@@ -692,7 +694,7 @@ discrepancy between the planned number of tests and the number actually run:</p>
 <p>If you need to throw an exception if some test failed, you can pass an
 option to <code>finish()</code>.</p>
 
-<pre><code>SELECT * FROM finish(true);    
+<pre><code>SELECT * FROM finish(true);
 </code></pre>
 
 <h2 id="whatasweetunit">What a sweet unit!</h2>
@@ -4565,15 +4567,17 @@ resolve the function name as a description. For example:</p>
 
 <p>pgTAP will generate a useful description if you don&#8217;t provide one.</p>
 
-<p>Note that pgTAP does not compare typemods. So if you wanted to test for a cast
-between, say, a <code>uuid</code> type and <code>bit(128)</code>, this will not work:</p>
+<p>Types can be defined by their canonical names or their aliases,
+e.g., <code>character varying</code> or <code>varchar</code>, so both these tests will pass:</p>
 
-<pre><code>SELECT has_cast( 'integer', 'bit(128)' );
+<pre><code>SELECT has_cast( 'text', 'character varying' );
+SELECT has_cast( 'text', 'varchar' );
 </code></pre>
 
-<p>But this will:</p>
+<p>Note that pgTAP ignores typemods, so either of these tests will pass:</p>
 
-<pre><code>SELECT has_cast( 'integer', 'bit' );
+<pre><code>SELECT has_cast( 'integer', 'bit(128)' );
+SELECT has_cast( 'integer', 'bit' );
 </code></pre>
 
 <h3 id="hasnt_cast"><code>hasnt_cast()</code></h3>
@@ -4646,6 +4650,10 @@ pass. If the operator does not exist, the test will fail. Example:</p>
 
 <pre><code>SELECT has_operator( 'integer', 'pg_catalog', '&lt;=', 'integer', 'boolean' );
 </code></pre>
+
+<p>Types can be defined by their canonical names or their aliases, e.g.,
+<code>timestamp with time zone</code> or <code>timestamptz</code>, or <code>character varying</code> or
+<code>varchar</code>.</p>
 
 <p>If you omit the schema name, then the operator must be visible in the search
 path. If you omit the test description, pgTAP will generate a reasonable one
@@ -5318,21 +5326,24 @@ fourth the type&#8217;s schema, the fifth the type, and the sixth is the test
 description.</p>
 
 <p>If the table schema is omitted, the table must be visible in the search path.
-If the type schema is omitted, it must be visible in the search path;
-otherwise, the diagnostics will report the schema it&#8217;s actually in. The schema
-can optionally be included in the <code>:type</code> argument, e.g., <code>'contrib.citext</code>.</p>
+If the type schema is omitted, it must be visible in the search path. The
+schema can optionally be included in the <code>:type</code> argument, e.g.,
+&#8220;contrib.citext&#8221;.</p>
 
 <p>If the test description is omitted, it will be set to &#8220;Column
 <code>:schema.:table.:column</code> should be type <code>:schema.:type</code>&#8221;. Note that this test
 will fail if the table or column in question does not exist.</p>
 
-<p>The type argument should be formatted as it would be displayed in the view of
-a table using the <code>\d</code> command in <code>psql</code>. For example, if you have a numeric
-column with a precision of 8, you should specify &#8220;numeric(8,0)&#8221;. If you
-created a <code>varchar(64)</code> column, you should pass the type as &#8220;varchar(64)&#8221; or
-&#8220;character varying(64)&#8221;. Example:</p>
+<p>The type argument may be formatted using the full name of the type or any
+supported alias. For example, if you created a <code>varchar(64)</code> column, you can
+pass the type as either &#8220;varchar(64)&#8221; or &#8220;character varying(64)&#8221;. Example:</p>
 
-<pre><code>SELECT col_type_is( 'myschema', 'sometable', 'somecolumn', 'numeric(10,2)' );
+<pre><code>SELECT col_type_is( 'myschema', 'sometable', 'somecolumn', 'timespantz(3)' );
+</code></pre>
+
+<p>Types with case-sensitive names or special characters must be double-quoted:</p>
+
+<pre><code>SELECT col_type_is( 'myschema', 'sometable', 'somecolumn', '&quot;myType&quot;' );
 </code></pre>
 
 <p>If the test fails, it will output useful diagnostics. For example this test:</p>
@@ -5347,8 +5358,8 @@ created a <code>varchar(64)</code> column, you should pass the type as &#8220;va
 #         want: text
 </code></pre>
 
-<p>It will even tell you if the test fails because a column doesn&#8217;t exist or
-actually has no default. But use <code>has_column()</code> to make sure the column exists
+<p>It will even tell you if the test fails because a column doesn&#8217;t exist or if
+the type doesn&#8217;t exist. But use <code>has_column()</code> to make sure the column exists
 first, eh?</p>
 
 <h3 id="col_default_is"><code>col_default_is()</code></h3>
@@ -5456,6 +5467,7 @@ the diagnostics will tell you that, too. But you use <code>has_column()</code> a
 <h3 id="has_pk"><code>has_pk()</code></h3>
 
 <pre><code>SELECT has_pk( :schema, :table, :description );
+SELECT has_pk( :schema, :table );
 SELECT has_pk( :table, :description );
 SELECT has_pk( :table );
 </code></pre>
@@ -5479,6 +5491,12 @@ If the schema is omitted, the table must be visible in the search path. If the
 test description is omitted, it will be set to &#8220;Table <code>:table</code> should have a
 primary key&#8221;. Note that this test will fail if the table in question does not
 exist.</p>
+
+<p>If you find that the function call confuses the table name for a
+description, cast the table to the <code>NAME</code> type:</p>
+
+<pre><code>SELECT has_pk( 'myschema', 'mytable'::name );
+</code></pre>
 
 <h3 id="hasnt_pk"><code>hasnt_pk()</code></h3>
 
@@ -7141,6 +7159,10 @@ there is no description, a reasonable default description will be created.</p>
 argument, there cannot be a <code>:type_schema</code> argument, either, though the
 schema can be included in the <code>type</code> argument, e.g., <code>contrib.citext</code>.</p>
 
+<p>Types can be defined by their canonical names or their aliases, e.g.,
+<code>timestamp with time zone</code> or <code>timestamptz</code>, or <code>character varying</code> or
+<code>varchar</code>.</p>
+
 <p>For the 3- and 4-argument forms with schemas, cast the schemas to <code>NAME</code> to
 avoid ambiguities. Example:</p>
 
@@ -7233,12 +7255,15 @@ Example:</p>
 <pre><code>SELECT cast_context_is( 'integer', 'bigint', 'implicit' );
 </code></pre>
 
-<p>The data types should be passed as they are displayed by
-<code>pg_catalog.format_type()</code>. For example, you would need to pass &#8220;character
-varying&#8221;, and not &#8220;VARCHAR&#8221;.</p>
+<p>The data types may be defined by their canonical names or their aliases,
+e.g., <code>character varying</code> or <code>varchar</code>, so both these tests will pass:</p>
 
-<p>The The supported contexts are &#8220;implicit&#8221;, &#8220;assignment&#8221;, and &#8220;explicit&#8221;. You
-can also just pass in &#8220;i&#8221;, &#8220;a&#8221;, or &#8220;e&#8221;. Consult the PostgreSQL <a href="https://www.postgresql.org/docs/current/static/sql-createcast.html"><code>CREATE
+<pre><code>SELECT cast_context_is( 'text', 'character varying', 'implicit' );
+SELECT cast_context_is( 'text', 'varchar', 'implicit' );
+</code></pre>
+
+<p>The supported contexts are &#8220;implicit&#8221;, &#8220;assignment&#8221;, and &#8220;explicit&#8221;. You can
+also just pass in &#8220;i&#8221;, &#8220;a&#8221;, or &#8220;e&#8221;. Consult the PostgreSQL <a href="https://www.postgresql.org/docs/current/static/sql-createcast.html"><code>CREATE
 CAST</code></a>
 documentation for the differences between these contexts (hint: they
 correspond to the default context, <code>AS IMPLICIT</code>, and <code>AS ASSIGNMENT</code>). If you
@@ -9456,7 +9481,7 @@ the stringified version number displayed in the first part of the core
 <code>version()</code> function and stored in the &#8220;server_version&#8221; setting:</p>
 
 <pre><code>try=% select current_setting( 'server_version'), pg_version();
- current_setting | pg_version 
+ current_setting | pg_version
 -----------------+------------
  12.2            | 12.2
 (1 row)
@@ -9551,26 +9576,57 @@ included in the display. For example:</p>
 <p>Used internally by pgTAP to compare operators, but may be more generally
 useful.</p>
 
-<h3 id="pg_typeof"><code>pg_typeof()</code></h3>
+<h3 id="parse_type"><code>parse_type()</code></h3>
 
-<pre><code>SELECT pg_typeof(:any);
+<pre><code>SELECT * FROM parse_type( :text );
 </code></pre>
 
 <p><strong>Parameters</strong></p>
 
 <dl>
-<dt><code>:any</code></dt>
-<dd>Any SQL value.</dd>
+<dt><code>:text</code></dt>
+<dd>An SQL type declaration, optionally schema-qualified.</dd>
 </dl>
 
-<p>Returns a <code>regtype</code> identifying the type of value passed to the function. This
-function is used internally by <code>cmp_ok()</code> to properly construct types when
-executing the comparison, but might be generally useful.</p>
+<p>Parses a string representing an SQL type declaration as used in a <code>CREATE TABLE</code>
+statement, optionally schema-qualified. Returns a record with two fields,
+<code>typid</code> and <code>typmod</code>, representing the OID and modifier for the type. These are
+the underlying values that define column data types, and which can be passed to
+the PostgreSQL core
+<a href="https://www.postgresql.org/docs/current/functions-info.html#FUNCTIONS-INFO-CATALOG"><code>format_type()</code></a>
+function to display the normalized string representation of the data type.
+Raises an error if the specify type does not exist or cannot be found in the
+search path.</p>
 
-<pre><code>try=% select pg_typeof(12), pg_typeof(100.2);
- pg_typeof | pg_typeof
------------+-----------
- integer   | numeric
+<pre><code>try=% SELECT format_type(p.typid, p.typmod)
+try-%   FROM parse_type('timestamp(4)') p;
+        format_type
+--------------------------------
+timestamp(4) without time zone
+</code></pre>
+
+<h3 id="format_type_string"><code>format_type_string()</code></h3>
+
+<pre><code>SELECT format_type_string( :text );
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+
+<dl>
+<dt><code>:text</code></dt>
+<dd>An SQL type declaration, optionally schema-qualified.</dd>
+</dl>
+
+<p>This function normalizes data type declarations for accurate comparison
+to table columns by <code>col_type_is()</code>. It&#8217;s effectively the identical to
+the calling <code>format_type()</code> with the values returned by <code>parse_type()</code>,
+but returns a <code>NULL</code> on an invalid or missing type, rather than raising
+an error.</p>
+
+<pre><code>try=# SELECT format_type_string('timestamp(3)');
+    format_type_string
+--------------------------------
+timestamp(3) without time zone
 </code></pre>
 
 <h3 id="findfuncs"><code>findfuncs()</code></h3>
@@ -10088,7 +10144,7 @@ comments, suggestions, and bug reports are welcomed there.</p>
 
 <h2 id="copyrightandlicense">Copyright and License</h2>
 
-<p>Copyright (c) 2008&#8211;2021 David E. Wheeler. Some rights reserved.</p>
+<p>Copyright (c) 2008&#8211;2023 David E. Wheeler. Some rights reserved.</p>
 
 <p>Permission to use, copy, modify, and distribute this software and its
 documentation for any purpose, without fee, and without a written agreement is
