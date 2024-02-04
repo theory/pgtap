@@ -14,7 +14,7 @@
 
   <body>
     <div id="main">
-<h1 id="pgtap1.3.1">pgTAP 1.3.1</h1>
+<h1 id="pgtap1.3.3">pgTAP 1.3.3</h1>
 
 <p>pgTAP is a unit testing framework for PostgreSQL written in PL/pgSQL and
 PL/SQL. It includes a comprehensive collection of
@@ -269,7 +269,6 @@ used in the xUnit testing style.</p>
 <li><a href="#os_name"><code>os_name()</code></a></li>
 <li><a href="#collect_tap"><code>collect_tap()</code></a></li>
 <li><a href="#display_oper"><code>display_oper()</code></a></li>
-<li><a href="#parse_type"><code>parse_type()</code></a></li>
 <li><a href="#format_type_string"><code>format_type_string()</code></a></li>
 <li><a href="#findfuncs"><code>findfuncs()</code></a></li></ul></li>
 <li><a href="#tapthatbatch">Tap that Batch</a><ul>
@@ -2783,17 +2782,17 @@ SELECT functions_are( :functions );
 <dd>Name of a schema in which to find functions.</dd>
 
 <dt><code>:functions</code></dt>
-<dd>An array of function names.</dd>
+<dd>An array of function and/or procedure names.</dd>
 
 <dt><code>:description</code></dt>
 <dd>A short description of the test.</dd>
 </dl>
 
-<p>This function tests that all of the functions in the named schema, or that are
-visible in the search path, are only the functions that <em>should</em> be there. If
-the <code>:schema</code> argument is omitted, functions will be sought in the search
-path, excluding <code>pg_catalog</code> and <code>information_schema</code> If the description is
-omitted, a generally useful default description will be generated. Example:</p>
+<p>This function tests that all of the functions or procedures in the named schema,
+or that are visible in the search path, are only the functions that <em>should</em> be
+there. If the <code>:schema</code> argument is omitted, functions will be sought in the
+search path, excluding <code>pg_catalog</code> and <code>information_schema</code> If the description
+is omitted, a generally useful default description will be generated. Example:</p>
 
 <pre><code>SELECT functions_are(
     'myschema',
@@ -4449,7 +4448,7 @@ SELECT has_function( :function );
 <dd>Name of a schema in which to find the function.</dd>
 
 <dt><code>:function</code></dt>
-<dd>Name of a function.</dd>
+<dd>Name of a function or procedure.</dd>
 
 <dt><code>:args</code></dt>
 <dd>Array of data types of the function arguments.</dd>
@@ -4458,11 +4457,11 @@ SELECT has_function( :function );
 <dd>A short description of the test.</dd>
 </dl>
 
-<p>Checks to be sure that the given function exists in the named schema and with
-the specified argument data types. If <code>:schema</code> is omitted, <code>has_function()</code>
-will search for the function in the schemas defined in the search path. If
-<code>:args</code> is omitted, <code>has_function()</code> will see if the function exists without
-regard to its arguments. Some examples:</p>
+<p>Checks to be sure that the given function or procedure exists in the named
+schema and with the specified argument data types. If <code>:schema</code> is omitted,
+<code>has_function()</code> will search for the function in the schemas defined in the
+search path. If <code>:args</code> is omitted, <code>has_function()</code> will see if the function
+exists without regard to its arguments. Some examples:</p>
 
 <pre><code>SELECT has_function(
     'pg_catalog',
@@ -4511,7 +4510,7 @@ SELECT hasnt_function( :function );
 <dd>Name of a schema in which not to find the function.</dd>
 
 <dt><code>:function</code></dt>
-<dd>Name of a function.</dd>
+<dd>Name of a function or procedure.</dd>
 
 <dt><code>:args</code></dt>
 <dd>Array of data types of the function arguments.</dd>
@@ -4521,7 +4520,8 @@ SELECT hasnt_function( :function );
 </dl>
 
 <p>This function is the inverse of <code>has_function()</code>. The test passes if the
-specified function (optionally with the specified signature) does <em>not</em> exist.</p>
+specified function or procedure (optionally with the specified signature) does
+<em>not</em> exist.</p>
 
 <h3 id="has_cast"><code>has_cast()</code></h3>
 
@@ -5339,6 +5339,12 @@ supported alias. For example, if you created a <code>varchar(64)</code> column, 
 pass the type as either &#8220;varchar(64)&#8221; or &#8220;character varying(64)&#8221;. Example:</p>
 
 <pre><code>SELECT col_type_is( 'myschema', 'sometable', 'somecolumn', 'timespantz(3)' );
+</code></pre>
+
+<p>The exception to this rule is interval types, which must be specified as
+rendered by PostgreSQL itself:</p>
+
+<pre><code>SELECT col_type_is( 'myschema', 'sometable', 'somecolumn', 'interval second(3)' );
 </code></pre>
 
 <p>Types with case-sensitive names or special characters must be double-quoted:</p>
@@ -6256,7 +6262,7 @@ SELECT can( :functions );
 <dd>Schema in which to find the functions.</dd>
 
 <dt><code>:functions</code></dt>
-<dd>Array of function names.</dd>
+<dd>Array of function and/or procedure names.</dd>
 
 <dt><code>:description</code></dt>
 <dd>A short description of the test.</dd>
@@ -6394,6 +6400,11 @@ signature will be checked (pass an empty array to specify a function with an
 empty signature). If the <code>:description</code> is omitted, a reasonable substitute
 will be created.</p>
 
+<p>Procedures can also be tested; they always return <code>void</code>:</p>
+
+<pre><code>SELECT function_returns( 'my_proc', 'void' );
+</code></pre>
+
 <p>In the event of a failure, you&#8217;ll useful diagnostics will tell you what went
 wrong, for example:</p>
 
@@ -6429,7 +6440,7 @@ SELECT is_definer( :function );
 <dd>Schema in which to find the function.</dd>
 
 <dt><code>:function</code></dt>
-<dd>Function name.</dd>
+<dd>Function or proceudure name.</dd>
 
 <dt><code>:args</code></dt>
 <dd>Array of data types for the function arguments.</dd>
@@ -6438,7 +6449,7 @@ SELECT is_definer( :function );
 <dd>A short description of the test.</dd>
 </dl>
 
-<p>Tests that a function is a security definer (i.e., a &#8220;setuid&#8221; function). If
+<p>Tests that a function or procedure is a security definer (i.e., a &#8220;setuid&#8221; function). If
 the <code>:schema</code> argument is omitted, then the function must be visible in the
 search path. If the <code>:args</code> argument is passed, then the function with that
 argument signature will be the one tested; otherwise, a function with any
@@ -6479,7 +6490,7 @@ SELECT isnt_definer( :function );
 <dd>Schema in which to find the function.</dd>
 
 <dt><code>:function</code></dt>
-<dd>Function name.</dd>
+<dd>Function or proceure name.</dd>
 
 <dt><code>:args</code></dt>
 <dd>Array of data types for the function arguments.</dd>
@@ -6489,7 +6500,7 @@ SELECT isnt_definer( :function );
 </dl>
 
 <p>This function is the inverse of <code>is_definer()</code>. The test passes if the specified
-function is not a security definer.</p>
+function or procedure is not a security definer.</p>
 
 <p>If the function does not exist, a handy diagnostic message will let you know:</p>
 
@@ -9292,7 +9303,7 @@ SELECT diag(
 </code></pre>
 
 <p>You can pass data of any type to <code>diag()</code> and it will all be converted to text
-for the diagnostics. You can als pass any number of arguments (as long as they
+for the diagnostics. You can also pass any number of arguments (as long as they
 are all the same data type) and they will be concatenated together.</p>
 
 <h2 id="conditionaltests">Conditional Tests</h2>
@@ -9576,35 +9587,6 @@ included in the display. For example:</p>
 <p>Used internally by pgTAP to compare operators, but may be more generally
 useful.</p>
 
-<h3 id="parse_type"><code>parse_type()</code></h3>
-
-<pre><code>SELECT * FROM parse_type( :text );
-</code></pre>
-
-<p><strong>Parameters</strong></p>
-
-<dl>
-<dt><code>:text</code></dt>
-<dd>An SQL type declaration, optionally schema-qualified.</dd>
-</dl>
-
-<p>Parses a string representing an SQL type declaration as used in a <code>CREATE TABLE</code>
-statement, optionally schema-qualified. Returns a record with two fields,
-<code>typid</code> and <code>typmod</code>, representing the OID and modifier for the type. These are
-the underlying values that define column data types, and which can be passed to
-the PostgreSQL core
-<a href="https://www.postgresql.org/docs/current/functions-info.html#FUNCTIONS-INFO-CATALOG"><code>format_type()</code></a>
-function to display the normalized string representation of the data type.
-Raises an error if the specify type does not exist or cannot be found in the
-search path.</p>
-
-<pre><code>try=% SELECT format_type(p.typid, p.typmod)
-try-%   FROM parse_type('timestamp(4)') p;
-        format_type
---------------------------------
-timestamp(4) without time zone
-</code></pre>
-
 <h3 id="format_type_string"><code>format_type_string()</code></h3>
 
 <pre><code>SELECT format_type_string( :text );
@@ -9619,9 +9601,12 @@ timestamp(4) without time zone
 
 <p>This function normalizes data type declarations for accurate comparison
 to table columns by <code>col_type_is()</code>. It&#8217;s effectively the identical to
-the calling <code>format_type()</code> with the values returned by <code>parse_type()</code>,
-but returns a <code>NULL</code> on an invalid or missing type, rather than raising
-an error.</p>
+the calling <code>format_type()</code> with the type OID and type modifier that define
+the column, but returns a <code>NULL</code> on an invalid or missing type, rather than
+raising an error. Types can be defined by their canonical names or their
+aliases, e.g., <code>character varying</code> or <code>varchar</code>. The exception is <code>interval</code>
+types, which must be specified exactly as Postgres renders them internally,
+e.g., <code>'interval(0)</code>, <code>interval second(0)</code>, or <code>interval day to second(4)</code>.</p>
 
 <pre><code>try=# SELECT format_type_string('timestamp(3)');
     format_type_string
@@ -9915,9 +9900,6 @@ SELECT check_test( :test_output, :is_ok );
 <p><strong>Parameters</strong></p>
 
 <dl>
-<dt><code>:schema</code></dt>
-<dd>Name of a schema containing pgTAP test functions.</dd>
-
 <dt><code>:test_output</code></dt>
 <dd>The output from your test. Usually it&#8217;s just returned by a call to the test
 function itself. Required.</dd>
