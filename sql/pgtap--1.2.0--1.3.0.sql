@@ -181,6 +181,8 @@ RETURNS TEXT AS $$
         ),
         $2
     );
+$$ LANGUAGE SQL;
+
 CREATE OR REPLACE FUNCTION _lang ( NAME, NAME, NAME[] )
 RETURNS NAME AS $$
     SELECT l.lanname
