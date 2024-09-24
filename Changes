@@ -7,6 +7,8 @@ Revision history for pgTAP
 * Fixed the upgrade from v1.2.0 to v1.3.0. Thanks to @runqitian for the pull
   request (#338).
 
+* Add missing function has_composite ( NAME, NAME ) and hasnt_composite ( NAME, NAME )
+
 1.3.3 2024-04-08T13:44:11Z
 --------------------------
 
@@ -278,7 +280,7 @@ Revision history for pgTAP
   Quiédeville (PR #106).
 * Add `has_extension()` and `hasnt_extension()`. Thanks to Rodolphe Quiédeville
   (PR #101).
- 
+
 0.96.0 2016-05-16T20:53:57Z
 ---------------------------
 * Added an optional `:exclude_pattern` parameter to `findfuncs()` to prevent

@@ -869,11 +869,11 @@ BEGIN
     SELECT GREATEST((return_percent * iterations)::int, 1) INTO limit_it;
 
     FOR a_time IN SELECT times[i]
-		  FROM generate_series(array_lower(times, 1), array_upper(times, 1)) i
+                  FROM generate_series(array_lower(times, 1), array_upper(times, 1)) i
                   ORDER BY 1
                   OFFSET offset_it
                   LIMIT limit_it LOOP
-	RETURN NEXT a_time;
+        RETURN NEXT a_time;
     END LOOP;
 END;
 $$ LANGUAGE plpgsql;
@@ -1223,6 +1223,13 @@ RETURNS TEXT AS $$
     SELECT ok( _rexists( 'c', $1, $2 ), $3 );
 $$ LANGUAGE SQL;
 
+-- has_composite( schema, type )
+CREATE OR REPLACE FUNCTION has_composite ( NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT has_composite($1, $2,
+           'Composite type ' || quote_ident($1) || '.' || quote_ident($2) || ' should exist' );
+$$ LANGUAGE SQL;
+
 -- has_composite( type, description )
 CREATE OR REPLACE FUNCTION has_composite ( NAME, TEXT )
 RETURNS TEXT AS $$
@@ -1239,6 +1246,13 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION hasnt_composite ( NAME, NAME, TEXT )
 RETURNS TEXT AS $$
     SELECT ok( NOT _rexists( 'c', $1, $2 ), $3 );
+$$ LANGUAGE SQL;
+
+-- hasnt_composite( schema, type )
+CREATE OR REPLACE FUNCTION hasnt_composite ( NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT hasnt_composite($1, $2,
+        'Composite type ' || quote_ident($1) || '.' || quote_ident($2) || ' should not exist' );
 $$ LANGUAGE SQL;
 
 -- hasnt_composite( type, description )
