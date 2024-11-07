@@ -18,8 +18,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- index_is_primary( schema, table, index )
-CREATE OR REPLACE FUNCTION index_is_primary ( NAME, NAME, NAME )
+-- index_is_partial( schema, table, index )
+CREATE OR REPLACE FUNCTION index_is_partial ( NAME, NAME, NAME )
 RETURNS TEXT AS $$
     SELECT index_is_partial(
         $1, $2, $3,
