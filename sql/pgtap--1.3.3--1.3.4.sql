@@ -1,22 +1,15 @@
 -- index_is_partial( schema, table, index, description )
 CREATE OR REPLACE FUNCTION index_is_partial ( NAME, NAME, NAME, text )
 RETURNS TEXT AS $$
-DECLARE
-    res boolean;
-BEGIN
-    SELECT x.indpred IS NOT NULL
+    SELECT ok(x.indpred IS NOT NULL, $4)
       FROM pg_catalog.pg_index x
       JOIN pg_catalog.pg_class ct    ON ct.oid = x.indrelid
       JOIN pg_catalog.pg_class ci    ON ci.oid = x.indexrelid
       JOIN pg_catalog.pg_namespace n ON n.oid = ct.relnamespace
      WHERE ct.relname = $2
        AND ci.relname = $3
-       AND n.nspname  = $1
-      INTO res;
-
-      RETURN ok( COALESCE(res, false), $4 );
-END;
-$$ LANGUAGE plpgsql;
+       AND n.nspname  = $1;
+$$ LANGUAGE sql;
 
 -- index_is_partial( schema, table, index )
 CREATE OR REPLACE FUNCTION index_is_partial ( NAME, NAME, NAME )
