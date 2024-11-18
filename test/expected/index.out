@@ -1,5 +1,5 @@
 \unset ECHO
-1..270
+1..297
 ok 1 - has_index() single column should pass
 ok 2 - has_index() single column should have the proper description
 ok 3 - has_index() single column should have the proper diagnostics
@@ -186,87 +186,114 @@ ok 183 - index_is_primary() fail index only should have the proper diagnostics
 ok 184 - index_is_primary() no such index should fail
 ok 185 - index_is_primary() no such index should have the proper description
 ok 186 - index_is_primary() no such index should have the proper diagnostics
-ok 187 - is_clustered() fail should fail
-ok 188 - is_clustered() fail should have the proper description
-ok 189 - is_clustered() fail should have the proper diagnostics
-ok 190 - is_clustered() fail no desc should fail
-ok 191 - is_clustered() fail no desc should have the proper description
-ok 192 - is_clustered() fail no desc should have the proper diagnostics
-ok 193 - is_clustered() fail no schema should fail
-ok 194 - is_clustered() fail no schema should have the proper description
-ok 195 - is_clustered() fail no schema should have the proper diagnostics
-ok 196 - is_clustered() fail index only should fail
-ok 197 - is_clustered() fail index only should have the proper description
-ok 198 - is_clustered() fail index only should have the proper diagnostics
-ok 199 - is_clustered() should pass
-ok 200 - is_clustered() should have the proper description
-ok 201 - is_clustered() should have the proper diagnostics
-ok 202 - is_clustered() no desc should pass
-ok 203 - is_clustered() no desc should have the proper description
-ok 204 - is_clustered() no desc should have the proper diagnostics
-ok 205 - is_clustered() no schema should pass
-ok 206 - is_clustered() no schema should have the proper description
-ok 207 - is_clustered() no schema should have the proper diagnostics
-ok 208 - is_clustered() index only should pass
-ok 209 - is_clustered() index only should have the proper description
-ok 210 - is_clustered() index only should have the proper diagnostics
-ok 211 - index_is_type() should pass
-ok 212 - index_is_type() should have the proper description
-ok 213 - index_is_type() should have the proper diagnostics
-ok 214 - index_is_type() no desc should pass
-ok 215 - index_is_type() no desc should have the proper description
-ok 216 - index_is_type() no desc should have the proper diagnostics
-ok 217 - index_is_type() fail should fail
-ok 218 - index_is_type() fail should have the proper description
-ok 219 - index_is_type() fail should have the proper diagnostics
-ok 220 - index_is_type() no schema should pass
-ok 221 - index_is_type() no schema should have the proper description
-ok 222 - index_is_type() no schema should have the proper diagnostics
-ok 223 - index_is_type() no schema fail should fail
-ok 224 - index_is_type() no schema fail should have the proper description
-ok 225 - index_is_type() no schema fail should have the proper diagnostics
-ok 226 - index_is_type() no table should pass
-ok 227 - index_is_type() no table should have the proper description
-ok 228 - index_is_type() no table should have the proper diagnostics
-ok 229 - index_is_type() no table fail should fail
-ok 230 - index_is_type() no table fail should have the proper description
-ok 231 - index_is_type() no table fail should have the proper diagnostics
-ok 232 - index_is_type() hash should pass
-ok 233 - index_is_type() hash should have the proper description
-ok 234 - index_is_type() hash should have the proper diagnostics
-ok 235 - is_indexed( schema, table, columns[], description ) should pass
-ok 236 - is_indexed( schema, table, columns[], description ) should have the proper description
-ok 237 - is_indexed( schema, table, columns[], description ) should have the proper diagnostics
-ok 238 - is_indexed( schema, table, columns[] ) should pass
-ok 239 - is_indexed( schema, table, columns[] ) should have the proper description
-ok 240 - is_indexed( schema, table, columns[] ) should have the proper diagnostics
-ok 241 - is_indexed( table, columns[], description ) should pass
-ok 242 - is_indexed( table, columns[], description ) should have the proper description
-ok 243 - is_indexed( table, columns[], description ) should have the proper diagnostics
-ok 244 - is_indexed( table, columns[] ) should pass
-ok 245 - is_indexed( table, columns[] ) should have the proper description
-ok 246 - is_indexed( table, columns[] ) should have the proper diagnostics
-ok 247 - is_indexed( schema, table, column, description ) should pass
-ok 248 - is_indexed( schema, table, column, description ) should have the proper description
-ok 249 - is_indexed( schema, table, column, description ) should have the proper diagnostics
-ok 250 - is_indexed( schema, table, column ) should pass
-ok 251 - is_indexed( schema, table, column ) should have the proper description
-ok 252 - is_indexed( schema, table, column ) should have the proper diagnostics
-ok 253 - is_indexed( schema, table, column ) fail should fail
-ok 254 - is_indexed( schema, table, column ) fail should have the proper description
-ok 255 - is_indexed( schema, table, column ) fail should have the proper diagnostics
-ok 256 - is_indexed( schema, table, columns[] ) fail, column order matters should fail
-ok 257 - is_indexed( schema, table, columns[] ) fail, column order matters should have the proper description
-ok 258 - is_indexed( schema, table, columns[] ) fail, column order matters should have the proper diagnostics
-ok 259 - is_indexed(schema, table, expressions) should pass
-ok 260 - is_indexed(schema, table, expressions) should have the proper description
-ok 261 - is_indexed(schema, table, expressions) should have the proper diagnostics
-ok 262 - is_indexed(schema, table, expression) should pass
-ok 263 - is_indexed(schema, table, expression) should have the proper description
-ok 264 - is_indexed(schema, table, expression) should have the proper diagnostics
-ok 265 - is_indexed(table, expressions) should pass
-ok 266 - is_indexed(table, expressions) should have the proper description
-ok 267 - is_indexed(table, expressions) should have the proper diagnostics
-ok 268 - is_indexed( table, expression) should pass
-ok 269 - is_indexed( table, expression) should have the proper description
-ok 270 - is_indexed( table, expression) should have the proper diagnostics
+ok 187 - index_is_partial() should pass
+ok 188 - index_is_partial() should have the proper description
+ok 189 - index_is_partial() should have the proper diagnostics
+ok 190 - index_is_partial() no desc should pass
+ok 191 - index_is_partial() no desc should have the proper description
+ok 192 - index_is_partial() no desc should have the proper diagnostics
+ok 193 - index_is_partial() no schema should pass
+ok 194 - index_is_partial() no schema should have the proper description
+ok 195 - index_is_partial() no schema should have the proper diagnostics
+ok 196 - index_is_partial() index only should pass
+ok 197 - index_is_partial() index only should have the proper description
+ok 198 - index_is_partial() index only should have the proper diagnostics
+ok 199 - index_is_partial() fail should fail
+ok 200 - index_is_partial() fail should have the proper description
+ok 201 - index_is_partial() fail should have the proper diagnostics
+ok 202 - index_is_partial() fail no desc should fail
+ok 203 - index_is_partial() fail no desc should have the proper description
+ok 204 - index_is_partial() fail no desc should have the proper diagnostics
+ok 205 - index_is_partial() fail no schema should fail
+ok 206 - index_is_partial() fail no schema should have the proper description
+ok 207 - index_is_partial() fail no schema should have the proper diagnostics
+ok 208 - index_is_partial() fail index only should fail
+ok 209 - index_is_partial() fail index only should have the proper description
+ok 210 - index_is_partial() fail index only should have the proper diagnostics
+ok 211 - index_is_partial() no such index should fail
+ok 212 - index_is_partial() no such index should have the proper description
+ok 213 - index_is_partial() no such index should have the proper diagnostics
+ok 214 - is_clustered() fail should fail
+ok 215 - is_clustered() fail should have the proper description
+ok 216 - is_clustered() fail should have the proper diagnostics
+ok 217 - is_clustered() fail no desc should fail
+ok 218 - is_clustered() fail no desc should have the proper description
+ok 219 - is_clustered() fail no desc should have the proper diagnostics
+ok 220 - is_clustered() fail no schema should fail
+ok 221 - is_clustered() fail no schema should have the proper description
+ok 222 - is_clustered() fail no schema should have the proper diagnostics
+ok 223 - is_clustered() fail index only should fail
+ok 224 - is_clustered() fail index only should have the proper description
+ok 225 - is_clustered() fail index only should have the proper diagnostics
+ok 226 - is_clustered() should pass
+ok 227 - is_clustered() should have the proper description
+ok 228 - is_clustered() should have the proper diagnostics
+ok 229 - is_clustered() no desc should pass
+ok 230 - is_clustered() no desc should have the proper description
+ok 231 - is_clustered() no desc should have the proper diagnostics
+ok 232 - is_clustered() no schema should pass
+ok 233 - is_clustered() no schema should have the proper description
+ok 234 - is_clustered() no schema should have the proper diagnostics
+ok 235 - is_clustered() index only should pass
+ok 236 - is_clustered() index only should have the proper description
+ok 237 - is_clustered() index only should have the proper diagnostics
+ok 238 - index_is_type() should pass
+ok 239 - index_is_type() should have the proper description
+ok 240 - index_is_type() should have the proper diagnostics
+ok 241 - index_is_type() no desc should pass
+ok 242 - index_is_type() no desc should have the proper description
+ok 243 - index_is_type() no desc should have the proper diagnostics
+ok 244 - index_is_type() fail should fail
+ok 245 - index_is_type() fail should have the proper description
+ok 246 - index_is_type() fail should have the proper diagnostics
+ok 247 - index_is_type() no schema should pass
+ok 248 - index_is_type() no schema should have the proper description
+ok 249 - index_is_type() no schema should have the proper diagnostics
+ok 250 - index_is_type() no schema fail should fail
+ok 251 - index_is_type() no schema fail should have the proper description
+ok 252 - index_is_type() no schema fail should have the proper diagnostics
+ok 253 - index_is_type() no table should pass
+ok 254 - index_is_type() no table should have the proper description
+ok 255 - index_is_type() no table should have the proper diagnostics
+ok 256 - index_is_type() no table fail should fail
+ok 257 - index_is_type() no table fail should have the proper description
+ok 258 - index_is_type() no table fail should have the proper diagnostics
+ok 259 - index_is_type() hash should pass
+ok 260 - index_is_type() hash should have the proper description
+ok 261 - index_is_type() hash should have the proper diagnostics
+ok 262 - is_indexed( schema, table, columns[], description ) should pass
+ok 263 - is_indexed( schema, table, columns[], description ) should have the proper description
+ok 264 - is_indexed( schema, table, columns[], description ) should have the proper diagnostics
+ok 265 - is_indexed( schema, table, columns[] ) should pass
+ok 266 - is_indexed( schema, table, columns[] ) should have the proper description
+ok 267 - is_indexed( schema, table, columns[] ) should have the proper diagnostics
+ok 268 - is_indexed( table, columns[], description ) should pass
+ok 269 - is_indexed( table, columns[], description ) should have the proper description
+ok 270 - is_indexed( table, columns[], description ) should have the proper diagnostics
+ok 271 - is_indexed( table, columns[] ) should pass
+ok 272 - is_indexed( table, columns[] ) should have the proper description
+ok 273 - is_indexed( table, columns[] ) should have the proper diagnostics
+ok 274 - is_indexed( schema, table, column, description ) should pass
+ok 275 - is_indexed( schema, table, column, description ) should have the proper description
+ok 276 - is_indexed( schema, table, column, description ) should have the proper diagnostics
+ok 277 - is_indexed( schema, table, column ) should pass
+ok 278 - is_indexed( schema, table, column ) should have the proper description
+ok 279 - is_indexed( schema, table, column ) should have the proper diagnostics
+ok 280 - is_indexed( schema, table, column ) fail should fail
+ok 281 - is_indexed( schema, table, column ) fail should have the proper description
+ok 282 - is_indexed( schema, table, column ) fail should have the proper diagnostics
+ok 283 - is_indexed( schema, table, columns[] ) fail, column order matters should fail
+ok 284 - is_indexed( schema, table, columns[] ) fail, column order matters should have the proper description
+ok 285 - is_indexed( schema, table, columns[] ) fail, column order matters should have the proper diagnostics
+ok 286 - is_indexed(schema, table, expressions) should pass
+ok 287 - is_indexed(schema, table, expressions) should have the proper description
+ok 288 - is_indexed(schema, table, expressions) should have the proper diagnostics
+ok 289 - is_indexed(schema, table, expression) should pass
+ok 290 - is_indexed(schema, table, expression) should have the proper description
+ok 291 - is_indexed(schema, table, expression) should have the proper diagnostics
+ok 292 - is_indexed(table, expressions) should pass
+ok 293 - is_indexed(table, expressions) should have the proper description
+ok 294 - is_indexed(table, expressions) should have the proper diagnostics
+ok 295 - is_indexed( table, expression) should pass
+ok 296 - is_indexed( table, expression) should have the proper description
+ok 297 - is_indexed( table, expression) should have the proper diagnostics
