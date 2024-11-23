@@ -2,7 +2,7 @@
 \i test/setup.sql
 -- \i sql/pgtap.sql
 
-SELECT plan(1004);
+SELECT plan(1013);
 --SELECT * FROM no_plan();
 
 -- This will be rolled back. :-)
@@ -580,6 +580,23 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
+    has_composite( 'public'::name, '__SDFSDFD__'::name ),
+    false,
+    'has_composite(schema, type)',
+    'Composite type public."__SDFSDFD__" should exist',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_composite( 'public'::name, 'sometype'::name ),
+    true,
+    'has_composite(schema, type)',
+    'Composite type public.sometype should exist',
+    ''
+);
+
+
+SELECT * FROM check_test(
     has_composite( 'public', 'sometype', 'desc' ),
     true,
     'has_composite(sch, tab, desc)',
@@ -639,6 +656,15 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
+    hasnt_composite( 'public'::name, '__SDFSDFD__'::name ),
+    true,
+    'hasnt_composite(schema, non-existent type',
+    'Composite type public."__SDFSDFD__" should not exist',
+    ''
+);
+
+
+SELECT * FROM check_test(
     hasnt_composite( 'public', 'sometype', 'desc' ),
     false,
     'hasnt_composite(sch, tab, desc)',
@@ -665,7 +691,7 @@ SELECT * FROM check_test(
 SELECT * FROM check_test(
     has_type( 'public'::name, 'sometype'::name ),
     true,
-    'has_type(scheam, type)',
+    'has_type(schema, type)',
     'Type public.sometype should exist',
     ''
 );
@@ -2305,7 +2331,7 @@ SELECT * FROM check_test(
     domain_type_is( 'public'::name, 'us_postal_code', 'text'),
     true,
     'domain_type_is(schema, domain, type)',
-    'Domain public.us_postal_code should extend type text', 
+    'Domain public.us_postal_code should extend type text',
     ''
 );
 
@@ -2346,7 +2372,7 @@ SELECT * FROM check_test(
     domain_type_is( 'us_postal_code', 'text'),
     true,
     'domain_type_is(domain, type)',
-    'Domain us_postal_code should extend type text', 
+    'Domain us_postal_code should extend type text',
     ''
 );
 
@@ -2428,7 +2454,7 @@ SELECT * FROM check_test(
     domain_type_isnt( 'public'::name, 'us_postal_code', 'int'),
     true,
     'domain_type_isnt(schema, domain, type)',
-    'Domain public.us_postal_code should not extend type int', 
+    'Domain public.us_postal_code should not extend type int',
     ''
 );
 
@@ -2469,7 +2495,7 @@ SELECT * FROM check_test(
     domain_type_isnt( 'us_postal_code', 'int'),
     true,
     'domain_type_isnt(domain, type)',
-    'Domain us_postal_code should not extend type int', 
+    'Domain us_postal_code should not extend type int',
     ''
 );
 
@@ -2503,7 +2529,7 @@ SELECT * FROM check_test(
 CREATE FUNCTION test_fdw() RETURNS SETOF TEXT AS $$
 DECLARE
     tap record;
-BEGIN   
+BEGIN
     IF pg_version_num() >= 90100 THEN
         EXECUTE $E$
             CREATE FOREIGN DATA WRAPPER dummy;
@@ -3272,7 +3298,7 @@ BEGIN
         ) AS b LOOP
             RETURN NEXT tap.b;
         END LOOP;
-        
+
         FOR tap IN SELECT * FROM check_test(
             has_view( 'pg_tables' ),
             true,
