@@ -1,4 +1,10 @@
-create schema pgconf;
+create schema if not exists tap;
+
+CREATE EXTENSION pgtap schema tap;
+
+create schema if not exists pgconf;
+
+create schema if not exists tests;
 
 set search_path to public, tap;
 
@@ -14,7 +20,10 @@ create table pgconf.account(
     , constraint account_01_fk foreign key(parent_id) references pgconf.account(id)
 );
 
-create table pgconf.analytic(id int generated always as identity primary key, subconto text);
+create table pgconf.analytic(
+	id int generated always as identity primary key
+	, subconto text
+);
 
 create table pgconf.transactions(
     account_num text 
@@ -37,8 +46,6 @@ create table pgconf.osv(
     , constraint osv_03_fk foreign key(subconto_2_id) references pgconf.analytic(id)
     , constraint osv_04_fk foreign key(subconto_3_id) references pgconf.analytic(id)
 );
-
-drop function pgconf.get_osv_slice;
 
 create or replace function pgconf.get_osv_slice(_account_id int, _subc_1 int, _subc_2 int)
 returns table(
@@ -96,7 +103,7 @@ where
 end;
 $$;
 
-create function pgconf.get_tree_of(_account_id int)
+create or replace function pgconf.get_tree_of(_account_id int)
  returns table(id int, parent_id int, num text, lev int, is_folder bool)
  language sql
 as $function$
@@ -114,13 +121,20 @@ select * from acc a
 $function$
 ;
 
+create or replace function pgconf.time_machine_now()
+returns time
+language sql
+as $$
+    select now()::time;
+$$;
+
 create or replace procedure tests.create_test_data()
 language plpgsql
 as $$
 begin
     call tap.fake_table(
-        '{pgconf, pgconf, pgconf, pgconf}'::text[],
-        '{account, analytic, osv, transactions}'::text[],
+        '{pgconf.account, pgconf.analytic, pgconf.osv, pgconf.transactions}'::text[],
+		_leave_primary_key => false,
         _make_table_empty => true,
         _drop_not_null => false,
         _drop_collation => false
@@ -205,7 +219,7 @@ begin
     where 
         acc.is_folder;
 end;
-$$
+$$;
 
 create or replace function tests.test_osv_ordered_in_depth()
 returns setof text
@@ -214,10 +228,11 @@ as $$
 begin 
     -- GIVEN
     call tests.create_test_data();
+    call tap.mock_func('pgconf', 'time_machine_now', '()'
+        , _return_scalar_value => '13:00'::time);
     
     -- WHEN
-    perform tap.drop_prepared_statement('expected');
-    perform tap.drop_prepared_statement('returned');
+    perform tap.drop_prepared_statement('{expected, returned}'::text[]);
 
     prepare expected as 
     select num::text
@@ -241,25 +256,15 @@ begin
     create table pgconf.slice as 
     select * from pgconf.get_osv_slice(null, null, null);
 
-    call tests.print_table_as_json('pgconf', 'slice');
-    call tests.print_table_as_json('pgconf', 'account');
+    call tap.print_table_as_json('pgconf', 'slice');
+    call tap.print_table_as_json('pgconf', 'account');
 
     -- WHEN 
-    perform tap.drop_prepared_statement('expected');
-    perform tap.drop_prepared_statement('returned');
+    perform tap.drop_prepared_statement('{expected, returned}'::text[]);
 end;
 $$;
 
-drop function pgconf.time_machine_now;
-
-create or replace function pgconf.time_machine_now()
-returns time
-language sql
-as $$
-    select now()::time;
-$$
-
-create or replace function tests.test_osv_in_time()
+create or replace function tests.test_osv_on_time()
 returns setof text
 language plpgsql
 as $$
@@ -267,13 +272,13 @@ begin
     -- GIVEN
     call tests.create_test_data();
     call tap.mock_func('pgconf', 'time_machine_now', '()'
-        , '15:01'::time);
+        , _return_scalar_value => '15:01'::time);
 
     create table pgconf.x as select * from pgconf.time_machine_now();
-    call tests.print_table_as_json('pgconf', 'x');
+    call tap.print_table_as_json('pgconf', 'x');
 
     -- WHEN    
-    perform tap.drop_prepared_statement('returned');
+    perform tap.drop_prepared_statement('{returned}'::text[]);
 
     prepare returned as
     select * from pgconf.get_osv_slice(null, null, null);
@@ -285,11 +290,11 @@ begin
         'Время не пришло. ОСВ делать нельзя'
     );
 
-    perform tap.drop_prepared_statement('expected');
+    perform tap.drop_prepared_statement('{returned}'::text[]);
 end;
 $$;
 
-create or replace function tests.test_osv_not_in_time()
+create or replace function tests.test_osv_not_on_time()
 returns setof text
 language plpgsql
 as $$
@@ -297,18 +302,10 @@ begin
     -- GIVEN
     call tests.create_test_data();
     call tap.mock_func('pgconf', 'time_machine_now', '()'
-        , '13:00'::time);
-
---    create table pgconf.x as select 
---        "returns"
---        , langname
-----        , args
---    from
---        tap.tap_funky;
---    call tests.print_table_as_json('pgconf', 'x');
+        , _return_set_value => null, _return_scalar_value => '13:00'::time);
 
     -- WHEN    
-    perform tap.drop_prepared_statement('returned');
+    perform tap.drop_prepared_statement('{returned}'::text[]);
 
     prepare returned as
     select * from pgconf.get_osv_slice(null, null, null);
@@ -320,12 +317,14 @@ begin
         'Время пришло. ОСВ делать можно'
     );
 
-    perform tap.drop_prepared_statement('expected');
+    perform tap.drop_prepared_statement('{expected}'::text[]);
 end;
 $$;
 
+
 select * from tap.runtests('tests', '^test_');
 
-select * from tap.runtests('tests', 'test_osv_not_in_time');
+select * from tap.runtests('tests', 'test_osv_ordered_in_depth');
 
 order by account_id, subconto_3_id nulls last, subconto_2_id nulls last, subconto_1_id nulls last
+

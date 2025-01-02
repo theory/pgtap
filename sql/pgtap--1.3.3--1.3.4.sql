@@ -61,12 +61,13 @@ left join lateral (
 			
 --this procedure creates a mock in place of a real function
 create or replace procedure mock_func(
-    in _func_schema text
-    , in _func_name text
-    , in _func_args text
-    , in _return_value anyelement
+    _func_schema text
+    , _func_name text
+    , _func_args text
+    , _return_set_value text default null
+    , _return_scalar_value anyelement default null
 )
---creates mock in place of a real function
+--creates a mock in place of a real function
  LANGUAGE plpgsql
 AS $procedure$
 declare 
@@ -74,35 +75,57 @@ declare
     _func_result_type text;
     _func_qualified_name text;
     _func_language text;
+	_returns_set bool;
 begin
-    select 
-        "returns"
-        , langname
-    into 
-        _func_result_type
-        , _func_language
-    from
-        tap_funky
-    where
-        "schema" = _func_schema
+    select "returns", langname, returns_set
+    into _func_result_type, _func_language, _returns_set
+    from tap_funky
+    where "schema" = _func_schema
         and "name" = _func_name;
+
+	if _func_language = 'sql' and _returns_set then
+		_mock_ddl = '
+	        create or replace function ' || quote_ident(_func_schema) || '.__' || quote_ident(_func_name) || '(_name text)
+	             returns ' || _func_result_type || '
+	             language plpgsql
+	        AS $function$
+			begin
+	            return query execute _query(' || quote_literal(_return_set_value) || ');
+			end;
+	        $function$;';    
+	    execute _mock_ddl;
+	end if;
     
-    _mock_ddl = '
-        create or replace function ' || quote_ident(_func_schema) || '.' || quote_ident(_func_name) || _func_args || '
-             RETURNS ' || _func_result_type || '
-             LANGUAGE ' || _func_language || '
-        AS $function$
-            select ' || quote_nullable(_return_value) || '::' || pg_typeof(_return_value) || ';
-        $function$;';    
-    execute _mock_ddl;
+	if _returns_set then
+	    _mock_ddl = '
+	        create or replace function ' || quote_ident(_func_schema) || '.' || quote_ident(_func_name) || _func_args || '
+	             returns ' || _func_result_type || '
+	             language ' || _func_language || '
+	        AS $function$
+	            select * from ' || quote_ident(_func_schema) || '.__' || quote_ident(_func_name) || 
+					'(' || quote_literal(_return_set_value) || ');
+	        $function$;';    
+	    execute _mock_ddl;
+	end if;
+
+	if not _returns_set then
+		_mock_ddl = '
+	        create or replace function ' || quote_ident(_func_schema) || '.' || quote_ident(_func_name) || _func_args || '
+	             RETURNS ' || _func_result_type || '
+	             LANGUAGE ' || _func_language || '
+	        AS $function$
+	            select ' || quote_nullable(_return_scalar_value) || '::' || pg_typeof(_return_scalar_value) || ';
+	        $function$;';
+	    execute _mock_ddl;
+	end if;
 end $procedure$;
 
 CREATE OR REPLACE PROCEDURE fake_table(
-    IN _table_schema text[], 
-    IN _table_name text[], 
-    in _make_table_empty boolean default false,
-    IN _drop_not_null boolean DEFAULT false, 
-    IN _drop_collation boolean DEFAULT false
+    _table_ident text[], 
+    _make_table_empty boolean default false,
+    _leave_primary_key boolean default false,
+    _drop_not_null boolean DEFAULT false, 
+    _drop_collation boolean DEFAULT false
 )
 --It frees a table from any constraint (we call such a table as a fake)
 --faked table is a full copy of _table_name, but has no any constraint
@@ -117,33 +140,37 @@ declare
 begin
     for _table in 
         select 
-            quote_ident(table_schema) table_schema,
-            quote_ident(table_name) table_name,
-            table_schema table_schema_l,
-            table_name table_name_l
-        from 
-            unnest(_table_schema, _table_name) as t(table_schema, table_name)
+            quote_ident(coalesce((parse_ident(table_ident))[1], '')) table_schema,
+            quote_ident(coalesce((parse_ident(table_ident))[2], '')) table_name,
+            coalesce((parse_ident(table_ident))[1], '') table_schema_l,
+            coalesce((parse_ident(table_ident))[2], '') table_name_l
+        from
+            unnest(_table_ident) as t(table_ident)
         loop
             for _fk_table in 
                 -- collect all table's relations including primary key and unique constraint
                 select distinct * 
                 from (
                     select 
-                        fk_schema_name table_schema, fk_table_name table_name, fk_constraint_name constraint_name, 1 as ord
+                        fk_schema_name table_schema, fk_table_name table_name
+						, fk_constraint_name constraint_name, false as is_pk, 1 as ord
                     from 
                         pg_all_foreign_keys 
                     where 
                         fk_schema_name = _table.table_schema_l and fk_table_name = _table.table_name_l
                     union all
                     select 
-                        fk_schema_name table_schema, fk_table_name table_name, fk_constraint_name constraint_name, 1 as ord
+                        fk_schema_name table_schema, fk_table_name table_name
+						, fk_constraint_name constraint_name, false as is_pk, 1 as ord
                     from 
                         pg_all_foreign_keys 
                     where 
                         pk_schema_name = _table.table_schema_l and pk_table_name = _table.table_name_l
                     union all
                     select 
-                        table_schema, table_name, constraint_name, 2 as ord
+                        table_schema, table_name
+						, constraint_name
+						, case when constraint_type = 'PRIMARY KEY' then true else false end as is_pk, 2 as ord
                     from 
                         information_schema.table_constraints
                     where 
@@ -153,9 +180,11 @@ begin
                 ) as t
                 order by ord
             loop
-                _fake_ddl = 'alter table ' || _fk_table.table_schema || '.' || _fk_table.table_name || '
-                    drop constraint ' || _fk_table.constraint_name || ';';
-                execute _fake_ddl;
+				if not(_leave_primary_key and _fk_table.is_pk) then
+	                _fake_ddl = 'alter table ' || _fk_table.table_schema || '.' || _fk_table.table_name || '
+	                    drop constraint ' || _fk_table.constraint_name || ';';
+	                execute _fake_ddl;
+				end if;
             end loop;
         
             if _make_table_empty then
@@ -392,19 +421,25 @@ begin
 end $$ 
 LANGUAGE plpgsql;
 
-create or replace function drop_prepared_statement(_statement_name text)
-returns bool as $$
+create or replace function drop_prepared_statement(_statements text[])
+returns setof bool as $$
+declare
+    _statement record;
 begin
-    if exists(select * from pg_prepared_statements where "name" = _statement_name) then
-        EXECUTE format('deallocate %I;', _statement_name);
-        return true;
-    end if;
-    return false;
+	for _statement in select _name from unnest(_statements) as t(_name) loop
+	    if exists(select * from pg_prepared_statements where "name" = _statement._name) then
+	        EXECUTE format('deallocate %I;', _statement._name);
+	        return next true;
+		else
+			return next false;
+	    end if;
+	end loop;
 end
 $$
 language plpgsql;
 
-create or replace procedure print_table_as_json(in _table_schema text, in _table_name text)
+
+create or replace procedure print_table_as_json(_table_schema text, _table_name text)
  language plpgsql
 AS $procedure$
 declare 
