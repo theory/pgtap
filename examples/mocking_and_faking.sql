@@ -1,12 +1,14 @@
 create schema if not exists tap;
 
+DROP EXTENSION pgtap;
+
 CREATE EXTENSION pgtap schema tap;
 
 create schema if not exists pgconf;
 
 create schema if not exists tests;
 
-set search_path to public, tap;
+set search_path to public, tap, pgconf;
 
 drop table pgconf.osv;
 drop table pgconf.transactions;
@@ -128,6 +130,48 @@ as $$
     select now()::time;
 $$;
 
+create or replace procedure pgconf.make_osv_report()
+language plpgsql
+as $$
+begin
+    insert into pgconf.osv(account_id, subconto_1_id, subconto_2_id, subconto_3_id, amount_dt, amount_ct)
+    select a.id, a1.id, a2.id, a3.id, sum(amount_dt), sum(amount_ct)
+    from pgconf.account a
+    join pgconf.transactions t
+    on t.account_num = a.num
+    left join pgconf.analytic a1
+    on a1.subconto = t.subconto_1
+    left join pgconf.analytic a2
+    on a2.subconto = t.subconto_2
+    left join pgconf.analytic a3
+    on a3.subconto = t.subconto_3
+    group by a.id, grouping sets(
+        (a.id, a1.id, a2.id, a3.id)
+        , (a.id, a1.id, a2.id)
+        , (a.id, a1.id)
+        , (a.id)
+    );
+
+    insert into pgconf.osv(account_id, subconto_1_id, subconto_2_id, subconto_3_id, amount_dt, amount_ct)
+    select 
+        acc.id
+        , null, null, null
+        , agg.amount_dt
+        , agg.amount_ct
+    from pgconf.get_tree_of(null) as acc
+    left join lateral(
+        select 
+            sum(osv.amount_dt) as amount_dt
+            , sum(osv.amount_ct) as amount_ct
+        from pgconf.osv
+        where osv.account_id in (select id from pgconf.get_tree_of(acc.id) t where not t.is_folder)
+            and subconto_1_id is null and subconto_2_id is null and subconto_3_id is null
+    ) as agg on true
+    where 
+        acc.is_folder;
+end;
+$$;
+
 create or replace procedure tests.create_test_data()
 language plpgsql
 as $$
@@ -183,41 +227,7 @@ begin
     ,  ('02.01', 'Суб_1', 'Суб_3', 'Суб_5', 0, 10)
     ,  ('02.01', 'Суб_1', 'Суб_2', 'Суб_4', 0, 10);
 
-    insert into pgconf.osv(account_id, subconto_1_id, subconto_2_id, subconto_3_id, amount_dt, amount_ct)
-    select a.id, a1.id, a2.id, a3.id, sum(amount_dt), sum(amount_ct)
-    from pgconf.account a
-    join pgconf.transactions t
-    on t.account_num = a.num
-    left join pgconf.analytic a1
-    on a1.subconto = t.subconto_1
-    left join pgconf.analytic a2
-    on a2.subconto = t.subconto_2
-    left join pgconf.analytic a3
-    on a3.subconto = t.subconto_3
-    group by a.id, grouping sets(
-        (a.id, a1.id, a2.id, a3.id)
-        , (a.id, a1.id, a2.id)
-        , (a.id, a1.id)
-        , (a.id)
-    );
-
-    insert into pgconf.osv(account_id, subconto_1_id, subconto_2_id, subconto_3_id, amount_dt, amount_ct)
-    select 
-        acc.id
-        , null, null, null
-        , agg.amount_dt
-        , agg.amount_ct
-    from pgconf.get_tree_of(null) as acc
-    left join lateral(
-        select 
-            sum(osv.amount_dt) as amount_dt
-            , sum(osv.amount_ct) as amount_ct
-        from pgconf.osv
-        where osv.account_id in (select id from pgconf.get_tree_of(acc.id) t where not t.is_folder)
-            and subconto_1_id is null and subconto_2_id is null and subconto_3_id is null
-    ) as agg on true
-    where 
-        acc.is_folder;
+	call pgconf.make_osv_report();
 end;
 $$;
 
@@ -321,10 +331,25 @@ begin
 end;
 $$;
 
+create or replace function tests.test_get_tree_of_called_times()
+returns setof text
+language plpgsql
+as $$
+begin 
+    -- GIVEN
+    call tests.create_test_data();
+
+    -- THEN
+    return query
+    select tap.call_count(6, 'pgconf'
+		, 'get_tree_of', '{int}'::name[]);
+end;
+$$;
+
+set track_functions = 'all'	;
 
 select * from tap.runtests('tests', '^test_');
 
-select * from tap.runtests('tests', 'test_osv_ordered_in_depth');
+select * from tap.runtests('tests', 'test_get_tree_of_called_times');
 
 order by account_id, subconto_3_id nulls last, subconto_2_id nulls last, subconto_1_id nulls last
-

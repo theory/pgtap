@@ -11447,48 +11447,27 @@ RETURNS TEXT AS $$
     );
 $$ LANGUAGE sql;
 
---added a three columns: "args", "returns", "langname" used in mock_func function
+--added a column "langname" used in mock_func function
 CREATE OR REPLACE VIEW tap_funky
-AS 
-SELECT p.oid,
-	n.nspname AS schema,
-	p.proname AS name,
-	pg_get_userbyid(p.proowner) AS owner,
-	arg._types as args,
-	proc_return."returns",
-	p.prolang AS langoid,
-	p.proisstrict AS is_strict,
-	tap._prokind(p.oid) AS kind,
-	p.prosecdef AS is_definer,
-	p.proretset AS returns_set,
-	p.provolatile::character(1) AS volatility,
-	pg_function_is_visible(p.oid) AS is_visible,
-	l.lanname AS langname
-FROM 
-	pg_proc p
-JOIN 
-	pg_namespace n 
-ON 
-	p.pronamespace = n.oid
-LEFT JOIN 
-	pg_language l 
-ON 
-	l.oid = p.prolang
-left join lateral (
-	select string_agg(nullif(_type, '')::regtype::text, ', ') as _types
-	from unnest(regexp_split_to_array(p.proargtypes::text, ' ')) as _type
-) as arg on true
- LEFT JOIN LATERAL (
-	SELECT  (n.nspname::text || '.'::text) || p.proname::text AS qualified
-) proc_name ON true
-left join lateral (
-	select 
-		case 
-			when n.nspname != 'pg_catalog' 
-				then pg_get_function_result((concat(proc_name.qualified, '(', arg._types, ')')::regprocedure)::oid) 
-			else null 
-		end AS "returns"
-) as proc_return on true;
+ AS SELECT p.oid         AS oid,
+           n.nspname     AS schema,
+           p.proname     AS name,
+           pg_catalog.pg_get_userbyid(p.proowner) AS owner,
+           array_to_string(p.proargtypes::regtype[], ',') AS args,
+           CASE p.proretset WHEN TRUE THEN 'setof ' ELSE '' END
+             || p.prorettype::regtype AS returns,
+           p.prolang     AS langoid,
+           p.proisstrict AS is_strict,
+           _prokind(p.oid) AS kind,
+           p.prosecdef   AS is_definer,
+           p.proretset   AS returns_set,
+           p.provolatile::char AS volatility,
+           pg_catalog.pg_function_is_visible(p.oid) AS is_visible,
+		   l.lanname AS langname
+      FROM pg_catalog.pg_proc p
+      JOIN pg_catalog.pg_namespace n ON p.pronamespace = n.oid
+	  LEFT JOIN pg_language l ON l.oid = p.prolang
+;
 			
 --this procedure creates a mock in place of a real function
 create or replace procedure mock_func(
@@ -11831,25 +11810,31 @@ begin
 end $$ 
 LANGUAGE plpgsql;
 
-create or replace function called_times(_call_count int, _proc_schema text, _proc_name text)
---Insures that a routine have been called specified times
+create or replace function call_count(
+	_call_count int
+	, _func_schema name
+	, _func_name name
+	, _func_args name[])
 returns setof text as $$
 declare 
     _actual_call_count int;
+	_track_functions_setting text;
 begin
-    select 
-        call_cnt
-    into
-        _actual_call_count
-    from 
-        call_count
-    where 
-        routine_schema = _proc_schema
-        and routine_name = _proc_name;
-    
+	select current_setting('track_functions') into _track_functions_setting;
+	
+	if _track_functions_setting != 'all' then
+	    return query select fail('track_functions setting is not set. Must be all');
+		return;
+	end if;
+
+	select calls into _actual_call_count
+	from pg_stat_xact_user_functions
+	where funcid = _get_func_oid(_func_schema, _func_name, _func_args);
+
     return query select ok(
         _actual_call_count = _call_count
-        , format('routine %L.%L must have been called %L times', _proc_schema, _proc_name, _call_count)
+        , format('routine %I.%I must have been called %L times, actual call count is %L'
+        	, _func_schema, _func_name, _call_count, _actual_call_count)
     );
 end $$ 
 LANGUAGE plpgsql;
@@ -11900,3 +11885,16 @@ begin
     _json = $$select * from /*$$ || quote_ident(_table_schema) || '.' || quote_ident(_table_name) || $$*/ json_to_recordset('$$ || _json || $$') as t($$ || _columns || $$)$$;
     raise notice '%', _json;
 end $procedure$;
+
+CREATE OR REPLACE FUNCTION _get_func_oid(name, name, name[])
+ RETURNS oid
+ LANGUAGE sql
+AS $function$
+    SELECT oid
+      FROM tap_funky
+     WHERE "schema" = $1
+	   and "name" = $2
+       AND args = _funkargs($3)
+       AND is_visible
+$function$
+;
