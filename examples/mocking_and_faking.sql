@@ -348,8 +348,10 @@ $$;
 
 set track_functions = 'all'	;
 
+set search_path to public, tap, pgconf;
+
 select * from tap.runtests('tests', '^test_');
 
-select * from tap.runtests('tests', 'test_get_tree_of_called_times');
+select * from tap.runtests('tests', 'test_osv_on_time');
 
 order by account_id, subconto_3_id nulls last, subconto_2_id nulls last, subconto_1_id nulls last
