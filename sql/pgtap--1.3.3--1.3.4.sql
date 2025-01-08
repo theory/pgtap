@@ -210,7 +210,9 @@ create or replace function call_count(
 	, _func_schema name
 	, _func_name name
 	, _func_args name[])
-returns setof text as $$
+ RETURNS text
+ LANGUAGE plpgsql
+AS $function$
 declare 
     _actual_call_count int;
 	_track_functions_setting text;
@@ -218,21 +220,19 @@ begin
 	select current_setting('track_functions') into _track_functions_setting;
 	
 	if _track_functions_setting != 'all' then
-	    return query select fail('track_functions setting is not set. Must be all');
-		return;
+	    return fail('track_functions setting is not set. Must be all');
 	end if;
 
 	select calls into _actual_call_count
 	from pg_stat_xact_user_functions
 	where funcid = _get_func_oid(_func_schema, _func_name, _func_args);
 
-    return query select ok(
+    return ok(
         _actual_call_count = _call_count
         , format('routine %I.%I must have been called %L times, actual call count is %L'
         	, _func_schema, _func_name, _call_count, _actual_call_count)
     );
-end $$ 
-LANGUAGE plpgsql;
+end $function$;
 
 create or replace function drop_prepared_statement(_statements text[])
 returns setof bool as $$

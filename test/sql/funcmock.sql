@@ -11,21 +11,21 @@ SELECT plan(3);
 -- This will be rolled back. :-)
 SET client_min_messages = warning;
 
-create or replace function scalar_function()
+create or replace function public.scalar_function()
 returns time
 language sql
 as $$
     select now()::time;
 $$;
 
-create or replace function set_sql_function()
+create or replace function public.set_sql_function()
 returns table(id int, col text)
 language sql
 as $$
     select * FROM (VALUES(1, 'a'), (2, 'b')) AS t(id, col);
 $$;
 
-create or replace function set_plpgsql_function()
+create or replace function public.set_plpgsql_function()
 returns table(id int, col text)
 language plpgsql
 as $$
@@ -38,7 +38,6 @@ RESET client_min_messages;
 
 CREATE FUNCTION test_mocking_functionality() RETURNS SETOF TEXT AS $$
 DECLARE
-    tap record;
 	_hour_before time;
 	_mock_result time;
 BEGIN
