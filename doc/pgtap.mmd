@@ -5098,6 +5098,32 @@ that do have check constraints, if any:
 Just like `col_is_pk()`, except that it test that the column or array of
 columns have a check constraint on them.
 
+### `table_constraint_checksum` ###
+
+  SELECT table_constraint_checksum ( :schema, :table, :conname, :contype, :checksum, :description);
+
+**Parameters**
+
+`:schema`
+: Schema of the table owning the constraint.
+
+`:table`
+: Name of the table owning the constraint.
+
+`:conname`
+: Name of the constraint itself.
+
+`:contype`
+: Type of the constraint: c = check constraint, f = foreign key constraint,
+p = primary key constraint, u = unique constraint, t = constraint trigger,
+x = exclusion constraint.
+
+`:checksum`
+: Checksum of the constraint. Generated with md5(pg_get_constraintdef(oid)) from pg_constraint.
+
+`:description`
+: A short description of the test.
+
 ### `index_is_unique()` ###
 
     SELECT index_is_unique( :schema, :table, :index, :description );
