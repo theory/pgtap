@@ -712,3 +712,10 @@ ALTER EXTENSION pgtap ADD FUNCTION columns_are( NAME, NAME[] );
 ALTER EXTENSION pgtap ADD FUNCTION _get_db_owner( NAME );
 ALTER EXTENSION pgtap ADD FUNCTION db_owner_is ( NAME, NAME, TEXT );
 ALTER EXTENSION pgtap ADD FUNCTION db_owner_is ( NAME, NAME );
+
+ALTER EXTENSION pgtap ADD PROCEDURE mock_func( TEXT, TEXT, TEXT, ANYELEMENT );
+ALTER EXTENSION pgtap ADD PROCEDURE fake_table( TEXT[], TEXT[], BOOL, BOOL );
+ALTER EXTENSION pgtap ADD FUNCTION call_count( INT, TEXT, TEXT );
+ALTER EXTENSION pgtap ADD FUNCTION drop_prepared_statement( TEXT );
+ALTER EXTENSION pgtap ADD FUNCTION print_table_as_json( TEXT, TEXT );
+ALTER EXTENSION pgtap ADD FUNCTION _get_func_oid(name, name[]);
