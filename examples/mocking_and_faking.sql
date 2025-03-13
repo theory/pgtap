@@ -1,19 +1,29 @@
-create schema if not exists tap;
-
+/*
 DROP EXTENSION pgtap;
 
 CREATE EXTENSION pgtap schema tap;
+*/
 
+create schema if not exists tap;
 create schema if not exists pgconf;
-
 create schema if not exists tests;
 
 set search_path to public, tap, pgconf;
+set track_functions = 'all'	;
 
-drop table pgconf.osv;
-drop table pgconf.transactions;
-drop table pgconf.analytic;
-drop table pgconf.account;
+drop function if exists pgconf.get_osv_slice(int, int, int);
+drop function if exists pgconf.get_tree_of(int);
+drop function if exists pgconf.time_machine_now();
+drop procedure if exists pgconf.make_osv_report();
+drop procedure if exists tests.create_test_data();
+drop function if exists tests.test_osv_on_time();
+drop function if exists tests.test_osv_not_on_time();
+drop function if exists tests.test_get_tree_of_called_times();
+
+drop table if exists pgconf.osv;
+drop table if exists pgconf.transactions;
+drop table if exists pgconf.analytic;
+drop table if exists pgconf.account;
 
 create table pgconf.account(
     id int generated always as identity primary key
@@ -75,7 +85,7 @@ with recursive account_tree as (
     from account_tree t
     join pgconf.account a
     on a.parent_id = t.id
-)/*1*/search depth first by num set account_order
+)search depth first by num set account_order
 select 
     t.account_order::text[]
     , t.num                as account_num
@@ -96,11 +106,9 @@ on a2.id = o.subconto_2_id
 left join pgconf.analytic a3
 on a3.id = o.subconto_3_id
 where
-    /*2*/pgconf.time_machine_now() between '12:00'::time and '15:00'::time
+    pgconf.time_machine_now() between '12:00'::time and '15:00'::time
     and (_account_id is null and o.subconto_1_id is null and o.subconto_2_id is null and o.subconto_3_id is null)
---where
---    ((_subc_2 is null or o.subconto_2_id = _subc_2) and subconto_2 is not null);
-/*1*/order by t.account_order
+order by t.account_order
 ;
 end;
 $$;
@@ -259,7 +267,7 @@ begin
     select tap.results_eq(
         'returned',
         'expected',
-        'Счета должны быть отсортированы "сначала в глубину"'
+        'Accounts must be sorted in depth first.'
     );
 
 
@@ -297,7 +305,7 @@ begin
     return query
     select tap.is_empty(
         'returned',
-        'Время не пришло. ОСВ делать нельзя'
+        'It is not good time to make osv report.'
     );
 
     perform tap.drop_prepared_statement('{returned}'::text[]);
@@ -324,7 +332,7 @@ begin
     return query
     select tap.isnt_empty(
         'returned',
-        'Время пришло. ОСВ делать можно'
+        'Time has come. We can make osv report.'
     );
 
     perform tap.drop_prepared_statement('{expected}'::text[]);
@@ -346,12 +354,6 @@ begin
 end;
 $$;
 
-set track_functions = 'all'	;
-
-set search_path to public, tap, pgconf;
-
 select * from tap.runtests('tests', '^test_');
 
 select * from tap.runtests('tests', 'test_osv_on_time');
-
-order by account_id, subconto_3_id nulls last, subconto_2_id nulls last, subconto_1_id nulls last

@@ -11659,7 +11659,7 @@ begin
 
     return ok(
         _actual_call_count = _call_count
-        , format('routine %I.%I must have been called %L times, actual call count is %L'
+        , format('routine %I.%I must has been called %L times, actual call count is %L'
         	, _func_schema, _func_name, _call_count, _actual_call_count)
     );
 end $function$;

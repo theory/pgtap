@@ -266,13 +266,6 @@ BEGIN
                     RETURN NEXT regexp_replace(tap, '^', '    ', 'gn');
                 END LOOP;
             
-                -- Create a temp table to collect call count
-                execute 'create temp table call_count(
-                    routine_schema text not null
-                    , routine_name text not null
-                    , call_cnt int
-                ) ON COMMIT DROP;';
-
                 -- Run the actual test function.
                 FOR tap IN EXECUTE 'SELECT * FROM ' || tests[i] || '()' LOOP
                     RETURN NEXT regexp_replace(tap, '^', '    ', 'gn');
@@ -357,57 +350,6 @@ BEGIN
     RETURN;
 END;
 $function$;
-
-create or replace procedure willing_count_calls_of(_proc_schema text, _proc_name text, _proc_args text)
- LANGUAGE plpgsql
-AS $procedure$
-declare 
-    _ddl text;
-begin
-    insert into call_count(routine_schema, routine_name, call_cnt) values(_proc_schema, _proc_name, 0);
-    _ddl = '  
-        create or replace procedure ' || quote_ident(_proc_schema) || '.' || quote_ident(_proc_name) || _proc_args || '
-        LANGUAGE plpgsql
-        AS $proc$
-        begin
-            update call_count set call_cnt = call_cnt + 1
-            where routine_schema = ' || quote_literal(_proc_schema) || '
-                and routine_name = ' || quote_literal(_proc_name) || ';
-        end
-        $proc$;';
-    raise notice '%', _ddl;
-    execute _ddl;
-end
-$procedure$;
-
-create or replace function called_once(_proc_schema text, _proc_name text)
-returns setof text as $$
-begin
-    return query select called_times(1, _proc_schema, _proc_name);
-end $$ 
-LANGUAGE plpgsql;
-
-create or replace function called_times(_call_count int, _proc_schema text, _proc_name text)
-returns setof text as $$
-declare 
-    _actual_call_count int;
-begin
-    select 
-        call_cnt
-    into
-        _actual_call_count
-    from 
-        call_count
-    where 
-        routine_schema = _proc_schema
-        and routine_name = _proc_name;
-    
-    return query select ok(
-        _actual_call_count = _call_count
-        , format('routine %L.%L must have been called %L times', _proc_schema, _proc_name, _call_count)
-    );
-end $$ 
-LANGUAGE plpgsql;
 
 create or replace function drop_prepared_statement(_statement_name text)
 returns bool as $$
