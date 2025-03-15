@@ -5144,6 +5144,29 @@ Tests whether an index is unique.
 
 Tests whether an index is on a primary key.
 
+### `index_is_partial()` ###
+
+    SELECT index_is_partial( :schema, :table, :index, :description );
+    SELECT index_is_partial( :schema, :table, :index );
+    SELECT index_is_partial( :table, :index );
+    SELECT index_is_partial( :index );
+
+**Parameters**
+
+`:schema`
+: Schema in which to find the table.
+
+`:table`
+: Name of a table containing the index.
+
+`:index`
+: Name of the index.
+
+`:description`
+: A short description of the test.
+
+Tests than an index is a partial index.
+
 ### `is_partitioned()` ###
 
     SELECT is_partitioned( :schema, :table, :description );

@@ -6,10 +6,10 @@ Revision history for pgTAP
 
 * Fixed the upgrade from v1.2.0 to v1.3.0. Thanks to @runqitian for the pull
   request (#338).
-
 * Added `name, name` variants for `has_composite` and `hasnt_composite` Thanks
   to Jim Nasby for reporting the issue (#234) Rodolphe Quiédeville for for the
   pull request (#339).
+* Added `index_is_partial()`, thanks to Rodolphe Quiédeville (#342).
 
 1.3.3 2024-04-08T13:44:11Z
 --------------------------
