@@ -10,6 +10,9 @@ Revision history for pgTAP
   to Jim Nasby for reporting the issue (#234) Rodolphe Quiédeville for for the
   pull request (#339).
 * Added `index_is_partial()`, thanks to Rodolphe Quiédeville (#342).
+* Change plan() to accept bigint. While only an insane person would need more
+  than 2^31 tests, the bigint version makes calling plan with the count(*) of
+  rows in a table of tests easier.
 
 1.3.3 2024-04-08T13:44:11Z
 --------------------------
