@@ -87,3 +87,43 @@ BEGIN
       );
 END;
 $$ LANGUAGE plpgsql;
+
+DROP FUNCTION plan( integer );
+CREATE OR REPLACE FUNCTION plan( bigint )
+RETURNS TEXT AS $$
+DECLARE
+    rcount INTEGER;
+BEGIN
+    BEGIN
+        EXECUTE '
+            CREATE TEMP SEQUENCE __tcache___id_seq;
+            CREATE TEMP TABLE __tcache__ (
+                id    INTEGER NOT NULL DEFAULT nextval(''__tcache___id_seq''),
+                label TEXT    NOT NULL,
+                value INTEGER NOT NULL,
+                note  TEXT    NOT NULL DEFAULT ''''
+            );
+            CREATE UNIQUE INDEX __tcache___key ON __tcache__(id);
+            GRANT ALL ON TABLE __tcache__ TO PUBLIC;
+            GRANT ALL ON TABLE __tcache___id_seq TO PUBLIC;
+
+            CREATE TEMP SEQUENCE __tresults___numb_seq;
+            GRANT ALL ON TABLE __tresults___numb_seq TO PUBLIC;
+        ';
+
+    EXCEPTION WHEN duplicate_table THEN
+        -- Raise an exception if there's already a plan.
+        EXECUTE 'SELECT TRUE FROM __tcache__ WHERE label = ''plan''';
+      GET DIAGNOSTICS rcount = ROW_COUNT;
+        IF rcount > 0 THEN
+           RAISE EXCEPTION 'You tried to plan twice!';
+        END IF;
+    END;
+
+    -- Save the plan and return.
+    PERFORM _set('plan', $1::int );
+    PERFORM _set('failed', 0 );
+    RETURN '1..' || $1;
+END;
+$$ LANGUAGE plpgsql strict;
+
