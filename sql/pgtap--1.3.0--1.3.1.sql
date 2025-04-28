@@ -1,6 +1,6 @@
 CREATE FUNCTION parse_type(type text, OUT typid oid, OUT typmod int4)
 RETURNS RECORD
-AS '$libdir/pgtap'
+AS 'pgtap'
 LANGUAGE C STABLE STRICT;
 
 CREATE OR REPLACE FUNCTION format_type_string ( TEXT )

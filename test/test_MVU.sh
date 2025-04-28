@@ -187,6 +187,14 @@ else
     new_pg_upgrade=$(find_at_path "$NEW_PATH" pg_upgrade)
 fi
 
+# Postgres 18 enables checksums by default, so turn them off to be compatible
+# with earlier versions, where they're off by default.
+if [ "$OLD_VERSION" -ge 18 ]; then
+    old_initdb+=" --no-data-checksums"
+fi
+if [ "$NEW_VERSION" -ge 18 ]; then
+    new_initdb+=" --no-data-checksums"
+fi
 
 ##################################################################################################
 banner "Creating old version temporary installation at $old_dir on port $OLD_PORT (in the background)"

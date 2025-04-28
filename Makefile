@@ -219,7 +219,7 @@ endif
 ifeq ($(shell echo $(VERSION) | grep -qE "^(9[.][01]|8[.][1234])" && echo yes || echo no),yes)
 	patch -p0 < compat/install-9.1.patch
 endif
-	sed -e 's,MODULE_PATHNAME,$$libdir/pgtap,g' -e 's,__OS__,$(OSNAME),g' -e 's,__VERSION__,$(NUMVERSION),g' sql/pgtap.sql > sql/pgtap.tmp
+	sed -e 's,MODULE_PATHNAME,pgtap,g' -e 's,__OS__,$(OSNAME),g' -e 's,__VERSION__,$(NUMVERSION),g' sql/pgtap.sql > sql/pgtap.tmp
 	mv sql/pgtap.tmp sql/pgtap.sql
 
 # Ugly hacks for now... TODO: script that understands $VERSION and will apply all the patch files for that version
