@@ -13,6 +13,8 @@ Revision history for pgTAP
 * Removed the `$libdir/` prefix from the `module_pathname` directive, so that
   the module can be installed and found in any directory listed in
   `dynamic_library_path`.
+* Tested on PostgreSQL 9.1–18.
+* Improved Markdown formatting in `README.md`.
 
 1.3.3 2024-04-08T13:44:11Z
 --------------------------
