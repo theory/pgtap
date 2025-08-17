@@ -511,7 +511,7 @@ SELECT * FROM check_test(
 -- Test functions_are().
 
 SELECT * FROM check_test(
-    functions_are( 'someschema', ARRAY['yip', 'yap', 'someproc'], 'whatever' ),
+    functions_are( 'someschema', ARRAY['yip', 'yap'], 'whatever' ),
     true,
     'functions_are(schema, functions, desc)',
     'whatever',
@@ -519,7 +519,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    functions_are( 'someschema', ARRAY['yip', 'yap', 'someproc'] ),
+    functions_are( 'someschema', ARRAY['yip', 'yap'] ),
     true,
     'functions_are(schema, functions)',
     'Schema someschema should have the correct functions'
@@ -527,7 +527,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    functions_are( 'someschema', ARRAY['yip', 'yap', 'someproc', 'yop'], 'whatever' ),
+    functions_are( 'someschema', ARRAY['yip', 'yap', 'yop'], 'whatever' ),
     false,
     'functions_are(schema, functions, desc) + missing',
     'whatever',
@@ -536,7 +536,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    functions_are( 'someschema', ARRAY['yip', 'someproc'], 'whatever' ),
+    functions_are( 'someschema', ARRAY['yip'], 'whatever' ),
     false,
     'functions_are(schema, functions, desc) + extra',
     'whatever',
@@ -545,7 +545,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    functions_are( 'someschema', ARRAY['yap', 'yop', 'someproc'], 'whatever' ),
+    functions_are( 'someschema', ARRAY['yap', 'yop'], 'whatever' ),
     false,
     'functions_are(schema, functions, desc) + extra & missing',
     'whatever',
@@ -563,6 +563,7 @@ CREATE FUNCTION ___myfunk(ex text) RETURNS NAME[] AS $$
          WHERE pg_catalog.pg_function_is_visible(p.oid)
            AND n.nspname NOT IN ('pg_catalog', 'information_schema')
            AND p.proname <> $1
+           AND p.prokind <> 'p'
     );
 $$ LANGUAGE SQL;
 
