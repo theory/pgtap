@@ -2,7 +2,7 @@
 \i test/setup.sql
 -- \i sql/pgtap.sql
 
-SELECT plan(459);
+SELECT plan(488);
 --SELECT * FROM no_plan();
 
 -- This will be rolled back. :-)
@@ -83,13 +83,25 @@ CREATE TYPE someschema."myType" AS (
     foo INT
 );
 
--- Create a procedure.
+-- Create some procedures.
 DO $$
 BEGIN
     IF pg_version_num() >= 110000 THEN
         EXECUTE 'CREATE PROCEDURE someschema.someproc(int) LANGUAGE SQL AS ''''';
+        EXECUTE 'CREATE PROCEDURE someschema.someotherproc(int) LANGUAGE SQL AS ''''';
+        EXECUTE 'CREATE PROCEDURE public.yiprok(int) LANGUAGE SQL AS ''''';
+        EXECUTE 'CREATE PROCEDURE public.yaprok(int) LANGUAGE SQL AS ''''';
     ELSE
         CREATE FUNCTION someschema.someproc(int)
+        RETURNS void AS ''
+        LANGUAGE SQL;
+        CREATE FUNCTION someschema.someotherproc(int)
+        RETURNS void AS ''
+        LANGUAGE SQL;
+        CREATE FUNCTION public.yiprok(int)
+        RETURNS void AS ''
+        LANGUAGE SQL;
+        CREATE FUNCTION public.yaprok(int)
         RETURNS void AS ''
         LANGUAGE SQL;
     END IF;
@@ -1948,6 +1960,111 @@ END;
 $$ LANGUAGE PLPGSQL;
 
 SELECT * FROM test_foreign_tables_are();
+
+/****************************************************************************/
+-- Test procedures_are().
+
+SELECT * FROM check_test(
+    procedures_are( 'someschema', ARRAY['someotherproc', 'someproc'], 'whatever' ),
+    true,
+    'procedures_are(schema, procedures, desc)',
+    'whatever',
+    ''
+);
+
+SELECT * FROM check_test(
+    procedures_are( 'someschema', ARRAY['someotherproc', 'someproc'] ),
+    true,
+    'procedures_are(schema, procedures)',
+    'Schema someschema should have the correct procedures'
+    ''
+);
+
+SELECT * FROM check_test(
+    procedures_are( 'someschema', ARRAY['someotherproc', 'someproc', 'yop'], 'whatever' ),
+    false,
+    'procedures_are(schema, procedures, desc) + missing',
+    'whatever',
+    '    Missing procedures:
+        yop'
+);
+
+SELECT * FROM check_test(
+    procedures_are( 'someschema', ARRAY['someproc'], 'whatever' ),
+    false,
+    'procedures_are(schema, procedures, desc) + extra',
+    'whatever',
+    '    Extra procedures:
+        someotherproc'
+);
+
+SELECT * FROM check_test(
+    procedures_are( 'someschema', ARRAY['yop', 'someproc'], 'whatever' ),
+    false,
+    'procedures_are(schema, procedures, desc) + extra & missing',
+    'whatever',
+    '    Extra procedures:
+        someotherproc
+    Missing procedures:
+        yop'
+);
+
+CREATE FUNCTION ___myprok(ex text) RETURNS NAME[] AS $$
+    SELECT ARRAY(
+        SELECT p.proname
+          FROM pg_catalog.pg_namespace n
+          JOIN pg_catalog.pg_proc p ON n.oid = p.pronamespace
+         WHERE pg_catalog.pg_function_is_visible(p.oid)
+           AND n.nspname NOT IN ('pg_catalog', 'information_schema')
+           AND p.proname <> $1
+           AND p.prokind = 'p'
+    );
+$$ LANGUAGE SQL;
+
+SELECT * FROM check_test(
+    procedures_are( ___myprok(''), 'whatever' ),
+    true,
+    'procedures_are(procedures, desc)',
+    'whatever',
+    ''
+);
+
+SELECT * FROM check_test(
+    procedures_are( ___myprok('') ),
+    true,
+    'procedures_are(procedures)',
+    'Search path ' || pg_catalog.current_setting('search_path') || ' should have the correct procedures',
+    ''
+);
+
+SELECT * FROM check_test(
+    procedures_are( array_append(___myprok(''), '__booyah__'), 'whatever' ),
+    false,
+    'procedures_are(procedures, desc) + missing',
+    'whatever',
+    '    Missing procedures:
+        __booyah__'
+);
+
+SELECT * FROM check_test(
+    procedures_are( ___myprok('yiprok'), 'whatever' ),
+    false,
+    'procedures_are(procedures, desc) + extra',
+    'whatever',
+    '    Extra procedures:
+        yiprok'
+);
+
+SELECT * FROM check_test(
+    procedures_are( array_append(___myprok('yiprok'), '__booyah__'), 'whatever' ),
+    false,
+    'procedures_are(procedures, desc) + extra & missing',
+    'whatever',
+    '    Extra procedures:
+        yiprok
+    Missing procedures:
+        __booyah__'
+);
 
 /****************************************************************************/
 
