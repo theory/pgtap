@@ -1,5 +1,5 @@
 \unset ECHO
-1..459
+1..488
 ok 1 - tablespaces_are(tablespaces, desc) should pass
 ok 2 - tablespaces_are(tablespaces, desc) should have the proper description
 ok 3 - tablespaces_are(tablespaces, desc) should have the proper diagnostics
@@ -459,3 +459,32 @@ ok 456 - foreign_tables_are(schema, tables) extra and missing should have the pr
 ok 457 - foreign_tables_are(tables) extra and missing should fail
 ok 458 - foreign_tables_are(tables) extra and missing should have the proper description
 ok 459 - foreign_tables_are(tables) extra and missing should have the proper diagnostics
+ok 460 - procedures_are(schema, procedures, desc) should pass
+ok 461 - procedures_are(schema, procedures, desc) should have the proper description
+ok 462 - procedures_are(schema, procedures, desc) should have the proper diagnostics
+ok 463 - procedures_are(schema, procedures) should pass
+ok 464 - procedures_are(schema, procedures) should have the proper description
+ok 465 - procedures_are(schema, procedures, desc) + missing should fail
+ok 466 - procedures_are(schema, procedures, desc) + missing should have the proper description
+ok 467 - procedures_are(schema, procedures, desc) + missing should have the proper diagnostics
+ok 468 - procedures_are(schema, procedures, desc) + extra should fail
+ok 469 - procedures_are(schema, procedures, desc) + extra should have the proper description
+ok 470 - procedures_are(schema, procedures, desc) + extra should have the proper diagnostics
+ok 471 - procedures_are(schema, procedures, desc) + extra & missing should fail
+ok 472 - procedures_are(schema, procedures, desc) + extra & missing should have the proper description
+ok 473 - procedures_are(schema, procedures, desc) + extra & missing should have the proper diagnostics
+ok 474 - procedures_are(procedures, desc) should pass
+ok 475 - procedures_are(procedures, desc) should have the proper description
+ok 476 - procedures_are(procedures, desc) should have the proper diagnostics
+ok 477 - procedures_are(procedures) should pass
+ok 478 - procedures_are(procedures) should have the proper description
+ok 479 - procedures_are(procedures) should have the proper diagnostics
+ok 480 - procedures_are(procedures, desc) + missing should fail
+ok 481 - procedures_are(procedures, desc) + missing should have the proper description
+ok 482 - procedures_are(procedures, desc) + missing should have the proper diagnostics
+ok 483 - procedures_are(procedures, desc) + extra should fail
+ok 484 - procedures_are(procedures, desc) + extra should have the proper description
+ok 485 - procedures_are(procedures, desc) + extra should have the proper diagnostics
+ok 486 - procedures_are(procedures, desc) + extra & missing should fail
+ok 487 - procedures_are(procedures, desc) + extra & missing should have the proper description
+ok 488 - procedures_are(procedures, desc) + extra & missing should have the proper diagnostics
