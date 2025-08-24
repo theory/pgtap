@@ -185,9 +185,9 @@ language plpgsql
 as $$
 begin
     call tap.fake_table(
-        '{pgconf.account, pgconf.analytic, pgconf.osv, pgconf.transactions}'::text[],
-		_leave_primary_key => false,
+        _table_ident => '{pgconf.account, pgconf.analytic, pgconf.osv, pgconf.transactions}'::text[],
         _make_table_empty => true,
+		_leave_primary_key => false,
         _drop_not_null => false,
         _drop_collation => false
     );

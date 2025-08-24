@@ -717,5 +717,6 @@ ALTER EXTENSION pgtap ADD PROCEDURE mock_func( TEXT, TEXT, TEXT, ANYELEMENT );
 ALTER EXTENSION pgtap ADD PROCEDURE fake_table( TEXT[], TEXT[], BOOL, BOOL );
 ALTER EXTENSION pgtap ADD FUNCTION call_count( INT, TEXT, TEXT );
 ALTER EXTENSION pgtap ADD FUNCTION drop_prepared_statement( TEXT );
-ALTER EXTENSION pgtap ADD FUNCTION print_table_as_json( TEXT, TEXT );
+ALTER EXTENSION pgtap ADD PROCEDURE print_table_as_json( TEXT, TEXT );
+ALTER EXTENSION pgtap ADD PROCEDURE print_query_as_json( TEXT );
 ALTER EXTENSION pgtap ADD FUNCTION _get_func_oid(name, name[]);

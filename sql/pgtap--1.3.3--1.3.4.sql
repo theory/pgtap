@@ -252,17 +252,18 @@ $$
 language plpgsql;
 
 
-create or replace procedure print_table_as_json(_table_schema text, _table_name text)
+create or replace procedure print_table_as_json(in _table_schema text, in _table_name text)
  language plpgsql
 AS $procedure$
-declare 
+declare
     _ddl text;
     _json text;
     _columns text;
 --returns a query which you can execute and see your table as normal dataset
---note! the returned dataset is limited to 1000 records. that's why you didn't get any jdbc error in dbeaver in case of huge amount of rows 
+--you can find the returned query in the output window in DBeaver, where we see raise notice command output
+--note! the returned dataset is limited to 1000 records. that's why you didn't get any jdbc error in dbeaver in case of huge amount of rows
 begin
-    _ddl = '  
+    _ddl = '
         select json_agg(
             array(select ' || quote_ident(_table_name) || ' from ' || quote_ident(_table_schema) || '.' || quote_ident(_table_name) || ' limit 1000
         )) as j;';
@@ -281,6 +282,24 @@ begin
     _json = $$select * from /*$$ || quote_ident(_table_schema) || '.' || quote_ident(_table_name) || $$*/ json_to_recordset('$$ || _json || $$') as t($$ || _columns || $$)$$;
     raise notice '%', _json;
 end $procedure$;
+
+create or replace procedure print_query_as_json(in _prepared_statement_name text)
+ language plpgsql
+as $procedure$
+declare
+    _ddl text;
+	_table_name text;
+--returns a query which you can execute and see your table as normal dataset
+--you can find the returned query in the output window in DBeaver, where we see raise notice command output
+--note! the returned dataset is limited to 1000 records. that's why you didn't get any jdbc error in dbeaver in case of huge amount of rows
+begin
+	_table_name = _prepared_statement_name || '_' || gen_random_uuid();
+    _ddl = format('create table public.%1I as execute %2s', _table_name, _prepared_statement_name);
+	execute _ddl;
+	call print_table_as_json('public', _table_name::text);
+end;
+$procedure$;
+
 
 CREATE OR REPLACE FUNCTION _get_func_oid(name, name, name[])
  RETURNS oid
