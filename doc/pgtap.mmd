@@ -3113,8 +3113,8 @@ substitute will be created.
 
 This function ensures that the table marked as "ancestor" is not a table from
 which "descendent" inherits --- that there is no inheritance chain between the
-two tables. If the optional depth argument is passed, the test enbsures only
-that the two tablesa are not related at that distance; they still might be an
+two tables. If the optional depth argument is passed, the test ensures only
+that the two tables are not related at that distance; they still might be an
 inheritance relationship between them. If the `:description` is omitted, a
 reasonable substitute will be created.
 
@@ -3574,7 +3574,7 @@ incorrect, the diagnostics will look more like this:
     #       want: "idx_baz" ON public.sometab(lower(lname))
 
 Note that unlike most other column parameter arguments in pgTAP, mixed-case
-column mames crated with double-quotes must be double-quoted when passed
+column names crated with double-quotes must be double-quoted when passed
 to `has_index()`, like so:
 
     SELECT has_index(
@@ -4602,7 +4602,7 @@ used to be represented as functions:
     SELECT col_default_is( 'widgets', 'created_by', '"current_user"()' );
 
 As of PostgreSQL 10, they comply with the SQL spec to appear in uppercase
-and without trailining parentheses:
+and without trailing parentheses:
 
     SELECT col_default_is( 'widgets', 'created_by', 'CURRENT_USER' );
 
@@ -5144,6 +5144,29 @@ Tests whether an index is unique.
 
 Tests whether an index is on a primary key.
 
+### `index_is_partial()` ###
+
+    SELECT index_is_partial( :schema, :table, :index, :description );
+    SELECT index_is_partial( :schema, :table, :index );
+    SELECT index_is_partial( :table, :index );
+    SELECT index_is_partial( :index );
+
+**Parameters**
+
+`:schema`
+: Schema in which to find the table.
+
+`:table`
+: Name of a table containing the index.
+
+`:index`
+: Name of the index.
+
+`:description`
+: A short description of the test.
+
+Tests than an index is a partial index.
+
 ### `is_partitioned()` ###
 
     SELECT is_partitioned( :schema, :table, :description );
@@ -5281,7 +5304,7 @@ doesn't require an index name and does require one or more column names or
 expressions in the defined for the index.
 
 Note that unlike most other column parameter arguments in pgTAP, mixed-case
-column mames crated with double-quotes must be double-quoted when passed
+column names crated with double-quotes must be double-quoted when passed
 to `is_indexed()`, like so:
 
     SELECT is_indexed( 'widgets', '"Name"' );
@@ -5510,7 +5533,7 @@ But then you check with `has_function()` first, right?
 : Schema in which to find the function.
 
 `:function`
-: Function or proceudure name.
+: Function or procedure name.
 
 `:args`
 : Array of data types for the function arguments.
@@ -5555,7 +5578,7 @@ But then you check with `has_function()` first, right?
 : Schema in which to find the function.
 
 `:function`
-: Function or proceure name.
+: Function or procedure name.
 
 `:args`
 : Array of data types for the function arguments.
@@ -7157,7 +7180,7 @@ created. Examples:
 
     SELECT database_privs_are(
         'flipr', 'fred', ARRAY['CONNECT', 'TEMPORARY'],
-        'Fred should be granted CONNECT and TERMPORARY on db "flipr"'
+        'Fred should be granted CONNECT and TEMPORARY on db "flipr"'
     );
     SELECT database_privs_are( 'dept_corrections', ARRAY['CREATE'] );
 
