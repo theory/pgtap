@@ -1,0 +1,16 @@
+\unset ECHO
+1..14
+ok 1 - public.parent.id is primary key should pass
+ok 2 - public.child.id is not primary key should pass
+ok 3 - public.child.parent_id is not foreign key should pass
+ok 4 - public.parent.id is not null should pass
+ok 5 - public.parent.col is null should pass
+ok 6 - public.child.id is null should pass
+ok 7 - public.child.parent_id is null should pass
+ok 8 - public.child.col is null should pass
+ok 9 - table public.parent is empty should pass
+ok 10 - table public.child is empty should pass
+ok 11 - We can do insert into foreign key column should pass
+ok 12 - public.scalar_function called once should pass
+ok 13 - public.set_sql_function called twice should pass
+ok 14 - public.set_sql_function(text) called once should pass
