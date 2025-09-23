@@ -42,7 +42,7 @@ DECLARE
 	_mock_result time;
 BEGIN
 	_hour_before = now() - INTERVAL '01:00'; 
-	CALL mock_func('public', 'scalar_function', '()'
+	perform mock_func('public', 'scalar_function', '()'
         , _return_scalar_value => _hour_before::time);
 	_mock_result = scalar_function();
 
@@ -52,17 +52,17 @@ BEGIN
 		'mock scalar_function');
 
 	PREPARE mock_set_sql_function AS SELECT * FROM (VALUES(1, 'x'), (2, 'z')) AS t(id, col) ORDER BY id;
-	CALL mock_func('public', 'set_sql_function', '()'
+	perform mock_func('public', 'set_sql_function', '()'
         , _return_set_value => 'mock_set_sql_function');
 	PREPARE returned_set_sql_function AS SELECT * FROM set_sql_function() ORDER BY id;
-	
+
 	RETURN query SELECT * FROM check_test(
 		results_eq('returned_set_sql_function', 'mock_set_sql_function'),
 		TRUE,
 		'mock sql function returning a set');
-	
+
 	PREPARE mock_set_plpgsql_function AS SELECT * FROM (VALUES(1, 'w'), (2, 'q')) AS t(id, col) ORDER BY id;
-	CALL mock_func('public', 'set_plpgsql_function', '()'
+	perform mock_func('public', 'set_plpgsql_function', '()'
         , _return_set_value => 'mock_set_plpgsql_function');
 	PREPARE returned_set_plpgsql_function AS SELECT * FROM set_plpgsql_function() ORDER BY id;
 

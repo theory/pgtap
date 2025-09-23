@@ -184,7 +184,7 @@ create or replace procedure tests.create_test_data()
 language plpgsql
 as $$
 begin
-    call tap.fake_table(
+    perform tap.fake_table(
         _table_ident => '{pgconf.account, pgconf.analytic, pgconf.osv, pgconf.transactions}'::text[],
         _make_table_empty => true,
 		_leave_primary_key => false,
@@ -207,7 +207,7 @@ begin
     insert into pgconf.account(parent_id, num)
     select id, '01.01.01'
     from pgconf.account where num = '03.01';
-    
+
     insert into pgconf.account(parent_id, num)
     select id, '01.01.02'
     from pgconf.account where num = '03.01';
@@ -243,16 +243,16 @@ create or replace function tests.test_osv_ordered_in_depth()
 returns setof text
 language plpgsql
 as $$
-begin 
+begin
     -- GIVEN
     call tests.create_test_data();
-    call tap.mock_func('pgconf', 'time_machine_now', '()'
+    perform tap.mock_func('pgconf', 'time_machine_now', '()'
         , _return_scalar_value => '13:00'::time);
-    
+
     -- WHEN
     perform tap.drop_prepared_statement('{expected, returned}'::text[]);
 
-    prepare expected as 
+    prepare expected as
     select num::text
     from (values ('01', 1), ('03.01', 2), ('01.01.01', 2), ('01.01.01.01', 3), ('01.01.01.02', 4)
         , ('01.01.02', 5), ('01.01.02.01', 6)
@@ -271,13 +271,13 @@ begin
     );
 
 
-    create table pgconf.slice as 
+    create table pgconf.slice as
     select * from pgconf.get_osv_slice(null, null, null);
 
-    call tap.print_table_as_json('pgconf', 'slice');
-    call tap.print_table_as_json('pgconf', 'account');
+    perform tap.print_table_as_json('pgconf', 'slice');
+    perform tap.print_table_as_json('pgconf', 'account');
 
-    -- WHEN 
+    -- WHEN
     perform tap.drop_prepared_statement('{expected, returned}'::text[]);
 end;
 $$;
@@ -286,16 +286,16 @@ create or replace function tests.test_osv_on_time()
 returns setof text
 language plpgsql
 as $$
-begin 
+begin
     -- GIVEN
     call tests.create_test_data();
-    call tap.mock_func('pgconf', 'time_machine_now', '()'
+    perform tap.mock_func('pgconf', 'time_machine_now', '()'
         , _return_scalar_value => '15:01'::time);
 
     create table pgconf.x as select * from pgconf.time_machine_now();
-    call tap.print_table_as_json('pgconf', 'x');
+    perform tap.print_table_as_json('pgconf', 'x');
 
-    -- WHEN    
+    -- WHEN
     perform tap.drop_prepared_statement('{returned}'::text[]);
 
     prepare returned as
@@ -316,11 +316,11 @@ create or replace function tests.test_osv_not_on_time()
 returns setof text
 language plpgsql
 as $$
-begin 
+begin
     -- GIVEN
     call tests.create_test_data();
-    call tap.mock_func('pgconf', 'time_machine_now', '()'
-        , _return_set_value => null, _return_scalar_value => '13:00'::time);
+    perform tap.mock_func('pgconf', 'time_machine_now', '()'
+        , _return_set_value => null::text, _return_scalar_value => '13:00'::time);
 
     -- WHEN    
     perform tap.drop_prepared_statement('{returned}'::text[]);

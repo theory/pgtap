@@ -53,13 +53,13 @@ RESET client_min_messages;
 
 CREATE FUNCTION test_faking_functionality() RETURNS SETOF TEXT AS $$
 BEGIN
-	CALL fake_table(
+	perform fake_table(
 		'{public.parent}'::text[],
 		_make_table_empty => TRUE,
 		_leave_primary_key => TRUE,
 		_drop_not_null => FALSE);
 
-	CALL fake_table(
+	perform fake_table(
 		'{public.child}'::text[],
 		_make_table_empty => TRUE,
 		_leave_primary_key => FALSE,
