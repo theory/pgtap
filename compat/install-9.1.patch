@@ -11,7 +11,7 @@
      RETURN ok( FALSE, descr ) || E'\n' || diag(
             '    died: ' || _error_diag(SQLSTATE, SQLERRM, detail, hint, context, schname, tabname, colname, chkname, typname)
      );
-@@ -6732,10 +6728,6 @@
+@@ -6787,10 +6783,6 @@
                  -- Something went wrong. Record that fact.
                  errstate := SQLSTATE;
                  errmsg := SQLERRM;
@@ -22,7 +22,7 @@
              END;
  
              -- Always raise an exception to rollback any changes.
-@@ -7203,7 +7195,6 @@
+@@ -7258,7 +7250,6 @@
      RETURN ok( true, $3 );
  EXCEPTION
      WHEN datatype_mismatch THEN
@@ -30,7 +30,7 @@
          RETURN ok( false, $3 ) || E'\n' || diag(
              E'    Number of columns or their types differ between the queries' ||
              CASE WHEN have_rec::TEXT = want_rec::text THEN '' ELSE E':\n' ||
-@@ -7357,7 +7348,6 @@
+@@ -7412,7 +7403,6 @@
      RETURN ok( false, $3 );
  EXCEPTION
      WHEN datatype_mismatch THEN

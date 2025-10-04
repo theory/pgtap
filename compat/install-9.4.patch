@@ -18,7 +18,7 @@
      -- There should have been no exception.
      GET STACKED DIAGNOSTICS
          detail  = PG_EXCEPTION_DETAIL,
-@@ -10284,233 +10284,6 @@
+@@ -10339,233 +10339,6 @@
      ), $2);
  $$ LANGUAGE SQL immutable;
  

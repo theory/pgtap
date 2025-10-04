@@ -329,6 +329,26 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql STABLE;
 
+DROP VIEW IF EXISTS tap_funky;
+CREATE VIEW tap_funky
+ AS SELECT p.oid         AS oid,
+           n.nspname     AS schema,
+           p.proname     AS name,
+           pg_catalog.pg_get_userbyid(p.proowner) AS owner,
+           array_to_string(p.proargtypes::regtype[], ',') AS args,
+           CASE p.proretset WHEN TRUE THEN 'setof ' ELSE '' END
+             || p.prorettype::regtype AS returns,
+           p.prolang     AS langoid,
+           p.proisstrict AS is_strict,
+           _prokind(p.oid) AS kind,
+           p.prosecdef   AS is_definer,
+           p.proretset   AS returns_set,
+           p.provolatile::char AS volatility,
+           pg_catalog.pg_function_is_visible(p.oid) AS is_visible
+      FROM pg_catalog.pg_proc p
+      JOIN pg_catalog.pg_namespace n ON p.pronamespace = n.oid
+;
+
 -- Returns true if the specified function exists and is the specified type,
 -- false if it exists and is not the specified type, and NULL if it does not
 -- exist. Types are f for a normal function, p for a procedure, a for an

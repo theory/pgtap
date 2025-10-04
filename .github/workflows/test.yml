@@ -42,7 +42,7 @@ jobs:
       - run: pg-build-test
 
       # Test update.
-      - run: 'if [ -d "$UPDATE_FROM" ]; then make uninstall clean updatecheck; fi'
+      - run: 'if [ -n "$UPDATE_FROM" ]; then make uninstall clean updatecheck; fi'
 
       # Test all, install, test, test-serial, and test-parallel, both from clean
       # repo and repeated with existing build, with and without PARALLEL_CONN=1.

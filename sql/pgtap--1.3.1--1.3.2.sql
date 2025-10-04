@@ -1,4 +1,4 @@
-DROP FUNCTION parse_type(type text, OUT typid oid, OUT typmod int4);
+DROP FUNCTION IF EXISTS parse_type(type text, OUT typid oid, OUT typmod int4);
 
 CREATE OR REPLACE FUNCTION format_type_string ( TEXT )
 RETURNS TEXT AS $$
