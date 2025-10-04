@@ -47,7 +47,7 @@ Here are the steps to take to make a release of pgTAP:
     installed), then checkout the `gh-pages` branch and make these changes:
 
     +   `cp .documentation.html.template documentation.html`. Edit
-        documentation.html, the main div should look like this:
+        `documentation.html`, the main div should look like this:
 
             <div id="main">
               <!-- DOCS INTRO HERE -->
