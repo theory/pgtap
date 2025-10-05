@@ -88,7 +88,7 @@ Here are the steps to take to make a release of pgTAP:
 
 *   Commit the timestamp and push it:
 
-        git ci -m 'Timestamp v0.98.0.'
+        git ci -m 'Timestamp v1.3.5.'
         git push
 
 *   Once again make sure [all tests](https://github.com/theory/pgtap/actions)
@@ -97,7 +97,7 @@ Here are the steps to take to make a release of pgTAP:
 *   Once all tests pass, tag the release with its semantic version (including
     the leading `v`) and push the tag.
 
-        git tag -sm 'Tag v0.98.0.' v0.98.0
+        git tag -sm 'Tag v1.3.5.' v1.3.5
         git push --tags
 
 *   Monitor the [release workflow](https://github.com/theory/pgtap/actions/workflows/release.yml)
@@ -119,7 +119,7 @@ Here are the steps to take to make a release of pgTAP:
 
 *   Commit that change and push it.
 
-        git ci -m 'Increment to v1.0.1.'
+        git ci -m 'Increment to v1.3.5.'
         git push
 
 *   Start hacking on the next version!

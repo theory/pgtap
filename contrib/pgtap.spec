@@ -1,6 +1,6 @@
 Summary:	  Unit testing suite for PostgreSQL
 Name:		    pgtap
-Version:	  1.3.4
+Version:	  1.3.5
 Release:	  1%{?dist}
 Group:		  Applications/Databases
 License:	  PostgreSQL
