@@ -8551,6 +8551,78 @@ table in a bunch of schemas:
     FROM (VALUES('schema1'), ('schema1')) AS stmp (sch)
     CROSS JOIN (VALUES('col_pk'), ('col2'), ('col3')) AS ctmp (col);
 
+Mocking, faking and making your test independent
+================================================
+
+Faking
+------
+
+Let's say we have a main table and a subordinate table..
+
+    CREATE TABLE master(
+        some_id int primary key
+    );
+
+    CREATE TABLE child(
+        master_id int,
+        some_data numeric,
+        CONSTRAINT child_fk FOREIGN KEY(master_id) REFERENCES master(some_id)
+    );
+
+    --Your function simply sums up the values of the some_data column, filtering them by the master_id field.
+
+    SELECT SUM(some_data) as sm FROM child WHERE master_id = $1;
+
+The main point here is that the master table is intended exclusively for user input,
+and you cannot make any assumptions about the values stored in the some_id field.
+Consequently, you will not be able to insert any data into the child table until
+the corresponding data exists in the master table.
+
+What you can do is drop the foreign key constraint, insert some data into the child table only,
+and perform any necessary checks.
+
+Please, do not worry that you've lost the relationship between tables and thus compromised relational integrity.
+It's always well known which data are invalid for your system. Simply don't insert them. That's it.
+
+## `fake_table()` ###
+
+    PERFORM fake_table( :_table_ident, :_make_table_empty, :_leave_primary_key, :_drop_not_null, :_drop_collation );
+    PERFORM fake_table( :_table_ident, :_make_table_empty, :_leave_primary_key, :_drop_not_null );
+    PERFORM fake_table( :_table_ident, :_make_table_empty, :_leave_primary_key );
+    PERFORM fake_table( :_table_ident, :_make_table_empty );
+    PERFORM fake_table( :_table_ident );
+
+**Parameters**
+
+`:_table_ident`
+: Text array of tables to be faked in the format 'my_schema.my_table'. Required.
+
+`:_make_table_empty`
+: Boolean. If TRUE the desired tables would be truncated. Optional. FALSE by default.
+
+`:_leave_primary_key`
+: Boolean. TRUE if you want primary key stay as is. Optional. FALSE by default.
+
+`:_drop_not_null`
+: Boolean. TRUE if you want not null constraints stay as is. Optional. FALSE by default.
+
+`:_drop_collation`
+: Boolean. Not yet implemented. Optional. FALSE by default.
+
+Sometimes a table contains a lot of junk data, especially in a development environment.
+However, to ensure that your test runs on completely valid data, you clear the table before testing,
+insert valid data, and then run the check. This is why the _make_table_empty parameter is useful.
+If you follow the steps outlined above, you can be assured that your test does not rely on
+junk data and can be reproduced at any time. Example.
+
+    perform fake_table(
+        _table_ident => '{pgconf.account, pgconf.analytic, pgconf.osv, pgconf.transactions}'::text[],
+        _make_table_empty => true,
+		_leave_primary_key => false,
+        _drop_not_null => false,
+        _drop_collation => false
+    );
+
 Compose Yourself
 ================
 
