@@ -2254,12 +2254,12 @@ missing triggers, like so:
 : Name of a schema in which to find functions.
 
 `:functions`
-: An array of function and/or procedure names.
+: An array of function names.
 
 `:description`
 : A short description of the test.
 
-This function tests that all of the functions or procedures in the named schema,
+This function tests that all of the functions in the named schema,
 or that are visible in the search path, are only the functions that *should* be
 there. If the `:schema` argument is omitted, functions will be sought in the
 search path, excluding `pg_catalog` and `information_schema` If the description
@@ -2277,6 +2277,46 @@ missing functions, like so:
     #     Extra functions:
     #         schnauzify
     #     Missing functions:
+    #         frobnitz
+
+### `procedures_are()` ###
+
+    SELECT ### `procedures_are()` ###
+
+    SELECT procedures_are( :schema, :procedures, :description );
+    SELECT procedures_are( :schema, :procedures );
+    SELECT procedures_are( :procedures, :description );
+    SELECT procedures_are( :procedures );
+
+**Parameters**
+
+`:schema`
+: Name of a schema in which to find procedures.
+
+`:procedures`
+: An array of procedure names.
+
+`:description`
+: A short description of the test.
+
+This function tests that all of the procedures in the named schema,
+or that are visible in the search path, are only the procedures that *should* be
+there. If the `:schema` argument is omitted, procedures will be sought in the
+search path, excluding `pg_catalog` and `information_schema` If the description
+is omitted, a generally useful default description will be generated. Example:
+
+    SELECT procedures_are(
+        'myschema',
+        ARRAY[ 'foo', 'bar', 'frobnitz' ]
+    );
+
+In the event of a failure, you'll see diagnostics listing the extra and/or
+missing procedures, like so:
+
+    # Failed test 150: "Schema someschema should have the correct procedures"
+    #     Extra procedures:
+    #         schnauzify
+    #     Missing procedures:
     #         frobnitz
 
 ### `roles_are()` ###
