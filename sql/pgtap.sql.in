@@ -2485,6 +2485,17 @@ RETURNS TEXT AS $$
     SELECT col_has_check( $1, $2, 'Column ' || quote_ident($1) || '(' || quote_ident($2) || ') should have a check constraint' );
 $$ LANGUAGE sql;
 
+-- table_constraint_checksum ( schema, table, conname, contype, checksum, description)
+CREATE OR REPLACE FUNCTION table_constraint_checksum (NAME, NAME, NAME, char, text, text)
+RETURNS TEXT AS $$
+  SELECT is(md5 ( pg_get_constraintdef(oid)), $5, $6)
+  FROM pg_constraint
+  WHERE connamespace=(SELECT oid FROM pg_namespace WHERE nspname=$1)
+    AND conrelid=$2::regclass
+    AND conname=$3
+    AND contype=$4;
+$$ LANGUAGE sql;
+
 -- fk_ok( fk_schema, fk_table, fk_column[], pk_schema, pk_table, pk_column[], description )
 CREATE OR REPLACE FUNCTION fk_ok ( NAME, NAME, NAME[], NAME, NAME, NAME[], TEXT )
 RETURNS TEXT AS $$
