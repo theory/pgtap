@@ -2603,17 +2603,50 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql STABLE;
 
---added column "langname", "returns" to be used in mock_func function
+CREATE OR REPLACE FUNCTION _routineresult ( _routine_signature text )
+RETURNS TEXT AS $$
+BEGIN
+	/*
+	We need this function because without handling errors we will run into an error like
+	SQL Error [42883]: ERROR: function
+	"pg_toast.mock_func(text,text,text,text,anyelement)" dose not exist
+	It happens when we write filter 'routine_return.returns is not null' in tap_funky view.
+	Handling 'undefined_object' does not work
+	*/
+    RETURN pg_catalog.pg_get_function_result((_routine_signature::regprocedure)::oid);
+EXCEPTION WHEN others THEN
+    RETURN NULL;
+END;
+$$ LANGUAGE PLPGSQL STABLE;
+
+CREATE OR REPLACE FUNCTION _routineargsdefs ( _routine_signature text )
+RETURNS TEXT AS $$
+BEGIN
+	/*
+	We need this function because without handling errors we will run into an error like
+	SQL Error [42883]: ERROR: function
+	"pg_toast.mock_func(text,text,text,text,anyelement)" dose not exist
+	It happens when we write filter 'routine_args.with_defs is not null' in tap_funky view.
+	Handling 'undefined_object' does not work
+	*/
+    RETURN pg_catalog.pg_get_function_arguments((_routine_signature::regprocedure)::oid);
+EXCEPTION WHEN others THEN
+	RETURN NULL;
+END;
+$$ LANGUAGE PLPGSQL STABLE;
+
+
+--added columns "langname", "returns" and args_with_defs to be used in mock_func function
 CREATE OR REPLACE VIEW tap_funky AS
 SELECT
 	p.oid                                    AS oid,
 	n.nspname                                AS schema,
 	p.proname                                AS name,
 	pg_catalog.pg_get_userbyid(p.proowner)   AS owner,
-	proc_name.args                           AS args,
+	routine_name.args                        AS args,
 	lower(coalesce(
-		proc_return."returns",
-		proc_return.sys_returns))            AS "returns",
+		routine_info."returns",
+		routine_info.sys_returns))           AS "returns",
 	p.prolang                                AS langoid,
 	p.proisstrict                            AS is_strict,
 	_prokind(p.oid)                          AS kind,
@@ -2621,7 +2654,10 @@ SELECT
 	p.proretset                              AS returns_set,
 	p.provolatile::char                      AS volatility,
 	pg_catalog.pg_function_is_visible(p.oid) AS is_visible,
-	l.lanname                                AS langname
+	l.lanname                                AS langname,
+	format('(%s)',
+		routine_info.args_with_defs
+	)                                        AS args_with_defs
 FROM pg_catalog.pg_proc p
 JOIN pg_catalog.pg_namespace n ON p.pronamespace = n.oid
 LEFT JOIN pg_catalog.pg_language l ON l.oid = p.prolang
@@ -2629,16 +2665,21 @@ LEFT JOIN LATERAL (
 	select
 		format('%1I.%2I', n.nspname, p.proname) as qualified,
 		array_to_string(p.proargtypes::regtype[], ',') AS args
-) proc_name ON true
+) routine_name ON true
 LEFT JOIN LATERAL (
 	SELECT
 		CASE
 			WHEN lower(n.nspname) != 'pg_catalog'
-				THEN pg_catalog.pg_get_function_result((concat(proc_name.qualified, '(', proc_name.args, ')')::regprocedure)::oid)
+				THEN _routineresult(concat(routine_name.qualified, '(', routine_name.args, ')'))
 			ELSE NULL
-		END AS "returns",
+		END  collate "default" AS "returns",
+		CASE
+			WHEN lower(n.nspname) != 'pg_catalog'
+				THEN _routineargsdefs(concat(routine_name.qualified, '(', routine_name.args, ')'))
+			ELSE NULL
+		end  collate "default" AS "args_with_defs",
 		CASE p.proretset WHEN TRUE THEN 'setof ' ELSE '' END || p.prorettype::regtype AS sys_returns
-) AS proc_return ON TRUE;
+) AS routine_info ON TRUE;
 
 CREATE OR REPLACE FUNCTION _funkargs ( NAME[] )
 RETURNS TEXT AS $$
