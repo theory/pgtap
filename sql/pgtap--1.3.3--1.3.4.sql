@@ -71,14 +71,14 @@ begin
 	    where "schema" = _func_schema
 	        and "name" = _func_name
 	        and args_with_defs = _func_args;
-		EXCEPTION WHEN NO_DATA_FOUND OR TOO_MANY_ROWS THEN
+		exception when NO_DATA_FOUND or TOO_MANY_ROWS then
 			select string_agg(E'\t - ' || format('%I.%I %s', "schema", "name", args_with_defs), E'\n')::text
 			into _variants
 			from tap_funky
 			where "name" = _func_name;
 			_ex_msg = format('Routine %I.%I %s does not exist.',
 				_func_schema, _func_name, _func_args) || E'\n' || 'Possible variants are:' || E'\n' || _variants;
-            RAISE EXCEPTION '%', _ex_msg;
+            raise exception '%', _ex_msg;
 	end;
 
 	--This is the case when we need to mock a function written in SQL.
@@ -330,7 +330,7 @@ begin
 	execute _ddl;
 	perform print_table_as_json('public', _table_name::text);
 end;
-$procedure$;
+$function$;
 
 
 CREATE OR REPLACE FUNCTION _get_func_oid(name, name, name[])

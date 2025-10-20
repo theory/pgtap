@@ -11578,7 +11578,32 @@ RETURNS TEXT AS $$
     );
 $$ LANGUAGE sql;
 
-			
+CREATE OR REPLACE FUNCTION get_routine_signature(
+	_routine_schema name
+	, _routine_name name)
+ RETURNS TABLE (routine_schema TEXT, routine_name TEXT, routine_params TEXT)
+ LANGUAGE SQL STABLE
+AS $function$
+	SELECT
+		"schema", "name", args_with_defs
+	FROM tap_funky
+	WHERE
+		"schema" = _func_schema and
+		"name" = _func_name;
+$function$;
+
+CREATE OR REPLACE FUNCTION get_routine_signature(
+	_routine_name name)
+ RETURNS TABLE (routine_schema TEXT, routine_name TEXT, routine_params TEXT)
+ LANGUAGE SQL STABLE
+AS $function$
+	SELECT
+		"schema", "name", args_with_defs
+	FROM tap_funky
+	WHERE
+		"name" = _func_name;
+$function$;
+
 --this function creates a mock in place of a real function
 create or replace function mock_func(
     _func_schema text
@@ -11597,13 +11622,30 @@ declare
     _func_qualified_name text;
     _func_language text;
 	_returns_set bool;
+	_variants text;
+	_ex_msg text;
 begin
-    select "returns", langname, returns_set
-    into _func_result_type, _func_language, _returns_set
-    from tap_funky
-    where "schema" = _func_schema
-        and "name" = _func_name;
+	--First of all, we have to identify which function we must mock. If there is no such function, throw an error.
+	begin
+	    select "returns", langname, returns_set
+	    into strict _func_result_type, _func_language, _returns_set
+	    from tap_funky
+	    where "schema" = _func_schema
+	        and "name" = _func_name
+	        and args_with_defs = _func_args;
+		exception when NO_DATA_FOUND or TOO_MANY_ROWS then
+			select string_agg(E'\t - ' || format('%I.%I %s', "schema", "name", args_with_defs), E'\n')::text
+			into _variants
+			from tap_funky
+			where "name" = _func_name;
+			_ex_msg = format('Routine %I.%I %s does not exist.',
+				_func_schema, _func_name, _func_args) || E'\n' || 'Possible variants are:' || E'\n' || _variants;
+            raise exception '%', _ex_msg;
+	end;
 
+	--This is the case when we need to mock a function written in SQL.
+	--But in order to be able to execute the mocking functionality, we need to have a function written in plpgsql.
+	--That is why we create a hidden function which name starts with "__".
 	if _func_language = 'sql' and _returns_set then
 		_mock_ddl = format('
 	        create or replace function %1$I.__%2$I(_name text)
@@ -11621,7 +11663,7 @@ begin
 	             returns %4$s
 	             language %5$s
 	        AS %7$sfunction%7$s
-	            select * from %1$I.__%2$I ( %6$L );
+	            select * from %1$I.__%2$I ( %6$s );
 	        %7$sfunction%7$s;',
 			_func_schema/*1*/, _func_name/*2*/, _func_args/*3*/, _func_result_type/*4*/,
 			_func_language/*5*/, _return_set_value/*6*/, '$'/*7*/);
@@ -11635,7 +11677,7 @@ begin
 	             language plpgsql
 	        AS %6$sfunction%6$s
 			begin
-	            return query execute _query( %5$L );
+	            return query execute _query( %5$s );
 			end;
 	        %6$sfunction%6$s;',
 			_func_schema/*1*/, _func_name/*2*/, _func_args/*3*/, _func_result_type/*4*/,
@@ -11799,7 +11841,6 @@ begin
 end
 $$
 language plpgsql;
-
 
 create or replace function print_table_as_json(in _table_schema text, in _table_name text)
 returns void
