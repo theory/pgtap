@@ -26,8 +26,8 @@ AS $function$
 		"schema", "name", args_with_defs
 	FROM tap_funky
 	WHERE
-		"schema" = _func_schema and
-		"name" = _func_name;
+		"schema" = _routine_schema and
+		"name" = _routine_name;
 $function$;
 
 CREATE OR REPLACE FUNCTION get_routine_signature(
@@ -39,7 +39,7 @@ AS $function$
 		"schema", "name", args_with_defs
 	FROM tap_funky
 	WHERE
-		"name" = _func_name;
+		"name" = _routine_name;
 $function$;
 
 --this function creates a mock in place of a real function
@@ -101,7 +101,7 @@ begin
 	             returns %4$s
 	             language %5$s
 	        AS %7$sfunction%7$s
-	            select * from %1$I.__%2$I ( %6$s );
+	            select * from %1$I.__%2$I ( ''%6$s'' );
 	        %7$sfunction%7$s;',
 			_func_schema/*1*/, _func_name/*2*/, _func_args/*3*/, _func_result_type/*4*/,
 			_func_language/*5*/, _return_set_value/*6*/, '$'/*7*/);
@@ -137,12 +137,35 @@ begin
 	end if;
 end $function$;
 
+--This function creates a mock in place of a real view
+create or replace function mock_view(
+    _view_schema text
+    , _view_name text
+    , _return_set_sql text default null
+)
+--Create a mock in place of a real view
+language plpgsql
+as $function$
+declare
+    _mock_ddl text;
+    _func_result_type text;
+    _func_qualified_name text;
+    _func_language text;
+    _returns_set bool;
+begin
+    _mock_ddl = format('drop view %I.%I', _view_schema, _view_name);
+    execute _mock_ddl;
+    _mock_ddl = format('create view %I.%I as %s', _view_schema, _view_name, _return_set_value);
+    execute _mock_ddl;
+end; $function$;
+
 create or replace function fake_table(
     _table_ident text[],
     _make_table_empty boolean default false,
     _leave_primary_key boolean default false,
     _drop_not_null boolean DEFAULT false,
     _drop_collation boolean DEFAULT false
+    _drop_partitions boolean DEFAULT false
 )
 returns void
 --It frees a table from any constraint (we call such a table as a fake)
@@ -153,6 +176,7 @@ AS $function$
 declare
     _table record;
     _fk_table record;
+    _part_table record;
     _fake_ddl text;
     _not_null_ddl text;
 begin
@@ -221,7 +245,16 @@ begin
                 from
                     pg_catalog.pg_attribute t
                 where t.attrelid = (_table.table_schema || '.' || _table.table_name)::regclass
-                    and t.attnum > 0 and attnotnull;
+                    and t.attnum > 0 and attnotnull
+                    and (
+                        (
+                            --and the column is not part of PK when we wat ot leave PK as is
+                            t.attname::text != all((select _keys(_table.table_schema, _table.table_name, 'p'))::text[]) and
+                            _leave_primary_key
+                        ) or
+                        --we can drop an NOT NULL constraint as there is not PK already
+                        not _leave_primary_key
+                    );
 
                 _fake_ddl = _fake_ddl || _not_null_ddl || ';';
             else
@@ -230,6 +263,13 @@ begin
 
             if _fake_ddl is not null then
                 execute _fake_ddl;
+            end if;
+
+            if _drop_partitions then
+                for _part_table in select _parts from _parts(_table.table_schema, _table.table_name) loop
+                    _fake_ddl = 'drop table if exists ' || _part_table._parts || ';';
+                    execute _fake_ddl;
+                end loop;
             end if;
         end loop;
 end $function$;
