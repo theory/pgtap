@@ -11639,10 +11639,10 @@ begin
 			from tap_funky
 			where "name" = _func_name;
 			_ex_msg = format('Routine %I.%I %s does not exist.',
-				_func_schema, _func_name, _func_args) || E'\n' || 'Possible variants are:' || E'\n' || _variants;
-            raise exception '%', _ex_msg;
+				_func_schema, _func_name, _func_args) || E'\n' || 'Possible variants are:' || E'\n' ||
+				coalesce(_variants, 'There is no such function in any schema');
+            raise exception '%', coalesce(_ex_msg, 'Нет описания');
 	end;
-
 	--This is the case when we need to mock a function written in SQL.
 	--But in order to be able to execute the mocking functionality, we need to have a function written in plpgsql.
 	--That is why we create a hidden function which name starts with "__".
@@ -11651,12 +11651,12 @@ begin
 	        create or replace function %1$I.__%2$I(_name text)
 	             returns %3$s
 	             language plpgsql
-	        AS %5$sfunction%5$s
+	        AS %4$sfunction%4$s
 			begin
-	            return query execute _query(%4$L);
+	            return query execute _query(_name);
 			end;
-	        %5$sfunction%5$s;',
-			_func_schema/*1*/, _func_name/*2*/, _func_result_type/*3*/, _return_set_value/*4*/, '$'/*5*/);
+	        %4$sfunction%4$s;',
+			_func_schema/*1*/, _func_name/*2*/, _func_result_type/*3*/, '$'/*4*/);
 	    execute _mock_ddl;
 		_mock_ddl = format('
 	        create or replace function %1$I.%2$I %3$s
@@ -11677,7 +11677,7 @@ begin
 	             language plpgsql
 	        AS %6$sfunction%6$s
 			begin
-	            return query execute _query( %5$s );
+	            return query execute _query( ''%5$s'' );
 			end;
 	        %6$sfunction%6$s;',
 			_func_schema/*1*/, _func_name/*2*/, _func_args/*3*/, _func_result_type/*4*/,
@@ -11705,6 +11705,7 @@ create or replace function mock_view(
     , _view_name text
     , _return_set_sql text default null
 )
+returns void
 --Create a mock in place of a real view
 language plpgsql
 as $function$
@@ -11717,7 +11718,7 @@ declare
 begin
     _mock_ddl = format('drop view %I.%I', _view_schema, _view_name);
     execute _mock_ddl;
-    _mock_ddl = format('create view %I.%I as %s', _view_schema, _view_name, _return_set_value);
+    _mock_ddl = format('create view %I.%I as %s', _view_schema, _view_name, _return_set_sql);
     execute _mock_ddl;
 end; $function$;
 
@@ -11726,7 +11727,7 @@ create or replace function fake_table(
     _make_table_empty boolean default false,
     _leave_primary_key boolean default false,
     _drop_not_null boolean DEFAULT false,
-    _drop_collation boolean DEFAULT false
+    _drop_collation boolean DEFAULT false,
     _drop_partitions boolean DEFAULT false
 )
 returns void
@@ -11828,6 +11829,9 @@ begin
             end if;
 
             if _drop_partitions then
+                if pg_version_num() < 100000 then
+                    raise exception 'Sorry, but declarative partitioning was introduced only starting with PostgreSQL version 10.';
+                end if;
                 for _part_table in select _parts from _parts(_table.table_schema, _table.table_name) loop
                     _fake_ddl = 'drop table if exists ' || _part_table._parts || ';';
                     execute _fake_ddl;

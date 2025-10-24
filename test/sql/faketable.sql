@@ -2,7 +2,7 @@
 \i test/setup.sql
 -- \i sql/pgtap.sql
 
-SELECT plan(14);
+SELECT plan(21);
 --SELECT * FROM no_plan();
 
 -- This will be rolled back. :-)
@@ -125,8 +125,83 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE TABLE public.pk_plus_not_null(
+	id int NOT NULL,
+	num varchar(10) not null,
+	tale text not null,
+    comments text,
+	CONSTRAINT pk_plus_not_null_pk PRIMARY KEY (id, num)
+);
+
+CREATE FUNCTION test_faking_functionality_pk_not_null() RETURNS SETOF TEXT AS $$
+BEGIN
+	perform fake_table(
+		'{public.pk_plus_not_null}'::text[],
+		_leave_primary_key => TRUE,
+		_make_table_empty => TRUE,
+		_drop_not_null => TRUE);
+
+	RETURN query SELECT * FROM check_test(
+		col_is_pk('public', 'pk_plus_not_null', '{id, num}'::name[]),
+		TRUE,
+		'public.pk_plus_not_null primary key is (id, num)');
+
+	RETURN query SELECT * FROM check_test(
+		col_isnt_pk('public', 'pk_plus_not_null', '{tale, comments}'::name[], 'no pk'),
+		TRUE,
+		'Columns tale and comments of public.pk_plus_not_null are not part of primary key');
+
+	RETURN query SELECT * FROM check_test(
+		col_not_null('public', 'pk_plus_not_null', 'id', ''),
+		TRUE,
+		'public.pk_plus_not_null.id is not null');
+
+	RETURN query SELECT * FROM check_test(
+		col_not_null('public', 'pk_plus_not_null', 'num', ''),
+		TRUE,
+		'public.pk_plus_not_null.num is not null');
+
+	RETURN query SELECT * FROM check_test(
+		col_is_null('public', 'pk_plus_not_null', 'tale', ''),
+		TRUE,
+		'public.pk_plus_not_null.tale is null');
+
+	RETURN query SELECT * FROM check_test(
+		col_is_null('public', 'pk_plus_not_null', 'comments', ''),
+		TRUE,
+		'public.pk_plus_not_null.comments is null');
+END;
+$$ LANGUAGE plpgsql;
+
+create table public.parts(
+	id int,
+	tale text,
+	date_key date
+)
+partition by range(date_key);
+
+create table public.part_202509 partition of public.parts
+	for values from ('2025-09-01') to ('2025-10-01');
+
+create table public.part_202510 partition of public.parts
+	for values from ('2025-10-01') to ('2025-11-01');
+
+create or replace FUNCTION test_faking_functionality_no_partitions() RETURNS SETOF TEXT AS $$
+BEGIN
+	perform fake_table(
+		'{public.parts}'::text[],
+		_drop_partitions => TRUE);
+
+	RETURN query SELECT * FROM check_test(
+		partitions_are('public', 'parts', '{}'::name[], 'No partitions we expect'),
+		TRUE,
+		'public.parts should have no any partition');
+END;
+$$ LANGUAGE plpgsql;
 
 SELECT * FROM test_faking_functionality();
+SELECT * FROM test_faking_functionality_pk_not_null();
+SELECT * FROM test_faking_functionality_no_partitions();
 
 CREATE FUNCTION test_call_count_functionality() RETURNS SETOF TEXT AS $$
 BEGIN

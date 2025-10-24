@@ -8588,6 +8588,7 @@ It's always well known which data are invalid for your system. Simply don't inse
 
 ### `fake_table()` ###
 
+    PERFORM fake_table( :_table_ident, :_make_table_empty, :_leave_primary_key, :_drop_not_null, :_drop_collation, :_drop_partitions );
     PERFORM fake_table( :_table_ident, :_make_table_empty, :_leave_primary_key, :_drop_not_null, :_drop_collation );
     PERFORM fake_table( :_table_ident, :_make_table_empty, :_leave_primary_key, :_drop_not_null );
     PERFORM fake_table( :_table_ident, :_make_table_empty, :_leave_primary_key );
@@ -8610,6 +8611,10 @@ It's always well known which data are invalid for your system. Simply don't inse
 
 `:_drop_collation`
 : Boolean. Not yet implemented. Optional. FALSE by default.
+
+`:_drop_partitions`
+: Boolean. If TRUE any declarative partition of a table will be dropped. Works starting with PostgreSQL version 10.
+Optional. FALSE by default.
 
 Sometimes a table contains a lot of junk data, especially in a development environment.
 However, to ensure that your test runs on completely valid data, you clear the table before testing,
@@ -8702,11 +8707,11 @@ But if your function has some parameters, you must specify them as follows:
 (_int_param int, _text_param text = null, _ts_param = now()).
 The simplest way to find correct signature of your function is to call get_routine_signature. It is required.
 
-':_return_set_value'
+':_return_scalar_value'
 : Text. Some scalar value that your mock have to return in test context. Optional. Default NULL.
 Obviously, you have to provide either '_return_set_value' or '_return_scalar_value'.
 
-':_return_scalar_value'
+':_return_set_value'
 : Text. Some SQL code forming a dataset that your mock should return in text context.
 You may provide a name for a prepared statement. There is a convention to name a prepared statement
 using the following pattern: 'mock_my_dataset'. Optional. Default NULL.
@@ -8727,6 +8732,23 @@ Obviously, you have to provide either '_return_set_value' or '_return_scalar_val
 
 The simple way to find out how PostgreSQL stores the signature of your routine.
 Use this function to select at least the arguments with defaults ('args_with_defs') to pass this value to 'mock_func'.
+
+### `mock_view()` ###
+
+    PERFORM mock_func( :_view_schema, :_view_name, :_return_set_sql );
+
+**Parameters**
+
+`:_view_schema`
+: Text. This is the schema where your view is declared. Required.
+
+`:_view_name`
+: Text. View name. Required.
+
+`:_return_set_sql`
+: Text. Some SQL code forming a dataset that your mock should return in text context. Required.
+
+Creates a mock replacement for a real view. See more details about mocking above regarding the 'mock_func' function.
 
 Assert to controls count of calls
 ---------------------------------
