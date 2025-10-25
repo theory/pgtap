@@ -11811,11 +11811,11 @@ begin
                     and t.attnum > 0 and attnotnull
                     and (
                         (
-                            --and the column is not part of PK when we wat ot leave PK as is
+                            --and the column is not part of PK when we want to leave PK as is
                             t.attname::text != all((select _keys(_table.table_schema, _table.table_name, 'p'))::text[]) and
                             _leave_primary_key
                         ) or
-                        --we can drop an NOT NULL constraint as there is not PK already
+                        --we can drop a NOT NULL constraint as there is no PK already
                         not _leave_primary_key
                     );
 
