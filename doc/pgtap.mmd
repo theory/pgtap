@@ -8554,31 +8554,31 @@ table in a bunch of schemas:
 Mocking, faking and making your test independent
 ================================================
 
-Examples of implementing mocking and faking functionality can be found in my fork [`on GitHub`](https://github.com/v-maliutin/pgtap/tree/examples_forking_and_mocking/examples).
+Examples of implementing mocking and faking functionality can be found [`on GitHub`](https://github.com/v-maliutin/pgtap/tree/examples_forking_and_mocking/examples).
 
 Faking
 ------
 
 Let's say we have a main table and a subordinate table.
 
-    CREATE TABLE master(
+    CREATE TABLE parent(
         some_id int primary key
     );
 
     CREATE TABLE child(
-        master_id int,
+        parent_id int,
         some_data numeric,
-        CONSTRAINT child_fk FOREIGN KEY(master_id) REFERENCES master(some_id)
+        CONSTRAINT child_fk FOREIGN KEY(parent_id) REFERENCES parent(some_id)
     );
 
     --Your function simply sums up the values of the some_data column, filtering them by the master_id field.
 
-    SELECT SUM(some_data) as sm FROM child WHERE master_id = $1;
+    SELECT SUM(some_data) as sm FROM child WHERE parent_id = $1;
 
-The main point here is that the master table is intended exclusively for user input,
+The main point here is that the parent table is intended exclusively for user input,
 and you cannot make any assumptions about the values stored in the some_id field.
 Consequently, you will not be able to insert any data into the child table until
-the corresponding data exists in the master table.
+the corresponding data exists in the parent table.
 
 What you can do is drop the foreign key constraint, insert some data into the child table only,
 and perform any necessary checks.
@@ -8630,11 +8630,11 @@ junk data and can be reproduced at any time. Example.
         _drop_collation => false
     );
 
- One note. The parameters _leave_primary_key and _drop_not_null are currently contradictory.
+ One note. The parameters `_leave_primary_key` and `_drop_not_null` are currently contradictory.
  If you'd like to keep a primary key while making all columns nullable
- (_leave_primary_key => true, _drop_not_null => true), you'll receive a runtime error.
+ `(_leave_primary_key => true, _drop_not_null => true)`, you'll receive a runtime error.
  This depends on whether the table truly has a primary key. I'm addressing this issue, but meanwhile,
- the solution is to set _leave_primary_key => false, _drop_not_null => true, and then immediately
+ the solution is to set `_leave_primary_key => false`, `_drop_not_null => true`, and then immediately
  following the execution of 'fake_table', simply execute a command to create your primary key,
  e.g., alter table my_table add constraint...
 
