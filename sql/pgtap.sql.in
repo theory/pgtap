@@ -11627,7 +11627,7 @@ declare
 begin
 	--First of all, we have to identify which function we must mock. If there is no such function, throw an error.
 	begin
-	    select "returns", langname, returns_set
+	    select "returns", lower(langname), returns_set
 	    into strict _func_result_type, _func_language, _returns_set
 	    from tap_funky
 	    where "schema" = _func_schema
@@ -11689,14 +11689,19 @@ begin
 		_mock_ddl = format('
 	        create or replace function %1$I.%2$I %3$s
 	             RETURNS %4$s
-	             LANGUAGE %5$s
-	        AS %8$sfunction%8$s
-	            select %6$L::%7$s;
-	        %8$sfunction%8$s;',
+	             LANGUAGE sql
+	        AS %7$sfunction%7$s
+	            select %5$L::%6$s;
+	        %7$sfunction%7$s;',
 			_func_schema/*1*/,  _func_name/*2*/, _func_args/*3*/, _func_result_type/*4*/,
-			_func_language/*5*/, _return_scalar_value/*6*/, pg_typeof(_return_scalar_value)/*7*/, '$'/*8*/);
+			_return_scalar_value/*5*/, pg_typeof(_return_scalar_value)/*6*/, '$'/*7*/);
 	    execute _mock_ddl;
 	end if;
+
+    if _returns_set and _func_language not in ('sql', 'plpgsql') then
+        raise exception '%', 'It seems that this function type is not supported yet.'
+			using HINT = 'Please fill free to open an issue';
+    end if;
 end $function$;
 
 --This function creates a mock in place of a real view
