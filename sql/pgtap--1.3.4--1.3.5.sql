@@ -1,0 +1,1 @@
+-- Changes between pgTAP v1.3.4 and v1.3.5.

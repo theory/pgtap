@@ -1,7 +1,17 @@
-CREATE FUNCTION parse_type(type text, OUT typid oid, OUT typmod int4)
-RETURNS RECORD
-AS '$libdir/pgtap'
-LANGUAGE C STABLE STRICT;
+-- Use DO to ignore failures when the shared library doesn't exist, because it
+-- only existed for 1.3.1, and if upgrades are running from a later release it
+-- won't be there.
+DO $$
+BEGIN
+    CREATE FUNCTION parse_type(type text, OUT typid oid, OUT typmod int4)
+    RETURNS RECORD
+    AS 'pgtap'
+    LANGUAGE C STABLE STRICT;
+EXCEPTION
+    WHEN undefined_file THEN
+        RAISE NOTICE 'No pgtap shared library; skipping C parse_type()';
+END;
+$$;
 
 CREATE OR REPLACE FUNCTION format_type_string ( TEXT )
 RETURNS TEXT AS $$
@@ -211,3 +221,9 @@ END;
 $$ LANGUAGE plpgsql;
 
 DROP FUNCTION _quote_ident_like(TEXT, TEXT);
+
+-- has_pk( schema, table )
+CREATE OR REPLACE FUNCTION has_pk ( NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT has_pk( $1, $2, 'Table ' || quote_ident($1) || '.' || quote_ident($2) || ' should have a primary key' );
+$$ LANGUAGE sql;

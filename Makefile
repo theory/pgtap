@@ -98,8 +98,7 @@ endif
 EXTRA_CLEAN += $(_IN_PATCHED)
 all: $(_IN_PATCHED) sql/pgtap.sql sql/uninstall_pgtap.sql sql/pgtap-core.sql sql/pgtap-schema.sql
 
-# Add extension build targets on 9.1 and up.
-ifeq ($(shell echo $(VERSION) | grep -qE "^(8[.]|9[.]0)" && echo no || echo yes),yes)
+# Add extension build targets.
 all: sql/$(MAINEXT)--$(EXTVERSION).sql sql/$(MAINEXT)-core--$(EXTVERSION).sql sql/$(MAINEXT)-schema--$(EXTVERSION).sql
 
 sql/$(MAINEXT)--$(EXTVERSION).sql: sql/$(MAINEXT).sql
@@ -113,10 +112,6 @@ sql/$(MAINEXT)-schema--$(EXTVERSION).sql: sql/$(MAINEXT)-schema.sql
 
 # sort is necessary to remove dupes so install won't complain
 DATA = $(sort $(wildcard sql/*--*.sql) $(BASE_FILES) $(VERSION_FILES) $(_IN_PATCHED))
-else
-# No extension support, just install the base files.
-DATA = $(BASE_FILES)
-endif
 
 # Load PGXS now that we've set all the variables it might need.
 ifdef NO_PGXS
@@ -131,17 +126,17 @@ endif
 #
 
 # Row security policy tests not supported by 9.4 and earlier.
-ifeq ($(shell echo $(VERSION) | grep -qE "^9[.][01234]|8[.]" && echo yes || echo no),yes)
+ifeq ($(shell echo $(VERSION) | grep -qE "^9[.][01234]" && echo yes || echo no),yes)
 EXCLUDE_TEST_FILES += test/sql/policy.sql
 endif
 
 # Partition tests tests not supported by 9.x and earlier.
-ifeq ($(shell echo $(VERSION) | grep -qE "^[89][.]" && echo yes || echo no),yes)
+ifeq ($(shell echo $(VERSION) | grep -qE "^9[.]" && echo yes || echo no),yes)
 EXCLUDE_TEST_FILES += test/sql/partitions.sql
 endif
 
-# Stored procecures not supported prior to Postgres 11.
-ifeq ($(shell echo $(VERSION) | grep -qE "^([89]|10)[.]" && echo yes || echo no),yes)
+# Stored procedures not supported prior to Postgres 11.
+ifeq ($(shell echo $(VERSION) | grep -qE "^(9|10)[.]" && echo yes || echo no),yes)
 EXCLUDE_TEST_FILES += test/sql/proctap.sql
 endif
 
@@ -207,54 +202,54 @@ uninstall-all:
 # VERSION = 9.1.0 # Uncomment to test all patches.
 sql/pgtap.sql: sql/pgtap.sql.in
 	cp $< $@
-ifeq ($(shell echo $(VERSION) | grep -qE "^(9[.][0123456]|8[.][1234])" && echo yes || echo no),yes)
+ifeq ($(shell echo $(VERSION) | grep -qE "^9[.][0123456]" && echo yes || echo no),yes)
 	patch -p0 < compat/install-9.6.patch
 endif
-ifeq ($(shell echo $(VERSION) | grep -qE "^(9[.][01234]|8[.][1234])" && echo yes || echo no),yes)
+ifeq ($(shell echo $(VERSION) | grep -qE "^9[.][01234]" && echo yes || echo no),yes)
 	patch -p0 < compat/install-9.4.patch
 endif
-ifeq ($(shell echo $(VERSION) | grep -qE "^(9[.][012]|8[.][1234])" && echo yes || echo no),yes)
+ifeq ($(shell echo $(VERSION) | grep -qE "^9[.][012]" && echo yes || echo no),yes)
 	patch -p0 < compat/install-9.2.patch
 endif
-ifeq ($(shell echo $(VERSION) | grep -qE "^(9[.][01]|8[.][1234])" && echo yes || echo no),yes)
+ifeq ($(shell echo $(VERSION) | grep -qE "^9[.][01]" && echo yes || echo no),yes)
 	patch -p0 < compat/install-9.1.patch
 endif
-	sed -e 's,MODULE_PATHNAME,$$libdir/pgtap,g' -e 's,__OS__,$(OSNAME),g' -e 's,__VERSION__,$(NUMVERSION),g' sql/pgtap.sql > sql/pgtap.tmp
+	sed -e 's,MODULE_PATHNAME,pgtap,g' -e 's,__OS__,$(OSNAME),g' -e 's,__VERSION__,$(NUMVERSION),g' sql/pgtap.sql > sql/pgtap.tmp
 	mv sql/pgtap.tmp sql/pgtap.sql
 
 # Ugly hacks for now... TODO: script that understands $VERSION and will apply all the patch files for that version
 EXTRA_CLEAN += sql/pgtap--0.99.0--1.0.0.sql
 sql/pgtap--0.99.0--1.0.0.sql: sql/pgtap--0.99.0--1.0.0.sql.in
 	cp $< $@
-ifeq ($(shell echo $(VERSION) | grep -qE "^(9[.][01234]|8[.][1234])" && echo yes || echo no),yes)
+ifeq ($(shell echo $(VERSION) | grep -qE "^9[.][01234]" && echo yes || echo no),yes)
 	patch -p0 < compat/9.4/pgtap--0.99.0--1.0.0.patch
 endif
 
 EXTRA_CLEAN += sql/pgtap--0.98.0--0.99.0.sql
 sql/pgtap--0.98.0--0.99.0.sql: sql/pgtap--0.98.0--0.99.0.sql.in
 	cp $< $@
-ifeq ($(shell echo $(VERSION) | grep -qE "^([89]|10)[.]" && echo yes || echo no),yes)
+ifeq ($(shell echo $(VERSION) | grep -qE "^(9|10)[.]" && echo yes || echo no),yes)
 	patch -p0 < compat/10/pgtap--0.98.0--0.99.0.patch
 endif
 
 EXTRA_CLEAN += sql/pgtap--0.97.0--0.98.0.sql
 sql/pgtap--0.97.0--0.98.0.sql: sql/pgtap--0.97.0--0.98.0.sql.in
 	cp $< $@
-ifeq ($(shell echo $(VERSION) | grep -qE "^[89][.]" && echo yes || echo no),yes)
+ifeq ($(shell echo $(VERSION) | grep -qE "^9[.]" && echo yes || echo no),yes)
 	patch -p0 < compat/9.6/pgtap--0.97.0--0.98.0.patch
 endif
 
 EXTRA_CLEAN += sql/pgtap--0.96.0--0.97.0.sql
 sql/pgtap--0.96.0--0.97.0.sql: sql/pgtap--0.96.0--0.97.0.sql.in
 	cp $< $@
-ifeq ($(shell echo $(VERSION) | grep -qE "^(9[.][01234]|8[.][1234])" && echo yes || echo no),yes)
+ifeq ($(shell echo $(VERSION) | grep -qE "^9[.][01234]" && echo yes || echo no),yes)
 	patch -p0 < compat/9.4/pgtap--0.96.0--0.97.0.patch
 endif
 
 EXTRA_CLEAN += sql/pgtap--0.95.0--0.96.0.sql
 sql/pgtap--0.95.0--0.96.0.sql: sql/pgtap--0.95.0--0.96.0.sql.in
 	cp $< $@
-ifeq ($(shell echo $(VERSION) | grep -qE "^(9[.][012]|8[.][1234])" && echo yes || echo no),yes)
+ifeq ($(shell echo $(VERSION) | grep -qE "^9[.][012]" && echo yes || echo no),yes)
 	patch -p0 < compat/9.2/pgtap--0.95.0--0.96.0.patch
 endif
 
@@ -471,7 +466,7 @@ updatecheck_deps: pgtap-version-$(UPDATE_FROM) test/sql/update.sql
 # TODO: find something that can generically compare majors (ie: GE91 from
 # https://github.com/decibel/pgxntool/blob/0.1.10/base.mk).
 updatecheck_setup: updatecheck_deps
-	@if echo $(VERSION) | grep -qE "8[.]|9[.][012]"; then echo "updatecheck is not supported prior to 9.3"; exit 1; fi
+	@if echo $(VERSION) | grep -qE "^9[.][012]"; then echo "updatecheck is not supported prior to 9.3"; exit 1; fi
 	$(eval SETUP_SCH = test/schedule/update.sch)
 	$(eval REGRESS_OPTS += --launcher "tools/psql_args.sh -v 'old_ver=$(UPDATE_FROM)' -v 'new_ver=$(EXTVERSION)'")
 	@echo

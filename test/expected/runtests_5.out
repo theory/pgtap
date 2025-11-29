@@ -17,7 +17,7 @@ ok 3 - whatever."test ident"
     ok 3 - setup more
     # Test died: 22012: division by zero
     #         CONTEXT:
-    #             SQL function "testdividebyzero" statement 1
+    #             SQL function "testdividebyzero" during startup
     #             PL/pgSQL function _runner(text[],text[],text[],text[],text[]) line 62 at FOR over EXECUTE statement
     #             SQL function "runtests" statement 1
     #             SQL function "runtests" statement 1
@@ -108,7 +108,7 @@ ok 3 - whatever."test ident"
     ok 3 - setup more
     # Test died: 22012: division by zero
     #         CONTEXT:
-    #             SQL function "testdividebyzero" statement 1
+    #             SQL function "testdividebyzero" during startup
     #             PL/pgSQL function _runner(text[],text[],text[],text[],text[]) line 62 at FOR over EXECUTE statement
     #             SQL function "runtests" statement 1
 not ok 4 - whatever.testdividebyzero
