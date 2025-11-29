@@ -1,5 +1,8 @@
 pgTAP 1.3.5
 ===========
+This is a fork of pgTap aimed at providing mocking and faking capabilities similar 
+to those found in many modern high-level programming languages. 
+Please refer here for more details.
 
 [pgTAP](https://pgtap.org) is a unit testing framework for PostgreSQL written
 in PL/pgSQL and PL/SQL. It includes a comprehensive collection of
