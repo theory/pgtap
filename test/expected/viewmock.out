@@ -1,0 +1,3 @@
+\unset ECHO
+1..1
+ok 1 - mock of some_view should return expected result should pass
