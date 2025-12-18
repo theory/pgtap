@@ -30,7 +30,7 @@ Here are the steps to take to make a release of pgTAP:
     them again in forward order (9.1, 9.2, 9.3, etc.) to make sure the changes
     didn't break any later versions.
 
-*   Review the documentation in `doc/pgtap.mmd`, and make any necessary changes,
+*   Review the documentation in `doc/pgtap.md`, and make any necessary changes,
     including to the list of PostgreSQL version-compatibility notes at the end
     of the document.
 
@@ -49,16 +49,18 @@ Here are the steps to take to make a release of pgTAP:
     +   `cp .documentation.html.template documentation.html`. Edit
         `documentation.html`, the main div should look like this:
 
-            <div id="main">
-              <!-- DOCS INTRO HERE -->
-              <!-- END DOCS INTRO HERE -->
-              <div id="toc">
-                <!-- TOC SANS "pgTAP x.xx" -->
-                <!-- END TOC -->
-              </div>
-              <!-- DOCS HERE, WITH INTRO MOVED ABOVE -->
-              <!-- END DOCS -->
-            </div>
+        ```html
+         <div id="main">
+           <!-- DOCS INTRO HERE -->
+           <!-- END DOCS INTRO HERE -->
+           <div id="toc">
+             <!-- TOC SANS "pgTAP x.xx" -->
+             <!-- END TOC -->
+           </div>
+           <!-- DOCS HERE, WITH INTRO MOVED ABOVE -->
+           <!-- END DOCS -->
+         </div>
+         ```
 
     +   Copy the first `<h1>` and `<p>` from `doc/pgtap.html` into the
         `DOCS INTRO HERE` section.
@@ -88,8 +90,10 @@ Here are the steps to take to make a release of pgTAP:
 
 *   Commit the timestamp and push it:
 
+        ```sh
         git ci -m 'Timestamp v1.3.5.'
         git push
+        ```
 
 *   Once again make sure [all tests](https://github.com/theory/pgtap/actions)
     pass. Fix any that fail.
@@ -97,15 +101,19 @@ Here are the steps to take to make a release of pgTAP:
 *   Once all tests pass, tag the release with its semantic version (including
     the leading `v`) and push the tag.
 
+        ```sh
         git tag -sm 'Tag v1.3.5.' v1.3.5
         git push --tags
+        ```
 
 *   Monitor the [release workflow](https://github.com/theory/pgtap/actions/workflows/release.yml)
     to make sure the new version is released on both PGXN and GitHub.
 
 *   Push the `gh-pages` branch:
 
+        ```sh
         git push
+        ```
 
 *   Increment the minor version to kick off development for the next release.
     The version should be added to the `Changes` file, and incremented in the
@@ -114,12 +122,14 @@ Here are the steps to take to make a release of pgTAP:
     +   `META.json` (including for the three parts of the `provides` section)
     +   `README.md`
     +   `contrib/pgtap.spec`
-    +   `doc/pgtap.mmd`
+    +   `doc/pgtap.md`
     +   `pgtap.control`
 
 *   Commit that change and push it.
 
+        ```sh
         git ci -m 'Increment to v1.3.5.'
         git push
+        ```
 
 *   Start hacking on the next version!

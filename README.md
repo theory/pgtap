@@ -6,7 +6,7 @@ in PL/pgSQL and PL/SQL. It includes a comprehensive collection of
 [TAP](https://testanything.org)-emitting assertion functions, as well as the
 ability to integrate with other TAP-emitting test frameworks. It can also be
 used in the xUnit testing style. For detailed documentation, see the
-documentation in `doc/pgtap.mmd` or
+documentation in `doc/pgtap.md` or
 [online](https://pgtap.org/documentation.html "Complete pgTAP Documentation").
 
 [![PGXN version](https://badge.fury.io/pg/pgtap.svg)](https://badge.fury.io/pg/pgtap)
