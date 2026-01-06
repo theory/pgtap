@@ -1,4 +1,4 @@
-pgSQLTest 1.0.0
+pgSQLTest 0.1.0
 ===========
 This is a fork of highly popular unit testing framework pgTap designed to provide mocking and faking capabilities similar 
 to those found in many modern high-level programming languages. It extends pgTap and always includes the latest pgTap version.
