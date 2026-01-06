@@ -10,43 +10,45 @@ used in the xUnit testing style.
 Synopsis
 ========
 
-    CREATE EXTENSION IF NOT EXISTS pgtap;
+``` sql
+CREATE EXTENSION IF NOT EXISTS pgtap;
 
-    SELECT plan( 23 );
-    -- or SELECT * from no_plan();
+SELECT plan( 23 );
+-- or SELECT * from no_plan();
 
-    -- Various ways to say "ok"
-    SELECT ok( :have = :want, :test_description );
+-- Various ways to say "ok"
+SELECT ok( :have = :want, :test_description );
 
-    SELECT is(   :have, :want, :test_description );
-    SELECT isnt( :have, :want, :test_description );
+SELECT is(   :have, :want, :test_description );
+SELECT isnt( :have, :want, :test_description );
 
-    -- Rather than \echo # here's what went wrong
-    SELECT diag( 'here''s what went wrong' );
+-- Rather than \echo # here's what went wrong
+SELECT diag( 'here''s what went wrong' );
 
-    -- Compare values with LIKE or regular expressions.
-    SELECT alike(   :have, :like_expression, :test_description );
-    SELECT unalike( :have, :like_expression, :test_description );
+-- Compare values with LIKE or regular expressions.
+SELECT alike(   :have, :like_expression, :test_description );
+SELECT unalike( :have, :like_expression, :test_description );
 
-    SELECT matches(      :have, :regex, :test_description );
-    SELECT doesnt_match( :have, :regex, :test_description );
+SELECT matches(      :have, :regex, :test_description );
+SELECT doesnt_match( :have, :regex, :test_description );
 
-    SELECT cmp_ok(:have, '=', :want, :test_description );
+SELECT cmp_ok(:have, '=', :want, :test_description );
 
-    -- Skip tests based on runtime conditions.
-    SELECT CASE WHEN :some_feature THEN collect_tap(
-        ok( foo(),       :test_description),
-        is( foo(42), 23, :test_description)
-    ) ELSE skip(:why, :how_many ) END;
+-- Skip tests based on runtime conditions.
+SELECT CASE WHEN :some_feature THEN collect_tap(
+    ok( foo(),       :test_description),
+    is( foo(42), 23, :test_description)
+) ELSE skip(:why, :how_many ) END;
 
-    -- Mark some tests as to-do tests.
-    SELECT todo(:why, :how_many);
-    SELECT ok( foo(),       :test_description);
-    SELECT is( foo(42), 23, :test_description);
+-- Mark some tests as to-do tests.
+SELECT todo(:why, :how_many);
+SELECT ok( foo(),       :test_description);
+SELECT is( foo(42), 23, :test_description);
 
-    -- Simple pass/fail.
-    SELECT pass(:test_description);
-    SELECT fail(:test_description);
+-- Simple pass/fail.
+SELECT pass(:test_description);
+SELECT fail(:test_description);
+```
 
 Installation
 ============
@@ -69,11 +71,13 @@ navigate to the extracted folder.
 To build pgTAP and install it into a PostgreSQL database, run the following
 commands:
 
-    make
-    make install
-    make installcheck
+``` sh
+make
+make install
+make installcheck
+```
 
-Potential Issues
+tial Issues
 ----------------
 
 If you encounter an error such as:
@@ -83,9 +87,11 @@ If you encounter an error such as:
 You need to use GNU make, which may well be installed on your system as
 `gmake`:
 
-    gmake
-    gmake install
-    gmake installcheck
+``` sh
+gmake
+gmake install
+gmake installcheck
+```
 
 If you encounter an error such as:
 
@@ -100,13 +106,17 @@ package management system such as RPM to install PostgreSQL, be sure that the
 `-devel` package is also installed. If necessary tell the build process where
 to find it:
 
-    env PG_CONFIG=/path/to/pg_config make && make install && make installcheck
+``` sh
+env PG_CONFIG=/path/to/pg_config make && make install && make installcheck
+```
 
 And finally, if all that fails, copy the entire distribution directory to the
 `contrib/` subdirectory of the PostgreSQL source tree and try it there without
 `pg_config`:
 
-    env NO_PGXS=1 make && make install && make installcheck
+``` sh
+env NO_PGXS=1 make && make install && make installcheck
+```
 
 If you encounter an error such as:
 
@@ -115,7 +125,9 @@ If you encounter an error such as:
 You need to run the test suite using a super user, such as the default
 "postgres" super user:
 
-    make installcheck PGUSER=postgres
+``` sh
+make installcheck PGUSER=postgres
+```
 
 If you encounter an error such as:
 
@@ -125,27 +137,6 @@ Install the PostgreSQL
 [Additional Supplied Modules](https://www.postgresql.org/docs/current/contrib.html),
 which are required to run the tests. If you used a package management system
 such as RPM to install PostgreSQL, install the `-contrib` package.
-
-Once pgTAP is installed, you can add it to a database by connecting as a super
-user and running:
-
-    CREATE EXTENSION pgtap;
-
-If you've upgraded your cluster to PostgreSQL 9.1 and already had pgTAP
-installed, you can upgrade it to a properly packaged extension with:
-
-    CREATE EXTENSION pgtap FROM unpackaged;
-
-If you want to install pgTAP and all of its supporting objects into a
-specific schema, use the `PGOPTIONS` environment variable to specify the
-schema, like so:
-
-    PGOPTIONS=--search_path=tap psql -d mydb -f pgTAP.sql
-
-If you want to install pgTAP and all of its supporting objects into a specific
-schema, use the `SCHEMA` clause to specify the schema, like so:
-
-    CREATE EXTENSION pgtap SCHEMA tap;
 
 Testing pgTAP with pgTAP
 ------------------------
@@ -166,29 +157,35 @@ PostgreSQL client environment variables:
 
 You can use it to run the test suite as a database super user like so:
 
-    make test PGUSER=postgres
+``` sh
+make test PGUSER=postgres
+```
 
 To run the tests in a local docker environment using the latest version
 of PostgreSQL, run:
 
-    cd test
-    docker compose build test
-    # start the postgres server in a docker container in the background
-    docker compose up -d test
-    # run the regression tests
-    docker compose exec test make install installcheck
-    # run the tests with pg_prove
-    # "run" builds and installs pgTAP, runs "CREATE EXTENSION"
-    # and then runs make test
-    docker compose exec test run
-    # Shut down the postgres container
-    docker compose down
+``` sh
+cd test
+docker compose build test
+# start the postgres server in a docker container in the background
+docker compose up -d test
+# run the regression tests
+docker compose exec test make install installcheck
+# run the tests with pg_prove
+# "run" builds and installs pgTAP, runs "CREATE EXTENSION"
+# and then runs make test
+docker compose exec test run
+# Shut down the postgres container
+docker compose down
+```
 
 To test with a different version of PostgreSQL, set the environment variable
 `$pgtag` to one of the [PostgreSQL Docker](https://hub.docker.com/_/postgres)
 tags:
 
-    export pgtag=12-alpine
+``` sh
+export pgtag=12-alpine
+```
 
 Then run the above commands.
 
@@ -199,45 +196,35 @@ Once pgTAP is installed, you can add it to a database. If you're running
 PostgreSQL 9.1.0 or greater, it's a simple as connecting to a database as a
 super user and running:
 
-    CREATE EXTENSION IF NOT EXISTS pgtap;
+``` sql
+CREATE EXTENSION IF NOT EXISTS pgtap;
+```
 
 If you've upgraded your cluster to PostgreSQL 9.1 and already had pgTAP
 installed, you can upgrade it to a properly packaged extension with:
 
-    CREATE EXTENSION pgtap FROM unpackaged;
+``` sql
+CREATE EXTENSION pgtap FROM unpackaged;
+```
+If you want to install pgTAP and all of its supporting objects into a specific
+schema, use the `SCHEMA` clause to specify the schema, like so:
+
+``` sql
+CREATE EXTENSION pgtap SCHEMA tap;
+```
 
 If you want pgTAP to be available to all new databases, install it into the
 "template1" database:
 
-    psql -d template1 -C "CREATE EXTENSION pgtap"
+``` sh
+psql -d template1 -C "CREATE EXTENSION pgtap"
+```
 
 To uninstall pgTAP, use `DROP EXTENSION`:
 
-    DROP EXTENSION IF EXISTS pgtap;
-
-For versions of PostgreSQL less than 9.1.0, you'll need to run the
-installation script:
-
-    psql -d mydb -f /path/to/pgsql/share/contrib/pgtap.sql
-
-If you want to install pgTAP and all of its supporting objects into a
-specific schema, use the `PGOPTIONS` environment variable to specify the
-schema, like so:
-
-    PGOPTIONS=--search_path=tap psql -d mydb -f pgTAP.sql
-
-If you want to remove pgTAP from a database, run the `uninstall_pgtap.sql`
-script:
-
-    psql -d dbname -f uninstall_pgtap.sql
-
-Both scripts will also be installed in the `contrib` directory under the
-directory output by `pg_config --sharedir`. So you can always do this:
-
-    psql -d template1 -f `pg_config --sharedir`/contrib/pgtap.sql
-
-But do be aware that, if you've specified a schema using `$TAPSCHEMA`, that
-schema will always be created and the pgTAP functions placed in it.
+``` sql
+DROP EXTENSION IF EXISTS pgtap;
+```
 
 pgTAP Test Scripts
 ==================
@@ -249,38 +236,42 @@ variables to keep the tests quiet, start a transaction, load the functions in
 your test script, and then rollback the transaction at the end of the script.
 Here's an example:
 
-    \unset ECHO
-    \set QUIET 1
-    -- Turn off echo and keep things quiet.
+```pgsql
+\unset ECHO
+\set QUIET 1
+-- Turn off echo and keep things quiet.
 
-    -- Format the output for nice TAP.
-    \pset format unaligned
-    \pset tuples_only true
-    \pset pager off
+-- Format the output for nice TAP.
+\pset format unaligned
+\pset tuples_only true
+\pset pager off
 
-    -- Revert all changes on failure.
-    \set ON_ERROR_ROLLBACK 1
-    \set ON_ERROR_STOP true
+-- Revert all changes on failure.
+\set ON_ERROR_ROLLBACK 1
+\set ON_ERROR_STOP true
 
-    -- Load the TAP functions.
-    BEGIN;
-    \i pgtap.sql
+-- Load the TAP functions.
+BEGIN;
+\i pgtap.sql
 
-    -- Plan the tests.
-    SELECT plan(1);
+-- Plan the tests.
+SELECT plan(1);
 
-    -- Run the tests.
-    SELECT pass( 'My test passed, w00t!' );
+-- Run the tests.
+SELECT pass( 'My test passed, w00t!' );
 
-    -- Finish the tests and clean up.
-    SELECT * FROM finish();
-    ROLLBACK;
+-- Finish the tests and clean up.
+SELECT * FROM finish();
+ROLLBACK;
+```
 
 Now you're ready to run your test script!
 
-    % psql -d try -Xf test.sql
-    1..1
-    ok 1 - My test passed, w00t!
+```console
+% psql -d try -Xf test.sql
+1..1
+ok 1 - My test passed, w00t!
+```
 
 You'll need to have all of those variables in the script to ensure that the
 output is proper TAP and that all changes are rolled back -- including the
@@ -296,34 +287,40 @@ CPAN distribution. If you're not relying on `installcheck`, your test scripts
 can be a lot less verbose; you don't need to set all the extra variables,
 because `pg_prove` takes care of that for you:
 
-    -- Start transaction and plan the tests.
-    BEGIN;
-    SELECT plan(1);
+```sql
+-- Start transaction and plan the tests.
+BEGIN;
+SELECT plan(1);
 
-    -- Run the tests.
-    SELECT pass( 'My test passed, w00t!' );
+-- Run the tests.
+SELECT pass( 'My test passed, w00t!' );
 
-    -- Finish the tests and clean up.
-    SELECT * FROM finish();
-    ROLLBACK;
+-- Finish the tests and clean up.
+SELECT * FROM finish();
+ROLLBACK;
+```
 
 Now run the tests. Here's what it looks like when the pgTAP tests are run with
 `pg_prove`:
 
-    % pg_prove -U postgres sql/*.sql
-    sql/coltap.....ok
-    sql/hastap.....ok
-    sql/moretap....ok
-    sql/pg73.......ok
-    sql/pktap......ok
-    All tests successful.
-    Files=5, Tests=216,  1 wallclock secs ( 0.06 usr  0.02 sys +  0.08 cusr  0.07 csys =  0.23 CPU)
-    Result: PASS
+```console
+% pg_prove -U postgres sql/*.sql
+sql/coltap.....ok
+sql/hastap.....ok
+sql/moretap....ok
+sql/pg73.......ok
+sql/pktap......ok
+All tests successful.
+Files=5, Tests=216,  1 wallclock secs ( 0.06 usr  0.02 sys +  0.08 cusr  0.07 csys =  0.23 CPU)
+Result: PASS
+```
 
 If you're using xUnit tests and just want to have `pg_prove` run them all
 through the `runtests()` function, just tell it to do so:
 
-    % pg_prove -d myapp --runtests
+```sh
+pg_prove -d myapp --runtests
+```
 
 Yep, that's all there is to it. Call `pg_prove --verbose` to see the
 individual test descriptions, `pg_prove --help` to see other supported
@@ -354,29 +351,39 @@ many tests your script is going to run to protect against premature failure.
 The preferred way to do this is to declare a plan by calling the `plan()`
 function:
 
-    SELECT plan(42);
+```sql
+SELECT plan(42);
+```
 
 There are rare cases when you will not know beforehand how many tests your
 script is going to run. In this case, you can declare that you have no plan.
 (Try to avoid using this as it weakens your test.)
 
-    SELECT * FROM no_plan();
+```sql
+SELECT * FROM no_plan();
+```
 
 Often, though, you'll be able to calculate the number of tests, like so:
 
-    SELECT plan( COUNT(*) )
-      FROM foo;
+```sql
+SELECT plan( COUNT(*) )
+  FROM foo;
+```
 
 At the end of your script, you should always tell pgTAP that the tests have
 completed, so that it can output any diagnostics about failures or a
 discrepancy between the planned number of tests and the number actually run:
 
-    SELECT * FROM finish();
+```sql
+SELECT * FROM finish();
+```
 
 If you need to throw an exception if some test failed, you can pass an
 option to `finish()`.
 
-    SELECT * FROM finish(true);
+```sql
+SELECT * FROM finish(true);
+```
 
 What a sweet unit!
 ------------------
@@ -389,24 +396,28 @@ functions. To use it, write your unit test functions so that they return a set
 of text results, and then use the pgTAP assertion functions to return TAP
 values. Here's an example, testing a hypothetical `users` table:
 
-    CREATE OR REPLACE FUNCTION setup_insert(
-    ) RETURNS SETOF TEXT AS $$
-    BEGIN
-        RETURN NEXT is( MAX(nick), NULL, 'Should have no users') FROM users;
-        INSERT INTO users (nick) VALUES ('theory');
-    END;
-    $$ LANGUAGE plpgsql;
+```sql
+CREATE OR REPLACE FUNCTION setup_insert(
+) RETURNS SETOF TEXT AS $$
+BEGIN
+    RETURN NEXT is( MAX(nick), NULL, 'Should have no users') FROM users;
+    INSERT INTO users (nick) VALUES ('theory');
+END;
+$$ LANGUAGE plpgsql;
 
-    CREATE OR REPLACE FUNCTION test_user(
-    ) RETURNS SETOF TEXT AS $$
-       SELECT is( nick, 'theory', 'Should have nick') FROM users;
-    $$ LANGUAGE sql;
+CREATE OR REPLACE FUNCTION test_user(
+) RETURNS SETOF TEXT AS $$
+    SELECT is( nick, 'theory', 'Should have nick') FROM users;
+$$ LANGUAGE sql;
+```
 
 See below for details on the pgTAP assertion functions. Once you've defined
 your unit testing functions, you can run your tests at any time using the
 `runtests()` function:
 
-    SELECT * FROM runtests();
+```sql
+SELECT * FROM runtests();
+```
 
 Each test function will run within its own transaction, and rolled back when
 the function completes (or after any teardown functions have run). The TAP
@@ -443,10 +454,12 @@ Hudson or TeamCity. By default pgTAP displays these names as comments, but
 you're able to change this behavior by overriding the function `diag_test_name`.
 For example:
 
-    CREATE OR REPLACE FUNCTION diag_test_name(TEXT)
-    RETURNS TEXT AS $$
-        SELECT diag('test: ' || $1 );
-    $$ LANGUAGE SQL;
+```sql
+CREATE OR REPLACE FUNCTION diag_test_name(TEXT)
+RETURNS TEXT AS $$
+    SELECT diag('test: ' || $1 );
+$$ LANGUAGE SQL;
+```
 
 This will show
 
@@ -470,8 +483,10 @@ the test succeeded or failed.
 
 ### `ok()` ###
 
-    SELECT ok( :boolean, :description );
-    SELECT ok( :boolean );
+```sql
+SELECT ok( :boolean, :description );
+SELECT ok( :boolean );
+```
 
 **Parameters**
 
@@ -487,11 +502,13 @@ Very simple.
 
 For example:
 
-    SELECT ok( 9 ^ 2 = 81,    'simple exponential' );
-    SELECT ok( 9 < 10,        'simple comparison' );
-    SELECT ok( 'foo' ~ '^f',  'simple regex' );
-    SELECT ok( active = true, name ||  widget active' )
-      FROM widgets;
+```sql
+SELECT ok( 9 ^ 2 = 81,    'simple exponential' );
+SELECT ok( 9 < 10,        'simple comparison' );
+SELECT ok( 'foo' ~ '^f',  'simple regex' );
+SELECT ok( active = true, name || 'widget active' )
+    FROM widgets;
+```
 
 (Mnemonic:  "This is ok.")
 
@@ -516,10 +533,12 @@ additional diagnostic:
 ### `is()` ###
 ### `isnt()` ###
 
-    SELECT is(   :have, :want, :description );
-    SELECT is(   :have, :want );
-    SELECT isnt( :have, :want, :description );
-    SELECT isnt( :have, :want );
+```sql
+SELECT is(   :have, :want, :description );
+SELECT is(   :have, :want );
+SELECT isnt( :have, :want, :description );
+SELECT isnt( :have, :want );
+```
 
 **Parameters**
 
@@ -536,16 +555,20 @@ Similar to `ok()`, `is()` and `isnt()` compare their two arguments with `IS
 NOT DISTINCT FROM` (`=`) AND `IS DISTINCT FROM` (`<>`) respectively and use
 the result of that to determine if the test succeeded or failed. So these:
 
-    -- Is the ultimate answer 42?
-    SELECT is( ultimate_answer(), 42, 'Meaning of Life' );
+```sql
+-- Is the ultimate answer 42?
+SELECT is( ultimate_answer(), 42, 'Meaning of Life' );
 
-    -- foo() doesn't return empty
-    SELECT isnt( foo(), '', 'Got some foo' );
+-- foo() doesn't return empty
+SELECT isnt( foo(), '', 'Got some foo' );
+```
 
 are similar to these:
 
-    SELECT ok( ultimate_answer() =  42, 'Meaning of Life' );
-    SELECT ok( foo() <> '', 'Got some foo' );
+```sql
+SELECT ok( ultimate_answer() =  42, 'Meaning of Life' );
+SELECT ok( foo() <> '', 'Got some foo' );
+```
 
 (Mnemonic: "This is that." "This isn't that.")
 
@@ -559,9 +582,11 @@ So why use these test functions? They produce better diagnostics on failure.
 `is()` and `isnt()` know what the test was and why it failed. For example this
 test:
 
-    \set foo '\'waffle\''
-    \set bar '\'yarblokos\''
-    SELECT is( :foo::text, :bar::text, 'Is foo the same as bar?' );
+```pgsql
+\set foo '\'waffle\''
+\set bar '\'yarblokos\''
+SELECT is( :foo::text, :bar::text, 'Is foo the same as bar?' );
+```
 
 Will produce something like this:
 
@@ -574,14 +599,18 @@ So you can figure out what went wrong without re-running the test.
 You are encouraged to use `is()` and `isnt()` over `ok()` where possible. You
 can even use them to compare records:
 
-    SELECT is( users.*, ROW(1, 'theory', true)::users )
-      FROM users
-     WHERE nick = 'theory';
+```sql
+SELECT is( users.*, ROW(1, 'theory', true)::users )
+  FROM users
+ WHERE nick = 'theory';
+```
 
 ### `matches()` ###
 
-    SELECT matches( :have, :regex, :description );
-    SELECT matches( :have, :regex );
+```sql
+SELECT matches( :have, :regex, :description );
+SELECT matches( :have, :regex );
+```
 
 **Parameters**
 
@@ -598,11 +627,15 @@ Similar to `ok()`, `matches()` matches `:have` against the regex `:regex`.
 
 So this:
 
-    SELECT matches( :this, '^that', 'this is like that' );
+```sql
+SELECT matches( :this, '^that', 'this is like that' );
+```
 
 is similar to:
 
-    SELECT ok( :this ~ '^that', 'this is like that' );
+```sql
+SELECT ok( :this ~ '^that', 'this is like that' );
+```
 
 (Mnemonic "This matches that".)
 
@@ -611,8 +644,10 @@ diagnostics on failure.
 
 ### `imatches()` ###
 
-    SELECT imatches( :have, :regex, :description );
-    SELECT imatches( :have, :regex );
+```sql
+SELECT imatches( :have, :regex, :description );
+SELECT imatches( :have, :regex );
+```
 
 **Parameters**
 
@@ -631,10 +666,12 @@ Just like `matches()` except that the regular expression is compared to
 ### `doesnt_match()` ###
 ### `doesnt_imatch()` ###
 
-    SELECT doesnt_match(  :have, :regex, :description );
-    SELECT doesnt_match(  :have, :regex );
-    SELECT doesnt_imatch( :have, :regex, :description );
-    SELECT doesnt_imatch( :have, :regex );
+```sql
+SELECT doesnt_match(  :have, :regex, :description );
+SELECT doesnt_match(  :have, :regex );
+SELECT doesnt_imatch( :have, :regex, :description );
+SELECT doesnt_imatch( :have, :regex );
+```
 
 **Parameters**
 
@@ -653,10 +690,12 @@ check if `:have` *does not* match the given pattern.
 ### `alike()` ###
 ### `ialike()` ###
 
-    SELECT alike(  :this, :like, :description );
-    SELECT alike(  :this, :like );
-    SELECT ialike( :this, :like, :description );
-    SELECT ialike( :this, :like );
+```sql
+SELECT alike(  :this, :like, :description );
+SELECT alike(  :this, :like );
+SELECT ialike( :this, :like, :description );
+SELECT ialike( :this, :like );
+```
 
 **Parameters**
 
@@ -674,11 +713,15 @@ pattern `:like`. `ialike()` matches case-insensitively.
 
 So this:
 
-    SELECT ialike( :have, 'that%', 'this is alike that' );
+```sql
+SELECT ialike( :have, 'that%', 'this is alike that' );
+```
 
 is similar to:
 
-    SELECT ok( :have ILIKE 'that%', 'this is like that' );
+```sql
+SELECT ok( :have ILIKE 'that%', 'this is like that' );
+```
 
 (Mnemonic "This is like that".)
 
@@ -686,12 +729,14 @@ Its advantages over `ok()` are similar to that of `is()` and `isnt()`: Better
 diagnostics on failure.
 
 ### `unalike()` ###
-### `unialike()` ###
+### `unalike()` ###
 
-    SELECT unalike(  :this, :like, :description );
-    SELECT unalike(  :this, :like );
-    SELECT unialike( :this, :like, :description );
-    SELECT unialike( :this, :like );
+```sql
+SELECT unalike(  :this, :like, :description );
+SELECT unalike(  :this, :like );
+SELECT unialike( :this, :like, :description );
+SELECT unialike( :this, :like );
+```
 
 **Parameters**
 
@@ -709,8 +754,10 @@ given pattern.
 
 ### `cmp_ok()` ###
 
-    SELECT cmp_ok( :have, :op, :want, :description );
-    SELECT cmp_ok( :have, :op, :want );
+```sql
+SELECT cmp_ok( :have, :op, :want, :description );
+SELECT cmp_ok( :have, :op, :want );
+```
 
 **Parameters**
 
@@ -729,14 +776,16 @@ given pattern.
 Halfway between `ok()` and `is()` lies `cmp_ok()`. This function allows you to
 compare two arguments using any binary operator.
 
-    -- ok( :have = :want );
-    SELECT cmp_ok( :have, '=', :want, 'this = that' );
+```sql
+-- ok( :have = :want );
+SELECT cmp_ok( :have, '=', :want, 'this = that' );
 
-    -- ok( :have >= :want );
-    SELECT cmp_ok( :have, '>=', :want, 'this >= that' );
+-- ok( :have >= :want );
+SELECT cmp_ok( :have, '>=', :want, 'this >= that' );
 
-    -- ok( :have && :want );
-    SELECT cmp_ok( :have, '&&', :want, 'this && that' );
+-- ok( :have && :want );
+SELECT cmp_ok( :have, '&&', :want, 'this && that' );
+```
 
 Its advantage over `ok()` is that when the test fails you'll know what `:have`
 and `:want` were:
@@ -758,10 +807,12 @@ But in that case, you should probably use `is()`, instead.
 ### `pass()` ###
 ### `fail()` ###
 
-    SELECT pass( :description );
-    SELECT pass( );
-    SELECT fail( :description );
-    SELECT fail( );
+```sql
+SELECT pass( :description );
+SELECT pass( );
+SELECT fail( :description );
+SELECT fail( );
+```
 
 **Parameters**
 
@@ -777,8 +828,10 @@ Use these functions very, very, very sparingly.
 
 ### `isa_ok()` ###
 
-    SELECT isa_ok( :have, :regtype, :name );
-    SELECT isa_ok( :have, :regtype );
+```sql
+SELECT isa_ok( :have, :regtype, :name );
+SELECT isa_ok( :have, :regtype );
+```
 
 **Parameters**
 
@@ -796,7 +849,9 @@ diagnostics of this test normally just refer to "the value". If you'd like
 them to be more specific, you can supply a `:name`. For example you might say
 "the return value" when you're examining the result of a function call:
 
-    SELECT isa_ok( length('foo'), 'integer', 'The return value from length()' );
+```sql
+SELECT isa_ok( length('foo'), 'integer', 'The return value from length()' );
+```
 
 In which case the description will be "The return value from length() isa
 integer".
@@ -815,7 +870,9 @@ query, not just the scalar assertion functions we've seen so far. pgTAP
 provides a number of functions to help you test your queries, each of which
 takes one or two SQL statements as arguments. For example:
 
-    SELECT throws_ok('SELECT divide_by(0)');
+```sql
+SELECT throws_ok('SELECT divide_by(0)');
+```
 
 Yes, as strings. Of course, you'll often need to do something complex in your
 SQL, and quoting SQL in strings in what is, after all, an SQL application, is
@@ -828,8 +885,10 @@ allow you to just write SQL and simply
 pass the prepared statement names to test functions. For example, the above
 example can be rewritten as:
 
-    PREPARE mythrow AS SELECT divide_by(0);
-    SELECT throws_ok('mythrow');
+```sql
+PREPARE mythrow AS SELECT divide_by(0);
+SELECT throws_ok('mythrow');
+```
 
 pgTAP assumes that an SQL argument without space characters or starting with a
 double quote character is a prepared statement and simply `EXECUTE`s it. If
@@ -838,13 +897,15 @@ to use it in multiple tests to return different values, just `EXECUTE` it
 yourself. Here's an example with a prepared statement with a space in its
 name, and one where arguments need to be passed:
 
-    PREPARE "my test" AS SELECT * FROM active_users() WHERE name LIKE 'A%';
-    PREPARE expect AS SELECT * FROM users WHERE active = $1 AND name LIKE $2;
+```sql
+PREPARE "my test" AS SELECT * FROM active_users() WHERE name LIKE 'A%';
+PREPARE expect AS SELECT * FROM users WHERE active = $1 AND name LIKE $2;
 
-    SELECT results_eq(
-        '"my test"',
-        'EXECUTE expect( true, ''A%'' )'
-    );
+SELECT results_eq(
+    '"my test"',
+    'EXECUTE expect( true, ''A%'' )'
+);
+```
 
 Since "my test" was declared with double quotes, it must be passed with double
 quotes. And since the call to "expect" included spaces (to keep it legible),
@@ -853,20 +914,24 @@ the `EXECUTE` keyword was required.
 You can also use a `VALUES` statement, both in the query string or in a
 prepared statement. A useless example:
 
-    PREPARE myvals AS VALUES (1, 2), (3, 4);
-    SELECT set_eq(
-        'myvals',
-        'VALUES (1, 2), (3, 4)'
-    );
+```sql
+PREPARE myvals AS VALUES (1, 2), (3, 4);
+SELECT set_eq(
+    'myvals',
+    'VALUES (1, 2), (3, 4)'
+);
+```
 
 Here's a bonus if you need to check the results from a query that returns a
 single column: for those functions that take two query arguments, the second
 can be an array. Check it out:
 
-    SELECT results_eq(
-        'SELECT * FROM active_user_ids()',
-        ARRAY[ 2, 3, 4, 5]
-    );
+```sql
+SELECT results_eq(
+    'SELECT * FROM active_user_ids()',
+    ARRAY[ 2, 3, 4, 5]
+);
+```
 
 The first query *must* return only one column of the same type as the values
 in the array. If you need to test more columns, you'll need to use two
@@ -885,12 +950,14 @@ error-prone as you think they should be.
 
 ### `throws_ok()` ###
 
-    SELECT throws_ok( :sql, :errcode, :ermsg, :description );
-    SELECT throws_ok( :sql, :errcode, :ermsg );
-    SELECT throws_ok( :sql, :errcode );
-    SELECT throws_ok( :sql, :errmsg, :description );
-    SELECT throws_ok( :sql, :errmsg );
-    SELECT throws_ok( :sql );
+```sql
+SELECT throws_ok( :sql, :errcode, :ermsg, :description );
+SELECT throws_ok( :sql, :errcode, :ermsg );
+SELECT throws_ok( :sql, :errcode );
+SELECT throws_ok( :sql, :errmsg, :description );
+SELECT throws_ok( :sql, :errmsg );
+SELECT throws_ok( :sql );
+```
 
 **Parameters**
 
@@ -934,13 +1001,15 @@ a description as the fourth argument.
 The fourth argument is of course a brief test description. Here's a useful
 example:
 
-    PREPARE my_thrower AS INSERT INTO try (id) VALUES (1);
-    SELECT throws_ok(
-        'my_thrower',
-        '23505',
-        'duplicate key value violates unique constraint "try_pkey"',
-        'We should get a unique violation for a duplicate PK'
-    );
+```sql
+PREPARE my_thrower AS INSERT INTO try (id) VALUES (1);
+SELECT throws_ok(
+    'my_thrower',
+    '23505',
+    'duplicate key value violates unique constraint "try_pkey"',
+    'We should get a unique violation for a duplicate PK'
+);
+```
 
 For the two- and three-argument forms of `throws_ok()`, if the second argument
 is exactly five bytes long, it is assumed to be an error code and the optional
@@ -961,10 +1030,12 @@ Idea borrowed from the Test::Exception Perl module.
 ### `throws_like()` ###
 ### `throws_ilike()` ###
 
-    SELECT throws_like(  :sql, :like, :description );
-    SELECT throws_like(  :sql, :like );
-    SELECT throws_ilike( :sql, :like, :description );
-    SELECT throws_ilike( :sql, :like );
+```sql
+SELECT throws_like(  :sql, :like, :description );
+SELECT throws_like(  :sql, :like );
+SELECT throws_ilike( :sql, :like, :description );
+SELECT throws_ilike( :sql, :like );
+```
 
 **Parameters**
 
@@ -981,12 +1052,14 @@ Like `throws_ok()`, but tests that an exception error message matches an SQL
 `LIKE` pattern. The `throws_ilike()` variant matches case-insensitively. An
 example:
 
-    PREPARE my_thrower AS INSERT INTO try (tz) VALUES ('America/Moscow');
-    SELECT throws_like(
-        'my_thrower',
-        '%"timezone_check"',
-        'We should error for invalid time zone'
-    );
+```sql
+PREPARE my_thrower AS INSERT INTO try (tz) VALUES ('America/Moscow');
+SELECT throws_like(
+    'my_thrower',
+    '%"timezone_check"',
+    'We should error for invalid time zone'
+);
+```
 
 A failing `throws_like()` test produces an appropriate diagnostic message. For
 example:
@@ -999,10 +1072,12 @@ example:
 ### `throws_matching()` ###
 ### `throws_imatching()` ###
 
-    SELECT throws_matching(  :sql, :regex, :description );
-    SELECT throws_matching(  :sql, :regex );
-    SELECT throws_imatching( :sql, :regex, :description );
-    SELECT throws_imatching( :sql, :regex );
+```sql
+SELECT throws_matching(  :sql, :regex, :description );
+SELECT throws_matching(  :sql, :regex );
+SELECT throws_imatching( :sql, :regex, :description );
+SELECT throws_imatching( :sql, :regex );
+```
 
 **Parameters**
 
@@ -1019,12 +1094,14 @@ Like `throws_ok()`, but tests that an exception error message matches a
 regular expression. The `throws_imatching()` variant matches
 case-insensitively. An example:
 
-    PREPARE my_thrower AS INSERT INTO try (tz) VALUES ('America/Moscow');
-    SELECT throws_matching(
-        'my_thrower',
-        '.+"timezone_check"',
-        'We should error for invalid time zone'
-    );
+```sql
+PREPARE my_thrower AS INSERT INTO try (tz) VALUES ('America/Moscow');
+SELECT throws_matching(
+    'my_thrower',
+    '.+"timezone_check"',
+    'We should error for invalid time zone'
+);
+```
 
 A failing `throws_matching()` test produces an appropriate diagnostic message. For
 example:
@@ -1035,8 +1112,10 @@ example:
 
 ### `lives_ok()` ###
 
-    SELECT lives_ok( :sql, :description );
-    SELECT lives_ok( :sql );
+```sql
+SELECT lives_ok( :sql, :description );
+SELECT lives_ok( :sql );
+```
 
 **Parameters**
 
@@ -1051,10 +1130,12 @@ The inverse of `throws_ok()`, `lives_ok()` ensures that an SQL statement does
 of SQL code (see the [summary](#Pursuing+Your+Query) for query argument
 details). The optional second argument is the test description. An example:
 
-    SELECT lives_ok(
-        'INSERT INTO try (id) VALUES (1)',
-        'We should not get a unique violation for a new PK'
-    );
+```sql
+SELECT lives_ok(
+    'INSERT INTO try (id) VALUES (1)',
+    'We should not get a unique violation for a new PK'
+);
+```
 
 A failing `lives_ok()` test produces an appropriate diagnostic message. For
 example:
@@ -1066,8 +1147,10 @@ Idea borrowed from the Test::Exception Perl module.
 
 ### `performs_ok()` ###
 
-    SELECT performs_ok( :sql, :milliseconds, :description );
-    SELECT performs_ok( :sql, :milliseconds );
+```sql
+SELECT performs_ok( :sql, :milliseconds, :description );
+SELECT performs_ok( :sql, :milliseconds );
+```
 
 **Parameters**
 
@@ -1084,12 +1167,14 @@ This function makes sure that an SQL statement performs well. It does so by
 timing its execution and failing if execution takes longer than the specified
 number of milliseconds. An example:
 
-    PREPARE fast_query AS SELECT id FROM try WHERE name = 'Larry';
-    SELECT performs_ok(
-        'fast_query',
-        250,
-        'A select by name should be fast'
-    );
+```sql
+PREPARE fast_query AS SELECT id FROM try WHERE name = 'Larry';
+SELECT performs_ok(
+    'fast_query',
+    250,
+    'A select by name should be fast'
+);
+```
 
 The first argument should be the name of a prepared statement or a string
 representing the query to be executed (see the [summary](#Pursuing+Your+Query)
@@ -1120,10 +1205,12 @@ to ensure that a query is not *really* slow (think seconds).
 
 ### `performs_within()` ###
 
-    SELECT performs_within( :sql, :average_milliseconds, :within, :iterations, :description );
-    SELECT performs_within( :sql, :average_milliseconds, :within, :description );
-    SELECT performs_within( :sql, :average_milliseconds, :within, :iterations);
-    SELECT performs_within( :sql, :average_milliseconds, :within);
+```sql
+SELECT performs_within( :sql, :average_milliseconds, :within, :iterations, :description );
+SELECT performs_within( :sql, :average_milliseconds, :within, :description );
+SELECT performs_within( :sql, :average_milliseconds, :within, :iterations);
+SELECT performs_within( :sql, :average_milliseconds, :within);
+```
 
 **Parameters**
 
@@ -1148,14 +1235,16 @@ It throws out the top and bottom 10% of runs, and averages the middle 80% of
 the runs it made.  If the average execution time is outside the range specified
 by `within`, the test will fails. An example:
 
-    PREPARE fast_query AS SELECT id FROM try WHERE name = 'Larry';
-    SELECT performs_within(
-        'fast_query',
-        250,
-        10,
-        100,
-        'A select by name should be fast'
-    );
+```sql
+PREPARE fast_query AS SELECT id FROM try WHERE name = 'Larry';
+SELECT performs_within(
+    'fast_query',
+    250,
+    10,
+    100,
+    'A select by name should be fast'
+);
+```
 
 The first argument should be the name of a prepared statement or a string
 representing the query to be executed (see the [summary](#Pursuing+Your+Query)
@@ -1201,18 +1290,20 @@ test? We've got your relation-testing functions right here.
 
 ### `results_eq()` ###
 
-    SELECT results_eq( :sql,    :sql,    :description );
-    SELECT results_eq( :sql,    :sql                  );
-    SELECT results_eq( :sql,    :array,  :description );
-    SELECT results_eq( :sql,    :array                );
-    SELECT results_eq( :cursor, :cursor, :description );
-    SELECT results_eq( :cursor, :cursor               );
-    SELECT results_eq( :sql,    :cursor, :description );
-    SELECT results_eq( :sql,    :cursor               );
-    SELECT results_eq( :cursor, :sql,    :description );
-    SELECT results_eq( :cursor, :sql                  );
-    SELECT results_eq( :cursor, :array,  :description );
-    SELECT results_eq( :cursor, :array                );
+```sql
+SELECT results_eq( :sql,    :sql,    :description );
+SELECT results_eq( :sql,    :sql                  );
+SELECT results_eq( :sql,    :array,  :description );
+SELECT results_eq( :sql,    :array                );
+SELECT results_eq( :cursor, :cursor, :description );
+SELECT results_eq( :cursor, :cursor               );
+SELECT results_eq( :sql,    :cursor, :description );
+SELECT results_eq( :sql,    :cursor               );
+SELECT results_eq( :cursor, :sql,    :description );
+SELECT results_eq( :cursor, :sql                  );
+SELECT results_eq( :cursor, :array,  :description );
+SELECT results_eq( :cursor, :array                );
+```
 
 **Parameters**
 
@@ -1240,28 +1331,34 @@ For example, say that you have a function, `active_users()`, that returns a
 set of rows from the users table. To make sure that it returns the rows you
 expect, you might do something like this:
 
-    SELECT results_eq(
-        'SELECT * FROM active_users()',
-        'SELECT * FROM users WHERE active',
-        'active_users() should return active users'
-    );
+```sql
+SELECT results_eq(
+    'SELECT * FROM active_users()',
+    'SELECT * FROM users WHERE active',
+    'active_users() should return active users'
+);
+```
 
 Tip: If you want to hard-code the values to compare, use a `VALUES` statement
 instead of a query, like so:
 
-    SELECT results_eq(
-        'SELECT * FROM active_users()',
-        $$VALUES ( 42, 'Anna'), (19, 'Strongrrl'), (39, 'Theory')$$,
-        'active_users() should return active users'
-    );
+```sql
+SELECT results_eq(
+    'SELECT * FROM active_users()',
+    $$VALUES ( 42, 'Anna'), (19, 'Strongrrl'), (39, 'Theory')$$,
+    'active_users() should return active users'
+);
+```
 
 If the results returned by the first argument consist of a single column, the
 second argument may be an array:
 
-    SELECT results_eq(
-        'SELECT * FROM active_user_ids()',
-        ARRAY[ 2, 3, 4, 5]
-    );
+```sql
+SELECT results_eq(
+    'SELECT * FROM active_user_ids()',
+    ARRAY[ 2, 3, 4, 5]
+);
+```
 
 In general, the use of prepared statements is highly recommended to keep your
 test code SQLish (you can even use `VALUES` in prepared statements). But note
@@ -1273,25 +1370,29 @@ sure that your results are never unambiguously ordered.
 For example, say that you want to compare queries against a `persons` table.
 The simplest way to sort is by `name`, as in:
 
-    try=# select * from people order by name;
-      name  | age
-    --------+-----
-     Damian |  19
-     Larry  |  53
-     Tom    |  44
-     Tom    |  35
-    (4 rows)
+```pgsql
+ try=# select * from people order by name;
+   name  | age
+ --------+-----
+  Damian |  19
+  Larry  |  53
+  Tom    |  44
+  Tom    |  35
+ (4 rows)
+```
 
 But a different run of the same query could have the rows in different order:
 
-    try=# select * from people order by name;
-      name  | age
-    --------+-----
-     Damian |  19
-     Larry  |  53
-     Tom    |  35
-     Tom    |  44
-    (4 rows)
+```pgsql
+ try=# select * from people order by name;
+   name  | age
+ --------+-----
+  Damian |  19
+  Larry  |  53
+  Tom    |  35
+  Tom    |  44
+ (4 rows)
+ ```
 
 Notice how the two "Tom" rows are reversed. The upshot is that you must ensure
 that your queries are always fully ordered. In a case like the above, it means
@@ -1304,14 +1405,16 @@ directly available to you, too. Rather than pass in some arbitrary SQL
 statement or the name of a prepared statement, simply create a cursor and pass
 *it* in, like so:
 
-    DECLARE cwant CURSOR FOR SELECT * FROM active_users();
-    DECLARE chave CURSOR FOR SELECT * FROM users WHERE active ORDER BY name;
+```sql
+DECLARE cwant CURSOR FOR SELECT * FROM active_users();
+DECLARE chave CURSOR FOR SELECT * FROM users WHERE active ORDER BY name;
 
-    SELECT results_eq(
-        'cwant'::refcursor,
-        'chave'::refcursor,
-        'Gotta have those active users!'
-    );
+SELECT results_eq(
+    'cwant'::refcursor,
+    'chave'::refcursor,
+    'Gotta have those active users!'
+);
+```
 
 The key is to ensure that the cursor names are passed as `refcursor`s. This
 allows `results_eq()` to disambiguate them from prepared statements. And of
@@ -1319,14 +1422,16 @@ course, you can mix and match cursors, prepared statements, and SQL as much as
 you like. Here's an example using a prepared statement and a (reset) cursor
 for the expected results:
 
-    PREPARE users_test AS SELECT * FROM active_users();
-    MOVE BACKWARD ALL IN chave;
+```sql
+PREPARE users_test AS SELECT * FROM active_users();
+MOVE BACKWARD ALL IN chave;
 
-    SELECT results_eq(
-        'users_test',
-        'chave'::refcursor,
-        'Gotta have those active users!'
-    );
+SELECT results_eq(
+    'users_test',
+    'chave'::refcursor,
+    'Gotta have those active users!'
+);
+```
 
 Regardless of which types of arguments you pass, in the event of a test
 failure, `results_eq()` will offer a nice diagnostic message to tell you at
@@ -1355,18 +1460,20 @@ different data types, you'll get diagnostics like so:
 
 ### `results_ne()` ###
 
-    SELECT results_ne( :sql,    :sql,    :description );
-    SELECT results_ne( :sql,    :sql                  );
-    SELECT results_ne( :sql,    :array,  :description );
-    SELECT results_ne( :sql,    :array                );
-    SELECT results_ne( :cursor, :cursor, :description );
-    SELECT results_ne( :cursor, :cursor               );
-    SELECT results_ne( :sql,    :cursor, :description );
-    SELECT results_ne( :sql,    :cursor               );
-    SELECT results_ne( :cursor, :sql,    :description );
-    SELECT results_ne( :cursor, :sql                  );
-    SELECT results_ne( :cursor, :array,  :description );
-    SELECT results_ne( :cursor, :array                );
+```sql
+SELECT results_ne( :sql,    :sql,    :description );
+SELECT results_ne( :sql,    :sql                  );
+SELECT results_ne( :sql,    :array,  :description );
+SELECT results_ne( :sql,    :array                );
+SELECT results_ne( :cursor, :cursor, :description );
+SELECT results_ne( :cursor, :cursor               );
+SELECT results_ne( :sql,    :cursor, :description );
+SELECT results_ne( :sql,    :cursor               );
+SELECT results_ne( :cursor, :sql,    :description );
+SELECT results_ne( :cursor, :sql                  );
+SELECT results_ne( :cursor, :array,  :description );
+SELECT results_ne( :cursor, :array                );
+```
 
 **Parameters**
 
@@ -1393,10 +1500,12 @@ same!
 
 ### `set_eq()` ###
 
-    SELECT set_eq( :sql, :sql,   :description );
-    SELECT set_eq( :sql, :sql                 );
-    SELECT set_eq( :sql, :array, :description );
-    SELECT set_eq( :sql, :array               );
+```sql
+SELECT set_eq( :sql, :sql,   :description );
+SELECT set_eq( :sql, :sql                 );
+SELECT set_eq( :sql, :array, :description );
+SELECT set_eq( :sql, :array               );
+```
 
 **Parameters**
 
@@ -1419,10 +1528,12 @@ containing an SQL query (see the [summary](#Pursuing+Your+Query) for query
 argument details), or even one of each. If the results returned by the first
 argument consist of a single column, the second argument may be an array:
 
-    SELECT set_eq(
-        'SELECT * FROM active_user_ids()',
-        ARRAY[ 2, 3, 4, 5]
-    );
+```sql
+SELECT set_eq(
+    'SELECT * FROM active_user_ids()',
+    ARRAY[ 2, 3, 4, 5]
+);
+```
 
 In whatever case you choose to pass arguments, a failing test will yield
 useful diagnostics, such as:
@@ -1452,10 +1563,12 @@ This of course extends to sets with different numbers of columns:
 
 ### `set_ne()` ###
 
-    SELECT set_ne( :sql, :sql,   :description );
-    SELECT set_ne( :sql, :sql                 );
-    SELECT set_ne( :sql, :array, :description );
-    SELECT set_ne( :sql, :array               );
+```sql
+SELECT set_ne( :sql, :sql,   :description );
+SELECT set_ne( :sql, :sql                 );
+SELECT set_ne( :sql, :array, :description );
+SELECT set_ne( :sql, :array               );
+```
 
 **Parameters**
 
@@ -1479,8 +1592,10 @@ the second argument may be an array.
 
 ### `set_has()` ###
 
-    SELECT set_has( :sql, :sql, :description );
-    SELECT set_has( :sql, :sql );
+```sql
+SELECT set_has( :sql, :sql, :description );
+SELECT set_has( :sql, :sql );
+```
 
 **Parameters**
 
@@ -1516,8 +1631,10 @@ determine if there any any unexpectedly missing results.
 
 ### `set_hasnt()` ###
 
-    SELECT set_hasnt( :sql, :sql, :description );
-    SELECT set_hasnt( :sql, :sql );
+```sql
+SELECT set_hasnt( :sql, :sql, :description );
+SELECT set_hasnt( :sql, :sql );
+```
 
 **Parameters**
 
@@ -1541,10 +1658,12 @@ any unexpected overlap between the query results.
 
 ### `bag_eq()` ###
 
-    SELECT bag_eq( :sql, :sql,   :description );
-    SELECT bag_eq( :sql, :sql                 );
-    SELECT bag_eq( :sql, :array, :description );
-    SELECT bag_eq( :sql, :array               );
+```sql
+SELECT bag_eq( :sql, :sql,   :description );
+SELECT bag_eq( :sql, :sql                 );
+SELECT bag_eq( :sql, :array, :description );
+SELECT bag_eq( :sql, :array               );
+```
 
 **Parameters**
 
@@ -1569,10 +1688,12 @@ utility of its diagnostics.
 
 ### `bag_ne()` ###
 
-    SELECT bag_ne( :sql, :sql,   :description );
-    SELECT bag_ne( :sql, :sql                 );
-    SELECT bag_ne( :sql, :array, :description );
-    SELECT bag_ne( :sql, :array               );
+```sql
+SELECT bag_ne( :sql, :sql,   :description );
+SELECT bag_ne( :sql, :sql                 );
+SELECT bag_ne( :sql, :array, :description );
+SELECT bag_ne( :sql, :array               );
+```
 
 **Parameters**
 
@@ -1596,8 +1717,10 @@ the second argument may be an array.
 
 ### `bag_has()` ###
 
-    SELECT bag_has( :sql, :sql, :description );
-    SELECT bag_has( :sql, :sql );
+```sql
+SELECT bag_has( :sql, :sql, :description );
+SELECT bag_has( :sql, :sql );
+```
 
 **Parameters**
 
@@ -1615,8 +1738,10 @@ ALL` query to determine if there any any unexpectedly missing results.
 
 ### `bag_hasnt()` ###
 
-    SELECT bag_hasnt( :sql, :sql, :description );
-    SELECT bag_hasnt( :sql, :sql );
+```sql
+SELECT bag_hasnt( :sql, :sql, :description );
+SELECT bag_hasnt( :sql, :sql );
+```
 
 **Parameters**
 
@@ -1642,8 +1767,10 @@ also duplicated in the second query.
 
 ### `is_empty()` ###
 
-    SELECT is_empty( :sql, :description );
-    SELECT is_empty( :sql );
+```sql
+SELECT is_empty( :sql, :description );
+SELECT is_empty( :sql );
+```
 
 **Parameters**
 
@@ -1665,8 +1792,10 @@ fails and the results are displayed in the failure diagnostics, like so:
 
 ### `isnt_empty()` ###
 
-    SELECT isnt_empty( :sql, :description );
-    SELECT isnt_empty( :sql );
+```sql
+SELECT isnt_empty( :sql, :description );
+SELECT isnt_empty( :sql );
+```
 
 **Parameters**
 
@@ -1682,8 +1811,10 @@ test fails.
 
 ### `row_eq()` ###
 
-    SELECT row_eq( :sql, :record, :description );
-    SELECT row_eq( :sql, :record );
+```sql
+SELECT row_eq( :sql, :record, :description );
+SELECT row_eq( :sql, :record );
+```
 
 **Parameters**
 
@@ -1699,7 +1830,9 @@ test fails.
 Compares the contents of a single row to a record. On PostgreSQL 11 and later, a
 bare `RECORD` value may be passed:
 
-    SELECT row_eq( $$ SELECT 1, 'foo' $$, ROW(1, 'foo') );
+```sql
+SELECT row_eq( $$ SELECT 1, 'foo' $$, ROW(1, 'foo') );
+```
 
 Due to the limitations of non-C functions in earlier versions of PostgreSQL, a
 bare `RECORD` value cannot be passed to the function. You must instead pass in a
@@ -1707,33 +1840,39 @@ valid composite type value, and cast the record argument (the second argument)
 to the same type. Both explicitly created composite types and table types are
 supported. Thus, you can do this:
 
-    CREATE TYPE sometype AS (
-        id    INT,
-        name  TEXT
-    );
+```sql
+CREATE TYPE sometype AS (
+    id    INT,
+    name  TEXT
+);
 
-    SELECT row_eq( $$ SELECT 1, 'foo' $$, ROW(1, 'foo')::sometype );
+SELECT row_eq( $$ SELECT 1, 'foo' $$, ROW(1, 'foo')::sometype );
+```
 
 And, of course, this:
 
-    CREATE TABLE users (
-        id   INT,
-        name TEXT
-    );
+```sql
+CREATE TABLE users (
+    id   INT,
+    name TEXT
+);
 
-    INSERT INTO users VALUES (1, 'theory');
-    PREPARE get_user AS SELECT * FROM users LIMIT 1;
+INSERT INTO users VALUES (1, 'theory');
+PREPARE get_user AS SELECT * FROM users LIMIT 1;
 
-    SELECT row_eq( 'get_user', ROW(1, 'theory')::users );
+SELECT row_eq( 'get_user', ROW(1, 'theory')::users );
+```
 
 Compatible types can be compared, though. So if the `users` table actually
 included an `active` column, for example, and you only wanted to test the
 `id` and `name`, you could do this:
 
-    SELECT row_eq(
-        $$ SELECT id, name FROM users $$,
-        ROW(1, 'theory')::sometype
-    );
+```sql
+SELECT row_eq(
+    $$ SELECT id, name FROM users $$,
+    ROW(1, 'theory')::sometype
+);
+```
 
 Note the use of the `sometype` composite type for the second argument. The
 upshot is that you can create composite types in your tests explicitly for
@@ -1762,21 +1901,29 @@ lowercase strings when passing identifier arguments to the functions below.
 Use mixed case strings only when the objects were declared in your schema
 using double-quotes. For example, if you created a table like so:
 
-    CREATE TABLE Foo (id integer);
+```sql
+CREATE TABLE Foo (id integer);
+```
 
 Then you *must* test for it using only lowercase characters (if you want the
 test to pass):
 
-    SELECT has_table('foo');
+```sql
+SELECT has_table('foo');
+```
 
 If, however, you declared the table using a double-quoted string, like so:
 
-    CREATE TABLE "Foo" (id integer);
+```sql
+CREATE TABLE "Foo" (id integer);
+```
 
 Then you'd need to test for it using exactly the same string, including case,
 like so:
 
-    SELECT has_table('Foo');
+```sql
+SELECT has_table('Foo');
+```
 
 In general, this should not be an issue, as mixed-case objects are created
 only rarely. So if you just stick to lowercase-only arguments to these
@@ -1804,8 +1951,10 @@ the next section.
 
 ### `tablespaces_are()` ###
 
-    SELECT tablespaces_are( :tablespaces, :description );
-    SELECT tablespaces_are( :tablespaces );
+```sql
+SELECT tablespaces_are( :tablespaces, :description );
+SELECT tablespaces_are( :tablespaces );
+```
 
 **Parameters**
 
@@ -1818,7 +1967,9 @@ the next section.
 This function tests that all of the tablespaces in the database only the
 tablespaces that *should* be there. Example:
 
-    SELECT tablespaces_are(ARRAY[ 'dbspace', 'indexspace' ]);
+```sql
+SELECT tablespaces_are(ARRAY[ 'dbspace', 'indexspace' ]);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing tablespaces, like so:
@@ -1831,8 +1982,10 @@ missing tablespaces, like so:
 
 ### `schemas_are()` ###
 
-    SELECT schemas_are( :schemas, :description );
-    SELECT schemas_are( :schemas );
+```sql
+SELECT schemas_are( :schemas, :description );
+SELECT schemas_are( :schemas );
+```
 
 **Parameters**
 
@@ -1846,7 +1999,9 @@ This function tests that all of the schemas in the database only the schemas
 that *should* be there, excluding system schemas and `information_schema`.
 Example:
 
-    SELECT schemas_are(ARRAY[ 'public', 'contrib', 'tap' ]);
+```sql
+SELECT schemas_are(ARRAY[ 'public', 'contrib', 'tap' ]);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing schemas, like so:
@@ -1859,10 +2014,12 @@ missing schemas, like so:
 
 ### `tables_are()` ###
 
-    SELECT tables_are( :schema, :tables, :description );
-    SELECT tables_are( :schema, :tables );
-    SELECT tables_are( :tables, :description );
-    SELECT tables_are( :tables );
+```sql
+SELECT tables_are( :schema, :tables, :description );
+SELECT tables_are( :schema, :tables );
+SELECT tables_are( :tables, :description );
+SELECT tables_are( :tables );
+```
 
 **Parameters**
 
@@ -1881,10 +2038,12 @@ visible in the search path, are only the tables that *should* be there. If the
 excluding `pg_catalog` and `information_schema` If the description is omitted,
 a generally useful default description will be generated. Example:
 
-    SELECT tables_are(
-        'myschema',
-        ARRAY[ 'users', 'widgets', 'gadgets', 'session' ]
-    );
+```sql
+SELECT tables_are(
+    'myschema',
+    ARRAY[ 'users', 'widgets', 'gadgets', 'session' ]
+);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing tables, like so:
@@ -1899,10 +2058,12 @@ missing tables, like so:
 
 ### `partitions_are()` ###
 
-    SELECT partitions_are( :schema, :table, :partitions :description );
-    SELECT partitions_are( :schema, :table, :partitions );
-    SELECT partitions_are( :table, :partitions :description );
-    SELECT partitions_are( :table, :partitions );
+```sql
+SELECT partitions_are( :schema, :table, :partitions :description );
+SELECT partitions_are( :schema, :table, :partitions );
+SELECT partitions_are( :table, :partitions :description );
+SELECT partitions_are( :table, :partitions );
+```
 
 **Parameters**
 
@@ -1929,17 +2090,21 @@ If the `:schema` argument is omitted, the partitioned table must be visible the
 search path. If the description is omitted, a generally useful default
 description will be generated. Example:
 
-    SELECT partitions_are(
-        'myschema', 'mylog',
-        ARRAY[ 'log1', 'log2', 'log3', 'log4' ]
-    );
+```sql
+SELECT partitions_are(
+    'myschema', 'mylog',
+    ARRAY[ 'log1', 'log2', 'log3', 'log4' ]
+);
+```
 
 Example for partitions outside the search path and requiring identifier-quoting:
 
-    SELECT partitions_are(
-        'myschema', 'MyLog',
-        ARRAY[ 'hidden."Log 1"', 'hidden."Log 2"' ]
-    );
+```sql
+SELECT partitions_are(
+    'myschema', 'MyLog',
+    ARRAY[ 'hidden."Log 1"', 'hidden."Log 2"' ]
+);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing partitions, like so:
@@ -1954,10 +2119,12 @@ missing partitions, like so:
 
 ### `foreign_tables_are()` ###
 
-    SELECT foreign_tables_are( :schema, :foreign_tables, :description );
-    SELECT foreign_tables_are( :schema, :foreign_tables );
-    SELECT foreign_tables_are( :foreign_tables, :description );
-    SELECT foreign_tables_are( :foreign_tables );
+```sql
+SELECT foreign_tables_are( :schema, :foreign_tables, :description );
+SELECT foreign_tables_are( :schema, :foreign_tables );
+SELECT foreign_tables_are( :foreign_tables, :description );
+SELECT foreign_tables_are( :foreign_tables );
+```
 
 **Parameters**
 
@@ -1977,10 +2144,12 @@ in the search path, excluding `pg_catalog` and `information_schema`. If the
 description is omitted, a generally useful default description will be
 generated. Example:
 
-    SELECT foreign_tables_are(
-        'myschema',
-        ARRAY[ 'users', 'widgets', 'gadgets', 'session' ]
-    );
+```sql
+SELECT foreign_tables_are(
+    'myschema',
+    ARRAY[ 'users', 'widgets', 'gadgets', 'session' ]
+);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing foreign tables, like so:
@@ -1995,10 +2164,12 @@ missing foreign tables, like so:
 
 ### `views_are()` ###
 
-    SELECT views_are( :schema, :views, :description );
-    SELECT views_are( :schema, :views );
-    SELECT views_are( :views, :description );
-    SELECT views_are( :views );
+```sql
+SELECT views_are( :schema, :views, :description );
+SELECT views_are( :schema, :views );
+SELECT views_are( :views, :description );
+SELECT views_are( :views );
+```
 
 **Parameters**
 
@@ -2017,10 +2188,12 @@ visible in the search path, are only the views that *should* be there. If the
 excluding `pg_catalog` and `information_schema` If the description is omitted,
 a generally useful default description will be generated. Example:
 
-    SELECT views_are(
-        'myschema',
-        ARRAY[ 'users', 'widgets', 'gadgets', 'session' ]
-    );
+```sql
+SELECT views_are(
+    'myschema',
+    ARRAY[ 'users', 'widgets', 'gadgets', 'session' ]
+);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing views, like so:
@@ -2035,10 +2208,12 @@ missing views, like so:
 
 ### `materialized_views_are()` ###
 
-    SELECT materialized_views_are( :schema, :materialized_views, :description );
-    SELECT materialized_views_are( :schema, :materialized_views );
-    SELECT materialized_views_are( :materialized_views, :description );
-    SELECT materialized_views_are( :materialized_views );
+```sql
+SELECT materialized_views_are( :schema, :materialized_views, :description );
+SELECT materialized_views_are( :schema, :materialized_views );
+SELECT materialized_views_are( :materialized_views, :description );
+SELECT materialized_views_are( :materialized_views );
+```
 
 **Parameters**
 
@@ -2058,10 +2233,12 @@ will be sought in the search path, excluding `pg_catalog` and
 `information_schema` If the description is omitted, a generally useful default
 description will be generated. Example:
 
-    SELECT materialized_views_are(
-        'myschema',
-        ARRAY[ 'users', 'widgets', 'gadgets', 'session' ]
-    );
+```sql
+SELECT materialized_views_are(
+    'myschema',
+    ARRAY[ 'users', 'widgets', 'gadgets', 'session' ]
+);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing materialized views, like so:
@@ -2076,10 +2253,12 @@ missing materialized views, like so:
 
 ### `sequences_are()` ###
 
-    SELECT sequences_are( :schema, :sequences, :description );
-    SELECT sequences_are( :schema, :sequences );
-    SELECT sequences_are( :sequences, :description );
-    SELECT sequences_are( :sequences );
+```sql
+SELECT sequences_are( :schema, :sequences, :description );
+SELECT sequences_are( :schema, :sequences );
+SELECT sequences_are( :sequences, :description );
+SELECT sequences_are( :sequences );
+```
 
 **Parameters**
 
@@ -2098,10 +2277,12 @@ the `:schema` argument is omitted, sequences will be sought in the search
 path, excluding `pg_catalog` and `information_schema`. If the description is
 omitted, a generally useful default description will be generated. Example:
 
-    SELECT sequences_are(
-        'myschema',
-        ARRAY[ 'users', 'widgets', 'gadgets', 'session' ]
-    );
+```sql
+SELECT sequences_are(
+    'myschema',
+    ARRAY[ 'users', 'widgets', 'gadgets', 'session' ]
+);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing sequences, like so:
@@ -2116,10 +2297,12 @@ missing sequences, like so:
 
 ### `columns_are()` ###
 
-    SELECT columns_are( :schema, :table, :columns, :description );
-    SELECT columns_are( :schema, :table, :columns );
-    SELECT columns_are( :table,  :columns, :description );
-    SELECT columns_are( :table,  :columns );
+```sql
+SELECT columns_are( :schema, :table, :columns, :description );
+SELECT columns_are( :schema, :table, :columns );
+SELECT columns_are( :table,  :columns, :description );
+SELECT columns_are( :table,  :columns );
+```
 
 **Parameters**
 
@@ -2141,11 +2324,13 @@ the table must be visible in the search path, excluding `pg_catalog` and
 `information_schema`. If the description is omitted, a generally useful
 default description will be generated. Example:
 
-    SELECT columns_are(
-        'myschema',
-        'atable',
-        ARRAY[ 'id', 'name', 'rank', 'sn' ]
-    );
+```sql
+SELECT columns_are(
+    'myschema',
+    'atable',
+    ARRAY[ 'id', 'name', 'rank', 'sn' ]
+);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing columns, like so:
@@ -2159,10 +2344,12 @@ missing columns, like so:
 
 ### `indexes_are()` ###
 
-    SELECT indexes_are( :schema, :table, :indexes, :description );
-    SELECT indexes_are( :schema, :table, :indexes );
-    SELECT indexes_are( :table,  :indexes, :description );
-    SELECT indexes_are( :table,  :indexes );
+```sql
+SELECT indexes_are( :schema, :table, :indexes, :description );
+SELECT indexes_are( :schema, :table, :indexes );
+SELECT indexes_are( :table,  :indexes, :description );
+SELECT indexes_are( :table,  :indexes );
+```
 
 **Parameters**
 
@@ -2184,11 +2371,13 @@ the table must be visible in the search path, excluding `pg_catalog` and
 `information_schema`. If the description is omitted, a generally useful
 default description will be generated. Example:
 
-    SELECT indexes_are(
-        'myschema',
-        'atable',
-        ARRAY[ 'atable_pkey', 'idx_atable_name' ]
-    );
+```sql
+SELECT indexes_are(
+    'myschema',
+    'atable',
+    ARRAY[ 'atable_pkey', 'idx_atable_name' ]
+);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing indexes, like so:
@@ -2201,10 +2390,12 @@ missing indexes, like so:
 
 ### `triggers_are()` ###
 
-    SELECT triggers_are( :schema, :table, :triggers, :description );
-    SELECT triggers_are( :schema, :table, :triggers );
-    SELECT triggers_are( :table,  :triggers, :description );
-    SELECT triggers_are( :table,  :triggers );
+```sql
+SELECT triggers_are( :schema, :table, :triggers, :description );
+SELECT triggers_are( :schema, :table, :triggers );
+SELECT triggers_are( :table,  :triggers, :description );
+SELECT triggers_are( :table,  :triggers );
+```
 
 **Parameters**
 
@@ -2226,11 +2417,13 @@ the table must be visible in the search path, excluding `pg_catalog` and
 `information_schema`. If the description is omitted, a generally useful
 default description will be generated. Example:
 
-    SELECT triggers_are(
-        'myschema',
-        'atable',
-        ARRAY[ 'atable_pkey', 'idx_atable_name' ]
-    );
+```sql
+SELECT triggers_are(
+    'myschema',
+    'atable',
+    ARRAY[ 'atable_pkey', 'idx_atable_name' ]
+);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing triggers, like so:
@@ -2243,10 +2436,12 @@ missing triggers, like so:
 
 ### `functions_are()` ###
 
-    SELECT functions_are( :schema, :functions, :description );
-    SELECT functions_are( :schema, :functions );
-    SELECT functions_are( :functions, :description );
-    SELECT functions_are( :functions );
+```sql
+SELECT functions_are( :schema, :functions, :description );
+SELECT functions_are( :schema, :functions );
+SELECT functions_are( :functions, :description );
+SELECT functions_are( :functions );
+```
 
 **Parameters**
 
@@ -2265,10 +2460,12 @@ there. If the `:schema` argument is omitted, functions will be sought in the
 search path, excluding `pg_catalog` and `information_schema` If the description
 is omitted, a generally useful default description will be generated. Example:
 
-    SELECT functions_are(
-        'myschema',
-        ARRAY[ 'foo', 'bar', 'frobnitz' ]
-    );
+```sql
+SELECT functions_are(
+    'myschema',
+    ARRAY[ 'foo', 'bar', 'frobnitz' ]
+);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing functions, like so:
@@ -2281,8 +2478,10 @@ missing functions, like so:
 
 ### `roles_are()` ###
 
-    SELECT roles_are( :roles, :description );
-    SELECT roles_are( :roles );
+```sql
+SELECT roles_are( :roles, :description );
+SELECT roles_are( :roles );
+```
 
 **Parameters**
 
@@ -2295,7 +2494,9 @@ missing functions, like so:
 This function tests that all of the roles in the database only the roles that
 *should* be there. Example:
 
-    SELECT roles_are(ARRAY[ 'postgres', 'someone', 'root' ]);
+```sql
+SELECT roles_are(ARRAY[ 'postgres', 'someone', 'root' ]);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing roles, like so:
@@ -2308,8 +2509,10 @@ missing roles, like so:
 
 ### `users_are()` ###
 
-    SELECT users_are( :users, :description );
-    SELECT users_are( :users );
+```sql
+SELECT users_are( :users, :description );
+SELECT users_are( :users );
+```
 
 **Parameters**
 
@@ -2322,7 +2525,9 @@ missing roles, like so:
 This function tests that all of the users in the database only the users that
 *should* be there. Example:
 
-    SELECT users_are(ARRAY[ 'postgres', 'someone', 'root' ]);
+```sql
+SELECT users_are(ARRAY[ 'postgres', 'someone', 'root' ]);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing users, like so:
@@ -2335,8 +2540,10 @@ missing users, like so:
 
 ### `groups_are()` ###
 
-    SELECT groups_are( :groups, :description );
-    SELECT groups_are( :groups );
+```sql
+SELECT groups_are( :groups, :description );
+SELECT groups_are( :groups );
+```
 
 **Parameters**
 
@@ -2349,7 +2556,9 @@ missing users, like so:
 This function tests that all of the groups in the database only the groups that
 *should* be there. Example:
 
-    SELECT groups_are(ARRAY[ 'postgres', 'admins, 'l0s3rs' ]);
+```sql
+SELECT groups_are(ARRAY[ 'postgres', 'admins, 'l0s3rs' ]);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing groups, like so:
@@ -2362,8 +2571,10 @@ missing groups, like so:
 
 ### `languages_are()` ###
 
-    SELECT languages_are( :languages, :description );
-    SELECT languages_are( :languages );
+```sql
+SELECT languages_are( :languages, :description );
+SELECT languages_are( :languages );
+```
 
 **Parameters**
 
@@ -2376,7 +2587,9 @@ missing groups, like so:
 This function tests that all of the languages in the database only the languages that
 *should* be there. Example:
 
-    SELECT languages_are(ARRAY[ 'plpgsql', 'plperl', 'pllolcode' ]);
+```sql
+SELECT languages_are(ARRAY[ 'plpgsql', 'plperl', 'pllolcode' ]);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing languages, like so:
@@ -2389,10 +2602,12 @@ missing languages, like so:
 
 ### `opclasses_are()` ###
 
-    SELECT opclasses_are( :schema, :opclasses, :description );
-    SELECT opclasses_are( :schema, :opclasses );
-    SELECT opclasses_are( :opclasses, :description );
-    SELECT opclasses_are( :opclasses );
+```sql
+SELECT opclasses_are( :schema, :opclasses, :description );
+SELECT opclasses_are( :schema, :opclasses );
+SELECT opclasses_are( :opclasses, :description );
+SELECT opclasses_are( :opclasses );
+```
 
 **Parameters**
 
@@ -2412,10 +2627,12 @@ search path, excluding `pg_catalog` and `information_schema`. If the
 description is omitted, a generally useful default description will be
 generated. Example:
 
-    SELECT opclasses_are(
-        'myschema',
-        ARRAY[ 'foo', 'bar', 'frobnitz' ]
-    );
+```sql
+SELECT opclasses_are(
+    'myschema',
+    ARRAY[ 'foo', 'bar', 'frobnitz' ]
+);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing opclasses, like so:
@@ -2428,10 +2645,12 @@ missing opclasses, like so:
 
 ### `rules_are()` ###
 
-    SELECT rules_are( :schema, :table, :rules, :description );
-    SELECT rules_are( :schema, :table, :rules );
-    SELECT rules_are( :table,  :rules, :description );
-    SELECT rules_are( :table,  :rules );
+```sql
+SELECT rules_are( :schema, :table, :rules, :description );
+SELECT rules_are( :schema, :table, :rules );
+SELECT rules_are( :table,  :rules, :description );
+SELECT rules_are( :table,  :rules );
+```
 
 **Parameters**
 
@@ -2453,11 +2672,13 @@ If the `:schema` argument is omitted, the rules must be visible in the search
 path, excluding `pg_catalog` and `information_schema`. If the description is
 omitted, a generally useful default description will be generated. Example:
 
-    SELECT rules_are(
-        'myschema',
-        'atable',
-        ARRAY[ 'on_insert', 'on_update', 'on_delete' ]
-    );
+```sql
+SELECT rules_are(
+    'myschema',
+    'atable',
+    ARRAY[ 'on_insert', 'on_update', 'on_delete' ]
+);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing rules, like so:
@@ -2470,10 +2691,12 @@ missing rules, like so:
 
 ### `types_are()` ###
 
-    SELECT types_are( :schema, :types, :description );
-    SELECT types_are( :schema, :types );
-    SELECT types_are( :types, :description );
-    SELECT types_are( :types );
+```sql
+SELECT types_are( :schema, :types, :description );
+SELECT types_are( :schema, :types );
+SELECT types_are( :types, :description );
+SELECT types_are( :types );
+```
 
 **Parameters**
 
@@ -2506,10 +2729,12 @@ missing types, like so:
 
 ### `domains_are()` ###
 
-    SELECT domains_are( :schema, :domains, :description );
-    SELECT domains_are( :schema, :domains );
-    SELECT domains_are( :domains, :description );
-    SELECT domains_are( :domains );
+```sql
+SELECT domains_are( :schema, :domains, :description );
+SELECT domains_are( :schema, :domains );
+SELECT domains_are( :domains, :description );
+SELECT domains_are( :domains );
+```
 
 **Parameters**
 
@@ -2528,7 +2753,9 @@ the search path, excluding `pg_catalog` and `information_schema`. If the
 description is omitted, a generally useful default description will be
 generated. Example:
 
-    SELECT domains_are('myschema', ARRAY[ 'timezone', 'state' ]);
+```sql
+SELECT domains_are('myschema', ARRAY[ 'timezone', 'state' ]);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing domains, like so:
@@ -2541,10 +2768,12 @@ missing domains, like so:
 
 ### `enums_are()` ###
 
-    SELECT enums_are( :schema, :enums, :description );
-    SELECT enums_are( :schema, :enums );
-    SELECT enums_are( :enums, :description );
-    SELECT enums_are( :enums );
+```sql
+SELECT enums_are( :schema, :enums, :description );
+SELECT enums_are( :schema, :enums );
+SELECT enums_are( :enums, :description );
+SELECT enums_are( :enums );
+```
 
 **Parameters**
 
@@ -2562,7 +2791,9 @@ schema. If the `:schema` argument is omitted, the enums must be visible in the
 search path, excluding `pg_catalog` and `information_schema`. If the description
 is omitted, a generally useful default description will be generated. Example:
 
-    SELECT enums_are('myschema', ARRAY[ 'timezone', 'state' ]);
+```sql
+SELECT enums_are('myschema', ARRAY[ 'timezone', 'state' ]);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing enums, like so:
@@ -2575,8 +2806,10 @@ missing enums, like so:
 
 ### `casts_are()` ###
 
-    SELECT casts_are( :casts, :description );
-    SELECT casts_are( :casts );
+```sql
+SELECT casts_are( :casts, :description );
+SELECT casts_are( :casts );
+```
 
 **Parameters**
 
@@ -2593,12 +2826,14 @@ similarly to how they're declared via `CREATE CAST`. The pattern is
 to force mixed case or special characters, then you must use double quotes in
 the cast strings. Example:
 
-    SELECT casts_are(ARRAY[
-        'integer AS "myInteger"',
-        'integer AS double precision',
-        'integer AS reltime',
-        'integer AS numeric',
-    ]);
+```sql
+SELECT casts_are(ARRAY[
+    'integer AS "myInteger"',
+    'integer AS double precision',
+    'integer AS reltime',
+    'integer AS numeric',
+]);
+```
 
 If the description is omitted, a generally useful default description will be
 generated.
@@ -2614,10 +2849,12 @@ missing casts, like so:
 
 ### `operators_are()` ###
 
-    SELECT operators_are( :schema, :operators, :description );
-    SELECT operators_are( :schema, :operators );
-    SELECT operators_are( :operators, :description );
-    SELECT operators_are( :operators );
+```sql
+SELECT operators_are( :schema, :operators, :description );
+SELECT operators_are( :schema, :operators );
+SELECT operators_are( :operators, :description );
+SELECT operators_are( :operators );
+```
 
 **Parameters**
 
@@ -2646,14 +2883,16 @@ one one of each of the operator types. `=(citext,citext)` is an infix
 operator, `-(bigint,NONE)` is a left operator, and `!(NONE,bigint)` is a right
 operator. Example:
 
-    SELECT operators_are(
-        'public',
-        ARRAY[
-            '=(citext,citext) RETURNS boolean',
-            '-(NONE,bigint) RETURNS bigint',
-            '!(bigint,NONE) RETURNS numeric'
-        ]
-    );
+```sql
+SELECT operators_are(
+    'public',
+    ARRAY[
+        '=(citext,citext) RETURNS boolean',
+        '-(NONE,bigint) RETURNS bigint',
+        '!(bigint,NONE) RETURNS numeric'
+    ]
+);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing operators, like so:
@@ -2666,10 +2905,12 @@ missing operators, like so:
 
 ### `extensions_are()` ###
 
-    SELECT extensions_are( :schema, :extensions, :description );
-    SELECT extensions_are( :schema, :extensions );
-    SELECT extensions_are( :extensions, :description );
-    SELECT extensions_are( :extensions );
+```sql
+SELECT extensions_are( :schema, :extensions, :description );
+SELECT extensions_are( :schema, :extensions );
+SELECT extensions_are( :extensions, :description );
+SELECT extensions_are( :extensions );
+```
 
 **Parameters**
 
@@ -2691,10 +2932,12 @@ statement). Otherwise it will check for all extension in the database,
 including pgTAP itself. If the description is omitted, a generally useful
 default description will be generated. Example:
 
-    SELECT extensions_are(
-        'myschema',
-        ARRAY[ 'citext', 'isn', 'plpgsql' ]
-    );
+```sql
+SELECT extensions_are(
+    'myschema',
+    ARRAY[ 'citext', 'isn', 'plpgsql' ]
+);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing extensions, like so:
@@ -2717,9 +2960,11 @@ come to the right place.
 
 ### `has_tablespace()` ###
 
-    SELECT has_tablespace( :tablespace, :location, :description );
-    SELECT has_tablespace( :tablespace, :description );
-    SELECT has_tablespace( :tablespace );
+```sql
+SELECT has_tablespace( :tablespace, :location, :description );
+SELECT has_tablespace( :tablespace, :description );
+SELECT has_tablespace( :tablespace );
+```
 
 **Parameters**
 
@@ -2743,8 +2988,10 @@ Example:
 
 ### `hasnt_tablespace()` ###
 
-    SELECT hasnt_tablespace( :tablespace, :description );
-    SELECT hasnt_tablespace( :tablespace );
+```sql
+SELECT hasnt_tablespace( :tablespace, :description );
+SELECT hasnt_tablespace( :tablespace );
+```
 
 **Parameters**
 
@@ -2759,8 +3006,10 @@ specified tablespace does *not* exist.
 
 ### `has_schema()` ###
 
-    SELECT has_schema( :schema, :description );
-    SELECT has_schema( :schema );
+```sql
+SELECT has_schema( :schema, :description );
+SELECT has_schema( :schema );
+```
 
 **Parameters**
 
@@ -2776,10 +3025,12 @@ the test description, it will be set to "Schema `:schema` should exist".
 
 ### `hasnt_schema()` ###
 
-    SELECT hasnt_schema(
-        'someschema',
-        'There should be no schema someschema'
-    );
+```sql
+SELECT hasnt_schema(
+    'someschema',
+    'There should be no schema someschema'
+);
+```
 
 **Parameters**
 
@@ -2794,9 +3045,11 @@ specified schema does *not* exist.
 
 ### `has_relation()` ###
 
-    SELECT has_relation( :schema, :relation, :description );
-    SELECT has_relation( :relation, :description );
-    SELECT has_relation( :relation );
+```sql
+SELECT has_relation( :schema, :relation, :description );
+SELECT has_relation( :relation, :description );
+SELECT has_relation( :relation );
+```
 
 **Parameters**
 
@@ -2815,16 +3068,20 @@ tables, and toast tables. The first argument is a schema name, the second is a
 relation name, and the third is the test description. If you omit the schema,
 the relation must be visible in the search path. Example:
 
-    SELECT has_relation('myschema', 'somerelation');
+```sql
+SELECT has_relation('myschema', 'somerelation');
+```
 
 If you omit the test description, it will be set to "Relation `:relation`
 should exist".
 
 ### `hasnt_relation()` ###
 
-    SELECT hasnt_relation( :schema, :relation, :description );
-    SELECT hasnt_relation( :relation, :description );
-    SELECT hasnt_relation( :relation );
+```sql
+SELECT hasnt_relation( :schema, :relation, :description );
+SELECT hasnt_relation( :relation, :description );
+SELECT hasnt_relation( :relation );
+```
 
 **Parameters**
 
@@ -2842,10 +3099,12 @@ specified relation does *not* exist.
 
 ### `has_table()` ###
 
-    SELECT has_table( :schema, :table, :description );
-    SELECT has_table( :schema, :table );
-    SELECT has_table( :table, :description );
-    SELECT has_table( :table );
+```sql
+SELECT has_table( :schema, :table, :description );
+SELECT has_table( :schema, :table );
+SELECT has_table( :table, :description );
+SELECT has_table( :table );
+```
 
 **Parameters**
 
@@ -2863,7 +3122,9 @@ argument is a schema name, the second is a table name, and the third is the
 test description. If you omit the schema, the table must be visible in the
 search path. Example:
 
-    SELECT has_table('myschema'::name, 'sometable'::name);
+```sql
+SELECT has_table('myschema'::name, 'sometable'::name);
+```
 
 If you omit the test description, it will be set to "Table `:table` should
 exist".
@@ -2873,10 +3134,12 @@ Note that this function will not recognize foreign tables; use
 
 ### `hasnt_table()` ###
 
-    SELECT hasnt_table( :schema, :table, :description );
-    SELECT hasnt_table( :schema, :table );
-    SELECT hasnt_table( :table, :description );
-    SELECT hasnt_table( :table );
+```sql
+SELECT hasnt_table( :schema, :table, :description );
+SELECT hasnt_table( :schema, :table );
+SELECT hasnt_table( :table, :description );
+SELECT hasnt_table( :table );
+```
 
 **Parameters**
 
@@ -2894,10 +3157,12 @@ specified table does *not* exist.
 
 ### `has_view()` ###
 
-    SELECT has_view( :schema, :view, :description );
-    SELECT has_view( :schema, :view );
-    SELECT has_view( :view, :description );
-    SELECT has_view( :view );
+```sql
+SELECT has_view( :schema, :view, :description );
+SELECT has_view( :schema, :view );
+SELECT has_view( :view, :description );
+SELECT has_view( :view );
+```
 
 **Parameters**
 
@@ -2915,17 +3180,21 @@ argument is a schema name, the second is a view name, and the third is the
 test description. If you omit the schema, the view must be visible in the
 search path. Example:
 
-    SELECT has_view('myschema', 'someview');
+```sql
+SELECT has_view('myschema', 'someview');
+```
 
 If you omit the test description, it will be set to "View `:view` should
 exist".
 
 ### `hasnt_view()` ###
 
-    SELECT hasnt_view( :schema, :view, :description );
-    SELECT hasnt_view( :schema, :view );
-    SELECT hasnt_view( :view, :description );
-    SELECT hasnt_view( :view );
+```sql
+SELECT hasnt_view( :schema, :view, :description );
+SELECT hasnt_view( :schema, :view );
+SELECT hasnt_view( :view, :description );
+SELECT hasnt_view( :view );
+```
 
 **Parameters**
 
@@ -2943,9 +3212,11 @@ specified view does *not* exist.
 
 ### `has_materialized_view()` ###
 
-    SELECT has_materialized_view( :schema, :materialized_view, :description );
-    SELECT has_materialized_view( :materialized_view, :description );
-    SELECT has_materialized_view( :materialized_view );
+```sql
+SELECT has_materialized_view( :schema, :materialized_view, :description );
+SELECT has_materialized_view( :materialized_view, :description );
+SELECT has_materialized_view( :materialized_view );
+```
 
 **Parameters**
 
@@ -2963,16 +3234,20 @@ The first argument is a schema name, the second is a materialized view name,
 and the third is the test description. If you omit the schema, the materialized
 view must be visible in the search path. Example:
 
-    SELECT has_materialized_view('myschema', 'some_materialized_view');
+```sql
+SELECT has_materialized_view('myschema', 'some_materialized_view');
+```
 
 If you omit the test description, it will be set to "Materialized view `:materialized_view` should
 exist".
 
 ### `hasnt_materialized_view()` ###
 
-    SELECT hasnt_materialized_view( :schema, :materialized_view, :description );
-    SELECT hasnt_materialized_view( :materialized_view, :description );
-    SELECT hasnt_materialized_view( :materialized_view );
+```sql
+SELECT hasnt_materialized_view( :schema, :materialized_view, :description );
+SELECT hasnt_materialized_view( :materialized_view, :description );
+SELECT hasnt_materialized_view( :materialized_view );
+```
 
 **Parameters**
 
@@ -2990,10 +3265,12 @@ specified materialized view does *not* exist.
 
 ### `has_inherited_tables()`
 
-    SELECT has_inherited_tables( :schema, :table, :description );
-    SELECT has_inherited_tables( :schema, :table );
-    SELECT has_inherited_tables( :table, :description );
-    SELECT has_inherited_tables( :table );
+```sql
+SELECT has_inherited_tables( :schema, :table, :description );
+SELECT has_inherited_tables( :schema, :table );
+SELECT has_inherited_tables( :table, :description );
+SELECT has_inherited_tables( :table );
+```
 
 **Parameters**
 
@@ -3010,14 +3287,18 @@ This function checks that the specified table has other tables that inherit from
 it. If you find that the function call confuses the table name for a
 description, cast the table to the `NAME` type:
 
-    SELECT has_inherited_tables('myschema', 'sometable'::NAME);
+```sql
+SELECT has_inherited_tables('myschema', 'sometable'::NAME);
+```
 
 ### `hasnt_inherited_tables()`
 
-    SELECT hasnt_inherited_tables( :schema, :table, :description );
-    SELECT hasnt_inherited_tables( :schema, :table );
-    SELECT hasnt_inherited_tables( :table, :description );
-    SELECT hasnt_inherited_tables( :table );
+```sql
+SELECT hasnt_inherited_tables( :schema, :table, :description );
+SELECT hasnt_inherited_tables( :schema, :table );
+SELECT hasnt_inherited_tables( :table, :description );
+SELECT hasnt_inherited_tables( :table );
+```
 
 **Parameters**
 
@@ -3039,14 +3320,16 @@ the `NAME` type:
 
 ### `is_ancestor_of()`
 
-    SELECT is_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :depth, :description );
-    SELECT is_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :depth );
-    SELECT is_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :description );
-    SELECT is_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table );
-    SELECT is_ancestor_of( :ancestor_table, :descendent_table, :depth, :description );
-    SELECT is_ancestor_of( :ancestor_table, :descendent_table, :depth );
-    SELECT is_ancestor_of( :ancestor_table, :descendent_table, :description );
-    SELECT is_ancestor_of( :ancestor_table, :descendent_table );
+```sql
+SELECT is_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :depth, :description );
+SELECT is_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :depth );
+SELECT is_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :description );
+SELECT is_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table );
+SELECT is_ancestor_of( :ancestor_table, :descendent_table, :depth, :description );
+SELECT is_ancestor_of( :ancestor_table, :descendent_table, :depth );
+SELECT is_ancestor_of( :ancestor_table, :descendent_table, :description );
+SELECT is_ancestor_of( :ancestor_table, :descendent_table );
+```
 
 **Parameters**
 
@@ -3082,14 +3365,16 @@ substitute will be created.
 
 ### `isnt_ancestor_of()`
 
-    SELECT isnt_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :depth, :description );
-    SELECT isnt_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :depth );
-    SELECT isnt_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :description );
-    SELECT isnt_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table );
-    SELECT isnt_ancestor_of( :ancestor_table, :descendent_table, :depth, :description );
-    SELECT isnt_ancestor_of( :ancestor_table, :descendent_table, :depth );
-    SELECT isnt_ancestor_of( :ancestor_table, :descendent_table, :description );
-    SELECT isnt_ancestor_of( :ancestor_table, :descendent_table );
+```sql
+SELECT isnt_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :depth, :description );
+SELECT isnt_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :depth );
+SELECT isnt_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table, :description );
+SELECT isnt_ancestor_of( :ancestor_schema, :ancestor_table, :descendent_schema, :descendent_table );
+SELECT isnt_ancestor_of( :ancestor_table, :descendent_table, :depth, :description );
+SELECT isnt_ancestor_of( :ancestor_table, :descendent_table, :depth );
+SELECT isnt_ancestor_of( :ancestor_table, :descendent_table, :description );
+SELECT isnt_ancestor_of( :ancestor_table, :descendent_table );
+```
 
 **Parameters**
 
@@ -3125,14 +3410,16 @@ reasonable substitute will be created.
 
 ### `is_descendent_of()`
 
-    SELECT is_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :depth, :description );
-    SELECT is_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :depth );
-    SELECT is_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :description );
-    SELECT is_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table );
-    SELECT is_descendent_of( :descendent_table,  :ancestor_table, :depth, :description );
-    SELECT is_descendent_of( :descendent_table,  :ancestor_table, :depth );
-    SELECT is_descendent_of( :descendent_table,  :ancestor_table, :description );
-    SELECT is_descendent_of( :descendent_table,  :ancestor_table );
+```sql
+SELECT is_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :depth, :description );
+SELECT is_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :depth );
+SELECT is_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :description );
+SELECT is_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table );
+SELECT is_descendent_of( :descendent_table,  :ancestor_table, :depth, :description );
+SELECT is_descendent_of( :descendent_table,  :ancestor_table, :depth );
+SELECT is_descendent_of( :descendent_table,  :ancestor_table, :description );
+SELECT is_descendent_of( :descendent_table,  :ancestor_table );
+```
 
 **Parameters**
 
@@ -3159,13 +3446,15 @@ with the ancestor and descendent arguments swapped.
 
 ### `isnt_descendent_of()`
 
-    SELECT isnt_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :depth, :description );
-    SELECT isnt_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :depth );
-    SELECT isnt_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :description );
-    SELECT isnt_descendent_of( :descendent_table,  :ancestor_table, :depth, :description );
-    SELECT isnt_descendent_of( :descendent_table,  :ancestor_table, :depth );
-    SELECT isnt_descendent_of( :descendent_table,  :ancestor_table, :description );
-    SELECT isnt_descendent_of( :descendent_table,  :ancestor_table );
+```sql
+SELECT isnt_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :depth, :description );
+SELECT isnt_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :depth );
+SELECT isnt_descendent_of( :descendent_schema, :descendent_table, :ancestor_schema, :ancestor_table, :description );
+SELECT isnt_descendent_of( :descendent_table,  :ancestor_table, :depth, :description );
+SELECT isnt_descendent_of( :descendent_table,  :ancestor_table, :depth );
+SELECT isnt_descendent_of( :descendent_table,  :ancestor_table, :description );
+SELECT isnt_descendent_of( :descendent_table,  :ancestor_table );
+```
 
 **Parameters**
 
@@ -3192,10 +3481,12 @@ but with the ancestor and descendent arguments swapped.
 
 ### `has_sequence()` ###
 
-    SELECT has_sequence( :schema, :sequence, :description );
-    SELECT has_sequence( :schema, :sequence );
-    SELECT has_sequence( :sequence, :description );
-    SELECT has_sequence( :sequence );
+```sql
+SELECT has_sequence( :schema, :sequence, :description );
+SELECT has_sequence( :schema, :sequence );
+SELECT has_sequence( :sequence, :description );
+SELECT has_sequence( :sequence );
+```
 
 **Parameters**
 
@@ -3213,19 +3504,25 @@ argument is a schema name, the second is a sequence name, and the third is the
 test description. If you omit the schema, the sequence must be visible in the
 search path. Example:
 
-    SELECT has_sequence('somesequence');
+```sql
+SELECT has_sequence('somesequence');
+```
 
 If you omit the test description, it will be set to
 "Sequence `:schema`.`:sequence` should exist". If you find that the function
 call seems to be getting confused, cast the sequence to the `NAME` type:
 
-    SELECT has_sequence('myschema', 'somesequence'::NAME);
+```sql
+SELECT has_sequence('myschema', 'somesequence'::NAME);
+```
 
 ### `hasnt_sequence()` ###
 
-    SELECT hasnt_sequence( :schema, :sequence, :description );
-    SELECT hasnt_sequence( :sequence, :description );
-    SELECT hasnt_sequence( :sequence );
+```sql
+SELECT hasnt_sequence( :schema, :sequence, :description );
+SELECT hasnt_sequence( :sequence, :description );
+SELECT hasnt_sequence( :sequence );
+```
 
 **Parameters**
 
@@ -3243,10 +3540,12 @@ specified sequence does *not* exist.
 
 ### `has_foreign_table()` ###
 
-    SELECT has_foreign_table( :schema, :table, :description );
-    SELECT has_foreign_table( :schema, :table );
-    SELECT has_foreign_table( :table, :description );
-    SELECT has_foreign_table( :table );
+```sql
+SELECT has_foreign_table( :schema, :table, :description );
+SELECT has_foreign_table( :schema, :table );
+SELECT has_foreign_table( :table, :description );
+SELECT has_foreign_table( :table );
+```
 
 **Parameters**
 
@@ -3271,10 +3570,12 @@ should exist".
 
 ### `hasnt_foreign_table()` ###
 
-    SELECT hasnt_foreign_table( :schema, :table, :description );
-    SELECT hasnt_foreign_table( :schema, :table );
-    SELECT hasnt_foreign_table( :table, :description );
-    SELECT hasnt_foreign_table( :table );
+```sql
+SELECT hasnt_foreign_table( :schema, :table, :description );
+SELECT hasnt_foreign_table( :schema, :table );
+SELECT hasnt_foreign_table( :table, :description );
+SELECT hasnt_foreign_table( :table );
+```
 
 **Parameters**
 
@@ -3292,10 +3593,12 @@ specified foreign table does *not* exist.
 
 ### `has_type()` ###
 
-    SELECT has_type( schema, type, description );
-    SELECT has_type( schema, type );
-    SELECT has_type( type, description );
-    SELECT has_type( type );
+```sql
+SELECT has_type( schema, type, description );
+SELECT has_type( schema, type );
+SELECT has_type( type, description );
+SELECT has_type( type );
+```
 
 **Parameters**
 
@@ -3317,22 +3620,28 @@ set to "Type `:type` should exist". If you're passing a schema and type rather
 than type and description, be sure to cast the arguments to `name` values so
 that your type name doesn't get treated as a description. Example:
 
-    SELECT has_type( 'myschema', 'sometype' );
+```sql
+SELECT has_type( 'myschema', 'sometype' );
+```
 
 If you've created a composite type and want to test that the composed types
 are a part of it, use the column testing functions to verify them, like so:
 
-    CREATE TYPE foo AS (id int, name text);
-    SELECT has_type( 'foo' );
-    SELECT has_column( 'foo', 'id' );
-    SELECT col_type_is( 'foo', 'id', 'integer' );
+```sql
+CREATE TYPE foo AS (id int, name text);
+SELECT has_type( 'foo' );
+SELECT has_column( 'foo', 'id' );
+SELECT col_type_is( 'foo', 'id', 'integer' );
+```
 
 ### `hasnt_type()` ###
 
-    SELECT hasnt_type( schema, type, description );
-    SELECT hasnt_type( schema, type );
-    SELECT hasnt_type( type, description );
-    SELECT hasnt_type( type );
+```sql
+SELECT hasnt_type( schema, type, description );
+SELECT hasnt_type( schema, type );
+SELECT hasnt_type( type, description );
+SELECT hasnt_type( type );
+```
 
 **Parameters**
 
@@ -3350,10 +3659,12 @@ type does *not* exist.
 
 ### `has_composite()` ###
 
-    SELECT has_composite( schema, type, description );
-    SELECT has_composite( schema, type );
-    SELECT has_composite( type, description );
-    SELECT has_composite( type );
+```sql
+SELECT has_composite( schema, type, description );
+SELECT has_composite( schema, type );
+SELECT has_composite( type, description );
+SELECT has_composite( type );
+```
 
 **Parameters**
 
@@ -3373,7 +3684,9 @@ composite type must be visible in the search path. If you omit the test
 description, it will be set to "Composite type `:composite type` should
 exist". Example:
 
-    SELECT has_composite( 'myschema', 'somecomposite' );
+```sql
+SELECT has_composite( 'myschema', 'somecomposite' );
+```
 
 If you're passing a schema and composite type rather than composite type and
 description, be sure to cast the arguments to `name` values so that your
@@ -3381,10 +3694,12 @@ composite type name doesn't get treated as a description.
 
 ### `hasnt_composite()` ###
 
-    SELECT hasnt_composite( schema, type, description );
-    SELECT hasnt_composite( schema, type );
-    SELECT hasnt_composite( type, description );
-    SELECT hasnt_composite( type );
+```sql
+SELECT hasnt_composite( schema, type, description );
+SELECT hasnt_composite( schema, type );
+SELECT hasnt_composite( type, description );
+SELECT hasnt_composite( type );
+```
 
 **Parameters**
 
@@ -3402,10 +3717,12 @@ specified composite type does *not* exist.
 
 ### `has_domain()` ###
 
-    SELECT has_domain( schema, domain, description );
-    SELECT has_domain( schema, domain );
-    SELECT has_domain( domain, description );
-    SELECT has_domain( domain );
+```sql
+SELECT has_domain( schema, domain, description );
+SELECT has_domain( schema, domain );
+SELECT has_domain( domain, description );
+SELECT has_domain( domain );
+```
 
 **Parameters**
 
@@ -3424,7 +3741,9 @@ is the test description. If you omit the schema, the domain must be visible in
 the search path. If you omit the test description, it will be set to "Domain
 `:domain` should exist". Example:
 
-    SELECT has_domain( 'myschema', 'somedomain' );
+```sql
+SELECT has_domain( 'myschema', 'somedomain' );
+```
 
 If you're passing a schema and domain rather than domain and description, be
 sure to cast the arguments to `name` values so that your domain name doesn't
@@ -3432,10 +3751,12 @@ get treated as a description.
 
 ### `hasnt_domain()` ###
 
-    SELECT hasnt_domain( schema, domain, description );
-    SELECT hasnt_domain( schema, domain );
-    SELECT hasnt_domain( domain, description );
-    SELECT hasnt_domain( domain );
+```sql
+SELECT hasnt_domain( schema, domain, description );
+SELECT hasnt_domain( schema, domain );
+SELECT hasnt_domain( domain, description );
+SELECT hasnt_domain( domain );
+```
 
 **Parameters**
 
@@ -3453,10 +3774,12 @@ domain does *not* exist.
 
 ### `has_enum()` ###
 
-    SELECT has_enum( schema, enum, description );
-    SELECT has_enum( schema, enum );
-    SELECT has_enum( enum, description );
-    SELECT has_enum( enum );
+```sql
+SELECT has_enum( schema, enum, description );
+SELECT has_enum( schema, enum );
+SELECT has_enum( enum, description );
+SELECT has_enum( enum );
+```
 
 **Parameters**
 
@@ -3475,7 +3798,9 @@ test description. If you omit the schema, the enum must be visible in the search
 path. If you omit the test description, it will be set to "Enum `:enum` should
 exist". Example:
 
-    SELECT has_enum( 'myschema', 'someenum' );
+```sql
+SELECT has_enum( 'myschema', 'someenum' );
+```
 
 If you're passing a schema and enum rather than enum and description, be sure
 to cast the arguments to `name` values so that your enum name doesn't get
@@ -3483,10 +3808,12 @@ treated as a description.
 
 ### `hasnt_enum()` ###
 
-    SELECT hasnt_enum( schema, enum, description );
-    SELECT hasnt_enum( schema, enum );
-    SELECT hasnt_enum( enum, description );
-    SELECT hasnt_enum( enum );
+```sql
+SELECT hasnt_enum( schema, enum, description );
+SELECT hasnt_enum( schema, enum );
+SELECT hasnt_enum( enum, description );
+SELECT hasnt_enum( enum );
+```
 
 **Parameters**
 
@@ -3504,18 +3831,20 @@ enum does *not* exist.
 
 ### `has_index()` ###
 
-    SELECT has_index( :schema, :table, :index, :columns, :description );
-    SELECT has_index( :schema, :table, :index, :columns );
-    SELECT has_index( :schema, :table, :index, :column, :description );
-    SELECT has_index( :schema, :table, :index, :column );
-    SELECT has_index( :schema, :table, :index, :description );
-    SELECT has_index( :schema, :table, :index );
-    SELECT has_index( :table,  :index, :columns, :description );
-    SELECT has_index( :table,  :index, :columns );
-    SELECT has_index( :table,  :index, :column, :description );
-    SELECT has_index( :table,  :index, :column );
-    SELECT has_index( :table,  :index, :description );
-    SELECT has_index( :table,  :index );
+```sql
+SELECT has_index( :schema, :table, :index, :columns, :description );
+SELECT has_index( :schema, :table, :index, :columns );
+SELECT has_index( :schema, :table, :index, :column, :description );
+SELECT has_index( :schema, :table, :index, :column );
+SELECT has_index( :schema, :table, :index, :description );
+SELECT has_index( :schema, :table, :index );
+SELECT has_index( :table,  :index, :columns, :description );
+SELECT has_index( :table,  :index, :columns );
+SELECT has_index( :table,  :index, :column, :description );
+SELECT has_index( :table,  :index, :column );
+SELECT has_index( :table,  :index, :description );
+SELECT has_index( :table,  :index );
+```
 
 **Parameters**
 
@@ -3545,17 +3874,19 @@ you must use lowercase for all SQL keywords and functions to properly compare
 to PostgreSQL's internal form of the expression. Non-functional expressions
 should also be wrapped in parentheses. A few examples:
 
-    SELECT has_index(
-        'myschema',
-        'sometable',
-        'myindex',
-        ARRAY[ 'somecolumn', 'anothercolumn', 'lower(txtcolumn)' ],
-        'Index "myindex" should exist'
-    );
+```sql
+SELECT has_index(
+    'myschema',
+    'sometable',
+    'myindex',
+    ARRAY[ 'somecolumn', 'anothercolumn', 'lower(txtcolumn)' ],
+    'Index "myindex" should exist'
+);
 
-    SELECT has_index('myschema', 'sometable', 'anidx', 'somecolumn');
-    SELECT has_index('myschema', 'sometable', 'loweridx', '(somearray[1])');
-    SELECT has_index('sometable', 'someindex');
+SELECT has_index('myschema', 'sometable', 'anidx', 'somecolumn');
+SELECT has_index('myschema', 'sometable', 'loweridx', '(somearray[1])');
+SELECT has_index('sometable', 'someindex');
+```
 
 If you find that the function call seems to be getting confused, cast the
 index name to the `NAME` type:
@@ -3577,22 +3908,26 @@ Note that unlike most other column parameter arguments in pgTAP, mixed-case
 column names crated with double-quotes must be double-quoted when passed
 to `has_index()`, like so:
 
-    SELECT has_index(
-        'myschema',
-        'sometable',
-        'myindex',
-        ARRAY[ 'id', '"Name"', 'lower("foo-bar")' ]
-    );
+```sql
+SELECT has_index(
+    'myschema',
+    'sometable',
+    'myindex',
+    ARRAY[ 'id', '"Name"', 'lower("foo-bar")' ]
+);
+```
 
 This caveat applies only to column names, not to table and schema names,
 which should omit double-quoting.
 
 ### `hasnt_index()` ###
 
-    SELECT hasnt_index( schema, table, index, description );
-    SELECT hasnt_index( schema, table, index );
-    SELECT hasnt_index( table, index, description );
-    SELECT hasnt_index( table, index );
+```sql
+SELECT hasnt_index( schema, table, index, description );
+SELECT hasnt_index( schema, table, index );
+SELECT hasnt_index( table, index, description );
+SELECT hasnt_index( table, index );
+```
 
 **Parameters**
 
@@ -3613,10 +3948,12 @@ specified index does *not* exist.
 
 ### `has_trigger()` ###
 
-    SELECT has_trigger( :schema, :table, :trigger, :description );
-    SELECT has_trigger( :schema, :table, :trigger );
-    SELECT has_trigger( :table, :trigger, :description );
-    SELECT has_trigger( :table, :trigger );
+```sql
+SELECT has_trigger( :schema, :table, :trigger, :description );
+SELECT has_trigger( :schema, :table, :trigger );
+SELECT has_trigger( :table, :trigger, :description );
+SELECT has_trigger( :table, :trigger );
+```
 
 **Parameters**
 
@@ -3638,10 +3975,12 @@ associated must be visible in the search path.
 
 ### `hasnt_trigger()` ###
 
-    SELECT hasnt_trigger( :schema, :table, :trigger, :description );
-    SELECT hasnt_trigger( :schema, :table, :trigger );
-    SELECT hasnt_trigger( :table, :trigger, :description );
-    SELECT hasnt_trigger( :table, :trigger );
+```sql
+SELECT hasnt_trigger( :schema, :table, :trigger, :description );
+SELECT hasnt_trigger( :schema, :table, :trigger );
+SELECT hasnt_trigger( :table, :trigger, :description );
+SELECT hasnt_trigger( :table, :trigger );
+```
 
 **Parameters**
 
@@ -3662,10 +4001,12 @@ specified trigger does *not* exist.
 
 ### `has_rule()` ###
 
-    SELECT has_rule( :schema, :table, :rule, :description );
-    SELECT has_rule( :schema, :table, :rule );
-    SELECT has_rule( :table, :rule, :description );
-    SELECT has_rule( :table, :rule );
+```sql
+SELECT has_rule( :schema, :table, :rule, :description );
+SELECT has_rule( :schema, :table, :rule );
+SELECT has_rule( :table, :rule, :description );
+SELECT has_rule( :table, :rule );
+```
 
 **Parameters**
 
@@ -3687,10 +4028,12 @@ associated must be visible in the search path.
 
 ### `hasnt_rule()` ###
 
-    SELECT hasnt_rule( :schema, :table, :rule, :description );
-    SELECT hasnt_rule( :schema, :table, :rule );
-    SELECT hasnt_rule( :table, :rule, :description );
-    SELECT hasnt_rule( :table, :rule );
+```sql
+SELECT hasnt_rule( :schema, :table, :rule, :description );
+SELECT hasnt_rule( :schema, :table, :rule );
+SELECT hasnt_rule( :table, :rule, :description );
+SELECT hasnt_rule( :table, :rule );
+```
 
 **Parameters**
 
@@ -3711,14 +4054,16 @@ rule does *not* exist.
 
 ### `has_function()` ###
 
-    SELECT has_function( :schema, :function, :args, :description );
-    SELECT has_function( :schema, :function, :args );
-    SELECT has_function( :schema, :function, :description );
-    SELECT has_function( :schema, :function );
-    SELECT has_function( :function, :args, :description );
-    SELECT has_function( :function, :args );
-    SELECT has_function( :function, :description );
-    SELECT has_function( :function );
+```sql
+SELECT has_function( :schema, :function, :args, :description );
+SELECT has_function( :schema, :function, :args );
+SELECT has_function( :schema, :function, :description );
+SELECT has_function( :schema, :function );
+SELECT has_function( :function, :args, :description );
+SELECT has_function( :function, :args );
+SELECT has_function( :function, :description );
+SELECT has_function( :function );
+```
 
 **Parameters**
 
@@ -3740,16 +4085,18 @@ schema and with the specified argument data types. If `:schema` is omitted,
 search path. If `:args` is omitted, `has_function()` will see if the function
 exists without regard to its arguments. Some examples:
 
-    SELECT has_function(
-        'pg_catalog',
-        'decode',
-        ARRAY[ 'text', 'text' ],
-        'Function decode(text, text) should exist'
-    );
+```sql
+SELECT has_function(
+    'pg_catalog',
+    'decode',
+    ARRAY[ 'text', 'text' ],
+    'Function decode(text, text) should exist'
+);
 
-    SELECT has_function( 'do_something' );
-    SELECT has_function( 'do_something', ARRAY['int'] );
-    SELECT has_function( 'do_something', ARRAY['numeric'] );
+SELECT has_function( 'do_something' );
+SELECT has_function( 'do_something', ARRAY['int'] );
+SELECT has_function( 'do_something', ARRAY['numeric'] );
+```
 
 If you wish to use the two-argument form of `has_function()`, specifying only
 the schema and the function name, you must cast the `:function` argument to
@@ -3760,7 +4107,9 @@ results will be unexpected.
 Also, if you use the string form to specify the `:args` array, be sure to cast
 it to `name` to disambiguate it from a text string:
 
-    SELECT has_function( 'lower', '{text}'::name[] );
+```sql
+SELECT has_function( 'lower', '{text}'::name[] );
+```
 
 **Deprecation notice:** The old name for this test function, `can_ok()`, is
 still available, but emits a warning when called. It will be removed in a
@@ -3768,14 +4117,16 @@ future version of pgTAP.
 
 ### `hasnt_function()` ###
 
-    SELECT hasnt_function( :schema, :function, :args, :description );
-    SELECT hasnt_function( :schema, :function, :args );
-    SELECT hasnt_function( :schema, :function, :description );
-    SELECT hasnt_function( :schema, :function );
-    SELECT hasnt_function( :function, :args, :description );
-    SELECT hasnt_function( :function, :args );
-    SELECT hasnt_function( :function, :description );
-    SELECT hasnt_function( :function );
+```sql
+SELECT hasnt_function( :schema, :function, :args, :description );
+SELECT hasnt_function( :schema, :function, :args );
+SELECT hasnt_function( :schema, :function, :description );
+SELECT hasnt_function( :schema, :function );
+SELECT hasnt_function( :function, :args, :description );
+SELECT hasnt_function( :function, :args );
+SELECT hasnt_function( :function, :description );
+SELECT hasnt_function( :function );
+```
 
 **Parameters**
 
@@ -3797,12 +4148,14 @@ specified function or procedure (optionally with the specified signature) does
 
 ### `has_cast()` ###
 
-    SELECT has_cast( :source_type, :target_type, :schema, :function, :description );
-    SELECT has_cast( :source_type, :target_type, :schema, :function );
-    SELECT has_cast( :source_type, :target_type, :function, :description );
-    SELECT has_cast( :source_type, :target_type, :function );
-    SELECT has_cast( :source_type, :target_type, :description );
-    SELECT has_cast( :source_type, :target_type );
+```sql
+SELECT has_cast( :source_type, :target_type, :schema, :function, :description );
+SELECT has_cast( :source_type, :target_type, :schema, :function );
+SELECT has_cast( :source_type, :target_type, :function, :description );
+SELECT has_cast( :source_type, :target_type, :function );
+SELECT has_cast( :source_type, :target_type, :description );
+SELECT has_cast( :source_type, :target_type );
+```
 
 **Parameters**
 
@@ -3824,35 +4177,45 @@ specified function or procedure (optionally with the specified signature) does
 Tests for the existence of a cast. A cast consists of a source data type, a
 target data type, and perhaps a (possibly schema-qualified) function. An example:
 
-    SELECT has_cast( 'integer', 'bigint', 'pg_catalog', 'int8' );
+```sql
+SELECT has_cast( 'integer', 'bigint', 'pg_catalog', 'int8' );
+```
 
 If you omit the description for the 3- or 4-argument version, you'll need to
 cast the function name to the `NAME` data type so that PostgreSQL doesn't
 resolve the function name as a description. For example:
 
-    SELECT has_cast( 'integer', 'bigint', 'int8'::NAME );
+```sql
+SELECT has_cast( 'integer', 'bigint', 'int8'::NAME );
+```
 
 pgTAP will generate a useful description if you don't provide one.
 
 Types can be defined by their canonical names or their aliases,
 e.g., `character varying` or `varchar`, so both these tests will pass:
 
-    SELECT has_cast( 'text', 'character varying' );
-    SELECT has_cast( 'text', 'varchar' );
+```sql
+SELECT has_cast( 'text', 'character varying' );
+SELECT has_cast( 'text', 'varchar' );
+```
 
 Note that pgTAP ignores typemods, so either of these tests will pass:
 
-    SELECT has_cast( 'integer', 'bit(128)' );
-    SELECT has_cast( 'integer', 'bit' );
+```sql
+SELECT has_cast( 'integer', 'bit(128)' );
+SELECT has_cast( 'integer', 'bit' );
+```
 
 ### `hasnt_cast()` ###
 
-    SELECT hasnt_cast( :source_type, :target_type, :schema, :function, :description );
-    SELECT hasnt_cast( :source_type, :target_type, :schema, :function );
-    SELECT hasnt_cast( :source_type, :target_type, :function, :description );
-    SELECT hasnt_cast( :source_type, :target_type, :function );
-    SELECT hasnt_cast( :source_type, :target_type, :description );
-    SELECT hasnt_cast( :source_type, :target_type );
+```sql
+SELECT hasnt_cast( :source_type, :target_type, :schema, :function, :description );
+SELECT hasnt_cast( :source_type, :target_type, :schema, :function );
+SELECT hasnt_cast( :source_type, :target_type, :function, :description );
+SELECT hasnt_cast( :source_type, :target_type, :function );
+SELECT hasnt_cast( :source_type, :target_type, :description );
+SELECT hasnt_cast( :source_type, :target_type );
+```
 
 **Parameters**
 
@@ -3876,12 +4239,14 @@ cast does *not* exist.
 
 ### `has_operator()` ###
 
-    SELECT has_operator( :left_type, :schema, :name, :right_type, :return_type, :description );
-    SELECT has_operator( :left_type, :schema, :name, :right_type, :return_type );
-    SELECT has_operator( :left_type, :name, :right_type, :return_type, :description );
-    SELECT has_operator( :left_type, :name, :right_type, :return_type );
-    SELECT has_operator( :left_type, :name, :right_type, :description );
-    SELECT has_operator( :left_type, :name, :right_type );
+```sql
+SELECT has_operator( :left_type, :schema, :name, :right_type, :return_type, :description );
+SELECT has_operator( :left_type, :schema, :name, :right_type, :return_type );
+SELECT has_operator( :left_type, :name, :right_type, :return_type, :description );
+SELECT has_operator( :left_type, :name, :right_type, :return_type );
+SELECT has_operator( :left_type, :name, :right_type, :description );
+SELECT has_operator( :left_type, :name, :right_type );
+```
 
 **Parameters**
 
@@ -3907,7 +4272,9 @@ Tests for the presence of a binary operator. If the operator exists with the
 given schema, name, left and right arguments, and return value, the test will
 pass. If the operator does not exist, the test will fail. Example:
 
-    SELECT has_operator( 'integer', 'pg_catalog', '<=', 'integer', 'boolean' );
+```sql
+SELECT has_operator( 'integer', 'pg_catalog', '<=', 'integer', 'boolean' );
+```
 
 Types can be defined by their canonical names or their aliases, e.g.,
 `timestamp with time zone` or `timestamptz`, or `character varying` or
@@ -3921,12 +4288,14 @@ for you. The return value is also optional. If you need to test for a left
 
 ### `hasnt_operator()` ###
 
-    SELECT hasnt_operator( :left_type, :schema, :name, :right_type, :return_type, :description );
-    SELECT hasnt_operator( :left_type, :schema, :name, :right_type, :return_type );
-    SELECT hasnt_operator( :left_type, :name, :right_type, :return_type, :description );
-    SELECT hasnt_operator( :left_type, :name, :right_type, :return_type );
-    SELECT hasnt_operator( :left_type, :name, :right_type, :description );
-    SELECT hasnt_operator( :left_type, :name, :right_type );
+```sql
+SELECT hasnt_operator( :left_type, :schema, :name, :right_type, :return_type, :description );
+SELECT hasnt_operator( :left_type, :schema, :name, :right_type, :return_type );
+SELECT hasnt_operator( :left_type, :name, :right_type, :return_type, :description );
+SELECT hasnt_operator( :left_type, :name, :right_type, :return_type );
+SELECT hasnt_operator( :left_type, :name, :right_type, :description );
+SELECT hasnt_operator( :left_type, :name, :right_type );
+```
 
 **Parameters**
 
@@ -3953,12 +4322,14 @@ specified operator does *not* exist.
 
 ### `has_leftop()` ###
 
-    SELECT has_leftop( :schema, :name, :type, :return_type, :description );
-    SELECT has_leftop( :schema, :name, :type, :return_type );
-    SELECT has_leftop( :name, :type, :return_type, :description );
-    SELECT has_leftop( :name, :type, :return_type );
-    SELECT has_leftop( :name, :type, :description );
-    SELECT has_leftop( :name, :type );
+```sql
+SELECT has_leftop( :schema, :name, :type, :return_type, :description );
+SELECT has_leftop( :schema, :name, :type, :return_type );
+SELECT has_leftop( :name, :type, :return_type, :description );
+SELECT has_leftop( :name, :type, :return_type );
+SELECT has_leftop( :name, :type, :description );
+SELECT has_leftop( :name, :type );
+```
 
 **Parameters**
 
@@ -3981,7 +4352,9 @@ Tests for the presence of a left-unary (prefix) operator. If the operator
 exists with the given schema, name, right argument, and return value, the
 test will fail. If the operator does not exist, the test will fail. Example:
 
-    SELECT has_leftop( 'pg_catalog', '!!', 'bigint', 'numeric' );
+```sql
+SELECT has_leftop( 'pg_catalog', '!!', 'bigint', 'numeric' );
+```
 
 If you omit the schema name, then the operator must be visible in the search
 path. If you omit the test description, pgTAP will generate a reasonable one
@@ -3989,12 +4362,14 @@ for you. The return type is also optional.
 
 ### `hasnt_leftop()` ###
 
-    SELECT hasnt_leftop( :schema, :name, :type, :return_type, :description );
-    SELECT hasnt_leftop( :schema, :name, :type, :return_type );
-    SELECT hasnt_leftop( :name, :type, :return_type, :description );
-    SELECT hasnt_leftop( :name, :type, :return_type );
-    SELECT hasnt_leftop( :name, :type, :description );
-    SELECT hasnt_leftop( :name, :type );
+```sql
+SELECT hasnt_leftop( :schema, :name, :type, :return_type, :description );
+SELECT hasnt_leftop( :schema, :name, :type, :return_type );
+SELECT hasnt_leftop( :name, :type, :return_type, :description );
+SELECT hasnt_leftop( :name, :type, :return_type );
+SELECT hasnt_leftop( :name, :type, :description );
+SELECT hasnt_leftop( :name, :type );
+```
 
 **Parameters**
 
@@ -4018,12 +4393,14 @@ specified operator does *not* exist.
 
 ### `has_rightop()` ###
 
-    SELECT has_rightop( :schema, :name, :type, :return_type, :description );
-    SELECT has_rightop( :schema, :name, :type, :return_type );
-    SELECT has_rightop( :name, :type, :return_type, :description );
-    SELECT has_rightop( :name, :type, :return_type );
-    SELECT has_rightop( :name, :type, :description );
-    SELECT has_rightop( :name, :type );
+```sql
+SELECT has_rightop( :schema, :name, :type, :return_type, :description );
+SELECT has_rightop( :schema, :name, :type, :return_type );
+SELECT has_rightop( :name, :type, :return_type, :description );
+SELECT has_rightop( :name, :type, :return_type );
+SELECT has_rightop( :name, :type, :description );
+SELECT has_rightop( :name, :type );
+```
 
 **Parameters**
 
@@ -4047,7 +4424,9 @@ PostgreSQL 13. If the operator exists with the given left argument, schema,
 name, and return value, the test will fail. If the operator does not exist,
 the test will fail. Example:
 
-    SELECT has_rightop( 'bigint', 'pg_catalog', '!', 'numeric' );
+```sql
+SELECT has_rightop( 'bigint', 'pg_catalog', '!', 'numeric' );
+```
 
 If you omit the schema name, then the operator must be visible in the search
 path. If you omit the test description, pgTAP will generate a reasonable one
@@ -4055,12 +4434,14 @@ for you. The return type is also optional.
 
 ### `hasnt_rightop()` ###
 
-    SELECT hasnt_rightop( :schema, :name, :type, :return_type, :description );
-    SELECT hasnt_rightop( :schema, :name, :type, :return_type );
-    SELECT hasnt_rightop( :name, :type, :return_type, :description );
-    SELECT hasnt_rightop( :name, :type, :return_type );
-    SELECT hasnt_rightop( :name, :type, :description );
-    SELECT hasnt_rightop( :name, :type );
+```sql
+SELECT hasnt_rightop( :schema, :name, :type, :return_type, :description );
+SELECT hasnt_rightop( :schema, :name, :type, :return_type );
+SELECT hasnt_rightop( :name, :type, :return_type, :description );
+SELECT hasnt_rightop( :name, :type, :return_type );
+SELECT hasnt_rightop( :name, :type, :description );
+SELECT hasnt_rightop( :name, :type );
+```
 
 **Parameters**
 
@@ -4084,10 +4465,12 @@ specified operator does *not* exist.
 
 ### `has_opclass()` ###
 
-    SELECT has_opclass( :schema, :name, :description );
-    SELECT has_opclass( :schema, :name );
-    SELECT has_opclass( :name, :description );
-    SELECT has_opclass( :name );
+```sql
+SELECT has_opclass( :schema, :name, :description );
+SELECT has_opclass( :schema, :name );
+SELECT has_opclass( :name, :description );
+SELECT has_opclass( :name );
+```
 
 **Parameters**
 
@@ -4107,10 +4490,12 @@ also optional.
 
 ### `hasnt_opclass()` ###
 
-    SELECT hasnt_opclass( :schema, :name, :description );
-    SELECT hasnt_opclass( :schema, :name );
-    SELECT hasnt_opclass( :name, :description );
-    SELECT hasnt_opclass( :name );
+```sql
+SELECT hasnt_opclass( :schema, :name, :description );
+SELECT hasnt_opclass( :schema, :name );
+SELECT hasnt_opclass( :name, :description );
+SELECT hasnt_opclass( :name );
+```
 
 **Parameters**
 
@@ -4128,8 +4513,10 @@ specified operator class does *not* exist.
 
 ### `has_role()` ###
 
-    SELECT has_role( :role, :description );
-    SELECT has_role( :role );
+```sql
+SELECT has_role( :role, :description );
+SELECT has_role( :role );
+```
 
 **Parameters**
 
@@ -4144,8 +4531,10 @@ it will default to "Role `:role` should exist".
 
 ### `hasnt_role()` ###
 
-    SELECT hasnt_role( :role, :description );
-    SELECT hasnt_role( :role );
+```sql
+SELECT hasnt_role( :role, :description );
+SELECT hasnt_role( :role );
+```
 
 **Parameters**
 
@@ -4160,8 +4549,10 @@ database role.
 
 ### `has_user()` ###
 
-    SELECT has_user( :user, :description );
-    SELECT has_user( :user );
+```sql
+SELECT has_user( :user, :description );
+SELECT has_user( :user );
+```
 
 **Parameters**
 
@@ -4176,8 +4567,10 @@ it will default to "User `:user` should exist".
 
 ### `hasnt_user()` ###
 
-    SELECT hasnt_user( :user, :description );
-    SELECT hasnt_user( :user );
+```sql
+SELECT hasnt_user( :user, :description );
+SELECT hasnt_user( :user );
+```
 
 **Parameters**
 
@@ -4192,8 +4585,10 @@ database user.
 
 ### `has_group()` ###
 
-    SELECT has_group( :group, :description );
-    SELECT has_group( :group );
+```sql
+SELECT has_group( :group, :description );
+SELECT has_group( :group );
+```
 
 **Parameters**
 
@@ -4208,8 +4603,10 @@ it will default to "Group `:group` should exist".
 
 ### `hasnt_group()` ###
 
-    SELECT hasnt_group( :group, :description );
-    SELECT hasnt_group( :group );
+```sql
+SELECT hasnt_group( :group, :description );
+SELECT hasnt_group( :group );
+```
 
 **Parameters**
 
@@ -4224,8 +4621,10 @@ database group.
 
 ### `has_language()` ###
 
-    SELECT has_language( :language, :description );
-    SELECT has_language( :language );
+```sql
+SELECT has_language( :language, :description );
+SELECT has_language( :language );
+```
 
 **Parameters**
 
@@ -4240,8 +4639,10 @@ omitted, it will default to "Procedural language `:language` should exist".
 
 ### `hasnt_language()` ###
 
-    SELECT hasnt_language( :language, :description );
-    SELECT hasnt_language( :language );
+```sql
+SELECT hasnt_language( :language, :description );
+SELECT hasnt_language( :language );
+```
 
 **Parameters**
 
@@ -4256,10 +4657,12 @@ procedural language.
 
 ### `has_extension()` ###
 
-    SELECT has_extension( :schema, :extension, :description );
-    SELECT has_extension( :schema, :extension );
-    SELECT has_extension( :extension, :description );
-    SELECT has_extension( :extension );
+```sql
+SELECT has_extension( :schema, :extension, :description );
+SELECT has_extension( :schema, :extension );
+SELECT has_extension( :extension, :description );
+SELECT has_extension( :extension );
+```
 
 **Parameters**
 
@@ -4279,15 +4682,18 @@ omitted, the may be associated with any schema or no schema. If the test
 description is omitted, it will be set to "Extension `:extension` should
 exist". Example:
 
-    SELECT has_extension('public', 'pgtap');
+```sql
+SELECT has_extension('public', 'pgtap');
+```
 
 ### `hasnt_extension()` ###
 
-    SELECT hasnt_extension( :schema, :extension, :description );
-    SELECT hasnt_extension( :schema, :extension );
-    SELECT hasnt_extension( :extension, :description );
-    SELECT hasnt_extension( :extension );
-
+```sql
+SELECT hasnt_extension( :schema, :extension, :description );
+SELECT hasnt_extension( :schema, :extension );
+SELECT hasnt_extension( :extension, :description );
+SELECT hasnt_extension( :extension );
+```
 **Parameters**
 
 `:schema`
@@ -4314,9 +4720,11 @@ So we have the assertions to validate 'em.
 
 ### `has_column()` ###
 
-    SELECT has_column( :schema, :table, :column, :description );
-    SELECT has_column( :table, :column, :description );
-    SELECT has_column( :table, :column );
+```sql
+SELECT has_column( :schema, :table, :column, :description );
+SELECT has_column( :table, :column, :description );
+SELECT has_column( :table, :column );
+```
 
 **Parameters**
 
@@ -4341,9 +4749,11 @@ exist".
 
 ### `hasnt_column()` ###
 
-    SELECT hasnt_column( :schema, :table, :column, :description );
-    SELECT hasnt_column( :table, :column, :description );
-    SELECT hasnt_column( :table, :column );
+```sql
+SELECT hasnt_column( :schema, :table, :column, :description );
+SELECT hasnt_column( :table, :column, :description );
+SELECT hasnt_column( :table, :column );
+```
 
 **Parameters**
 
@@ -4365,10 +4775,12 @@ view or composite type.
 
 ### `col_not_null()` ###
 
-    SELECT col_not_null( :schema, :table, :column, :description );
-    SELECT col_not_null( :schema, :table, :column );
-    SELECT col_not_null( :table, :column, :description );
-    SELECT col_not_null( :table, :column );
+```sql
+SELECT col_not_null( :schema, :table, :column, :description );
+SELECT col_not_null( :schema, :table, :column );
+SELECT col_not_null( :table, :column, :description );
+SELECT col_not_null( :table, :column );
+```
 
 **Parameters**
 
@@ -4395,10 +4807,12 @@ first, eh?
 
 ### `col_is_null()` ###
 
-    SELECT col_is_null( :schema, :table, :column, :description );
-    SELECT col_is_null( :schema, :table, :column );
-    SELECT col_is_null( :table, :column, :description );
-    SELECT col_is_null( :table, :column );
+```sql
+SELECT col_is_null( :schema, :table, :column, :description );
+SELECT col_is_null( :schema, :table, :column );
+SELECT col_is_null( :table, :column, :description );
+SELECT col_is_null( :table, :column );
+```
 
 **Parameters**
 
@@ -4425,9 +4839,11 @@ But use `has_column()` to make sure the column exists first, eh?
 
 ### `col_has_default()` ###
 
-    SELECT col_has_default( :schema, :table, :column, :description );
-    SELECT col_has_default( :table, :column, :description );
-    SELECT col_has_default( :table, :column );
+```sql
+SELECT col_has_default( :schema, :table, :column, :description );
+SELECT col_has_default( :table, :column, :description );
+SELECT col_has_default( :table, :column );
+```
 
 **Parameters**
 
@@ -4452,9 +4868,11 @@ useful diagnostics to let you know:
 
 ### `col_hasnt_default()` ###
 
-    SELECT col_hasnt_default( :schema, :table, :column, :description );
-    SELECT col_hasnt_default( :table, :column, :description );
-    SELECT col_hasnt_default( :table, :column );
+```sql
+SELECT col_hasnt_default( :schema, :table, :column, :description );
+SELECT col_hasnt_default( :table, :column, :description );
+SELECT col_hasnt_default( :table, :column );
+```
 
 **Parameters**
 
@@ -4476,12 +4894,14 @@ does not exist, and emit useful diagnostics to let you know.
 
 ### `col_type_is()` ###
 
-    SELECT col_type_is( :schema, :table, :column, :type_schema, :type, :description );
-    SELECT col_type_is( :schema, :table, :column, :type_schema, :type );
-    SELECT col_type_is( :schema, :table, :column, :type, :description );
-    SELECT col_type_is( :schema, :table, :column, :type );
-    SELECT col_type_is( :table, :column, :type, :description );
-    SELECT col_type_is( :table, :column, :type );
+```sql
+SELECT col_type_is( :schema, :table, :column, :type_schema, :type, :description );
+SELECT col_type_is( :schema, :table, :column, :type_schema, :type );
+SELECT col_type_is( :schema, :table, :column, :type, :description );
+SELECT col_type_is( :schema, :table, :column, :type );
+SELECT col_type_is( :table, :column, :type, :description );
+SELECT col_type_is( :table, :column, :type );
+```
 
 **Parameters**
 
@@ -4523,20 +4943,28 @@ supported alias. For example, if you created a `varchar(64)` column, you can
 pass the type as either "varchar(64)" or "character varying(64)". Same deal
 for timestamps, as in this example:
 
-    SELECT col_type_is( 'myschema', 'sometable', 'somecolumn', 'timestamptz(3)' );
+```sql
+SELECT col_type_is( 'myschema', 'sometable', 'somecolumn', 'timestamptz(3)' );
+```
 
 The exception to this rule is interval types prior to Postgres 17, which must
 be specified as rendered by PostgreSQL itself:
 
-    SELECT col_type_is( 'myschema', 'sometable', 'somecolumn', 'interval second(3)' );
+```sql
+SELECT col_type_is( 'myschema', 'sometable', 'somecolumn', 'interval second(3)' );
+```
 
 Types with case-sensitive names or special characters must be double-quoted:
 
-    SELECT col_type_is( 'myschema', 'sometable', 'somecolumn', '"myType"' );
+```sql
+SELECT col_type_is( 'myschema', 'sometable', 'somecolumn', '"myType"' );
+```
 
 If the test fails, it will output useful diagnostics. For example this test:
 
-    SELECT col_type_is( 'pg_catalog', 'pg_type', 'typname', 'text' );
+```sql
+SELECT col_type_is( 'pg_catalog', 'pg_type', 'typname', 'text' );
+```
 
 Will produce something like this:
 
@@ -4550,9 +4978,11 @@ first, eh?
 
 ### `col_default_is()` ###
 
-    SELECT col_default_is( :schema, :table, :column, :default, :description );
-    SELECT col_default_is( :table, :column, :default, :description );
-    SELECT col_default_is( :table, :column, :default );
+```sql
+SELECT col_default_is( :schema, :table, :column, :default, :description );
+SELECT col_default_is( :table, :column, :default, :description );
+SELECT col_default_is( :table, :column, :default );
+```
 
 **Parameters**
 
@@ -4584,35 +5014,47 @@ succeed. If you see an error such as 'ERROR: could not determine polymorphic
 type because input has type "unknown"', it's because you forgot to cast the
 expected value, probably a `NULL`, to its proper type. IOW, this will fail:
 
-    SELECT col_default_is( 'tab', age, NULL );
+```sql
+SELECT col_default_is( 'tab', age, NULL );
+```
 
 But this will not:
 
-    SELECT col_default_is( 'tab', age, NULL::integer );
+```sql
+SELECT col_default_is( 'tab', age, NULL::integer );
+```
 
 You can also test for functional defaults. Just specify the function call as a
 string:
 
-    SELECT col_default_is( 'user', 'created_at', 'now()' );
+```sql
+SELECT col_default_is( 'user', 'created_at', 'now()' );
+```
 
 But beware that the representation of special SQL syntax functions changed
 in PostgreSQL 10. Where previously a default of `CURRENT_USER` and friends
 used to be represented as functions:
 
-    SELECT col_default_is( 'widgets', 'created_by', '"current_user"()' );
+```sql
+SELECT col_default_is( 'widgets', 'created_by', '"current_user"()' );
+```
 
 As of PostgreSQL 10, they comply with the SQL spec to appear in uppercase
 and without trailing parentheses:
 
-    SELECT col_default_is( 'widgets', 'created_by', 'CURRENT_USER' );
+```sql
+SELECT col_default_is( 'widgets', 'created_by', 'CURRENT_USER' );
+```
 
 If you need to support both variants, use `pg_version_num()` to decide
 which to use:
 
-    SELECT col_default_is(
-        'widgets', 'created_by',
-        CASE WHEN pg_version_num() >= 100000 THEN 'CURRENT_USER' ELSE '"current_user"()' END
-    );
+```sql
+SELECT col_default_is(
+    'widgets', 'created_by',
+    CASE WHEN pg_version_num() >= 100000 THEN 'CURRENT_USER' ELSE '"current_user"()' END
+);
+```
 
 See the note in the
 [System Information Functions](https://www.postgresql.org/docs/current/functions-info.html)
@@ -4620,13 +5062,15 @@ documentation for a complete list.
 
 If the test fails, it will output useful diagnostics. For example, this test:
 
-    SELECT col_default_is(
-        'pg_catalog',
-        'pg_type',
-        'typname',
-        'foo',
-        'check typname'
-    );
+```sql
+SELECT col_default_is(
+    'pg_catalog',
+    'pg_type',
+    'typname',
+    'foo',
+    'check typname'
+);
+```
 
 Will produce something like this:
 
@@ -4641,10 +5085,12 @@ the diagnostics will tell you that, too. But you use `has_column()` and
 
 ### `has_pk()` ###
 
-    SELECT has_pk( :schema, :table, :description );
-    SELECT has_pk( :schema, :table );
-    SELECT has_pk( :table, :description );
-    SELECT has_pk( :table );
+```sql
+SELECT has_pk( :schema, :table, :description );
+SELECT has_pk( :schema, :table );
+SELECT has_pk( :table, :description );
+SELECT has_pk( :table );
+```
 
 **Parameters**
 
@@ -4667,13 +5113,17 @@ exist.
 If you find that the function call confuses the table name for a
 description, cast the table to the `NAME` type:
 
-    SELECT has_pk( 'myschema', 'mytable'::name );
+```sql
+SELECT has_pk( 'myschema', 'mytable'::name );
+```
 
 ### `hasnt_pk()` ###
 
-    SELECT hasnt_pk( :schema, :table, :description );
-    SELECT hasnt_pk( :table, :description );
-    SELECT hasnt_pk( :table );
+```sql
+SELECT hasnt_pk( :schema, :table, :description );
+SELECT hasnt_pk( :table, :description );
+SELECT hasnt_pk( :table );
+```
 
 **Parameters**
 
@@ -4691,9 +5141,11 @@ primary key does *not* exist.
 
 ### `has_fk()` ###
 
-    SELECT has_fk( :schema, :table, :description );
-    SELECT has_fk( :table, :description );
-    SELECT has_fk( :table );
+```sql
+SELECT has_fk( :schema, :table, :description );
+SELECT has_fk( :table, :description );
+SELECT has_fk( :table );
+```
 
 **Parameters**
 
@@ -4715,9 +5167,11 @@ table in question does not exist.
 
 ### `hasnt_fk()` ###
 
-    SELECT hasnt_fk( :schema, :table, :description );
-    SELECT hasnt_fk( :table, :description );
-    SELECT hasnt_fk( :table );
+```sql
+SELECT hasnt_fk( :schema, :table, :description );
+SELECT hasnt_fk( :table, :description );
+SELECT hasnt_fk( :table );
+```
 
 **Parameters**
 
@@ -4735,14 +5189,16 @@ foreign key does *not* exist.
 
 ### `col_is_pk()` ###
 
-    SELECT col_is_pk( :schema, :table, :columns, :description );
-    SELECT col_is_pk( :schema, :table, :column, :description );
-    SELECT col_is_pk( :schema, :table, :columns );
-    SELECT col_is_pk( :schema, :table, :column );
-    SELECT col_is_pk( :table, :columns, :description );
-    SELECT col_is_pk( :table, :column, :description );
-    SELECT col_is_pk( :table, :columns );
-    SELECT col_is_pk( :table, :column );
+```sql
+SELECT col_is_pk( :schema, :table, :columns, :description );
+SELECT col_is_pk( :schema, :table, :column, :description );
+SELECT col_is_pk( :schema, :table, :columns );
+SELECT col_is_pk( :schema, :table, :column );
+SELECT col_is_pk( :table, :columns, :description );
+SELECT col_is_pk( :table, :column, :description );
+SELECT col_is_pk( :table, :columns );
+SELECT col_is_pk( :table, :column );
+```
 
 **Parameters**
 
@@ -4767,8 +5223,10 @@ primary key columns, if any. The first argument is the schema name, the second
 the table name, the third the column name or an array of column names, and the
 fourth is the test description. Examples:
 
-    SELECT col_is_pk( 'myschema', 'sometable', 'id' );
-    SELECT col_is_pk( 'persons',  ARRAY['given_name', 'surname'] );
+```sql
+SELECT col_is_pk( 'myschema', 'sometable', 'id' );
+SELECT col_is_pk( 'persons',  ARRAY['given_name', 'surname'] );
+```
 
 If the schema is omitted, the table must be visible in the search path. If the
 test description is omitted, it will be set to "Column `:table(:column)`
@@ -4777,7 +5235,9 @@ in question does not exist.
 
 If the test fails, it will output useful diagnostics. For example this test:
 
-    SELECT col_is_pk( 'pg_type', 'id' );
+```sql
+SELECT col_is_pk( 'pg_type', 'id' );
+```
 
 Will produce something like this:
 
@@ -4787,12 +5247,14 @@ Will produce something like this:
 
 ### `col_isnt_pk()` ###
 
-    SELECT col_isnt_pk( :schema, :table, :columns, :description );
-    SELECT col_isnt_pk( :schema, :table, :column, :description );
-    SELECT col_isnt_pk( :table, :columns, :description );
-    SELECT col_isnt_pk( :table, :column, :description );
-    SELECT col_isnt_pk( :table, :columns );
-    SELECT col_isnt_pk( :table, :column );
+```sql
+SELECT col_isnt_pk( :schema, :table, :columns, :description );
+SELECT col_isnt_pk( :schema, :table, :column, :description );
+SELECT col_isnt_pk( :table, :columns, :description );
+SELECT col_isnt_pk( :table, :column, :description );
+SELECT col_isnt_pk( :table, :columns );
+SELECT col_isnt_pk( :table, :column );
+```
 
 **Parameters**
 
@@ -4816,12 +5278,14 @@ specified column or columns are not a primary key.
 
 ### `col_is_fk()` ###
 
-    SELECT col_is_fk( :schema, :table, :columns, :description );
-    SELECT col_is_fk( :schema, :table, :column, :description );
-    SELECT col_is_fk( :table, :columns, :description );
-    SELECT col_is_fk( :table, :column, :description );
-    SELECT col_is_fk( :table, :columns );
-    SELECT col_is_fk( :table, :column );
+```sql
+SELECT col_is_fk( :schema, :table, :columns, :description );
+SELECT col_is_fk( :schema, :table, :column, :description );
+SELECT col_is_fk( :table, :columns, :description );
+SELECT col_is_fk( :table, :column, :description );
+SELECT col_is_fk( :table, :columns );
+SELECT col_is_fk( :table, :column );
+```
 
 **Parameters**
 
@@ -4851,12 +5315,14 @@ simply list all of the foreign key constraint columns, like so:
 
 ### `col_isnt_fk()` ###
 
-    SELECT col_isnt_fk( :schema, :table, :columns, :description );
-    SELECT col_isnt_fk( :schema, :table, :column, :description );
-    SELECT col_isnt_fk( :table, :columns, :description );
-    SELECT col_isnt_fk( :table, :column, :description );
-    SELECT col_isnt_fk( :table, :columns );
-    SELECT col_isnt_fk( :table, :column );
+```sql
+SELECT col_isnt_fk( :schema, :table, :columns, :description );
+SELECT col_isnt_fk( :schema, :table, :column, :description );
+SELECT col_isnt_fk( :table, :columns, :description );
+SELECT col_isnt_fk( :table, :column, :description );
+SELECT col_isnt_fk( :table, :columns );
+SELECT col_isnt_fk( :table, :column );
+```
 
 **Parameters**
 
@@ -4880,14 +5346,16 @@ specified column or columns are not a foreign key.
 
 ### `fk_ok()` ###
 
-    SELECT fk_ok( :fk_schema, :fk_table,   :fk_columns, :pk_schema,  :pk_table, :pk_columns, :description );
-    SELECT fk_ok( :fk_schema, :fk_table,   :fk_columns, :pk_schema,  :pk_table, :pk_columns );
-    SELECT fk_ok( :fk_table,  :fk_columns, :pk_table,   :pk_columns, :description );
-    SELECT fk_ok( :fk_table,  :fk_columns, :pk_table,   :pk_columns );
-    SELECT fk_ok( :fk_schema, :fk_table,   :fk_column,  :pk_schema,  :pk_table, :pk_column,  :description );
-    SELECT fk_ok( :fk_schema, :fk_table,   :fk_column,  :pk_schema,  :pk_table, :pk_column );
-    SELECT fk_ok( :fk_table,  :fk_column,  :pk_table,   :pk_column,  :description );
-    SELECT fk_ok( :fk_table,  :fk_column,  :pk_table,   :pk_column );
+```sql
+SELECT fk_ok( :fk_schema, :fk_table,   :fk_columns, :pk_schema,  :pk_table, :pk_columns, :description );
+SELECT fk_ok( :fk_schema, :fk_table,   :fk_columns, :pk_schema,  :pk_table, :pk_columns );
+SELECT fk_ok( :fk_table,  :fk_columns, :pk_table,   :pk_columns, :description );
+SELECT fk_ok( :fk_table,  :fk_columns, :pk_table,   :pk_columns );
+SELECT fk_ok( :fk_schema, :fk_table,   :fk_column,  :pk_schema,  :pk_table, :pk_column,  :description );
+SELECT fk_ok( :fk_schema, :fk_table,   :fk_column,  :pk_schema,  :pk_table, :pk_column );
+SELECT fk_ok( :fk_table,  :fk_column,  :pk_table,   :pk_column,  :description );
+SELECT fk_ok( :fk_table,  :fk_column,  :pk_table,   :pk_column );
+```
 
 **Parameters**
 
@@ -4934,13 +5402,15 @@ foreign key column argument). The seventh argument is an optional description
 If it's not included, it will be set to `:fk_schema.:fk_table(:fk_column)`
 should reference `:pk_column.pk_table(:pk_column)`. Some examples:
 
-    SELECT fk_ok( 'myschema', 'sometable', 'big_id', 'myschema', 'bigtable', 'id' );
-    SELECT fk_ok(
-        'contacts',
-        ARRAY['person_given_name', 'person_surname'],
-        'persons',
-        ARRAY['given_name', 'surname'],
-    );
+```sql
+SELECT fk_ok( 'myschema', 'sometable', 'big_id', 'myschema', 'bigtable', 'id' );
+SELECT fk_ok(
+    'contacts',
+    ARRAY['person_given_name', 'person_surname'],
+    'persons',
+    ARRAY['given_name', 'surname'],
+);
+```
 
 To test constraints in a temporary table (for example, after running a function
 that's expected to create one), either omit the schema names or use
@@ -4948,14 +5418,18 @@ that's expected to create one), either omit the schema names or use
 `(SELECT nspname FROM pg_namespace WHERE oid = pg_my_temp_schema())` (on
 PostgreSQL 9.4 and lower) to specify the temporary schema name. For example:
 
-    SELECT fk_ok(
-        pg_my_temp_schema()::regnamespace::name, 'tmpa', 'id',
-        pg_my_temp_schema()::regnamespace::name, 'tmpb', 'id'
-    );
+```sql
+SELECT fk_ok(
+    pg_my_temp_schema()::regnamespace::name, 'tmpa', 'id',
+    pg_my_temp_schema()::regnamespace::name, 'tmpb', 'id'
+);
+```
 
 If the test fails, it will output useful diagnostics. For example this test:
 
-    SELECT fk_ok( 'contacts', 'person_id', 'persons', 'id' );
+```sql
+SELECT fk_ok( 'contacts', 'person_id', 'persons', 'id' );
+```
 
 Will produce something like this:
 
@@ -4965,9 +5439,11 @@ Will produce something like this:
 
 ### `has_unique()` ###
 
-    SELECT has_unique( :schema, :table, :description );
-    SELECT has_unique( :table, :description );
-    SELECT has_unique( :table );
+```sql
+SELECT has_unique( :schema, :table, :description );
+SELECT has_unique( :table, :description );
+SELECT has_unique( :table );
+```
 
 **Parameters**
 
@@ -4989,14 +5465,16 @@ in question does not exist.
 
 ### `col_is_unique()` ###
 
-    SELECT col_is_unique( schema, table, columns, description );
-    SELECT col_is_unique( schema, table, column, description );
-    SELECT col_is_unique( schema, table, columns );
-    SELECT col_is_unique( schema, table, column );
-    SELECT col_is_unique( table, columns, description );
-    SELECT col_is_unique( table, column, description );
-    SELECT col_is_unique( table, columns );
-    SELECT col_is_unique( table, column );
+```sql
+SELECT col_is_unique( schema, table, columns, description );
+SELECT col_is_unique( schema, table, column, description );
+SELECT col_is_unique( schema, table, columns );
+SELECT col_is_unique( schema, table, column );
+SELECT col_is_unique( table, columns, description );
+SELECT col_is_unique( table, column, description );
+SELECT col_is_unique( table, columns );
+SELECT col_is_unique( table, column );
+```
 
 **Parameters**
 
@@ -5018,17 +5496,21 @@ in question does not exist.
 Just like `col_is_pk()`, except that it test that the column or array of
 columns have a unique constraint on them. Examples:
 
-    SELECT col_is_unique( 'contacts', ARRAY['given_name', 'surname'] );
-    SELECT col_is_unique(
-        'myschema', 'sometable', 'other_id',
-        'myschema.sometable.other_id should be unique'
-    );
+```sql
+SELECT col_is_unique( 'contacts', ARRAY['given_name', 'surname'] );
+SELECT col_is_unique(
+    'myschema', 'sometable', 'other_id',
+    'myschema.sometable.other_id should be unique'
+);
+```
 
 If you omit the description for the 3-argument version, you'll need to cast
 the table and column parameters to the `NAME` data type so that PostgreSQL
 doesn't resolve the function name as a description. For example:
 
-    SELECT col_is_unique( 'myschema', 'sometable'::name, 'other_id'::name );
+```sql
+SELECT col_is_unique( 'myschema', 'sometable'::name, 'other_id'::name );
+```
 
 In the event of failure, the diagnostics will list the unique constraints that
 were actually found, if any:
@@ -5040,9 +5522,11 @@ were actually found, if any:
 
 ### `has_check()` ###
 
-    SELECT has_check( :schema, :table, :description );
-    SELECT has_check( :table, :description );
-    SELECT has_check( :table );
+```sql
+SELECT has_check( :schema, :table, :description );
+SELECT has_check( :table, :description );
+SELECT has_check( :table );
+```
 
 **Parameters**
 
@@ -5071,12 +5555,14 @@ that do have check constraints, if any:
 
 ### `col_has_check()` ###
 
-    SELECT col_has_check( :schema, :table, :columns, :description );
-    SELECT col_has_check( :schema, :table, :column, :description );
-    SELECT col_has_check( :table, :columns, :description );
-    SELECT col_has_check( :table, :column, :description );
-    SELECT col_has_check( :table, :columns );
-    SELECT col_has_check( :table, :column );
+```sql
+SELECT col_has_check( :schema, :table, :columns, :description );
+SELECT col_has_check( :schema, :table, :column, :description );
+SELECT col_has_check( :table, :columns, :description );
+SELECT col_has_check( :table, :column, :description );
+SELECT col_has_check( :table, :columns );
+SELECT col_has_check( :table, :column );
+```
 
 **Parameters**
 
@@ -5100,10 +5586,12 @@ columns have a check constraint on them.
 
 ### `index_is_unique()` ###
 
-    SELECT index_is_unique( :schema, :table, :index, :description );
-    SELECT index_is_unique( :schema, :table, :index );
-    SELECT index_is_unique( :table, :index );
-    SELECT index_is_unique( :index );
+```sql
+SELECT index_is_unique( :schema, :table, :index, :description );
+SELECT index_is_unique( :schema, :table, :index );
+SELECT index_is_unique( :table, :index );
+SELECT index_is_unique( :index );
+```
 
 **Parameters**
 
@@ -5123,10 +5611,12 @@ Tests whether an index is unique.
 
 ### `index_is_primary()` ###
 
-    SELECT index_is_primary( :schema, :table, :index, :description );
-    SELECT index_is_primary( :schema, :table, :index );
-    SELECT index_is_primary( :table, :index );
-    SELECT index_is_primary( :index );
+```sql
+SELECT index_is_primary( :schema, :table, :index, :description );
+SELECT index_is_primary( :schema, :table, :index );
+SELECT index_is_primary( :table, :index );
+SELECT index_is_primary( :index );
+```
 
 **Parameters**
 
@@ -5146,10 +5636,12 @@ Tests whether an index is on a primary key.
 
 ### `index_is_partial()` ###
 
-    SELECT index_is_partial( :schema, :table, :index, :description );
-    SELECT index_is_partial( :schema, :table, :index );
-    SELECT index_is_partial( :table, :index );
-    SELECT index_is_partial( :index );
+```sql
+SELECT index_is_partial( :schema, :table, :index, :description );
+SELECT index_is_partial( :schema, :table, :index );
+SELECT index_is_partial( :table, :index );
+SELECT index_is_partial( :index );
+```
 
 **Parameters**
 
@@ -5169,10 +5661,12 @@ Tests than an index is a partial index.
 
 ### `is_partitioned()` ###
 
-    SELECT is_partitioned( :schema, :table, :description );
-    SELECT is_partitioned( :schema, :table );
-    SELECT is_partitioned( :table, :description);
-    SELECT is_partitioned( :table );
+```sql
+SELECT is_partitioned( :schema, :table, :description );
+SELECT is_partitioned( :schema, :table );
+SELECT is_partitioned( :table, :description);
+SELECT is_partitioned( :table );
+```
 
 **Parameters**
 
@@ -5194,10 +5688,12 @@ exist.
 
 ### `isnt_partitioned()` ###
 
-    SELECT isnt_partitioned( :schema, :table, :description );
-    SELECT isnt_partitioned( :schema, :table );
-    SELECT isnt_partitioned( :table, :description);
-    SELECT isnt_partitioned( :table );
+```sql
+SELECT isnt_partitioned( :schema, :table, :description );
+SELECT isnt_partitioned( :schema, :table );
+SELECT isnt_partitioned( :table, :description);
+SELECT isnt_partitioned( :table );
+```
 
 **Parameters**
 
@@ -5215,10 +5711,12 @@ specified table is *not* partitioned, or if it does not exist.
 
 ### `is_partition_of()` ###
 
-    SELECT is_parent( :child_schema, :child, :parent_schema, :parent_table, :description );
-    SELECT is_parent( :child_schema, :child, :parent_schema, :parent_table );
-    SELECT is_parent( :child, :parent_table, :description );
-    SELECT is_parent( :child, :parent_table );
+```sql
+SELECT is_parent( :child_schema, :child, :parent_schema, :parent_table, :description );
+SELECT is_parent( :child_schema, :child, :parent_schema, :parent_table );
+SELECT is_parent( :child, :parent_table, :description );
+SELECT is_parent( :child, :parent_table );
+```
 
 **Parameters**
 
@@ -5246,10 +5744,12 @@ does not exist.
 
 ### `is_clustered()` ###
 
-    SELECT is_clustered( :schema, :table, :index, :description );
-    SELECT is_clustered( :schema, :table, :index );
-    SELECT is_clustered( :table, :index );
-    SELECT is_clustered( :index );
+```sql
+SELECT is_clustered( :schema, :table, :index, :description );
+SELECT is_clustered( :schema, :table, :index );
+SELECT is_clustered( :table, :index );
+SELECT is_clustered( :index );
+```
 
 **Parameters**
 
@@ -5272,14 +5772,16 @@ order defined by the index.
 
 ### `is_indexed()` ###
 
-    SELECT is_indexed( :schema, :table, :columns, :description );
-    SELECT is_indexed( :schema, :table, :columns );
-    SELECT is_indexed( :table, :columns, :description );
-    SELECT is_indexed( :table, :columns );
-    SELECT is_indexed( :schema, :table, :column, :description );
-    SELECT is_indexed( :schema, :table, :column );
-    SELECT is_indexed( :table, :column, :description );
-    SELECT is_indexed( :table, :column );
+```sql
+SELECT is_indexed( :schema, :table, :columns, :description );
+SELECT is_indexed( :schema, :table, :columns );
+SELECT is_indexed( :table, :columns, :description );
+SELECT is_indexed( :table, :columns );
+SELECT is_indexed( :schema, :table, :column, :description );
+SELECT is_indexed( :schema, :table, :column );
+SELECT is_indexed( :table, :column, :description );
+SELECT is_indexed( :table, :column );
+```
 
 **Parameters**
 
@@ -5307,17 +5809,21 @@ Note that unlike most other column parameter arguments in pgTAP, mixed-case
 column names crated with double-quotes must be double-quoted when passed
 to `is_indexed()`, like so:
 
-    SELECT is_indexed( 'widgets', '"Name"' );
+```sql
+SELECT is_indexed( 'widgets', '"Name"' );
+```
 
 This caveat applies only to column names, not to table and schema names,
 which should omit double-quoting.
 
 ### `index_is_type()` ###
 
-    SELECT index_is_type( :schema, :table, :index, :type, :description );
-    SELECT index_is_type( :schema, :table, :index, :type );
-    SELECT index_is_type( :table, :index, :type );
-    SELECT index_is_type( :index, :type );
+```sql
+SELECT index_is_type( :schema, :table, :index, :type, :description );
+SELECT index_is_type( :schema, :table, :index, :type );
+SELECT index_is_type( :table, :index, :type );
+SELECT index_is_type( :index, :type );
+```
 
 **Parameters**
 
@@ -5362,10 +5868,12 @@ future.
 
 ### `can()` ###
 
-    SELECT can( :schema, :functions, :description );
-    SELECT can( :schema, :functions );
-    SELECT can( :functions, :description );
-    SELECT can( :functions );
+```sql
+SELECT can( :schema, :functions, :description );
+SELECT can( :schema, :functions );
+SELECT can( :functions, :description );
+SELECT can( :functions );
+```
 
 **Parameters**
 
@@ -5389,7 +5897,9 @@ schemas defined in the search path. No matter how many functions are listed in
 otherwise, call `can()` once for each function --- or better yet, use
 `has_function()`. Example:
 
-    SELECT can( 'pg_catalog', ARRAY['upper', 'lower'] );
+```sql
+SELECT can( 'pg_catalog', ARRAY['upper', 'lower'] );
+```
 
 If any of the functions are not defined, the test will fail and the
 diagnostics will output a list of the functions that are missing, like so:
@@ -5400,14 +5910,16 @@ diagnostics will output a list of the functions that are missing, like so:
 
 ### `function_lang_is()` ###
 
-    SELECT function_lang_is( :schema, :function, :args, :language, :description );
-    SELECT function_lang_is( :schema, :function, :args, :language );
-    SELECT function_lang_is( :schema, :function, :language, :description );
-    SELECT function_lang_is( :schema, :function, :language );
-    SELECT function_lang_is( :function, :args, :language, :description );
-    SELECT function_lang_is( :function, :args, :language );
-    SELECT function_lang_is( :function, :language, :description );
-    SELECT function_lang_is( :function, :language );
+```sql
+SELECT function_lang_is( :schema, :function, :args, :language, :description );
+SELECT function_lang_is( :schema, :function, :args, :language );
+SELECT function_lang_is( :schema, :function, :language, :description );
+SELECT function_lang_is( :schema, :function, :language );
+SELECT function_lang_is( :function, :args, :language, :description );
+SELECT function_lang_is( :function, :args, :language );
+SELECT function_lang_is( :function, :language, :description );
+SELECT function_lang_is( :function, :language );
+```
 
 **Parameters**
 
@@ -5434,10 +5946,12 @@ one tested; otherwise, a function with any signature will be checked (pass an
 empty array to specify a function with an empty signature). If the
 `:description` is omitted, a reasonable substitute will be created. Examples:
 
-    SELECT function_lang_is( 'myschema', 'foo',  ARRAY['integer', 'text'], 'plperl' );
-    SELECT function_lang_is( 'do_something', 'sql' );
-    SELECT function_lang_is( 'do_something', ARRAY['integer'], 'plpgsql' );
-    SELECT function_lang_is( 'do_something', ARRAY['numeric'], 'plpgsql' );
+```sql
+SELECT function_lang_is( 'myschema', 'foo',  ARRAY['integer', 'text'], 'plperl' );
+SELECT function_lang_is( 'do_something', 'sql' );
+SELECT function_lang_is( 'do_something', ARRAY['integer'], 'plpgsql' );
+SELECT function_lang_is( 'do_something', ARRAY['numeric'], 'plpgsql' );
+```
 
 In the event of a failure, you'll useful diagnostics will tell you what went
 wrong, for example:
@@ -5455,14 +5969,16 @@ But then you check with `has_function()` first, right?
 
 ### `function_returns()` ###
 
-    SELECT function_returns( :schema, :function, :args, :type, :description );
-    SELECT function_returns( :schema, :function, :args, :type );
-    SELECT function_returns( :schema, :function, :type, :description );
-    SELECT function_returns( :schema, :function, :type );
-    SELECT function_returns( :function, :args, :type, :description );
-    SELECT function_returns( :function, :args, :type );
-    SELECT function_returns( :function, :type, :description );
-    SELECT function_returns( :function, :type );
+```sql
+SELECT function_returns( :schema, :function, :args, :type, :description );
+SELECT function_returns( :schema, :function, :args, :type );
+SELECT function_returns( :schema, :function, :type, :description );
+SELECT function_returns( :schema, :function, :type );
+SELECT function_returns( :function, :args, :type, :description );
+SELECT function_returns( :function, :args, :type );
+SELECT function_returns( :function, :type, :description );
+SELECT function_returns( :function, :type );
+```
 
 **Parameters**
 
@@ -5486,10 +6002,12 @@ argument may be formatted with full or aliased type names, e.g., `integer`,
 `int4`, or `int`. For set returning functions, the `:type` argument should start
 with "setof " (yes, lowercase). Examples:
 
-    SELECT function_returns( 'myschema', 'foo', ARRAY['int', 'text'], 'integer' );
-    SELECT function_returns( 'do_something', 'setof boolean' );
-    SELECT function_returns( 'do_something', ARRAY['integer'], 'boolean' );
-    SELECT function_returns( 'do_something', ARRAY['numeric'], 'numeric' );
+```sql
+SELECT function_returns( 'myschema', 'foo', ARRAY['int', 'text'], 'integer' );
+SELECT function_returns( 'do_something', 'setof boolean' );
+SELECT function_returns( 'do_something', ARRAY['integer'], 'boolean' );
+SELECT function_returns( 'do_something', ARRAY['numeric'], 'numeric' );
+```
 
 If the `:schema` argument is omitted, then the function must be visible in the
 search path. If the `:args[]` argument is passed, then the function with that
@@ -5500,7 +6018,9 @@ will be created.
 
 Procedures can also be tested; they always return `void`:
 
-    SELECT function_returns( 'my_proc', 'void' );
+```sql
+SELECT function_returns( 'my_proc', 'void' );
+```
 
 In the event of a failure, you'll useful diagnostics will tell you what went
 wrong, for example:
@@ -5518,14 +6038,16 @@ But then you check with `has_function()` first, right?
 
 ### `is_definer()` ###
 
-    SELECT is_definer( :schema, :function, :args, :description );
-    SELECT is_definer( :schema, :function, :args );
-    SELECT is_definer( :schema, :function, :description );
-    SELECT is_definer( :schema, :function );
-    SELECT is_definer( :function, :args, :description );
-    SELECT is_definer( :function, :args );
-    SELECT is_definer( :function, :description );
-    SELECT is_definer( :function );
+```sql
+SELECT is_definer( :schema, :function, :args, :description );
+SELECT is_definer( :schema, :function, :args );
+SELECT is_definer( :schema, :function, :description );
+SELECT is_definer( :schema, :function );
+SELECT is_definer( :function, :args, :description );
+SELECT is_definer( :function, :args );
+SELECT is_definer( :function, :description );
+SELECT is_definer( :function );
+```
 
 **Parameters**
 
@@ -5549,10 +6071,12 @@ signature will be checked (pass an empty array to specify a function with an
 empty signature). If the `:description` is omitted, a reasonable substitute
 will be created. Examples:
 
-    SELECT is_definer( 'myschema', 'foo', ARRAY['integer', 'text'] );
-    SELECT is_definer( 'do_something' );
-    SELECT is_definer( 'do_something', ARRAY['integer'] );
-    SELECT is_definer( 'do_something', ARRAY['numeric'] );
+```sql
+SELECT is_definer( 'myschema', 'foo', ARRAY['integer', 'text'] );
+SELECT is_definer( 'do_something' );
+SELECT is_definer( 'do_something', ARRAY['integer'] );
+SELECT is_definer( 'do_something', ARRAY['numeric'] );
+```
 
 If the function does not exist, a handy diagnostic message will let you know:
 
@@ -5563,14 +6087,16 @@ But then you check with `has_function()` first, right?
 
 ### `isnt_definer()` ###
 
-    SELECT isnt_definer( :schema, :function, :args, :description );
-    SELECT isnt_definer( :schema, :function, :args );
-    SELECT isnt_definer( :schema, :function, :description );
-    SELECT isnt_definer( :schema, :function );
-    SELECT isnt_definer( :function, :args, :description );
-    SELECT isnt_definer( :function, :args );
-    SELECT isnt_definer( :function, :description );
-    SELECT isnt_definer( :function );
+```sql
+SELECT isnt_definer( :schema, :function, :args, :description );
+SELECT isnt_definer( :schema, :function, :args );
+SELECT isnt_definer( :schema, :function, :description );
+SELECT isnt_definer( :schema, :function );
+SELECT isnt_definer( :function, :args, :description );
+SELECT isnt_definer( :function, :args );
+SELECT isnt_definer( :function, :description );
+SELECT isnt_definer( :function );
+```
 
 **Parameters**
 
@@ -5598,14 +6124,16 @@ But then you check with `has_function()` first, right?
 
 ### `is_strict()` ###
 
-    SELECT is_strict( :schema, :function, :args, :description );
-    SELECT is_strict( :schema, :function, :args );
-    SELECT is_strict( :schema, :function, :description );
-    SELECT is_strict( :schema, :function );
-    SELECT is_strict( :function, :args, :description );
-    SELECT is_strict( :function, :args );
-    SELECT is_strict( :function, :description );
-    SELECT is_strict( :function );
+```sql
+SELECT is_strict( :schema, :function, :args, :description );
+SELECT is_strict( :schema, :function, :args );
+SELECT is_strict( :schema, :function, :description );
+SELECT is_strict( :schema, :function );
+SELECT is_strict( :function, :args, :description );
+SELECT is_strict( :function, :args );
+SELECT is_strict( :function, :description );
+SELECT is_strict( :function );
+```
 
 **Parameters**
 
@@ -5629,10 +6157,12 @@ function with any signature will be checked (pass an empty array to specify a
 function with an empty signature). If the `:description` is omitted, a
 reasonable substitute will be created. Examples:
 
-    SELECT is_strict( 'myschema', 'foo', ARRAY['integer', 'text'] );
-    SELECT is_strict( 'do_something' );
-    SELECT is_strict( 'do_something', ARRAY['integer'] );
-    SELECT is_strict( 'do_something', ARRAY['numeric'] );
+```sql
+SELECT is_strict( 'myschema', 'foo', ARRAY['integer', 'text'] );
+SELECT is_strict( 'do_something' );
+SELECT is_strict( 'do_something', ARRAY['integer'] );
+SELECT is_strict( 'do_something', ARRAY['numeric'] );
+```
 
 If the function does not exist, a handy diagnostic message will let you know:
 
@@ -5643,14 +6173,16 @@ But then you check with `has_function()` first, right?
 
 ### `isnt_strict()` ###
 
-    SELECT isnt_strict( :schema, :function, :args, :description );
-    SELECT isnt_strict( :schema, :function, :args );
-    SELECT isnt_strict( :schema, :function, :description );
-    SELECT isnt_strict( :schema, :function );
-    SELECT isnt_strict( :function, :args, :description );
-    SELECT isnt_strict( :function, :args );
-    SELECT isnt_strict( :function, :description );
-    SELECT isnt_strict( :function );
+```sql
+SELECT isnt_strict( :schema, :function, :args, :description );
+SELECT isnt_strict( :schema, :function, :args );
+SELECT isnt_strict( :schema, :function, :description );
+SELECT isnt_strict( :schema, :function );
+SELECT isnt_strict( :function, :args, :description );
+SELECT isnt_strict( :function, :args );
+SELECT isnt_strict( :function, :description );
+SELECT isnt_strict( :function );
+```
 
 **Parameters**
 
@@ -5678,14 +6210,16 @@ But then you check with `has_function()` first, right?
 
 ### `is_normal_function()` ###
 
-    SELECT is_normal_function( :schema, :function, :args, :description );
-    SELECT is_normal_function( :schema, :function, :args );
-    SELECT is_normal_function( :schema, :function, :description );
-    SELECT is_normal_function( :schema, :function );
-    SELECT is_normal_function( :function, :args, :description );
-    SELECT is_normal_function( :function, :args );
-    SELECT is_normal_function( :function, :description );
-    SELECT is_normal_function( :function );
+```sql
+SELECT is_normal_function( :schema, :function, :args, :description );
+SELECT is_normal_function( :schema, :function, :args );
+SELECT is_normal_function( :schema, :function, :description );
+SELECT is_normal_function( :schema, :function );
+SELECT is_normal_function( :function, :args, :description );
+SELECT is_normal_function( :function, :args );
+SELECT is_normal_function( :function, :description );
+SELECT is_normal_function( :function );
+```
 
 **Parameters**
 
@@ -5710,10 +6244,12 @@ specify a function with an empty signature). If the `:description` is omitted, a
 reasonable substitute will be created. Fails if the function is not a normal
 function or if the function does not exist. Examples:
 
-    SELECT is_normal_function( 'myschema', 'foo',  ARRAY['integer', 'text'] );
-    SELECT is_normal_function( 'do_something' );
-    SELECT is_normal_function( 'do_something', ARRAY['integer'] );
-    SELECT is_normal_function( 'do_something', ARRAY['numeric'] );
+```sql
+SELECT is_normal_function( 'myschema', 'foo',  ARRAY['integer', 'text'] );
+SELECT is_normal_function( 'do_something' );
+SELECT is_normal_function( 'do_something', ARRAY['integer'] );
+SELECT is_normal_function( 'do_something', ARRAY['numeric'] );
+```
 
 If no such function exists, a handy diagnostic message will let you know:
 
@@ -5724,14 +6260,16 @@ But then you check with `has_function()` first, right?
 
 ### `isnt_normal_function()` ###
 
-    SELECT isnt_normal_function( :schema, :function, :args, :description );
-    SELECT isnt_normal_function( :schema, :function, :args );
-    SELECT isnt_normal_function( :schema, :function, :description );
-    SELECT isnt_normal_function( :schema, :function );
-    SELECT isnt_normal_function( :function, :args, :description );
-    SELECT isnt_normal_function( :function, :args );
-    SELECT isnt_normal_function( :function, :description );
-    SELECT isnt_normal_function( :function );
+```sql
+SELECT isnt_normal_function( :schema, :function, :args, :description );
+SELECT isnt_normal_function( :schema, :function, :args );
+SELECT isnt_normal_function( :schema, :function, :description );
+SELECT isnt_normal_function( :schema, :function );
+SELECT isnt_normal_function( :function, :args, :description );
+SELECT isnt_normal_function( :function, :args );
+SELECT isnt_normal_function( :function, :description );
+SELECT isnt_normal_function( :function );
+```
 
 **Parameters**
 
@@ -5759,14 +6297,16 @@ But then you check with `has_function()` first, right?
 
 ### `is_aggregate()` ###
 
-    SELECT is_aggregate( :schema, :function, :args, :description );
-    SELECT is_aggregate( :schema, :function, :args );
-    SELECT is_aggregate( :schema, :function, :description );
-    SELECT is_aggregate( :schema, :function );
-    SELECT is_aggregate( :function, :args, :description );
-    SELECT is_aggregate( :function, :args );
-    SELECT is_aggregate( :function, :description );
-    SELECT is_aggregate( :function );
+```sql
+SELECT is_aggregate( :schema, :function, :args, :description );
+SELECT is_aggregate( :schema, :function, :args );
+SELECT is_aggregate( :schema, :function, :description );
+SELECT is_aggregate( :schema, :function );
+SELECT is_aggregate( :function, :args, :description );
+SELECT is_aggregate( :function, :args );
+SELECT is_aggregate( :function, :description );
+SELECT is_aggregate( :function );
+```
 
 **Parameters**
 
@@ -5791,10 +6331,12 @@ empty array to specify a function with an empty signature). If the
 function is not an aggregate function, or if the function does not exist.
 Examples:
 
-    SELECT is_aggregate( 'myschema', 'foo',  ARRAY['integer', 'text'] );
-    SELECT is_aggregate( 'do_something' );
-    SELECT is_aggregate( 'do_something', ARRAY['integer'] );
-    SELECT is_aggregate( 'do_something', ARRAY['numeric'] );
+```sql
+SELECT is_aggregate( 'myschema', 'foo',  ARRAY['integer', 'text'] );
+SELECT is_aggregate( 'do_something' );
+SELECT is_aggregate( 'do_something', ARRAY['integer'] );
+SELECT is_aggregate( 'do_something', ARRAY['numeric'] );
+```
 
 If no such function exists, a handy diagnostic message will let you know:
 
@@ -5805,14 +6347,16 @@ But then you check with `has_function()` first, right?
 
 ### `isnt_aggregate()` ###
 
-    SELECT isnt_aggregate( :schema, :function, :args, :description );
-    SELECT isnt_aggregate( :schema, :function, :args );
-    SELECT isnt_aggregate( :schema, :function, :description );
-    SELECT isnt_aggregate( :schema, :function );
-    SELECT isnt_aggregate( :function, :args, :description );
-    SELECT isnt_aggregate( :function, :args );
-    SELECT isnt_aggregate( :function, :description );
-    SELECT isnt_aggregate( :function );
+```sql
+SELECT isnt_aggregate( :schema, :function, :args, :description );
+SELECT isnt_aggregate( :schema, :function, :args );
+SELECT isnt_aggregate( :schema, :function, :description );
+SELECT isnt_aggregate( :schema, :function );
+SELECT isnt_aggregate( :function, :args, :description );
+SELECT isnt_aggregate( :function, :args );
+SELECT isnt_aggregate( :function, :description );
+SELECT isnt_aggregate( :function );
+```
 
 **Parameters**
 
@@ -5840,14 +6384,16 @@ But then you check with `has_function()` first, right?
 
 ### `is_window()` ###
 
-    SELECT is_window( :schema, :function, :args, :description );
-    SELECT is_window( :schema, :function, :args );
-    SELECT is_window( :schema, :function, :description );
-    SELECT is_window( :schema, :function );
-    SELECT is_window( :function, :args, :description );
-    SELECT is_window( :function, :args );
-    SELECT is_window( :function, :description );
-    SELECT is_window( :function );
+```sql
+SELECT is_window( :schema, :function, :args, :description );
+SELECT is_window( :schema, :function, :args );
+SELECT is_window( :schema, :function, :description );
+SELECT is_window( :schema, :function );
+SELECT is_window( :function, :args, :description );
+SELECT is_window( :function, :args );
+SELECT is_window( :function, :description );
+SELECT is_window( :function );
+```
 
 **Parameters**
 
@@ -5871,10 +6417,12 @@ empty array to specify a function with an empty signature). If the
 `:description` is omitted, a reasonable substitute will be created. Fails if the
 function is not a window function or if the function does not exist. Examples:
 
-    SELECT is_window( 'myschema', 'foo',  ARRAY['integer', 'text'] );
-    SELECT is_window( 'do_something' );
-    SELECT is_window( 'do_something', ARRAY['integer'] );
-    SELECT is_window( 'do_something', ARRAY['numeric'] );
+```sql
+SELECT is_window( 'myschema', 'foo',  ARRAY['integer', 'text'] );
+SELECT is_window( 'do_something' );
+SELECT is_window( 'do_something', ARRAY['integer'] );
+SELECT is_window( 'do_something', ARRAY['numeric'] );
+```
 
 If no such function exists, a handy diagnostic message will let you know:
 
@@ -5885,14 +6433,16 @@ But then you check with `has_function()` first, right?
 
 ### `isnt_window()` ###
 
-    SELECT isnt_window( :schema, :function, :args, :description );
-    SELECT isnt_window( :schema, :function, :args );
-    SELECT isnt_window( :schema, :function, :description );
-    SELECT isnt_window( :schema, :function );
-    SELECT isnt_window( :function, :args, :description );
-    SELECT isnt_window( :function, :args );
-    SELECT isnt_window( :function, :description );
-    SELECT isnt_window( :function );
+```sql
+SELECT isnt_window( :schema, :function, :args, :description );
+SELECT isnt_window( :schema, :function, :args );
+SELECT isnt_window( :schema, :function, :description );
+SELECT isnt_window( :schema, :function );
+SELECT isnt_window( :function, :args, :description );
+SELECT isnt_window( :function, :args );
+SELECT isnt_window( :function, :description );
+SELECT isnt_window( :function );
+```
 
 **Parameters**
 
@@ -5920,14 +6470,16 @@ But then you check with `has_function()` first, right?
 
 ### `is_procedure()` ###
 
-    SELECT is_procedure( :schema, :function, :args, :description );
-    SELECT is_procedure( :schema, :function, :args );
-    SELECT is_procedure( :schema, :function, :description );
-    SELECT is_procedure( :schema, :function );
-    SELECT is_procedure( :function, :args, :description );
-    SELECT is_procedure( :function, :args );
-    SELECT is_procedure( :function, :description );
-    SELECT is_procedure( :function );
+```sql
+SELECT is_procedure( :schema, :function, :args, :description );
+SELECT is_procedure( :schema, :function, :args );
+SELECT is_procedure( :schema, :function, :description );
+SELECT is_procedure( :schema, :function );
+SELECT is_procedure( :function, :args, :description );
+SELECT is_procedure( :function, :args );
+SELECT is_procedure( :function, :description );
+SELECT is_procedure( :function );
+```
 
 **Parameters**
 
@@ -5951,10 +6503,12 @@ empty array to specify a function with an empty signature). If the
 `:description` is omitted, a reasonable substitute will be created. Fails if the
 function is not a procedure or if the function does not exist. Examples:
 
-    SELECT is_procedure( 'myschema', 'foo',  ARRAY['integer', 'text'] );
-    SELECT is_procedure( 'do_something' );
-    SELECT is_procedure( 'do_something', ARRAY['integer'] );
-    SELECT is_procedure( 'do_something', ARRAY['numeric'] );
+```sql
+SELECT is_procedure( 'myschema', 'foo',  ARRAY['integer', 'text'] );
+SELECT is_procedure( 'do_something' );
+SELECT is_procedure( 'do_something', ARRAY['integer'] );
+SELECT is_procedure( 'do_something', ARRAY['numeric'] );
+```
 
 If no such function exists, a handy diagnostic message will let you know:
 
@@ -5965,14 +6519,16 @@ But then you check with `has_function()` first, right?
 
 ### `isnt_procedure()` ###
 
-    SELECT isnt_procedure( :schema, :function, :args, :description );
-    SELECT isnt_procedure( :schema, :function, :args );
-    SELECT isnt_procedure( :schema, :function, :description );
-    SELECT isnt_procedure( :schema, :function );
-    SELECT isnt_procedure( :function, :args, :description );
-    SELECT isnt_procedure( :function, :args );
-    SELECT isnt_procedure( :function, :description );
-    SELECT isnt_procedure( :function );
+```sql
+SELECT isnt_procedure( :schema, :function, :args, :description );
+SELECT isnt_procedure( :schema, :function, :args );
+SELECT isnt_procedure( :schema, :function, :description );
+SELECT isnt_procedure( :schema, :function );
+SELECT isnt_procedure( :function, :args, :description );
+SELECT isnt_procedure( :function, :args );
+SELECT isnt_procedure( :function, :description );
+SELECT isnt_procedure( :function );
+```
 
 **Parameters**
 
@@ -6000,14 +6556,16 @@ But then you check with `has_function()` first, right?
 
 ### `volatility_is()` ###
 
-    SELECT volatility_is( :schema, :function, :args, :volatility, :description );
-    SELECT volatility_is( :schema, :function, :args, :volatility );
-    SELECT volatility_is( :schema, :function, :volatility, :description );
-    SELECT volatility_is( :schema, :function, :volatility );
-    SELECT volatility_is( :function, :args, :volatility, :description );
-    SELECT volatility_is( :function, :args, :volatility );
-    SELECT volatility_is( :function, :volatility, :description );
-    SELECT volatility_is( :function, :volatility );
+```sql
+SELECT volatility_is( :schema, :function, :args, :volatility, :description );
+SELECT volatility_is( :schema, :function, :args, :volatility );
+SELECT volatility_is( :schema, :function, :volatility, :description );
+SELECT volatility_is( :schema, :function, :volatility );
+SELECT volatility_is( :function, :args, :volatility, :description );
+SELECT volatility_is( :function, :args, :volatility );
+SELECT volatility_is( :function, :volatility, :description );
+SELECT volatility_is( :function, :volatility );
+```
 
 **Parameters**
 
@@ -6037,10 +6595,12 @@ checked (pass an empty array to specify a function with an empty signature).
 If the `:description` is omitted, a reasonable substitute will be created.
 Examples:
 
-    SELECT volatility_is( 'myschema', 'foo',  ARRAY['integer', 'text'], 'stable' );
-    SELECT volatility_is( 'do_something', 'immutable' );
-    SELECT volatility_is( 'do_something', ARRAY['integer'], 'stable' );
-    SELECT volatility_is( 'do_something', ARRAY['numeric'], 'volatile' );
+```sql
+SELECT volatility_is( 'myschema', 'foo',  ARRAY['integer', 'text'], 'stable' );
+SELECT volatility_is( 'do_something', 'immutable' );
+SELECT volatility_is( 'do_something', ARRAY['integer'], 'stable' );
+SELECT volatility_is( 'do_something', ARRAY['numeric'], 'volatile' );
+```
 
 In the event of a failure, you'll useful diagnostics will tell you what went
 wrong, for example:
@@ -6057,11 +6617,13 @@ If the function does not exist, you'll be told that, too.
 But then you check with `has_function()` first, right?
 
 ### `trigger_is()` ###
+```sql
 
-    SELECT trigger_is( :schema, :table, :trigger, :func_schema, :function, :description );
-    SELECT trigger_is( :schema, :table, :trigger, :func_schema, :function );
-    SELECT trigger_is( :table, :trigger, :function, :description );
-    SELECT trigger_is( :table, :trigger, :function );
+SELECT trigger_is( :schema, :table, :trigger, :func_schema, :function, :description );
+SELECT trigger_is( :schema, :table, :trigger, :func_schema, :function );
+SELECT trigger_is( :table, :trigger, :function, :description );
+SELECT trigger_is( :table, :trigger, :function );
+```
 
 **Parameters**
 
@@ -6099,8 +6661,10 @@ other database objects.
 
 ### `language_is_trusted()` ###
 
-    SELECT language_is_trusted( language, description );
-    SELECT language_is_trusted( language );
+```sql
+SELECT language_is_trusted( language, description );
+SELECT language_is_trusted( language );
+```
 
 **Parameters**
 
@@ -6128,10 +6692,12 @@ far.
 
 ### `enum_has_labels()` ###
 
-    SELECT enum_has_labels( :schema, :enum, :labels, :description );
-    SELECT enum_has_labels( :schema, :enum, :labels );
-    SELECT enum_has_labels( :enum, :labels, :description );
-    SELECT enum_has_labels( :enum, :labels );
+```sql
+SELECT enum_has_labels( :schema, :enum, :labels, :description );
+SELECT enum_has_labels( :schema, :enum, :labels );
+SELECT enum_has_labels( :enum, :labels, :description );
+SELECT enum_has_labels( :enum, :labels );
+```
 
 **Parameters**
 
@@ -6159,12 +6725,14 @@ omit the test description, it will be set to "Enum `:enum` should have labels
 
 ### `domain_type_is()` ###
 
-    SELECT domain_type_is( :schema, :domain, :type_schema, :type, :description );
-    SELECT domain_type_is( :schema, :domain, :type_schema, :type );
-    SELECT domain_type_is( :schema, :domain, :type, :description );
-    SELECT domain_type_is( :schema, :domain, :type );
-    SELECT domain_type_is( :domain, :type, :description );
-    SELECT domain_type_is( :domain, :type );
+```sql
+SELECT domain_type_is( :schema, :domain, :type_schema, :type, :description );
+SELECT domain_type_is( :schema, :domain, :type_schema, :type );
+SELECT domain_type_is( :schema, :domain, :type, :description );
+SELECT domain_type_is( :schema, :domain, :type );
+SELECT domain_type_is( :domain, :type, :description );
+SELECT domain_type_is( :domain, :type );
+```
 
 **Parameters**
 
@@ -6199,10 +6767,12 @@ Types can be defined by their canonical names or their aliases, e.g.,
 For the 3- and 4-argument forms with schemas, cast the schemas to `NAME` to
 avoid ambiguities. Example:
 
-    SELECT domain_type_is(
-        'public'::name, 'us_postal_code',
-        'public'::name, 'text'
-    );
+```sql
+SELECT domain_type_is(
+    'public'::name, 'us_postal_code',
+    'public'::name, 'text'
+);
+```
 
 If the data type does not match the type that the domain extends, the test
 will fail and output diagnostics like so:
@@ -6219,12 +6789,14 @@ diagnostics that tell you so:
 
 ### `domain_type_isnt()` ###
 
-    SELECT domain_type_isnt( :schema, :domain, :type_schema, :type, :description );
-    SELECT domain_type_isnt( :schema, :domain, :type_schema, :type );
-    SELECT domain_type_isnt( :schema, :domain, :type, :description );
-    SELECT domain_type_isnt( :schema, :domain, :type );
-    SELECT domain_type_isnt( :domain, :type, :description );
-    SELECT domain_type_isnt( :domain, :type );
+```sql
+SELECT domain_type_isnt( :schema, :domain, :type_schema, :type, :description );
+SELECT domain_type_isnt( :schema, :domain, :type_schema, :type );
+SELECT domain_type_isnt( :schema, :domain, :type, :description );
+SELECT domain_type_isnt( :schema, :domain, :type );
+SELECT domain_type_isnt( :domain, :type, :description );
+SELECT domain_type_isnt( :domain, :type );
+```
 
 **Parameters**
 
@@ -6248,18 +6820,22 @@ The inverse of `domain_type_is()`, this function tests that a domain does
 should probably extend the `text` type, not `integer`, since leading 0s are
 valid and required. Example:
 
-    SELECT domain_type_isnt(
-        'public', 'us_postal_code',
-        'public', 'integer',
-        'The us_postal_code domain should not extend the integer type'
-    );
+```sql
+SELECT domain_type_isnt(
+    'public', 'us_postal_code',
+    'public', 'integer',
+    'The us_postal_code domain should not extend the integer type'
+);
+```
 
 The arguments are the same as for `domain_type_is()`.
 
 ### `cast_context_is()` ###
 
-    SELECT cast_context_is( :source_type, :target_type, :context, :description );
-    SELECT cast_context_is( :source_type, :target_type, :context );
+```sql
+SELECT cast_context_is( :source_type, :target_type, :context, :description );
+SELECT cast_context_is( :source_type, :target_type, :context );
+```
 
 **Parameters**
 
@@ -6275,13 +6851,17 @@ The arguments are the same as for `domain_type_is()`.
 Test that a cast from a source to a target data type has a particular context.
 Example:
 
-    SELECT cast_context_is( 'integer', 'bigint', 'implicit' );
+```sql
+SELECT cast_context_is( 'integer', 'bigint', 'implicit' );
+```
 
 The data types may be defined by their canonical names or their aliases,
 e.g., `character varying` or `varchar`, so both these tests will pass:
 
-    SELECT cast_context_is( 'text', 'character varying', 'implicit' );
-    SELECT cast_context_is( 'text', 'varchar', 'implicit' );
+```sql
+SELECT cast_context_is( 'text', 'character varying', 'implicit' );
+SELECT cast_context_is( 'text', 'varchar', 'implicit' );
+```
 
 The supported contexts are "implicit", "assignment", and "explicit". You can
 also just pass in "i", "a", or "e". Consult the PostgreSQL [`CREATE
@@ -6305,8 +6885,10 @@ But you've already used `has_cast()` to make sure of that, right?
 
 ### `is_superuser()` ###
 
-    SELECT is_superuser( :user, :description );
-    SELECT is_superuser( :user );
+```sql
+SELECT is_superuser( :user, :description );
+SELECT is_superuser( :user );
+```
 
 **Parameters**
 
@@ -6319,16 +6901,20 @@ But you've already used `has_cast()` to make sure of that, right?
 Tests that a database user is a super user. If the description is omitted, it
 will default to "User `:user` should be a super user". Example:
 
-    SELECT is_superuser('theory' ;
+```sql
+    SELECT is_superuser('theory');
+```
 
 If the user does not exist in the database, the diagnostics will say so.
 
 ### `isnt_superuser()` ###
 
-    SELECT is_superuser(
-        'dr_evil',
-        'User "dr_evil" should not be a super user'
-    );
+```sql
+SELECT is_superuser(
+    'dr_evil',
+    'User "dr_evil" should not be a super user'
+);
+```
 
 **Parameters**
 
@@ -6345,10 +6931,12 @@ so.
 
 ### `is_member_of()` ###
 
-    SELECT is_member_of( :role, :members, :description );
-    SELECT is_member_of( :role, :members );
-    SELECT is_member_of( :role, :member, :description );
-    SELECT is_member_of( :role, :member );
+```sql
+SELECT is_member_of( :role, :members, :description );
+SELECT is_member_of( :role, :members );
+SELECT is_member_of( :role, :member, :description );
+SELECT is_member_of( :role, :member );
+```
 
 **Parameters**
 
@@ -6364,8 +6952,10 @@ so.
 `:description`
 : A short description of the test.
 
-    SELECT is_member_of( 'sweeties', 'anna' 'Anna should be a sweetie' );
-    SELECT is_member_of( 'meanies', ARRAY['dr_evil', 'dr_no' ] );
+```sql
+SELECT is_member_of( 'sweeties', 'anna' 'Anna should be a sweetie' );
+SELECT is_member_of( 'meanies', ARRAY['dr_evil', 'dr_no' ] );
+```
 
 Checks whether a group role contains a member role or all of an array of
 member roles. If the description is omitted, it will default to "Should have
@@ -6383,10 +6973,12 @@ members, don't you? Of course you do.
 
 ### `isnt_member_of()` ###
 
-    SELECT isnt_member_of( :role, :members, :description );
-    SELECT isnt_member_of( :role, :members );
-    SELECT isnt_member_of( :role, :member, :description );
-    SELECT isnt_member_of( :role, :member );
+```sql
+SELECT isnt_member_of( :role, :members, :description );
+SELECT isnt_member_of( :role, :members );
+SELECT isnt_member_of( :role, :member, :description );
+SELECT isnt_member_of( :role, :member );
+```
 
 **Parameters**
 
@@ -6402,8 +6994,10 @@ members, don't you? Of course you do.
 `:description`
 : A short description of the test.
 
-    SELECT isnt_member_of( 'meanies', 'anna' 'Anna should not be a meanie' );
-    SELECT isnt_member_of( 'sweeties', ARRAY['dr_evil', 'dr_no' ] );
+```sql
+SELECT isnt_member_of( 'meanies', 'anna' 'Anna should not be a meanie' );
+SELECT isnt_member_of( 'sweeties', ARRAY['dr_evil', 'dr_no' ] );
+```
 
 The inverse of `is_member_of()`, checks whether a group role does not contain
 a member role or none of an array of member roles. If the description is
@@ -6422,10 +7016,12 @@ members, don't you? Of course you do.
 
 ### `rule_is_instead()` ###
 
-    SELECT rule_is_instead( :schema, :table, :rule, :description );
-    SELECT rule_is_instead( :schema, :table, :rule );
-    SELECT rule_is_instead( :table, :rule, :description );
-    SELECT rule_is_instead( :table, :rule );
+```sql
+SELECT rule_is_instead( :schema, :table, :rule, :description );
+SELECT rule_is_instead( :schema, :table, :rule );
+SELECT rule_is_instead( :table, :rule, :description );
+SELECT rule_is_instead( :table, :rule );
+```
 
 **Parameters**
 
@@ -6448,7 +7044,9 @@ for details. If the `:schema` argument is omitted, the relation must be
 visible in the search path. If the `:description` argument is omitted, an
 appropriate description will be created. An example:
 
-    SELECT rule_is_instead('public', 'users', 'on_insert');
+```sql
+SELECT rule_is_instead('public', 'users', 'on_insert');
+```
 
 In the event that the test fails because the rule in question does not
 actually exist, you will see an appropriate diagnostic such as:
@@ -6458,10 +7056,12 @@ actually exist, you will see an appropriate diagnostic such as:
 
 ### `rule_is_on()` ###
 
-    SELECT rule_is_on( :schema, :table, :rule, :event, :description );
-    SELECT rule_is_on( :schema, :table, :rule, :event );
-    SELECT rule_is_on( :table, :rule, :event, :description );
-    SELECT rule_is_on( :table, :rule, :event );
+```sql
+SELECT rule_is_on( :schema, :table, :rule, :event, :description );
+SELECT rule_is_on( :schema, :table, :rule, :event );
+SELECT rule_is_on( :table, :rule, :event, :description );
+SELECT rule_is_on( :table, :rule, :event );
+```
 
 **Parameters**
 
@@ -6487,7 +7087,9 @@ in any case, or even with a single letter ("s", "i", "u", or "d"). If the
 path. If the `:description` is omitted, a reasonable default will be created.
 Example:
 
-    SELECT rule_is_on('public', 'users', 'on_insert', 'INSERT');
+```sql
+SELECT rule_is_on('public', 'users', 'on_insert', 'INSERT');
+```
 
 If the test fails, you'll see useful diagnostics, such as:
 
@@ -6510,8 +7112,10 @@ owns an object.
 
 ### `db_owner_is ()` ###
 
-    SELECT db_owner_is ( :dbname, :user, :description );
-    SELECT db_owner_is ( :dbname, :user );
+```sql
+SELECT db_owner_is ( :dbname, :user, :description );
+SELECT db_owner_is ( :dbname, :user );
+```
 
 **Parameters**
 
@@ -6527,8 +7131,10 @@ owns an object.
 Tests the ownership of the database. If the `:description` argument is
 omitted, an appropriate description will be created. Examples:
 
-    SELECT db_owner_is( 'mydb', 'someuser', 'mydb should be owned by someuser' );
-    SELECT db_owner_is( current_database(), current_user );
+```sql
+SELECT db_owner_is( 'mydb', 'someuser', 'mydb should be owned by someuser' );
+SELECT db_owner_is( current_database(), current_user );
+```
 
 In the event that the test fails because the database in question does not
 actually exist, you will see an appropriate diagnostic such as:
@@ -6545,8 +7151,10 @@ diagnostics will look something like:
 
 ### `schema_owner_is ()` ###
 
-    SELECT schema_owner_is ( :schemaname, :user, :description );
-    SELECT schema_owner_is ( :schemaname, :user );
+```sql
+SELECT schema_owner_is ( :schemaname, :user, :description );
+SELECT schema_owner_is ( :schemaname, :user );
+```
 
 **Parameters**
 
@@ -6562,8 +7170,10 @@ diagnostics will look something like:
 Tests the ownership of the schema. If the `:description` argument is
 omitted, an appropriate description will be created. Examples:
 
-    SELECT schema_owner_is( 'myschema', 'someuser', 'myschema should be owned by someuser' );
-    SELECT schema_owner_is( current_schema(), current_user );
+```sql
+SELECT schema_owner_is( 'myschema', 'someuser', 'myschema should be owned by someuser' );
+SELECT schema_owner_is( current_schema(), current_user );
+```
 
 In the event that the test fails because the schema in question does not
 actually exist, you will see an appropriate diagnostic such as:
@@ -6580,8 +7190,10 @@ diagnostics will look something like:
 
 ### `tablespace_owner_is ()` ###
 
-    SELECT tablespace_owner_is ( :tablespacename, :user, :description );
-    SELECT tablespace_owner_is ( :tablespacename, :user );
+```sql
+SELECT tablespace_owner_is ( :tablespacename, :user, :description );
+SELECT tablespace_owner_is ( :tablespacename, :user );
+```
 
 **Parameters**
 
@@ -6597,8 +7209,10 @@ diagnostics will look something like:
 Tests the ownership of the tablespace. If the `:description` argument is
 omitted, an appropriate description will be created. Examples:
 
-    SELECT tablespace_owner_is( 'myts', 'joe', 'Joe has mytablespace' );
-    SELECT tablespace_owner_is( 'pg_default', current_user );
+```sql
+SELECT tablespace_owner_is( 'myts', 'joe', 'Joe has mytablespace' );
+SELECT tablespace_owner_is( 'pg_default', current_user );
+```
 
 In the event that the test fails because the tablespace in question does not
 actually exist, you will see an appropriate diagnostic such as:
@@ -6615,10 +7229,12 @@ the diagnostics will look something like:
 
 ### `relation_owner_is ()` ###
 
-    SELECT relation_owner_is ( :schema, :relation, :user, :description );
-    SELECT relation_owner_is ( :relation, :user, :description );
-    SELECT relation_owner_is ( :schema, :relation, :user );
-    SELECT relation_owner_is ( :relation, :user );
+```sql
+SELECT relation_owner_is ( :schema, :relation, :user, :description );
+SELECT relation_owner_is ( :relation, :user, :description );
+SELECT relation_owner_is ( :schema, :relation, :user );
+SELECT relation_owner_is ( :relation, :user );
+```
 
 **Parameters**
 
@@ -6639,11 +7255,13 @@ views, sequences, composite types, foreign tables, and toast tables. If the
 `:description` argument is omitted, an appropriate description will be created.
 Examples:
 
-    SELECT relation_owner_is(
-        'public', 'mytable', 'someuser',
-        'mytable should be owned by someuser'
-    );
-    SELECT relation_owner_is( current_schema(), 'mysequence', current_user );
+```sql
+SELECT relation_owner_is(
+    'public', 'mytable', 'someuser',
+    'mytable should be owned by someuser'
+);
+SELECT relation_owner_is( current_schema(), 'mysequence', current_user );
+```
 
 In the event that the test fails because the relation in question does not
 actually exist or is not visible, you will see an appropriate diagnostic such
@@ -6661,10 +7279,12 @@ diagnostics will look something like:
 
 ### `table_owner_is ()` ###
 
-    SELECT table_owner_is ( :schema, :table, :user, :description );
-    SELECT table_owner_is ( :table, :user, :description );
-    SELECT table_owner_is ( :schema, :table, :user );
-    SELECT table_owner_is ( :table, :user );
+```sql
+SELECT table_owner_is ( :schema, :table, :user, :description );
+SELECT table_owner_is ( :table, :user, :description );
+SELECT table_owner_is ( :schema, :table, :user );
+SELECT table_owner_is ( :table, :user );
+```
 
 **Parameters**
 
@@ -6683,11 +7303,13 @@ diagnostics will look something like:
 Tests the ownership of a table. If the `:description` argument is omitted, an
 appropriate description will be created. Examples:
 
-    SELECT table_owner_is(
-        'public', 'mytable', 'someuser',
-        'mytable should be owned by someuser'
-    );
-    SELECT table_owner_is( 'widgets', current_user );
+```sql
+SELECT table_owner_is(
+    'public', 'mytable', 'someuser',
+    'mytable should be owned by someuser'
+);
+SELECT table_owner_is( 'widgets', current_user );
+```
 
 Note that this function will not recognize foreign tables; use
 `foreign_table_owner_is()` to test for the presence of foreign tables.
@@ -6708,10 +7330,12 @@ diagnostics will look something like:
 
 ### `view_owner_is ()` ###
 
-    SELECT view_owner_is ( :schema, :view, :user, :description );
-    SELECT view_owner_is ( :view, :user, :description );
-    SELECT view_owner_is ( :schema, :view, :user );
-    SELECT view_owner_is ( :view, :user );
+```sql
+SELECT view_owner_is ( :schema, :view, :user, :description );
+SELECT view_owner_is ( :view, :user, :description );
+SELECT view_owner_is ( :schema, :view, :user );
+SELECT view_owner_is ( :view, :user );
+```
 
 **Parameters**
 
@@ -6730,11 +7354,13 @@ diagnostics will look something like:
 Tests the ownership of a view. If the `:description` argument is omitted, an
 appropriate description will be created. Examples:
 
-    SELECT view_owner_is(
-        'public', 'myview', 'someuser',
-        'myview should be owned by someuser'
-    );
-    SELECT view_owner_is( 'widgets', current_user );
+```sql
+SELECT view_owner_is(
+    'public', 'myview', 'someuser',
+    'myview should be owned by someuser'
+);
+SELECT view_owner_is( 'widgets', current_user );
+```
 
 In the event that the test fails because the view in question does not
 actually exist or is not visible, you will see an appropriate diagnostic such
@@ -6752,10 +7378,12 @@ diagnostics will look something like:
 
 ### `materialized_view_owner_is ()` ###
 
-    SELECT materialized_view_owner_is ( :schema, :materialized_view, :user, :description );
-    SELECT materialized_view_owner_is ( :materialized_view, :user, :description );
-    SELECT materialized_view_owner_is ( :schema, :materialized_view, :user );
-    SELECT materialized_view_owner_is ( :materialized_view, :user );
+```sql
+SELECT materialized_view_owner_is ( :schema, :materialized_view, :user, :description );
+SELECT materialized_view_owner_is ( :materialized_view, :user, :description );
+SELECT materialized_view_owner_is ( :schema, :materialized_view, :user );
+SELECT materialized_view_owner_is ( :materialized_view, :user );
+```
 
 **Parameters**
 
@@ -6774,11 +7402,13 @@ diagnostics will look something like:
 Tests the ownership of a materialized view. If the `:description` argument is
 omitted, an appropriate description will be created. Examples:
 
-    SELECT view_owner_is(
-        'public', 'my_matview', 'someuser',
-        'my_matview should be owned by someuser'
-    );
-    SELECT materialized_view_owner_is( 'widgets', current_user );
+```sql
+SELECT view_owner_is(
+    'public', 'my_matview', 'someuser',
+    'my_matview should be owned by someuser'
+);
+SELECT materialized_view_owner_is( 'widgets', current_user );
+```
 
 In the event that the test fails because the materialized view in question does
 not actually exist or is not visible, you will see an appropriate diagnostic
@@ -6796,11 +7426,12 @@ user, the diagnostics will look something like:
 
 ### `sequence_owner_is ()` ###
 
-    SELECT sequence_owner_is ( :schema, :sequence, :user, :description );
-    SELECT sequence_owner_is ( :sequence, :user, :description );
-    SELECT sequence_owner_is ( :schema, :sequence, :user );
-    SELECT sequence_owner_is ( :sequence, :user );
-
+```sql
+SELECT sequence_owner_is ( :schema, :sequence, :user, :description );
+SELECT sequence_owner_is ( :sequence, :user, :description );
+SELECT sequence_owner_is ( :schema, :sequence, :user );
+SELECT sequence_owner_is ( :sequence, :user );
+```
 **Parameters**
 
 `:schema`
@@ -6818,11 +7449,13 @@ user, the diagnostics will look something like:
 Tests the ownership of a sequence. If the `:description` argument is omitted, an
 appropriate description will be created. Examples:
 
-    SELECT sequence_owner_is(
-        'public', 'mysequence', 'someuser',
-        'mysequence should be owned by someuser'
-    );
-    SELECT sequence_owner_is( 'widgets', current_user );
+```sql
+SELECT sequence_owner_is(
+    'public', 'mysequence', 'someuser',
+    'mysequence should be owned by someuser'
+);
+SELECT sequence_owner_is( 'widgets', current_user );
+```
 
 In the event that the test fails because the sequence in question does not
 actually exist or is not visible, you will see an appropriate diagnostic such
@@ -6840,10 +7473,12 @@ diagnostics will look something like:
 
 ### `composite_owner_is ()` ###
 
-    SELECT composite_owner_is ( :schema, :composite, :user, :description );
-    SELECT composite_owner_is ( :composite, :user, :description );
-    SELECT composite_owner_is ( :schema, :composite, :user );
-    SELECT composite_owner_is ( :composite, :user );
+```sql
+SELECT composite_owner_is ( :schema, :composite, :user, :description );
+SELECT composite_owner_is ( :composite, :user, :description );
+SELECT composite_owner_is ( :schema, :composite, :user );
+SELECT composite_owner_is ( :composite, :user );
+```
 
 **Parameters**
 
@@ -6862,11 +7497,13 @@ diagnostics will look something like:
 Tests the ownership of a composite. If the `:description` argument is omitted, an
 appropriate description will be created. Examples:
 
-    SELECT composite_owner_is(
-        'public', 'mycomposite', 'someuser',
-        'mycomposite should be owned by someuser'
-    );
-    SELECT composite_owner_is( 'widgets', current_user );
+```sql
+SELECT composite_owner_is(
+    'public', 'mycomposite', 'someuser',
+    'mycomposite should be owned by someuser'
+);
+SELECT composite_owner_is( 'widgets', current_user );
+```
 
 In the event that the test fails because the composite in question does not
 actually exist or is not visible, you will see an appropriate diagnostic such
@@ -6884,10 +7521,12 @@ diagnostics will look something like:
 
 ### `foreign_table_owner_is ()` ###
 
-    SELECT foreign_table_owner_is ( :schema, :foreign_table, :user, :description );
-    SELECT foreign_table_owner_is ( :foreign_table, :user, :description );
-    SELECT foreign_table_owner_is ( :schema, :foreign_table, :user );
-    SELECT foreign_table_owner_is ( :foreign_table, :user );
+```sql
+SELECT foreign_table_owner_is ( :schema, :foreign_table, :user, :description );
+SELECT foreign_table_owner_is ( :foreign_table, :user, :description );
+SELECT foreign_table_owner_is ( :schema, :foreign_table, :user );
+SELECT foreign_table_owner_is ( :foreign_table, :user );
+```
 
 **Parameters**
 
@@ -6906,11 +7545,13 @@ diagnostics will look something like:
 Tests the ownership of a foreign table. If the `:description` argument is
 omitted, an appropriate description will be created. Examples:
 
-    SELECT foreign_table_owner_is(
-        'public', 'mytable', 'someuser',
-        'mytable should be owned by someuser'
-    );
-    SELECT foreign_table_owner_is( 'widgets', current_user );
+```sql
+SELECT foreign_table_owner_is(
+    'public', 'mytable', 'someuser',
+    'mytable should be owned by someuser'
+);
+SELECT foreign_table_owner_is( 'widgets', current_user );
+```
 
 In the event that the test fails because the foreign table in question does
 not actually exist or is not visible, you will see an appropriate diagnostic
@@ -6928,10 +7569,12 @@ user, the diagnostics will look something like:
 
 ### `index_owner_is ()` ###
 
-    SELECT index_owner_is ( :schema, :table, :index, :user, :description );
-    SELECT index_owner_is ( :table, :index, :user, :description );
-    SELECT index_owner_is ( :schema, :table, :index, :user );
-    SELECT index_owner_is ( :table, :index, :user );
+```sql
+SELECT index_owner_is ( :schema, :table, :index, :user, :description );
+SELECT index_owner_is ( :table, :index, :user, :description );
+SELECT index_owner_is ( :schema, :table, :index, :user );
+SELECT index_owner_is ( :table, :index, :user );
+```
 
 **Parameters**
 
@@ -6953,11 +7596,13 @@ user, the diagnostics will look something like:
 Tests the ownership of an index. If the `:description` argument is omitted, an
 appropriate description will be created. Examples:
 
-    SELECT index_owner_is(
-        'public', 'mytable', 'idx_name', 'someuser',
-        'Index "idx_name" on mytable should be owned by someuser'
-    );
-    SELECT index_owner_is( 'widgets', 'widgets_pkey', current_user );
+```sql
+SELECT index_owner_is(
+    'public', 'mytable', 'idx_name', 'someuser',
+    'Index "idx_name" on mytable should be owned by someuser'
+);
+SELECT index_owner_is( 'widgets', 'widgets_pkey', current_user );
+```
 
 In the event that the test fails because the index in question does not
 actually exist, or the table or schema it's on does not exist or is not
@@ -6975,10 +7620,12 @@ diagnostics will look something like:
 
 ### `function_owner_is ()` ###
 
-    SELECT function_owner_is ( :schema, :function, :args, :user, :description );
-    SELECT function_owner_is ( :function, :args, :user, :description );
-    SELECT function_owner_is ( :schema, :function, :args, :user );
-    SELECT function_owner_is ( :function, :args, :user );
+```sql
+SELECT function_owner_is ( :schema, :function, :args, :user, :description );
+SELECT function_owner_is ( :function, :args, :user, :description );
+SELECT function_owner_is ( :schema, :function, :args, :user );
+SELECT function_owner_is ( :function, :args, :user );
+```
 
 **Parameters**
 
@@ -7000,11 +7647,13 @@ diagnostics will look something like:
 Tests the ownership of a function. If the `:description` argument is omitted,
 an appropriate description will be created. Examples:
 
-    SELECT function_owner_is(
-        'public', 'frobulate', ARRAY['integer', 'text'], 'someuser',
-        'public.frobulate(integer, text) should be owned by someuser'
-    );
-    SELECT function_owner_is( 'masticate', ARRAY['text'], current_user );
+```sql
+SELECT function_owner_is(
+    'public', 'frobulate', ARRAY['integer', 'text'], 'someuser',
+    'public.frobulate(integer, text) should be owned by someuser'
+);
+SELECT function_owner_is( 'masticate', ARRAY['text'], current_user );
+```
 
 In the event that the test fails because the function in question does not
 actually exist or is not visible, you will see an appropriate diagnostic such
@@ -7022,8 +7671,10 @@ diagnostics will look something like:
 
 ### `language_owner_is ()` ###
 
-    SELECT language_owner_is ( :languagename, :user, :description );
-    SELECT language_owner_is ( :languagename, :user );
+```sql
+SELECT language_owner_is ( :languagename, :user, :description );
+SELECT language_owner_is ( :languagename, :user );
+```
 
 **Parameters**
 
@@ -7039,8 +7690,10 @@ diagnostics will look something like:
 Tests the ownership of a procedural language. If the `:description` argument is
 omitted, an appropriate description will be created. Examples:
 
-    SELECT language_owner_is( 'plpgsql', 'larry', 'Larry should own plpgsql' );
-    SELECT language_owner_is( 'plperl', current_user );
+```sql
+SELECT language_owner_is( 'plpgsql', 'larry', 'Larry should own plpgsql' );
+SELECT language_owner_is( 'plperl', current_user );
+```
 
 In the event that the test fails because the language in question does not
 actually exist, you will see an appropriate diagnostic such as:
@@ -7057,10 +7710,12 @@ the diagnostics will look something like:
 
 ### `opclass_owner_is ()` ###
 
-    SELECT opclass_owner_is ( :schema, :opclass, :user, :description );
-    SELECT opclass_owner_is ( :opclass, :user, :description );
-    SELECT opclass_owner_is ( :schema, :opclass, :user );
-    SELECT opclass_owner_is ( :opclass, :user );
+```sql
+SELECT opclass_owner_is ( :schema, :opclass, :user, :description );
+SELECT opclass_owner_is ( :opclass, :user, :description );
+SELECT opclass_owner_is ( :schema, :opclass, :user );
+SELECT opclass_owner_is ( :opclass, :user );
+```
 
 **Parameters**
 
@@ -7079,11 +7734,13 @@ the diagnostics will look something like:
 Tests the ownership of an operator class. If the `:description` argument is
 omitted, an appropriate description will be created. Examples:
 
-    SELECT opclass_owner_is(
-        'pg_catalog', 'int4_ops', 'postgres',
-        'Operator class int4_ops should be owned by postgres'
-    );
-    SELECT opclass_owner_is( 'my_ops', current_user );
+```sql
+SELECT opclass_owner_is(
+    'pg_catalog', 'int4_ops', 'postgres',
+    'Operator class int4_ops should be owned by postgres'
+);
+SELECT opclass_owner_is( 'my_ops', current_user );
+```
 
 In the event that the test fails because the operator class in question does
 not actually exist or is not visible, you will see an appropriate diagnostic
@@ -7101,10 +7758,12 @@ user, the diagnostics will look something like:
 
 ### `type_owner_is ()` ###
 
-    SELECT type_owner_is ( :schema, :type, :user, :description );
-    SELECT type_owner_is ( :type, :user, :description );
-    SELECT type_owner_is ( :schema, :type, :user );
-    SELECT type_owner_is ( :type, :user );
+```sql
+SELECT type_owner_is ( :schema, :type, :user, :description );
+SELECT type_owner_is ( :type, :user, :description );
+SELECT type_owner_is ( :schema, :type, :user );
+SELECT type_owner_is ( :type, :user );
+```
 
 **Parameters**
 
@@ -7123,11 +7782,13 @@ user, the diagnostics will look something like:
 Tests the ownership of a data type. If the `:description` argument is omitted,
 an appropriate description will be created. Examples:
 
-    SELECT type_owner_is(
-        'pg_catalog', 'int4', 'postgres',
-        'type int4 should be owned by postgres'
-    );
-    SELECT type_owner_is( 'us_postal_code', current_user );
+```sql
+SELECT type_owner_is(
+    'pg_catalog', 'int4', 'postgres',
+    'type int4 should be owned by postgres'
+);
+SELECT type_owner_is( 'us_postal_code', current_user );
+```
 
 In the event that the test fails because the type in question does not
 actually exist or is not visible, you will see an appropriate diagnostic such
@@ -7151,8 +7812,10 @@ database objects? Let's find out!
 
 ### `database_privs_are()`
 
-    SELECT database_privs_are ( :db, :role, :privileges, :description );
-    SELECT database_privs_are ( :db, :role, :privileges );
+```sql
+SELECT database_privs_are ( :db, :role, :privileges, :description );
+SELECT database_privs_are ( :db, :role, :privileges );
+```
 
 **Parameters**
 
@@ -7178,11 +7841,13 @@ database privileges are:
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
 
-    SELECT database_privs_are(
-        'flipr', 'fred', ARRAY['CONNECT', 'TEMPORARY'],
-        'Fred should be granted CONNECT and TEMPORARY on db "flipr"'
-    );
-    SELECT database_privs_are( 'dept_corrections', ARRAY['CREATE'] );
+```sql
+SELECT database_privs_are(
+    'flipr', 'fred', ARRAY['CONNECT', 'TEMPORARY'],
+    'Fred should be granted CONNECT and TEMPORARY on db "flipr"'
+);
+SELECT database_privs_are( 'dept_corrections', ARRAY['CREATE'] );
+```
 
 If the role is granted permissions other than those specified, the diagnostics
 will list the extra permissions, like so:
@@ -7214,8 +7879,10 @@ something like:
 
 ### `tablespace_privs_are()`
 
-    SELECT tablespace_privs_are ( :tablespace, :role, :privileges, :description );
-    SELECT tablespace_privs_are ( :tablespace, :role, :privileges );
+```sql
+SELECT tablespace_privs_are ( :tablespace, :role, :privileges, :description );
+SELECT tablespace_privs_are ( :tablespace, :role, :privileges );
+```
 
 **Parameters**
 
@@ -7239,11 +7906,13 @@ function privileges are:
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
 
-    SELECT tablespace_privs_are(
-        'ssd', 'fred', ARRAY['CREATE'],
-        'Fred should be granted CREATE on tablespace "ssd"'
-    );
-    SELECT tablespace_privs_are( 'san', ARRAY['CREATE'] );
+```sql
+SELECT tablespace_privs_are(
+    'ssd', 'fred', ARRAY['CREATE'],
+    'Fred should be granted CREATE on tablespace "ssd"'
+);
+SELECT tablespace_privs_are( 'san', ARRAY['CREATE'] );
+```
 
 If the role is granted permissions other than those specified, the diagnostics
 will list the extra permissions, like so:
@@ -7274,8 +7943,10 @@ something like:
 
 ### `schema_privs_are()`
 
-    SELECT schema_privs_are ( :schema, :role, :privileges, :description );
-    SELECT schema_privs_are ( :schema, :role, :privileges );
+```sql
+SELECT schema_privs_are ( :schema, :role, :privileges, :description );
+SELECT schema_privs_are ( :schema, :role, :privileges );
+```
 
 **Parameters**
 
@@ -7300,11 +7971,13 @@ schema privileges are:
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
 
-    SELECT schema_privs_are(
-        'flipr', 'fred', ARRAY['CREATE', 'USAGE'],
-        'Fred should be granted CREATE and USAGE on schema "flipr"'
-    );
-    SELECT schema_privs_are( 'hr', ARRAY['USAGE'] );
+```sql
+SELECT schema_privs_are(
+    'flipr', 'fred', ARRAY['CREATE', 'USAGE'],
+    'Fred should be granted CREATE and USAGE on schema "flipr"'
+);
+SELECT schema_privs_are( 'hr', ARRAY['USAGE'] );
+```
 
 If the role is granted permissions other than those specified, the diagnostics
 will list the extra permissions, like so:
@@ -7336,10 +8009,12 @@ something like:
 
 ### `table_privs_are()`
 
-    SELECT table_privs_are ( :schema, :table, :role, :privileges, :description );
-    SELECT table_privs_are ( :schema, :table, :role, :privileges );
-    SELECT table_privs_are ( :table, :role, :privileges, :description );
-    SELECT table_privs_are ( :table, :role, :privileges );
+```sql
+SELECT table_privs_are ( :schema, :table, :role, :privileges, :description );
+SELECT table_privs_are ( :schema, :table, :role, :privileges );
+SELECT table_privs_are ( :table, :role, :privileges, :description );
+SELECT table_privs_are ( :table, :role, :privileges );
+```
 
 **Parameters**
 
@@ -7373,11 +8048,13 @@ table privileges are:
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
 
-    SELECT table_privs_are(
-        'public', 'frobulate', 'fred', ARRAY['SELECT', 'DELETE'],
-        'Fred should be able to select and delete on frobulate'
-    );
-    SELECT table_privs_are( 'widgets', 'slim', ARRAY['INSERT', 'UPDATE'] );
+```sql
+SELECT table_privs_are(
+    'public', 'frobulate', 'fred', ARRAY['SELECT', 'DELETE'],
+    'Fred should be able to select and delete on frobulate'
+);
+SELECT table_privs_are( 'widgets', 'slim', ARRAY['INSERT', 'UPDATE'] );
+```
 
 If the role is granted permissions other than those specified, the diagnostics
 will list the extra permissions, like so:
@@ -7411,10 +8088,12 @@ something like:
 
 ### `sequence_privs_are()`
 
-    SELECT sequence_privs_are ( :schema, :sequence, :role, :privileges, :description );
-    SELECT sequence_privs_are ( :schema, :sequence, :role, :privileges );
-    SELECT sequence_privs_are ( :sequence, :role, :privileges, :description );
-    SELECT sequence_privs_are ( :sequence, :role, :privileges );
+```sql
+SELECT sequence_privs_are ( :schema, :sequence, :role, :privileges, :description );
+SELECT sequence_privs_are ( :schema, :sequence, :role, :privileges );
+SELECT sequence_privs_are ( :sequence, :role, :privileges, :description );
+SELECT sequence_privs_are ( :sequence, :role, :privileges );
+```
 
 **Parameters**
 
@@ -7446,11 +8125,13 @@ will likely throw an exception on earlier versions.
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
 
-    SELECT sequence_privs_are(
-        'public', 'seq_ids', 'fred', ARRAY['SELECT', 'UPDATE'],
-        'Fred should be able to select and update seq_ids'
-    );
-    SELECT sequence_privs_are( 'seq_u', 'slim', ARRAY['USAGE'] );
+```sql
+SELECT sequence_privs_are(
+    'public', 'seq_ids', 'fred', ARRAY['SELECT', 'UPDATE'],
+    'Fred should be able to select and update seq_ids'
+);
+SELECT sequence_privs_are( 'seq_u', 'slim', ARRAY['USAGE'] );
+```
 
 If the role is granted permissions other than those specified, the diagnostics
 will list the extra permissions, like so:
@@ -7483,10 +8164,12 @@ something like:
 
 ### `any_column_privs_are()`
 
-    SELECT any_column_privs_are ( :schema, :table, :role, :privileges, :description );
-    SELECT any_column_privs_are ( :schema, :table, :role, :privileges );
-    SELECT any_column_privs_are ( :table, :role, :privileges, :description );
-    SELECT any_column_privs_are ( :table, :role, :privileges );
+```sql
+SELECT any_column_privs_are ( :schema, :table, :role, :privileges, :description );
+SELECT any_column_privs_are ( :schema, :table, :role, :privileges );
+SELECT any_column_privs_are ( :table, :role, :privileges, :description );
+SELECT any_column_privs_are ( :table, :role, :privileges );
+```
 
 **Parameters**
 
@@ -7516,11 +8199,13 @@ The available column privileges are:
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
 
-    SELECT any_column_privs_are(
-        'public', 'frobulate', 'fred', ARRAY['SELECT', 'UPDATE'],
-        'Fred should be able to select and update columns in frobulate'
-    );
-    SELECT any_column_privs_are( 'widgets', 'slim', ARRAY['INSERT', 'UPDATE'] );
+```sql
+SELECT any_column_privs_are(
+    'public', 'frobulate', 'fred', ARRAY['SELECT', 'UPDATE'],
+    'Fred should be able to select and update columns in frobulate'
+);
+SELECT any_column_privs_are( 'widgets', 'slim', ARRAY['INSERT', 'UPDATE'] );
+```
 
 If the role is granted permissions other than those specified, the diagnostics
 will list the extra permissions, like so:
@@ -7553,10 +8238,12 @@ something like:
 
 ### `column_privs_are()`
 
-    SELECT column_privs_are ( :schema, :table, :column, :role, :privileges, :description );
-    SELECT column_privs_are ( :schema, :table, :column, :role, :privileges );
-    SELECT column_privs_are ( :table, :column, :role, :privileges, :description );
-    SELECT column_privs_are ( :table, :column, :role, :privileges );
+```sql
+SELECT column_privs_are ( :schema, :table, :column, :role, :privileges, :description );
+SELECT column_privs_are ( :schema, :table, :column, :role, :privileges );
+SELECT column_privs_are ( :table, :column, :role, :privileges, :description );
+SELECT column_privs_are ( :table, :column, :role, :privileges );
+```
 
 **Parameters**
 
@@ -7589,11 +8276,13 @@ available column privileges are:
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
 
-    SELECT column_privs_are(
-        'public', 'frobulate', 'id', 'fred', ARRAY['SELECT', 'UPDATE'],
-        'Fred should be able to select and update frobulate.id'
-    );
-    SELECT column_privs_are( 'widgets', 'name', 'slim', ARRAY['INSERT', 'UPDATE'] );
+```sql
+SELECT column_privs_are(
+    'public', 'frobulate', 'id', 'fred', ARRAY['SELECT', 'UPDATE'],
+    'Fred should be able to select and update frobulate.id'
+);
+SELECT column_privs_are( 'widgets', 'name', 'slim', ARRAY['INSERT', 'UPDATE'] );
+```
 
 If the role is granted permissions other than those specified, the diagnostics
 will list the extra permissions, like so:
@@ -7632,10 +8321,12 @@ something like:
 
 ### `function_privs_are()`
 
-    SELECT function_privs_are ( :schema, :function, :args, :role, :privileges, :description );
-    SELECT function_privs_are ( :schema, :function, :args, :role, :privileges );
-    SELECT function_privs_are ( :function, :args, :role, :privileges, :description );
-    SELECT function_privs_are ( :function, :args, :role, :privileges );
+```sql
+SELECT function_privs_are ( :schema, :function, :args, :role, :privileges, :description );
+SELECT function_privs_are ( :schema, :function, :args, :role, :privileges );
+SELECT function_privs_are ( :function, :args, :role, :privileges, :description );
+SELECT function_privs_are ( :function, :args, :role, :privileges );
+```
 
 **Parameters**
 
@@ -7665,11 +8356,13 @@ function privileges are:
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
 
-    SELECT function_privs_are(
-        'public', 'frobulate', ARRAY['integer'], 'fred', ARRAY['EXECUTE'],
-        'Fred should be able to execute frobulate(int)'
-    );
-    SELECT function_privs_are( 'bake', '{}', 'slim', '{}');
+```sql
+SELECT function_privs_are(
+    'public', 'frobulate', ARRAY['integer'], 'fred', ARRAY['EXECUTE'],
+    'Fred should be able to execute frobulate(int)'
+);
+SELECT function_privs_are( 'bake', '{}', 'slim', '{}');
+```
 
 If the role is granted permissions other than those specified, the diagnostics
 will list the extra permissions, like so:
@@ -7700,8 +8393,10 @@ something like:
 
 ### `language_privs_are()`
 
-    SELECT language_privs_are ( :lang, :role, :privileges, :description );
-    SELECT language_privs_are ( :lang, :role, :privileges );
+```sql
+SELECT language_privs_are ( :lang, :role, :privileges, :description );
+SELECT language_privs_are ( :lang, :role, :privileges );
+```
 
 **Parameters**
 
@@ -7725,11 +8420,13 @@ function privileges are:
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
 
-    SELECT language_privs_are(
-        'plpgsql', 'fred', ARRAY['USAGE'],
-        'Fred should be granted USAGE on language "flipr"'
-    );
-    SELECT language_privs_are( 'plperl', ARRAY['USAGE'] );
+```sql
+SELECT language_privs_are(
+    'plpgsql', 'fred', ARRAY['USAGE'],
+    'Fred should be granted USAGE on language "flipr"'
+);
+SELECT language_privs_are( 'plperl', ARRAY['USAGE'] );
+```
 
 If the role is granted permissions other than those specified, the diagnostics
 will list the extra permissions, like so:
@@ -7760,8 +8457,10 @@ something like:
 
 ### `fdw_privs_are()`
 
-    SELECT fdw_privs_are ( :fdw, :role, :privileges, :description );
-    SELECT fdw_privs_are ( :fdw, :role, :privileges );
+```sql
+SELECT fdw_privs_are ( :fdw, :role, :privileges, :description );
+SELECT fdw_privs_are ( :fdw, :role, :privileges );
+```
 
 **Parameters**
 
@@ -7785,11 +8484,13 @@ available function privileges are:
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
 
-    SELECT fdw_privs_are(
-        'oracle', 'fred', ARRAY['USAGE'],
-        'Fred should be granted USAGE on fdw "oracle"'
-    );
-    SELECT fdw_privs_are( 'log_csv', ARRAY['USAGE'] );
+```sql
+SELECT fdw_privs_are(
+    'oracle', 'fred', ARRAY['USAGE'],
+    'Fred should be granted USAGE on fdw "oracle"'
+);
+SELECT fdw_privs_are( 'log_csv', ARRAY['USAGE'] );
+```
 
 If the role is granted permissions other than those specified, the diagnostics
 will list the extra permissions, like so:
@@ -7820,8 +8521,10 @@ something like:
 
 ### `server_privs_are()`
 
-    SELECT server_privs_are ( :server, :role, :privileges, :description );
-    SELECT server_privs_are ( :server, :role, :privileges );
+```sql
+SELECT server_privs_are ( :server, :role, :privileges, :description );
+SELECT server_privs_are ( :server, :role, :privileges );
+```
 
 **Parameters**
 
@@ -7845,11 +8548,13 @@ function privileges are:
 If the `:description` argument is omitted, an appropriate description will be
 created. Examples:
 
-    SELECT server_privs_are(
-        'otherdb', 'fred', ARRAY['USAGE'],
-        'Fred should be granted USAGE on server "otherdb"'
-    );
-    SELECT server_privs_are( 'myserv', ARRAY['USAGE'] );
+```sql
+SELECT server_privs_are(
+    'otherdb', 'fred', ARRAY['USAGE'],
+    'Fred should be granted USAGE on server "otherdb"'
+);
+SELECT server_privs_are( 'myserv', ARRAY['USAGE'] );
+```
 
 If the role is granted permissions other than those specified, the diagnostics
 will list the extra permissions, like so:
@@ -7880,10 +8585,12 @@ something like:
 
 ### `policies_are()` ###
 
-    SELECT policies_are( :schema, :table, :policies, :description );
-    SELECT policies_are( :schema, :table, :policies );
-    SELECT policies_are( :table,  :policies, :description );
-    SELECT policies_are( :table,  :policies );
+```sql
+SELECT policies_are( :schema, :table, :policies, :description );
+SELECT policies_are( :schema, :table, :policies );
+SELECT policies_are( :table,  :policies, :description );
+SELECT policies_are( :table,  :policies );
+```
 
 **Parameters**
 
@@ -7905,11 +8612,13 @@ the table must be visible in the search path, excluding `pg_catalog` and
 `information_schema`. If the description is omitted, a generally useful
 default description will be generated. Example:
 
-    SELECT policies_are(
-        'myschema',
-        'atable',
-        ARRAY[ 'atable_policy_one', 'atable_policy_two' ]
-    );
+```sql
+SELECT policies_are(
+    'myschema',
+    'atable',
+    ARRAY[ 'atable_policy_one', 'atable_policy_two' ]
+);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing policies, like so:
@@ -7922,10 +8631,12 @@ missing policies, like so:
 
 ### `policy_roles_are()` ###
 
-    SELECT policy_roles_are( :schema, :table, :policy, :roles, :description );
-    SELECT policy_roles_are( :schema, :table, :policy, :roles );
-    SELECT policy_roles_are( :table, :policy,  :roles, :description );
-    SELECT policy_roles_are( :table, :policy,  :roles );
+```sql
+SELECT policy_roles_are( :schema, :table, :policy, :roles, :description );
+SELECT policy_roles_are( :schema, :table, :policy, :roles );
+SELECT policy_roles_are( :table, :policy,  :roles, :description );
+SELECT policy_roles_are( :table, :policy,  :roles );
+```
 
 **Parameters**
 
@@ -7950,12 +8661,14 @@ the table must be visible in the search path, excluding `pg_catalog` and
 `information_schema`. If the description is omitted, a generally useful
 default description will be generated. Example:
 
-    SELECT policy_roles_are(
-        'myschema',
-        'atable',
-        'apolicy'
-        ARRAY[ 'atable_apolicy_role_one', 'atable_apolicy_role_two' ]
-    );
+```sql
+SELECT policy_roles_are(
+    'myschema',
+    'atable',
+    'apolicy'
+    ARRAY[ 'atable_apolicy_role_one', 'atable_apolicy_role_two' ]
+);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing policy roles, like so:
@@ -7968,10 +8681,12 @@ missing policy roles, like so:
 
 ### `policy_cmd_is()` ###
 
-    SELECT policy_cmd_is( :schema, :table, :policy, :command, :description );
-    SELECT policy_cmd_is( :schema, :table, :policy, :command );
-    SELECT policy_cmd_is( :table, :policy,  :command, :description );
-    SELECT policy_cmd_is( :table, :policy,  :command );
+```sql
+SELECT policy_cmd_is( :schema, :table, :policy, :command, :description );
+SELECT policy_cmd_is( :schema, :table, :policy, :command );
+SELECT policy_cmd_is( :table, :policy,  :command, :description );
+SELECT policy_cmd_is( :table, :policy,  :command );
+```
 
 **Parameters**
 
@@ -8006,12 +8721,14 @@ path, excluding `pg_catalog` and `information_schema`. If the `:description` is
 omitted (but `:schema` is present, be sure to cast `:policy` to name), a
 generally useful default description will be generated. Example:
 
-    SELECT policy_cmd_is(
-        'myschema',
-        'atable',
-        'apolicy'::NAME
-        'all'
-    );
+```sql
+SELECT policy_cmd_is(
+    'myschema',
+    'atable',
+    'apolicy'::NAME
+    'all'
+);
+```
 
 In the event of a failure, you'll see diagnostics listing the extra and/or
 missing policy command, like so:
@@ -8039,7 +8756,9 @@ than just `\echo` or `SELECT foo`.
 
 ### `diag()` ###
 
-    SELECT diag( :lines );
+```sql
+SELECT diag( :lines );
+```
 
 **Parameters**
 
@@ -8049,15 +8768,17 @@ than just `\echo` or `SELECT foo`.
 Returns a diagnostic message which is guaranteed not to interfere with test
 output. Handy for this sort of thing:
 
-    -- Output a diagnostic message if the collation is not en_US.UTF-8.
-    SELECT diag(
-         E'These tests expect LC_COLLATE to be en_US.UTF-8,\n',
-         'but yours is set to ', setting, E'.\n',
-         'As a result, some tests may fail. YMMV.'
-    )
-      FROM pg_settings
-     WHERE name = 'lc_collate'
-       AND setting <> 'en_US.UTF-8';
+```sql
+-- Output a diagnostic message if the collation is not en_US.UTF-8.
+SELECT diag(
+ E'These tests expect LC_COLLATE to be en_US.UTF-8,\n',
+ 'but yours is set to ', setting, E'.\n',
+ 'As a result, some tests may fail. YMMV.'
+)
+  FROM pg_settings
+ WHERE name = 'lc_collate'
+   AND setting <> 'en_US.UTF-8';
+```
 
 Which would produce:
 
@@ -8081,10 +8802,12 @@ work in the future (a todo test).
 
 ### `skip()` ###
 
-    SELECT skip( :why, :how_many );
-    SELECT skip( :how_many, :why );
-    SELECT skip( :why );
-    SELECT skip( :how_many );
+```sql
+SELECT skip( :why, :how_many );
+SELECT skip( :how_many, :why );
+SELECT skip( :why );
+SELECT skip( :how_many );
+```
 
 **Parameters**
 
@@ -8098,12 +8821,14 @@ Outputs SKIP test results. Use it in a conditional expression within a
 `SELECT` statement to replace the output of a test that you otherwise would
 have run.
 
-    SELECT CASE WHEN pg_version_num() < 80300
-        THEN skip('has_enum() not supported before 8.3', 2 )
-        ELSE collect_tap(
-            has_enum( 'bug_status' ),
-            has_enum( 'bug_status', 'mydesc' )
-        ) END;
+```sql
+SELECT CASE WHEN pg_version_num() < 80300
+    THEN skip('has_enum() not supported before 8.3', 2 )
+    ELSE collect_tap(
+        has_enum( 'bug_status' ),
+        has_enum( 'bug_status', 'mydesc' )
+    ) END;
+```
 
 Note how use of the conditional `CASE` statement has been used to determine
 whether or not to run a couple of tests. If they are to be run, they are run
@@ -8114,29 +8839,35 @@ skipping.
 If you don't specify how many tests to skip, `skip()` will assume that you're
 skipping only one. This is useful for the simple case, of course:
 
-    SELECT CASE current_schema()
-        WHEN 'public' THEN is( :this, :that )
-        ELSE skip( 'Tests not running in the "public" schema' )
-        END;
+```sql
+SELECT CASE current_schema()
+    WHEN 'public' THEN is( :this, :that )
+    ELSE skip( 'Tests not running in the "public" schema' )
+    END;
+```
 
 But you can also use it in a `SELECT` statement that would otherwise return
 multiple rows:
 
-    SELECT CASE current_schema()
-        WHEN 'public' THEN is( nspname, 'public' )
-        ELSE skip( 'Cannot see the public schema' )
-        END
-      FROM pg_namespace;
+```sql
+SELECT CASE current_schema()
+    WHEN 'public' THEN is( nspname, 'public' )
+    ELSE skip( 'Cannot see the public schema' )
+    END
+  FROM pg_namespace;
+```
 
 This will cause it to skip the same number of rows as would have been tested
 had the `WHEN` condition been true.
 
 ### `todo()` ###
 
-    SELECT todo( :why, :how_many );
-    SELECT todo( :how_many, :why );
-    SELECT todo( :why );
-    SELECT todo( :how_many );
+```sql
+SELECT todo( :why, :how_many );
+SELECT todo( :how_many, :why );
+SELECT todo( :why );
+SELECT todo( :how_many );
+```
 
 **Parameters**
 
@@ -8149,11 +8880,13 @@ had the `WHEN` condition been true.
 Declares a series of tests that you expect to fail and why. Perhaps it's
 because you haven't fixed a bug or haven't finished a new feature:
 
-    SELECT todo('URIGeller not finished', 2);
+```sql
+SELECT todo('URIGeller not finished', 2);
 
-    \set card '\'Eight of clubs\''
-    SELECT is( URIGeller.yourCard(), :card, 'Is THIS your card?' );
-    SELECT is( URIGeller.bendSpoon(), 'bent', 'Spoon bending, how original' );
+\set card '\'Eight of clubs\''
+SELECT is( URIGeller.yourCard(), :card, 'Is THIS your card?' );
+SELECT is( URIGeller.bendSpoon(), 'bent', 'Spoon bending, how original' );
+```
 
 With `todo()`, `:how_many` specifies how many tests are expected to fail. If
 `:how_many` is omitted, it defaults to 1. pgTAP will run the tests normally,
@@ -8181,12 +8914,14 @@ tests.
 
 Note that you can nest TODO tests, too:
 
-    SELECT todo_start('working on this');
-    -- lots of code
-    SELECT todo_start('working on that');
-    -- more code
-    SELECT todo_end();
-    SELECT todo_end();
+```sql
+SELECT todo_start('working on this');
+-- lots of code
+SELECT todo_start('working on that');
+-- more code
+SELECT todo_end();
+SELECT todo_end();
+```
 
 This is generally not recommended, but large testing systems often have weird
 internal needs.
@@ -8195,13 +8930,14 @@ The `todo_start()` and `todo_end()` function should also work with the
 `todo()` function, although it's not guaranteed and its use is also
 discouraged:
 
-
-    SELECT todo_start('working on this');
-    -- lots of code
-    SELECT todo('working on that', 2);
-    -- Two tests for which the above line applies
-    -- Followed by more tests scoped till the following line.
-    SELECT todo_end();
+```sql
+SELECT todo_start('working on this');
+-- lots of code
+SELECT todo('working on that', 2);
+-- Two tests for which the above line applies
+-- Followed by more tests scoped till the following line.
+SELECT todo_end();
+```
 
 We recommend that you pick one style or another of TODO to be on the safe
 side.
@@ -8223,15 +8959,19 @@ pTAP provides a few extra functions to make the work of testing more pleasant.
 
 ### `pgtap_version()` ###
 
-    SELECT pgtap_version();
+```sql
+SELECT pgtap_version();
+```
 
 Returns the version of pgTAP installed in the server. The value is `NUMERIC`,
 and thus suitable for comparing to a decimal value:
 
-    SELECT CASE WHEN pgtap_version() < 0.17
-        THEN skip('No sequence assertions before pgTAP 0.17')
-        ELSE has_sequence('my_big_seq')
-        END;
+```sql
+SELECT CASE WHEN pgtap_version() < 0.17
+    THEN skip('No sequence assertions before pgTAP 0.17')
+    ELSE has_sequence('my_big_seq')
+    END;
+```
 
 ### `pg_version()` ###
 
@@ -8241,25 +8981,31 @@ Returns the server version number against which pgTAP was compiled. This is
 the stringified version number displayed in the first part of the core
 `version()` function and stored in the "server_version" setting:
 
-    try=% select current_setting( 'server_version'), pg_version();
-     current_setting | pg_version
-    -----------------+------------
-     12.2            | 12.2
-    (1 row)
+```pgsql
+try=% select current_setting( 'server_version'), pg_version();
+ current_setting | pg_version
+-----------------+------------
+ 12.2            | 12.2
+(1 row)
+```
 
 ### `pg_version_num()` ###
 
-    SELECT pg_version_num();
+```sql
+SELECT pg_version_num();
+```
 
 Returns an integer representation of the server version number against which
 pgTAP was compiled. This function is useful for determining whether or not
 certain tests should be run or skipped (using `skip()`) depending on the
 version of PostgreSQL. For example:
 
-    SELECT CASE WHEN pg_version_num() < 80300
-        THEN skip('has_enum() not supported before 8.3' )
-        ELSE has_enum( 'bug_status', 'mydesc' )
-        END;
+```sql
+SELECT CASE WHEN pg_version_num() < 80300
+    THEN skip('has_enum() not supported before 8.3' )
+    ELSE has_enum( 'bug_status', 'mydesc' )
+    END;
+```
 
 The revision level is in the tens position, the minor version in the thousands
 position, and the major version in the ten thousands position and above
@@ -8268,7 +9014,9 @@ position). This value is the same as the `server_version_num` setting.
 
 ### `os_name()` ###
 
-    SELECT os_name();
+```sql
+SELECT os_name();
+```
 
 Returns a string representing the name of the operating system on which pgTAP
 was compiled. This can be useful for determining whether or not to skip tests
@@ -8284,7 +9032,9 @@ depending on how good the pgTAP build process gets at detecting a OS.
 
 ### `collect_tap()` ###
 
-    SELECT collect_tap(:lines);
+```sql
+SELECT collect_tap(:lines);
+```
 
 **Parameters**
 
@@ -8294,20 +9044,24 @@ depending on how good the pgTAP build process gets at detecting a OS.
 Collects the results of one or more pgTAP tests and returns them all. Useful
 when used in combination with `skip()`:
 
-      SELECT CASE os_name() WHEN 'darwin' THEN
-          collect_tap(
-              cmp_ok( 'Bjørn'::text, '>', 'Bjorn', 'ø > o' ),
-              cmp_ok( 'Pınar'::text, '>', 'Pinar', 'ı > i' ),
-              cmp_ok( 'José'::text,  '>', 'Jose',  'é > e' ),
-              cmp_ok( 'Täp'::text,   '>', 'Tap',   'ä > a' )
-          )
-      ELSE
-           skip('Collation-specific test', 4)
-      END;
+```sql
+SELECT CASE os_name() WHEN 'darwin' THEN
+    collect_tap(
+        cmp_ok( 'Bjørn'::text, '>', 'Bjorn', 'ø > o' ),
+        cmp_ok( 'Pınar'::text, '>', 'Pinar', 'ı > i' ),
+        cmp_ok( 'José'::text,  '>', 'Jose',  'é > e' ),
+        cmp_ok( 'Täp'::text,   '>', 'Tap',   'ä > a' )
+    )
+ELSE
+    skip('Collation-specific test', 4)
+END;
+```
 
 ### `display_oper()` ###
 
-    SELECT display_oper( :opername, :operoid );
+```sql
+SELECT display_oper( :opername, :operoid );
+```
 
 **Parameters**
 
@@ -8320,14 +9074,18 @@ when used in combination with `skip()`:
 Similar to casting an operator OID to `regoperator`, only the schema is not
 included in the display. For example:
 
-    SELECT display_oper(oprname, oid ) FROM pg_operator;
+```sql
+SELECT display_oper(oprname, oid ) FROM pg_operator;
+```
 
 Used internally by pgTAP to compare operators, but may be more generally
 useful.
 
 ### `format_type_string()` ###
 
-    SELECT format_type_string( :text );
+```sql
+SELECT format_type_string( :text );
+```
 
 **Parameters**
 
@@ -8344,17 +9102,21 @@ types prior to Postgres 17, which must be specified exactly as Postgres
 renders them internally, e.g., `'interval(0)`, `interval second(0)`, or
 `interval day to second(4)`.
 
-    try=# SELECT format_type_string('timestamp(3)');
-        format_type_string
-    --------------------------------
-    timestamp(3) without time zone
+```pgsql
+try=# SELECT format_type_string('timestamp(3)');
+     format_type_string
+--------------------------------
+ timestamp(3) without time zone
+```
 
 ### `findfuncs()` ###
 
-    SELECT findfuncs( :schema, :pattern, :exclude_pattern );
-    SELECT findfuncs( :schema, :pattern );
-    SELECT findfuncs( :pattern, :exclude_pattern );
-    SELECT findfuncs( :pattern );
+```sql
+SELECT findfuncs( :schema, :pattern, :exclude_pattern );
+SELECT findfuncs( :schema, :pattern );
+SELECT findfuncs( :pattern, :exclude_pattern );
+SELECT findfuncs( :pattern );
+```
 
 **Parameters**
 
@@ -8376,11 +9138,13 @@ The functions it finds are returned as an array of text values, with each
 value consisting of the schema name, a dot, and the function name. For
 example:
 
-    SELECT findfuncs('tests', '^test);
-                findfuncs
-    -----------------------------------
-     {tests.test_foo,tests."test bar"}
-    (1 row)
+```sql
+SELECT findfuncs('tests', '^test);
+            findfuncs
+-----------------------------------
+ {tests.test_foo,tests."test bar"}
+(1 row)
+```
 
 Tap that Batch
 --------------
@@ -8389,26 +9153,32 @@ Sometimes it can be useful to batch a lot of TAP tests into a function. The
 simplest way to do so is to define a function that `RETURNS SETOF TEXT` and
 then simply call `RETURN NEXT` for each TAP test. Here's a simple example:
 
-    CREATE OR REPLACE FUNCTION my_tests(
-    ) RETURNS SETOF TEXT AS $$
-    BEGIN
-        RETURN NEXT pass( 'plpgsql simple' );
-        RETURN NEXT pass( 'plpgsql simple 2' );
-    END;
-    $$ LANGUAGE plpgsql;
+```sql
+CREATE OR REPLACE FUNCTION my_tests(
+) RETURNS SETOF TEXT AS $$
+BEGIN
+    RETURN NEXT pass( 'plpgsql simple' );
+    RETURN NEXT pass( 'plpgsql simple 2' );
+END;
+$$ LANGUAGE plpgsql;
+```
 
 Then you can just call the function to run all of your TAP tests at once:
 
-    SELECT plan(2);
-    SELECT * FROM my_tests();
-    SELECT * FROM finish();
+```sql
+SELECT plan(2);
+SELECT * FROM my_tests();
+SELECT * FROM finish();
+```
 
 ### `do_tap()` ###
 
-    SELECT do_tap( :schema, :pattern );
-    SELECT do_tap( :schema );
-    SELECT do_tap( :pattern );
-    SELECT do_tap();
+```sql
+SELECT do_tap( :schema, :pattern );
+SELECT do_tap( :schema );
+SELECT do_tap( :pattern );
+SELECT do_tap();
+```
 
 **Parameters**
 
@@ -8432,9 +9202,11 @@ This can be very useful if you prefer to keep all of your TAP tests in
 functions defined in the database. Simply call `plan()`, use `do_tap()` to
 execute all of your tests, and then call `finish()`. A dead simple example:
 
-    SELECT plan(32);
-    SELECT * FROM do_tap('testschema'::name);
-    SELECT * FROM finish();
+```sql
+SELECT plan(32);
+SELECT * FROM do_tap('testschema'::name);
+SELECT * FROM finish();
+```
 
 As a bonus, if `client_min_messages` is set to "warning", "error", "fatal", or
 "panic", the name of each function will be emitted as a diagnostic message
@@ -8454,10 +9226,12 @@ failing tests.
 
 ### `runtests()` ###
 
-    SELECT runtests( :schema, :pattern );
-    SELECT runtests( :schema );
-    SELECT runtests( :pattern );
-    SELECT runtests( );
+```sql
+SELECT runtests( :schema, :pattern );
+SELECT runtests( :schema );
+SELECT runtests( :pattern );
+SELECT runtests( );
+```
 
 **Parameters**
 
@@ -8472,14 +9246,18 @@ in one fell swoop, use `runtests()`. This most closely emulates the xUnit
 testing environment, similar to the functionality of
 [PGUnit](http://en.dklab.ru/lib/dklab_pgunit/). Example:
 
-    SELECT * FROM runtests( 'testschema', '^test' );
+```sql
+SELECT * FROM runtests( 'testschema', '^test' );
+```
 
 As with `do_tap()`, you can pass in a schema argument and/or a pattern that
 the names of the tests functions can match. If you pass in only the schema
 argument, be sure to cast it to `name` to identify it as a schema name rather
 than a pattern:
 
-    SELECT * FROM runtests('testschema'::name);
+```sql
+SELECT * FROM runtests('testschema'::name);
+```
 
 Unlike `do_tap()`, `runtests()` fully supports startup, shutdown, setup, and
 teardown functions, as well as transactional rollbacks between tests. It also
@@ -8538,8 +9316,10 @@ advantage of it: build relations with the
 command! For example, to make sure you have a table in a defined list of
 schemas, try something like this:
 
-   SELECT has_table(sch, 'widgets', format('Has %I.widgets', sch))
-   FROM (VALUES('amazon'), ('starbucks'), ('boeing')) F(sch);
+```sql
+SELECT has_table(sch, 'widgets', format('Has %I.widgets', sch))
+  FROM (VALUES('amazon'), ('starbucks'), ('boeing')) F(sch);
+```
 
 Note the use of the
 [`format` function](https://www.postgresql.org/docs/current/static/functions-string.html#functions-string-format)
@@ -8547,9 +9327,11 @@ to make a nice test description, too. Here's a more complicated example that
 uses a cross join to test that various columns are `NOT NULL` in a specific
 table in a bunch of schemas:
 
-    SELECT col_not_null(sch, 'table1', col)
-    FROM (VALUES('schema1'), ('schema1')) AS stmp (sch)
-    CROSS JOIN (VALUES('col_pk'), ('col2'), ('col3')) AS ctmp (col);
+```sql
+SELECT col_not_null(sch, 'table1', col)
+  FROM (VALUES('schema1'), ('schema1')) AS stmp (sch)
+ CROSS JOIN (VALUES('col_pk'), ('col2'), ('col3')) AS ctmp (col);
+```
 
 Mocking, faking and making your test independent
 ================================================
@@ -8841,18 +9623,20 @@ values always compare case-insensitively. Sure you could do this with `is()`
 and the `LOWER()` function, but if you're doing this all the time, you might
 want to simplify things. Here's how to go about it:
 
-    CREATE OR REPLACE FUNCTION lc_is (text, text, text)
-    RETURNS TEXT AS $$
-    DECLARE
-        result BOOLEAN;
-    BEGIN
-        result := LOWER($1) = LOWER($2);
-        RETURN ok( result, $3 ) || CASE WHEN result THEN '' ELSE E'\n' || diag(
-               '    Have: ' || $1 ||
-            E'\n    Want: ' || $2;
-    ) END;
-    END;
-    $$ LANGUAGE plpgsql;
+```sql
+CREATE OR REPLACE FUNCTION lc_is (text, text, text)
+RETURNS TEXT AS $$
+DECLARE
+    result BOOLEAN;
+BEGIN
+    result := LOWER($1) = LOWER($2);
+    RETURN ok( result, $3 ) || CASE WHEN result THEN '' ELSE E'\n' || diag(
+           '    Have: ' || $1 ||
+        E'\n    Want: ' || $2;
+) END;
+END;
+$$ LANGUAGE plpgsql;
+```
 
 Yep, that's it. The key is to always use pgTAP's `ok()` function to guarantee
 that the output is properly formatted, uses the next number in the sequence,
@@ -8864,10 +9648,12 @@ Of course, you don't have to directly use `ok()`; you can also use another
 pgTAP function that ultimately calls `ok()`. IOW, while the above example
 is instructive, this version is easier on the eyes:
 
-    CREATE OR REPLACE FUNCTION lc_is ( TEXT, TEXT, TEXT )
-    RETURNS TEXT AS $$
-         SELECT is( LOWER($1), LOWER($2), $3);
-    $$ LANGUAGE sql;
+```sql
+CREATE OR REPLACE FUNCTION lc_is ( TEXT, TEXT, TEXT )
+RETURNS TEXT AS $$
+    SELECT is( LOWER($1), LOWER($2), $3);
+$$ LANGUAGE sql;
+```
 
 But either way, let pgTAP handle recording the test results and formatting the
 output.
@@ -8880,11 +9666,13 @@ handy-dandy test function!
 
 ### `check_test()` ###
 
-    SELECT check_test( :test_output, :is_ok, :name, :want_description, :want_diag, :match_diag );
-    SELECT check_test( :test_output, :is_ok, :name, :want_description, :want_diag );
-    SELECT check_test( :test_output, :is_ok, :name, :want_description );
-    SELECT check_test( :test_output, :is_ok, :name );
-    SELECT check_test( :test_output, :is_ok );
+```sql
+SELECT check_test( :test_output, :is_ok, :name, :want_description, :want_diag, :match_diag );
+SELECT check_test( :test_output, :is_ok, :name, :want_description, :want_diag );
+SELECT check_test( :test_output, :is_ok, :name, :want_description );
+SELECT check_test( :test_output, :is_ok, :name );
+SELECT check_test( :test_output, :is_ok );
+```
 
 **Parameters**
 
@@ -8919,10 +9707,12 @@ function. At its simplest, you just pass in the output of your test function
 up the count, so don't do that!) and a boolean value indicating whether or not
 you expect the test to have passed. That looks something like this:
 
-    SELECT * FROM check_test(
-        lc_eq('This', 'THIS', 'eq'),
-        true
-    );
+```sql
+SELECT * FROM check_test(
+    lc_eq('This', 'THIS', 'eq'),
+    true
+);
+```
 
 All other arguments are optional, but I recommend that you *always* include a
 short test name to make it easier to track down failures in your test script.
@@ -8936,11 +9726,13 @@ Yeah, but which test? So give it a very succinct name and you'll know what
 test. If you have a lot of these, it won't be much help. So give each call
 to `check_test()` a name:
 
-    SELECT * FROM check_test(
-        lc_eq('This', 'THIS', 'eq'),
-        true,
-        'Simple lc_eq test',
-    );
+```sql
+SELECT * FROM check_test(
+    lc_eq('This', 'THIS', 'eq'),
+    true,
+    'Simple lc_eq test',
+);
+```
 
 Then you'll get output more like this:
 
@@ -8954,12 +9746,14 @@ none is passed to it. You want to make sure that your function generates the
 test description you think it should! This will cause a second test to be run
 on your test function. So for something like this:
 
-    SELECT * FROM check_test(
-        lc_eq( ''this'', ''THIS'' ),
-        true,
-        'lc_eq() test',
-        'this is THIS'
-    );
+```sql
+SELECT * FROM check_test(
+    lc_eq( ''this'', ''THIS'' ),
+    true,
+    'lc_eq() test',
+    'this is THIS'
+);
+```
 
 The output then would look something like this, assuming that the `lc_eq()`
 function generated the proper description (the above example does not):
@@ -8988,13 +9782,15 @@ Assuming you've followed that rule in your `lc_eq()` test function, see what
 happens when a `lc_eq()` fails. Write your test to test the diagnostics like
 so:
 
-    SELECT * FROM check_test(
-        lc_eq( ''this'', ''THat'' ),
-        false,
-        'lc_eq() failing test',
-        'this is THat',
-        E'    Want: this\n    Have: THat
-    );
+```sql
+SELECT * FROM check_test(
+    lc_eq( ''this'', ''THat'' ),
+    false,
+    'lc_eq() failing test',
+    'this is THat',
+    E'    Want: this\n    Have: THat'
+);
+```
 
 This of course triggers a third test to run. The output will look like so:
 
@@ -9037,21 +9833,25 @@ No changes. Everything should just work.
 
 10 and Down
 -----------
+
 *   The stored procedure-testing funtions are not available, because stored
     procedures were not introduced until 11.
 
 9.6 and Down
 ------------
+
 * The partition-testing functions are not available, because partitions were
   not introduced until 10.
 
 9.4 and Down
 ------------
+
 * lives_ok() and throws_ok() will not trap ASSERT_FAILURE, since asserts do not
   exist prior to 9.5.
 
 9.2 and Down
 ------------
+
 * Lacks full automated testing. Recommend using 9.4 or higher.
 * Diagnostic output from `lives_ok()` and xUnit function exceptions will not
   include schema, table, column, data type, or constraint information, since
@@ -9059,6 +9859,7 @@ No changes. Everything should just work.
 
 9.1 and Down
 ------------
+
 * Lacks full automated testing. Recommend using 9.4 or higher.
 * Diagnostic output from `lives_ok()` and xUnit function exceptions will not
   error context or details, since such diagnostics were not introduced until
