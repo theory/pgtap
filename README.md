@@ -132,7 +132,7 @@ CREATE EXTENSION pgtap SCHEMA tap;
 Dependencies
 ------------
 
-pgTAP requires PostgreSQL 9.1 or higher.
+pgSQLTest and pgTAP requires PostgreSQL 9.1 or higher.
 
 Copyright and License
 ---------------------
