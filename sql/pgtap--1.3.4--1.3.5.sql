@@ -670,3 +670,114 @@ RETURNS TEXT AS $$
     SELECT hasnt_unique( $1, $2, 'Unique constraint ' || quote_ident($2) || ' should not exist on ' || quote_ident($1) );
 $$ LANGUAGE sql;
 
+-- -----------------------------------------------------------------------------
+-- Reminder for COL_IS constraints
+-- - col_is_X( schema, table, column[], description ) ( NAME, NAME, NAME[], TEXT )
+-- - col_is_X( schema, table, column[] )              ( NAME, NAME, NAME[] )
+-- - col_is_X( table, column[], description )         ( NAME, NAME[], TEXT )
+-- - col_is_X( table, column[] )                      ( NAME, NAME[] )
+-- - col_is_X( schema, table, column, description )   ( NAME, NAME, NAME, TEXT )
+-- - col_is_X( schema, table, column )                ( NAME, NAME, NAME )
+-- - col_is_X( table, column, description )           ( NAME, NAME, TEXT )
+-- - col_is_X( table, column )                        ( NAME, NAME )
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+-- Col is foreign key
+-- -----------------------------------------------------------------------------
+
+-- col_is_fk( schema, table, column[] )
+CREATE OR REPLACE FUNCTION col_is_fk ( NAME, NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT col_is_fk( $1, $2, $3, 'Columns ' || quote_ident($1) || '.' || quote_ident($2) || '(' || _ident_array_to_string($3, ', ') || ') should be a foreign key' );
+$$ LANGUAGE sql;
+
+-- col_is_fk( schema, table, column )
+CREATE OR REPLACE FUNCTION col_is_fk ( NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT col_is_fk( $1, $2, 'Column ' || quote_ident($1) || '(' || quote_ident($2) || ') should be a foreign key' );
+$$ LANGUAGE sql;
+
+-- -----------------------------------------------------------------------------
+-- Col isnt foreign key
+-- -----------------------------------------------------------------------------
+
+-- col_isnt_fk( schema, table, column[] )
+CREATE OR REPLACE FUNCTION col_isnt_fk ( NAME, NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT col_isnt_fk( $1, $2, $3, 'Columns ' || quote_ident($1) || '.' || quote_ident($2) || '(' || _ident_array_to_string($3, ', ') || ') should not be a foreign key' );
+$$ LANGUAGE sql;
+
+-- col_isnt_fk( schema, table, column )
+CREATE OR REPLACE FUNCTION col_isnt_fk ( NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT col_isnt_fk( $1, $2, 'Column ' || quote_ident($1) || '(' || quote_ident($2) || ') should not be a foreign key' );
+$$ LANGUAGE sql;
+
+-- -----------------------------------------------------------------------------
+-- Col isnt primary key
+-- -----------------------------------------------------------------------------
+
+-- col_isnt_pk( schema, table, column[] )
+CREATE OR REPLACE FUNCTION col_isnt_pk ( NAME, NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT col_isnt_pk( $1, $2, $3, 'Columns ' || quote_ident($1) || '.' || quote_ident($2) || '(' || _ident_array_to_string($3, ', ') || ') should not be a primary key' );
+$$ LANGUAGE sql;
+
+-- col_isnt_pk( schema, table, column )
+CREATE OR REPLACE FUNCTION col_isnt_pk ( NAME, NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT col_isnt_pk( $1, $2, $3, 'Column ' || quote_ident($1) || '.' || quote_ident($2) || '(' || quote_ident($3) || ') should not be a primary key' );
+$$ LANGUAGE sql;
+
+-- -----------------------------------------------------------------------------
+-- Col isnt unique
+-- -----------------------------------------------------------------------------
+
+-- col_isnt_unique( schema, table, column[], description )
+CREATE OR REPLACE FUNCTION col_isnt_unique( NAME, NAME, NAME[], TEXT )
+RETURNS TEXT AS $$
+    SELECT isnt( _ckeys( $1, $2, 'u' ), $3, $4 );
+$$ LANGUAGE sql;
+
+-- col_isnt_unique( schema, table, column[] )
+CREATE OR REPLACE FUNCTION col_isnt_unique( NAME, NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT col_isnt_unique( $1, $2, $3, 'Columns ' || quote_ident($1) || '.' || quote_ident($2) || '(' || _ident_array_to_string($3, ', ') || ') should not be a unique constraint' );
+$$ LANGUAGE sql;
+
+-- col_isnt_unique( table, column[], description )
+CREATE OR REPLACE FUNCTION col_isnt_unique( NAME, NAME[], TEXT )
+RETURNS TEXT AS $$
+    SELECT isnt( _ckeys( $1, 'u' ), $2, $3 );
+$$ LANGUAGE sql;
+
+-- col_isnt_unique( table, column[] )
+CREATE OR REPLACE FUNCTION col_isnt_unique( NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT col_isnt_unique( $1, $2, 'Columns ' || quote_ident($1) || '(' || _ident_array_to_string($2, ', ') || ') should not be a unique constraint' );
+$$ LANGUAGE sql;
+
+-- col_isnt_unique( schema, table, column, description )
+CREATE OR REPLACE FUNCTION col_isnt_unique( NAME, NAME, NAME, TEXT )
+RETURNS TEXT AS $$
+    SELECT col_isnt_unique( $1, $2, ARRAY[$3], $4 );
+$$ LANGUAGE sql;
+
+-- col_isnt_unique( schema, table, column )
+CREATE OR REPLACE FUNCTION col_isnt_unique( NAME, NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT col_isnt_unique( $1, $2, $3, 'Column ' || quote_ident($1) || '.' || quote_ident($2) || '(' || quote_ident($3) || ') should not be a unique constraint' );
+$$ LANGUAGE sql;
+
+-- col_isnt_unique( table, column, description )
+CREATE OR REPLACE FUNCTION col_isnt_unique( NAME, NAME, TEXT )
+RETURNS TEXT AS $$
+    SELECT col_isnt_unique( $1, ARRAY[$2], $3 );
+$$ LANGUAGE sql;
+
+-- col_isnt_unique( table, column )
+CREATE OR REPLACE FUNCTION col_isnt_unique( NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT col_isnt_unique( $1, $2, 'Column ' || quote_ident($1) || '(' || quote_ident($2) || ') should not be a unique constraint' );
+$$ LANGUAGE sql;
