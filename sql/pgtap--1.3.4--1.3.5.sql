@@ -253,15 +253,15 @@ RETURNS TEXT AS $$
 $$ LANGUAGE sql;
 
 -- -----------------------------------------------------------------------------
--- Reminder for constraitns
--- - has_X( schema, table, description )
--- - has_X( schema, table )
--- - has_X( table, description )
--- - has_X( table )
--- - has_X( schema, table, constraint_name, description )
--- - has_X( schema, table, constraint_name )
--- - has_X( table, constraint_name, description )
--- - has_X( table, constraint_name )
+-- Reminder for HAS constraints
+-- - has_X( schema, table, description )                  ( NAME, NAME, TEXT ) *Overlap problem #1
+-- - has_X( schema, table )                               ( NAME, NAME ) *Overlap problem #2
+-- - has_X( table, description )                          ( NAME, TEXT )
+-- - has_X( table )                                       ( NAME )
+-- - has_X( schema, table, constraint_name, description ) ( NAME, NAME, NAME, TEXT )
+-- - has_X( schema, table, constraint_name )              ( NAME, NAME, NAME )
+-- - has_X( table, constraint_name, description )         ( NAME, NAME, TEXT ) *Overlap problem #1
+-- - has_X( table, constraint_name )                      ( NAME, NAME ) *Overlap problem #2
 -- -----------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------
