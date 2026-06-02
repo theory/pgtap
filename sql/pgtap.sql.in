@@ -2181,13 +2181,13 @@ RETURNS TEXT AS $$
     SELECT col_is_pk( $1, $2, 'Column ' || quote_ident($1) || '(' || quote_ident($2) || ') should be a primary key' );
 $$ LANGUAGE sql;
 
--- col_isnt_pk( schema, table, column, description )
+-- col_isnt_pk( schema, table, column[], description )
 CREATE OR REPLACE FUNCTION col_isnt_pk ( NAME, NAME, NAME[], TEXT )
 RETURNS TEXT AS $$
     SELECT isnt( _ckeys( $1, $2, 'p' ), $3, $4 );
 $$ LANGUAGE sql;
 
--- col_isnt_pk( table, column, description )
+-- col_isnt_pk( table, column[], description )
 CREATE OR REPLACE FUNCTION col_isnt_pk ( NAME, NAME[], TEXT )
 RETURNS TEXT AS $$
     SELECT isnt( _ckeys( $1, 'p' ), $2, $3 );
@@ -2275,7 +2275,7 @@ RETURNS BOOLEAN AS $$
     );
 $$ LANGUAGE SQL;
 
--- col_is_fk( schema, table, column, description )
+-- col_is_fk( schema, table, column[], description )
 CREATE OR REPLACE FUNCTION col_is_fk ( NAME, NAME, NAME[], TEXT )
 RETURNS TEXT AS $$
 DECLARE
@@ -2308,7 +2308,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- col_is_fk( table, column, description )
+-- col_is_fk( table, column[], description )
 CREATE OR REPLACE FUNCTION col_is_fk ( NAME, NAME[], TEXT )
 RETURNS TEXT AS $$
 DECLARE
@@ -2364,13 +2364,13 @@ RETURNS TEXT AS $$
     SELECT col_is_fk( $1, $2, 'Column ' || quote_ident($1) || '(' || quote_ident($2) || ') should be a foreign key' );
 $$ LANGUAGE sql;
 
--- col_isnt_fk( schema, table, column, description )
+-- col_isnt_fk( schema, table, column[], description )
 CREATE OR REPLACE FUNCTION col_isnt_fk ( NAME, NAME, NAME[], TEXT )
 RETURNS TEXT AS $$
     SELECT ok( NOT _fkexists( $1, $2, $3 ), $4 );
 $$ LANGUAGE SQL;
 
--- col_isnt_fk( table, column, description )
+-- col_isnt_fk( table, column[], description )
 CREATE OR REPLACE FUNCTION col_isnt_fk ( NAME, NAME[], TEXT )
 RETURNS TEXT AS $$
     SELECT ok( NOT _fkexists( $1, $2 ), $3 );
@@ -2466,7 +2466,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- col_is_unique( schema, table, column, description )
+-- col_is_unique( schema, table, column[], description )
 CREATE OR REPLACE FUNCTION col_is_unique ( NAME, NAME, NAME[], TEXT )
 RETURNS TEXT AS $$
     SELECT _constraint( $1, $2, 'u', $3, $4, 'unique' );
