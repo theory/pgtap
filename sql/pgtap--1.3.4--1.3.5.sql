@@ -286,7 +286,7 @@ RETURNS TEXT AS $$
     SELECT has_check( $1, $2, $3, 'Check constraint ' || quote_ident($3) || ' should exist on ' || quote_ident($1) || '.' || quote_ident($2) );
 $$ LANGUAGE sql;
 
--- has_check( table, constraint_name, description ) * Overlap problem
+-- has_check( table, constraint_name, description )
 CREATE OR REPLACE FUNCTION has_check ( NAME, NAME, TEXT )
 RETURNS TEXT AS $$
     SELECT ok( _hasc( $1, 'c', $2 ), $3 );
@@ -476,7 +476,7 @@ RETURNS TEXT AS $$
     SELECT has_fk( $1, $2, $3, 'Foreign key constraint ' || quote_ident($3) || ' should exist on ' || quote_ident($1) || '.' || quote_ident($2) );
 $$ LANGUAGE sql;
 
--- has_fk( table, constraint_name, description ) * Overlap problem
+-- has_fk( table, constraint_name, description )
 CREATE OR REPLACE FUNCTION has_fk ( NAME, NAME, TEXT )
 RETURNS TEXT AS $$
     SELECT ok( _hasc( $1, 'f', $2 ), $3 );
@@ -510,7 +510,7 @@ RETURNS TEXT AS $$
     SELECT hasnt_fk( $1, $2, $3, 'Foreign key constraint ' || quote_ident($3) || ' should not exist on ' || quote_ident($1) || '.' || quote_ident($2) );
 $$ LANGUAGE sql;
 
--- hasnt_fk( table, constraint_name, description ) * Overlap problem
+-- hasnt_fk( table, constraint_name, description )
 CREATE OR REPLACE FUNCTION hasnt_fk ( NAME, NAME, TEXT )
 RETURNS TEXT AS $$
     SELECT ok( NOT _hasc( $1, 'f', $2 ), $3 );
@@ -538,13 +538,13 @@ RETURNS TEXT AS $$
     SELECT has_pk( $1, $2, $3, 'Primary key constraint ' || quote_ident($3) || ' should exist on ' || quote_ident($1) || '.' || quote_ident($2) );
 $$ LANGUAGE sql;
 
--- has_pk( table, constraint_name, description ) * Overlap problem
+-- has_pk( table, constraint_name, description )
 CREATE OR REPLACE FUNCTION has_pk ( NAME, NAME, TEXT )
 RETURNS TEXT AS $$
     SELECT ok( _hasc( $1, 'p', $2 ), $3 );
 $$ LANGUAGE sql;
 
--- has_pk( table, constraint_name ) * Overlap problem
+-- has_pk( table, constraint_name )
 CREATE OR REPLACE FUNCTION has_pk ( NAME, NAME )
 RETURNS TEXT AS $$
     SELECT has_pk( $1, $2, 'Primary key constraint ' || quote_ident($2) || ' should exist on ' || quote_ident($1) );
@@ -572,7 +572,7 @@ RETURNS TEXT AS $$
     SELECT hasnt_pk( $1, $2, $3, 'Primary key constraint ' || quote_ident($3) || ' should not exist on ' || quote_ident($1) || '.' || quote_ident($2) );
 $$ LANGUAGE sql;
 
--- hasnt_pk( table, constraint_name, description ) * Overlap problem
+-- hasnt_pk( table, constraint_name, description )
 CREATE OR REPLACE FUNCTION hasnt_pk ( NAME, NAME, TEXT )
 RETURNS TEXT AS $$
     SELECT ok( NOT _hasc( $1, 'p', $2 ), $3 );
