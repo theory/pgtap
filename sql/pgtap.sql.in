@@ -2056,28 +2056,10 @@ RETURNS NAME[] AS $$
     SELECT * FROM _keys($1, $2) LIMIT 1;
 $$ LANGUAGE sql;
 
--- col_is_pk( schema, table, column[], description )
+-- col_is_pk( schema, table, columns[], description )
 CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME, NAME[], TEXT )
 RETURNS TEXT AS $$
     SELECT is( _ckeys( $1, $2, 'p' ), $3, $4 );
-$$ LANGUAGE sql;
-
--- col_is_pk( schema, table, column[] )
-CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME, NAME[] )
-RETURNS TEXT AS $$
-    SELECT col_is_pk( $1, $2, $3, 'Columns ' || quote_ident($1) || '.' || quote_ident($2) || '(' || _ident_array_to_string($3, ', ') || ') should be a primary key' );
-$$ LANGUAGE sql;
-
--- col_is_pk( table, column[], description )
-CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME[], TEXT )
-RETURNS TEXT AS $$
-    SELECT is( _ckeys( $1, 'p' ), $2, $3 );
-$$ LANGUAGE sql;
-
--- col_is_pk( table, column[] )
-CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME[] )
-RETURNS TEXT AS $$
-    SELECT col_is_pk( $1, $2, 'Columns ' || quote_ident($1) || '(' || _ident_array_to_string($2, ', ') || ') should be a primary key' );
 $$ LANGUAGE sql;
 
 -- col_is_pk( schema, table, column, description )
@@ -2086,10 +2068,22 @@ RETURNS TEXT AS $$
     SELECT col_is_pk( $1, $2, ARRAY[$3], $4 );
 $$ LANGUAGE sql;
 
+-- col_is_pk( schema, table, columns[] )
+CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT col_is_pk( $1, $2, $3, 'Columns ' || quote_ident($1) || '.' || quote_ident($2) || '(' || _ident_array_to_string($3, ', ') || ') should be a primary key' );
+$$ LANGUAGE sql;
+
 -- col_is_pk( schema, table, column )
 CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME, NAME )
 RETURNS TEXT AS $$
     SELECT col_is_pk( $1, $2, $3, 'Column ' || quote_ident($1) || '.' || quote_ident($2) || '(' || quote_ident($3) || ') should be a primary key' );
+$$ LANGUAGE sql;
+
+-- col_is_pk( table, columns[], description )
+CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME[], TEXT )
+RETURNS TEXT AS $$
+    SELECT is( _ckeys( $1, 'p' ), $2, $3 );
 $$ LANGUAGE sql;
 
 -- col_is_pk( table, column, description )
@@ -2098,28 +2092,22 @@ RETURNS TEXT AS $$
     SELECT col_is_pk( $1, ARRAY[$2], $3 );
 $$ LANGUAGE sql;
 
+-- col_is_pk( table, columns[] )
+CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT col_is_pk( $1, $2, 'Columns ' || quote_ident($1) || '(' || _ident_array_to_string($2, ', ') || ') should be a primary key' );
+$$ LANGUAGE sql;
+
 -- col_is_pk( table, column )
 CREATE OR REPLACE FUNCTION col_is_pk ( NAME, NAME )
 RETURNS TEXT AS $$
     SELECT col_is_pk( $1, $2, 'Column ' || quote_ident($1) || '(' || quote_ident($2) || ') should be a primary key' );
 $$ LANGUAGE sql;
 
--- col_isnt_pk( schema, table, column, description )
+-- col_isnt_pk( schema, table, columns[], description )
 CREATE OR REPLACE FUNCTION col_isnt_pk ( NAME, NAME, NAME[], TEXT )
 RETURNS TEXT AS $$
     SELECT isnt( _ckeys( $1, $2, 'p' ), $3, $4 );
-$$ LANGUAGE sql;
-
--- col_isnt_pk( table, column, description )
-CREATE OR REPLACE FUNCTION col_isnt_pk ( NAME, NAME[], TEXT )
-RETURNS TEXT AS $$
-    SELECT isnt( _ckeys( $1, 'p' ), $2, $3 );
-$$ LANGUAGE sql;
-
--- col_isnt_pk( table, column[] )
-CREATE OR REPLACE FUNCTION col_isnt_pk ( NAME, NAME[] )
-RETURNS TEXT AS $$
-    SELECT col_isnt_pk( $1, $2, 'Columns ' || quote_ident($1) || '(' || _ident_array_to_string($2, ', ') || ') should not be a primary key' );
 $$ LANGUAGE sql;
 
 -- col_isnt_pk( schema, table, column, description )
@@ -2128,10 +2116,34 @@ RETURNS TEXT AS $$
     SELECT col_isnt_pk( $1, $2, ARRAY[$3], $4 );
 $$ LANGUAGE sql;
 
+-- col_isnt_pk( schema, table, columns[] )
+CREATE OR REPLACE FUNCTION col_isnt_pk ( NAME, NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT col_isnt_pk( $1, $2, $3, 'Columns ' || quote_ident($1) || '.' || quote_ident($2) || '(' || _ident_array_to_string($3, ', ') || ') should not be a primary key' );
+$$ LANGUAGE sql;
+
+-- col_isnt_pk( schema, table, column )
+CREATE OR REPLACE FUNCTION col_isnt_pk ( NAME, NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT col_isnt_pk( $1, $2, $3, 'Column ' || quote_ident($1) || '.' || quote_ident($2) || '(' || quote_ident($3) || ') should not be a primary key' );
+$$ LANGUAGE sql;
+
+-- col_isnt_pk( table, columns[], description )
+CREATE OR REPLACE FUNCTION col_isnt_pk ( NAME, NAME[], TEXT )
+RETURNS TEXT AS $$
+    SELECT isnt( _ckeys( $1, 'p' ), $2, $3 );
+$$ LANGUAGE sql;
+
 -- col_isnt_pk( table, column, description )
 CREATE OR REPLACE FUNCTION col_isnt_pk ( NAME, NAME, TEXT )
 RETURNS TEXT AS $$
     SELECT col_isnt_pk( $1, ARRAY[$2], $3 );
+$$ LANGUAGE sql;
+
+-- col_isnt_pk( table, columns[] )
+CREATE OR REPLACE FUNCTION col_isnt_pk ( NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT col_isnt_pk( $1, $2, 'Columns ' || quote_ident($1) || '(' || _ident_array_to_string($2, ', ') || ') should not be a primary key' );
 $$ LANGUAGE sql;
 
 -- col_isnt_pk( table, column )
@@ -2210,7 +2222,7 @@ RETURNS BOOLEAN AS $$
     );
 $$ LANGUAGE SQL;
 
--- col_is_fk( schema, table, column, description )
+-- col_is_fk( schema, table, columns[], description )
 CREATE OR REPLACE FUNCTION col_is_fk ( NAME, NAME, NAME[], TEXT )
 RETURNS TEXT AS $$
 DECLARE
@@ -2243,7 +2255,25 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- col_is_fk( table, column, description )
+-- col_is_fk( schema, table, column, description )
+CREATE OR REPLACE FUNCTION col_is_fk ( NAME, NAME, NAME, TEXT )
+RETURNS TEXT AS $$
+    SELECT col_is_fk( $1, $2, ARRAY[$3], $4 );
+$$ LANGUAGE sql;
+
+-- col_is_fk( schema, table, columns[] )
+CREATE OR REPLACE FUNCTION col_is_fk ( NAME, NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT col_is_fk( $1, $2, $3, 'Columns ' || quote_ident($1) || '.' || quote_ident($2) || '(' || _ident_array_to_string($3, ', ') || ') should be a foreign key' );
+$$ LANGUAGE sql;
+
+-- col_is_fk( schema, table, column )
+CREATE OR REPLACE FUNCTION col_is_fk ( NAME, NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT col_is_fk( $1, $2, $3, 'Column ' || quote_ident($1) || '.' || quote_ident($2) || '(' || quote_ident($3) || ') should be a foreign key' );
+$$ LANGUAGE sql;
+
+-- col_is_fk( table, columns[], description )
 CREATE OR REPLACE FUNCTION col_is_fk ( NAME, NAME[], TEXT )
 RETURNS TEXT AS $$
 DECLARE
@@ -2275,22 +2305,16 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- col_is_fk( table, column[] )
-CREATE OR REPLACE FUNCTION col_is_fk ( NAME, NAME[] )
-RETURNS TEXT AS $$
-    SELECT col_is_fk( $1, $2, 'Columns ' || quote_ident($1) || '(' || _ident_array_to_string($2, ', ') || ') should be a foreign key' );
-$$ LANGUAGE sql;
-
--- col_is_fk( schema, table, column, description )
-CREATE OR REPLACE FUNCTION col_is_fk ( NAME, NAME, NAME, TEXT )
-RETURNS TEXT AS $$
-    SELECT col_is_fk( $1, $2, ARRAY[$3], $4 );
-$$ LANGUAGE sql;
-
 -- col_is_fk( table, column, description )
 CREATE OR REPLACE FUNCTION col_is_fk ( NAME, NAME, TEXT )
 RETURNS TEXT AS $$
     SELECT col_is_fk( $1, ARRAY[$2], $3 );
+$$ LANGUAGE sql;
+
+-- col_is_fk( table, columns[] )
+CREATE OR REPLACE FUNCTION col_is_fk ( NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT col_is_fk( $1, $2, 'Columns ' || quote_ident($1) || '(' || _ident_array_to_string($2, ', ') || ') should be a foreign key' );
 $$ LANGUAGE sql;
 
 -- col_is_fk( table, column )
@@ -2299,23 +2323,11 @@ RETURNS TEXT AS $$
     SELECT col_is_fk( $1, $2, 'Column ' || quote_ident($1) || '(' || quote_ident($2) || ') should be a foreign key' );
 $$ LANGUAGE sql;
 
--- col_isnt_fk( schema, table, column, description )
+-- col_isnt_fk( schema, table, columns[], description )
 CREATE OR REPLACE FUNCTION col_isnt_fk ( NAME, NAME, NAME[], TEXT )
 RETURNS TEXT AS $$
     SELECT ok( NOT _fkexists( $1, $2, $3 ), $4 );
 $$ LANGUAGE SQL;
-
--- col_isnt_fk( table, column, description )
-CREATE OR REPLACE FUNCTION col_isnt_fk ( NAME, NAME[], TEXT )
-RETURNS TEXT AS $$
-    SELECT ok( NOT _fkexists( $1, $2 ), $3 );
-$$ LANGUAGE SQL;
-
--- col_isnt_fk( table, column[] )
-CREATE OR REPLACE FUNCTION col_isnt_fk ( NAME, NAME[] )
-RETURNS TEXT AS $$
-    SELECT col_isnt_fk( $1, $2, 'Columns ' || quote_ident($1) || '(' || _ident_array_to_string($2, ', ') || ') should not be a foreign key' );
-$$ LANGUAGE sql;
 
 -- col_isnt_fk( schema, table, column, description )
 CREATE OR REPLACE FUNCTION col_isnt_fk ( NAME, NAME, NAME, TEXT )
@@ -2323,10 +2335,34 @@ RETURNS TEXT AS $$
     SELECT col_isnt_fk( $1, $2, ARRAY[$3], $4 );
 $$ LANGUAGE sql;
 
+-- col_isnt_fk( schema, table, columns[] )
+CREATE OR REPLACE FUNCTION col_isnt_fk ( NAME, NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT col_isnt_fk( $1, $2, $3, 'Columns ' || quote_ident($1) || '.' || quote_ident($2) || '(' || _ident_array_to_string($3, ', ') || ') should not be a foreign key' );
+$$ LANGUAGE sql;
+
+-- col_isnt_fk( schema, table, column )
+CREATE OR REPLACE FUNCTION col_isnt_fk ( NAME, NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT col_isnt_fk( $1, $2, $3, 'Column ' || quote_ident($1) || '.' || quote_ident($2) || '(' || quote_ident($3) || ') should not be a foreign key' );
+$$ LANGUAGE sql;
+
+-- col_isnt_fk( table, columns[], description )
+CREATE OR REPLACE FUNCTION col_isnt_fk ( NAME, NAME[], TEXT )
+RETURNS TEXT AS $$
+    SELECT ok( NOT _fkexists( $1, $2 ), $3 );
+$$ LANGUAGE SQL;
+
 -- col_isnt_fk( table, column, description )
 CREATE OR REPLACE FUNCTION col_isnt_fk ( NAME, NAME, TEXT )
 RETURNS TEXT AS $$
     SELECT col_isnt_fk( $1, ARRAY[$2], $3 );
+$$ LANGUAGE sql;
+
+-- col_isnt_fk( table, columns[] )
+CREATE OR REPLACE FUNCTION col_isnt_fk ( NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT col_isnt_fk( $1, $2, 'Columns ' || quote_ident($1) || '(' || _ident_array_to_string($2, ', ') || ') should not be a foreign key' );
 $$ LANGUAGE sql;
 
 -- col_isnt_fk( table, column )
@@ -2431,34 +2467,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- col_is_unique( schema, table, column, description )
+-- col_is_unique( schema, table, columns[], description )
 CREATE OR REPLACE FUNCTION col_is_unique ( NAME, NAME, NAME[], TEXT )
 RETURNS TEXT AS $$
     SELECT _constraint( $1, $2, 'u', $3, $4, 'unique' );
-$$ LANGUAGE sql;
-
--- col_is_unique( schema, table, column[] )
-CREATE OR REPLACE FUNCTION col_is_unique ( NAME, NAME, NAME[] )
-RETURNS TEXT AS $$
-    SELECT col_is_unique( $1, $2, $3, 'Columns ' || quote_ident($2) || '(' || _ident_array_to_string($3, ', ') || ') should have a unique constraint' );
-$$ LANGUAGE sql;
-
--- col_is_unique( scheam, table, column )
-CREATE OR REPLACE FUNCTION col_is_unique ( NAME, NAME, NAME )
-RETURNS TEXT AS $$
-    SELECT col_is_unique( $1, $2, ARRAY[$3], 'Column ' || quote_ident($2) || '(' || quote_ident($3) || ') should have a unique constraint' );
-$$ LANGUAGE sql;
-
--- col_is_unique( table, column, description )
-CREATE OR REPLACE FUNCTION col_is_unique ( NAME, NAME[], TEXT )
-RETURNS TEXT AS $$
-    SELECT _constraint( $1, 'u', $2, $3, 'unique' );
-$$ LANGUAGE sql;
-
--- col_is_unique( table, column[] )
-CREATE OR REPLACE FUNCTION col_is_unique ( NAME, NAME[] )
-RETURNS TEXT AS $$
-    SELECT col_is_unique( $1, $2, 'Columns ' || quote_ident($1) || '(' || _ident_array_to_string($2, ', ') || ') should have a unique constraint' );
 $$ LANGUAGE sql;
 
 -- col_is_unique( schema, table, column, description )
@@ -2467,16 +2479,102 @@ RETURNS TEXT AS $$
     SELECT col_is_unique( $1, $2, ARRAY[$3], $4 );
 $$ LANGUAGE sql;
 
+-- col_is_unique( schema, table, columns[] )
+CREATE OR REPLACE FUNCTION col_is_unique ( NAME, NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT col_is_unique( $1, $2, $3, 'Columns ' || quote_ident($2) || '(' || _ident_array_to_string($3, ', ') || ') should have a unique constraint' );
+$$ LANGUAGE sql;
+
+-- col_is_unique( schema, table, column )
+CREATE OR REPLACE FUNCTION col_is_unique ( NAME, NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT col_is_unique( $1, $2, ARRAY[$3], 'Column ' || quote_ident($2) || '(' || quote_ident($3) || ') should have a unique constraint' );
+$$ LANGUAGE sql;
+
+-- col_is_unique( table, columns[], description )
+CREATE OR REPLACE FUNCTION col_is_unique ( NAME, NAME[], TEXT )
+RETURNS TEXT AS $$
+    SELECT _constraint( $1, 'u', $2, $3, 'unique' );
+$$ LANGUAGE sql;
+
 -- col_is_unique( table, column, description )
 CREATE OR REPLACE FUNCTION col_is_unique ( NAME, NAME, TEXT )
 RETURNS TEXT AS $$
     SELECT col_is_unique( $1, ARRAY[$2], $3 );
 $$ LANGUAGE sql;
 
+-- col_is_unique( table, columns[] )
+CREATE OR REPLACE FUNCTION col_is_unique ( NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT col_is_unique( $1, $2, 'Columns ' || quote_ident($1) || '(' || _ident_array_to_string($2, ', ') || ') should have a unique constraint' );
+$$ LANGUAGE sql;
+
 -- col_is_unique( table, column )
 CREATE OR REPLACE FUNCTION col_is_unique ( NAME, NAME )
 RETURNS TEXT AS $$
     SELECT col_is_unique( $1, $2, 'Column ' || quote_ident($1) || '(' || quote_ident($2) || ') should have a unique constraint' );
+$$ LANGUAGE sql;
+
+-- col_isnt_unique( schema, table, columns[], description )
+CREATE OR REPLACE FUNCTION col_isnt_unique ( NAME, NAME, NAME[], TEXT )
+RETURNS TEXT AS $$
+    SELECT ok(
+        NOT EXISTS (
+            SELECT 1
+              FROM _keys($1, $2, 'u') AS keys(key_columns)
+             WHERE key_columns = $3
+        ),
+        $4
+    );
+$$ LANGUAGE sql;
+
+-- col_isnt_unique( schema, table, column, description )
+CREATE OR REPLACE FUNCTION col_isnt_unique ( NAME, NAME, NAME, TEXT )
+RETURNS TEXT AS $$
+    SELECT col_isnt_unique( $1, $2, ARRAY[$3], $4 );
+$$ LANGUAGE sql;
+
+-- col_isnt_unique( schema, table, columns[] )
+CREATE OR REPLACE FUNCTION col_isnt_unique ( NAME, NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT col_isnt_unique( $1, $2, $3, 'Columns ' || quote_ident($2) || '(' || _ident_array_to_string($3, ', ') || ') should not have a unique constraint' );
+$$ LANGUAGE sql;
+
+-- col_isnt_unique( schema, table, column )
+CREATE OR REPLACE FUNCTION col_isnt_unique ( NAME, NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT col_isnt_unique( $1, $2, ARRAY[$3], 'Column ' || quote_ident($2) || '(' || quote_ident($3) || ') should not have a unique constraint' );
+$$ LANGUAGE sql;
+
+-- col_isnt_unique( table, columns[], description )
+CREATE OR REPLACE FUNCTION col_isnt_unique ( NAME, NAME[], TEXT )
+RETURNS TEXT AS $$
+    SELECT ok(
+        NOT EXISTS (
+            SELECT 1
+              FROM _keys($1, 'u') AS keys(key_columns)
+             WHERE key_columns = $2
+        ),
+        $3
+    );
+$$ LANGUAGE sql;
+
+-- col_isnt_unique( table, column, description )
+CREATE OR REPLACE FUNCTION col_isnt_unique ( NAME, NAME, TEXT )
+RETURNS TEXT AS $$
+    SELECT col_isnt_unique( $1, ARRAY[$2], $3 );
+$$ LANGUAGE sql;
+
+-- col_isnt_unique( table, columns[] )
+CREATE OR REPLACE FUNCTION col_isnt_unique ( NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT col_isnt_unique( $1, $2, 'Columns ' || quote_ident($1) || '(' || _ident_array_to_string($2, ', ') || ') should not have a unique constraint' );
+$$ LANGUAGE sql;
+
+-- col_isnt_unique( table, column )
+CREATE OR REPLACE FUNCTION col_isnt_unique ( NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT col_isnt_unique( $1, $2, 'Column ' || quote_ident($1) || '(' || quote_ident($2) || ') should not have a unique constraint' );
 $$ LANGUAGE sql;
 
 -- has_check( schema, table, description )
@@ -2539,7 +2637,7 @@ RETURNS TEXT AS $$
     SELECT _constraint( $1, 'c', $2, $3, 'check' );
 $$ LANGUAGE sql;
 
--- col_has_check( table, column[] )
+-- col_has_check( table, columns[] )
 CREATE OR REPLACE FUNCTION col_has_check ( NAME, NAME[] )
 RETURNS TEXT AS $$
     SELECT col_has_check( $1, $2, 'Columns ' || quote_ident($1) || '(' || _ident_array_to_string($2, ', ') || ') should have a check constraint' );
@@ -2563,7 +2661,7 @@ RETURNS TEXT AS $$
     SELECT col_has_check( $1, $2, 'Column ' || quote_ident($1) || '(' || quote_ident($2) || ') should have a check constraint' );
 $$ LANGUAGE sql;
 
--- fk_ok( fk_schema, fk_table, fk_column[], pk_schema, pk_table, pk_column[], description )
+-- fk_ok( fk_schema, fk_table, fk_columns[], pk_schema, pk_table, pk_columns[], description )
 CREATE OR REPLACE FUNCTION fk_ok ( NAME, NAME, NAME[], NAME, NAME, NAME[], TEXT )
 RETURNS TEXT AS $$
 DECLARE
@@ -2591,7 +2689,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- fk_ok( fk_table, fk_column[], pk_table, pk_column[], description )
+-- fk_ok( fk_table, fk_columns[], pk_table, pk_columns[], description )
 CREATE OR REPLACE FUNCTION fk_ok ( NAME, NAME[], NAME, NAME[], TEXT )
 RETURNS TEXT AS $$
 DECLARE
@@ -2618,7 +2716,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- fk_ok( fk_schema, fk_table, fk_column[], fk_schema, pk_table, pk_column[] )
+-- fk_ok( fk_schema, fk_table, fk_columns[], fk_schema, pk_table, pk_columns[] )
 CREATE OR REPLACE FUNCTION fk_ok ( NAME, NAME, NAME[], NAME, NAME, NAME[] )
 RETURNS TEXT AS $$
     SELECT fk_ok( $1, $2, $3, $4, $5, $6,
@@ -2628,7 +2726,7 @@ RETURNS TEXT AS $$
     );
 $$ LANGUAGE sql;
 
--- fk_ok( fk_table, fk_column[], pk_table, pk_column[] )
+-- fk_ok( fk_table, fk_columns[], pk_table, pk_columns[] )
 CREATE OR REPLACE FUNCTION fk_ok ( NAME, NAME[], NAME, NAME[] )
 RETURNS TEXT AS $$
     SELECT fk_ok( $1, $2, $3, $4,

@@ -5231,6 +5231,14 @@ SELECT col_is_pk( 'myschema', 'sometable', 'id' );
 SELECT col_is_pk( 'persons',  ARRAY['given_name', 'surname'] );
 ```
 
+For a 3-argument schema-qualified call without a description, use `NAME` or
+`NAME[]` casts to distinguish it from the 3-argument
+`(table, column(s), description)` overload. For example:
+
+```sql
+SELECT col_is_pk( 'myschema', 'sometable'::name, 'pk_name'::name );
+```
+
 If the schema is omitted, the table must be visible in the search path. If the
 test description is omitted, it will be set to "Column `:table(:column)`
 should be a primary key". Note that this test will fail if the table or column
@@ -5253,6 +5261,8 @@ Will produce something like this:
 ```sql
 SELECT col_isnt_pk( :schema, :table, :columns, :description );
 SELECT col_isnt_pk( :schema, :table, :column, :description );
+SELECT col_isnt_pk( :schema, :table, :columns );
+SELECT col_isnt_pk( :schema, :table, :column );
 SELECT col_isnt_pk( :table, :columns, :description );
 SELECT col_isnt_pk( :table, :column, :description );
 SELECT col_isnt_pk( :table, :columns );
@@ -5279,11 +5289,21 @@ SELECT col_isnt_pk( :table, :column );
 This function is the inverse of `col_is_pk()`. The test passes if the
 specified column or columns are not a primary key.
 
+For a 3-argument schema-qualified call without a description, use `NAME` or
+`NAME[]` casts to distinguish it from the 3-argument
+`(table, column(s), description)` overload. For example:
+
+```sql
+SELECT col_isnt_pk( 'myschema', 'sometable'::name, 'pk_name'::name );
+```
+
 ### `col_is_fk()` ###
 
 ```sql
 SELECT col_is_fk( :schema, :table, :columns, :description );
 SELECT col_is_fk( :schema, :table, :column, :description );
+SELECT col_is_fk( :schema, :table, :columns );
+SELECT col_is_fk( :schema, :table, :column );
 SELECT col_is_fk( :table, :columns, :description );
 SELECT col_is_fk( :table, :column, :description );
 SELECT col_is_fk( :table, :columns );
@@ -5316,11 +5336,21 @@ simply list all of the foreign key constraint columns, like so:
     #        {thingy_id}
     #        {surname,given_name}
 
+For a 3-argument schema-qualified call without a description, use `NAME` or
+`NAME[]` casts to distinguish it from the 3-argument
+`(table, column(s), description)` overload. For example:
+
+```sql
+SELECT col_is_fk( 'myschema', 'sometable'::name, 'fk_name'::name );
+```
+
 ### `col_isnt_fk()` ###
 
 ```sql
 SELECT col_isnt_fk( :schema, :table, :columns, :description );
 SELECT col_isnt_fk( :schema, :table, :column, :description );
+SELECT col_isnt_fk( :schema, :table, :columns );
+SELECT col_isnt_fk( :schema, :table, :column );
 SELECT col_isnt_fk( :table, :columns, :description );
 SELECT col_isnt_fk( :table, :column, :description );
 SELECT col_isnt_fk( :table, :columns );
@@ -5346,6 +5376,14 @@ SELECT col_isnt_fk( :table, :column );
 
 This function is the inverse of `col_is_fk()`. The test passes if the
 specified column or columns are not a foreign key.
+
+For a 3-argument schema-qualified call without a description, use `NAME` or
+`NAME[]` casts to distinguish it from the 3-argument
+`(table, column(s), description)` overload. For example:
+
+```sql
+SELECT col_isnt_fk( 'myschema', 'sometable'::name, 'fk_name'::name );
+```
 
 ### `fk_ok()` ###
 
@@ -5531,9 +5569,9 @@ SELECT col_is_unique(
 );
 ```
 
-If you omit the description for the 3-argument version, you'll need to cast
-the table and column parameters to the `NAME` data type so that PostgreSQL
-doesn't resolve the function name as a description. For example:
+For a 3-argument schema-qualified call without a description, use `NAME` or
+`NAME[]` casts to distinguish it from the 3-argument
+`(table, column(s), description)` overload. For example:
 
 ```sql
 SELECT col_is_unique( 'myschema', 'sometable'::name, 'other_id'::name );
@@ -5546,6 +5584,47 @@ were actually found, if any:
             have: {username}
                   {first_name,last_name}
             want: {email}
+
+### `col_isnt_unique()` ###
+
+```sql
+SELECT col_isnt_unique( schema, table, columns, description );
+SELECT col_isnt_unique( schema, table, column, description );
+SELECT col_isnt_unique( schema, table, columns );
+SELECT col_isnt_unique( schema, table, column );
+SELECT col_isnt_unique( table, columns, description );
+SELECT col_isnt_unique( table, column, description );
+SELECT col_isnt_unique( table, columns );
+SELECT col_isnt_unique( table, column );
+```
+
+**Parameters**
+
+`:schema`
+: Schema in which to find the table.
+
+`:table`
+: Name of a table not containing the unique constraint.
+
+`:columns`
+: Array of the names of the columns that should not have a unique constraint.
+
+`:column`
+: Name of the column that should not have a unique constraint.
+
+`:description`
+: A short description of the test.
+
+This function is the inverse of `col_is_unique()`. The test passes if the
+specified column or columns do not have a unique constraint.
+
+For a 3-argument schema-qualified call without a description, use `NAME` or
+`NAME[]` casts to distinguish it from the 3-argument
+`(table, column(s), description)` overload. For example:
+
+```sql
+SELECT col_isnt_unique( 'myschema', 'sometable'::name, 'other_id'::name );
+```
 
 ### `has_check()` ###
 

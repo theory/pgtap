@@ -1,5 +1,5 @@
 \unset ECHO
-1..78
+1..114
 ok 1 - has_unique( schema, table, description ) should pass
 ok 2 - has_unique( schema, table, description ) should have the proper description
 ok 3 - has_unique( schema, table, description ) should have the proper diagnostics
@@ -69,12 +69,48 @@ ok 66 - col_is_unique( schema, table, column, description ) fail should have the
 ok 67 - col_is_unique( table, column, description ) fail should fail
 ok 68 - col_is_unique( table, column, description ) fail should have the proper description
 ok 69 - col_is_unique( table, column, description ) fail should have the proper diagnostics
-ok 70 - col_is_unique( schema, table, column[], description ) should pass
-ok 71 - col_is_unique( schema, table, column[], description ) should have the proper description
-ok 72 - col_is_unique( schema, table, column[], description ) should have the proper diagnostics
-ok 73 - col_is_unique( table, column[], description ) should pass
-ok 74 - col_is_unique( table, column[], description ) should have the proper description
-ok 75 - col_is_unique( table, column[], description ) should have the proper diagnostics
-ok 76 - col_is_unique( table, column[] ) should pass
-ok 77 - col_is_unique( table, column[] ) should have the proper description
-ok 78 - col_is_unique( table, column[] ) should have the proper diagnostics
+ok 70 - col_is_unique( schema, table, columns[], description ) should pass
+ok 71 - col_is_unique( schema, table, columns[], description ) should have the proper description
+ok 72 - col_is_unique( schema, table, columns[], description ) should have the proper diagnostics
+ok 73 - col_is_unique( table, columns[], description ) should pass
+ok 74 - col_is_unique( table, columns[], description ) should have the proper description
+ok 75 - col_is_unique( table, columns[], description ) should have the proper diagnostics
+ok 76 - col_is_unique( table, columns[] ) should pass
+ok 77 - col_is_unique( table, columns[] ) should have the proper description
+ok 78 - col_is_unique( table, columns[] ) should have the proper diagnostics
+ok 79 - col_isnt_unique( schema, table, column, description ) should pass
+ok 80 - col_isnt_unique( schema, table, column, description ) should have the proper description
+ok 81 - col_isnt_unique( schema, table, column, description ) should have the proper diagnostics
+ok 82 - col_isnt_unique( schema, table, column ) should pass
+ok 83 - col_isnt_unique( schema, table, column ) should have the proper description
+ok 84 - col_isnt_unique( schema, table, column ) should have the proper diagnostics
+ok 85 - col_isnt_unique( table, column, description ) should pass
+ok 86 - col_isnt_unique( table, column, description ) should have the proper description
+ok 87 - col_isnt_unique( table, column, description ) should have the proper diagnostics
+ok 88 - col_isnt_unique( table, column ) should pass
+ok 89 - col_isnt_unique( table, column ) should have the proper description
+ok 90 - col_isnt_unique( table, column ) should have the proper diagnostics
+ok 91 - col_isnt_unique( schema, table, column, description ) fail should fail
+ok 92 - col_isnt_unique( schema, table, column, description ) fail should have the proper description
+ok 93 - col_isnt_unique( schema, table, column, description ) fail should have the proper diagnostics
+ok 94 - col_isnt_unique( table, column, description ) fail should fail
+ok 95 - col_isnt_unique( table, column, description ) fail should have the proper description
+ok 96 - col_isnt_unique( table, column, description ) fail should have the proper diagnostics
+ok 97 - col_isnt_unique( schema, table, columns[], description ) should pass
+ok 98 - col_isnt_unique( schema, table, columns[], description ) should have the proper description
+ok 99 - col_isnt_unique( schema, table, columns[], description ) should have the proper diagnostics
+ok 100 - col_isnt_unique( schema, table, columns[] ) should pass
+ok 101 - col_isnt_unique( schema, table, columns[] ) should have the proper description
+ok 102 - col_isnt_unique( schema, table, columns[] ) should have the proper diagnostics
+ok 103 - col_isnt_unique( table, columns[], description ) should pass
+ok 104 - col_isnt_unique( table, columns[], description ) should have the proper description
+ok 105 - col_isnt_unique( table, columns[], description ) should have the proper diagnostics
+ok 106 - col_isnt_unique( table, columns[] ) should pass
+ok 107 - col_isnt_unique( table, columns[] ) should have the proper description
+ok 108 - col_isnt_unique( table, columns[] ) should have the proper diagnostics
+ok 109 - col_isnt_unique( schema, table, columns[], description ) fail should fail
+ok 110 - col_isnt_unique( schema, table, columns[], description ) fail should have the proper description
+ok 111 - col_isnt_unique( schema, table, columns[], description ) fail should have the proper diagnostics
+ok 112 - col_isnt_unique( table, columns[], description ) fail should fail
+ok 113 - col_isnt_unique( table, columns[], description ) fail should have the proper description
+ok 114 - col_isnt_unique( table, columns[], description ) fail should have the proper diagnostics

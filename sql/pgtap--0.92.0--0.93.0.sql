@@ -84,7 +84,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- fk_ok( fk_table, fk_column[], pk_table, pk_column[], description )
+-- fk_ok( fk_table, fk_columns[], pk_table, pk_columns[], description )
 CREATE OR REPLACE FUNCTION fk_ok ( NAME, NAME[], NAME, NAME[], TEXT )
 RETURNS TEXT AS $$
 DECLARE

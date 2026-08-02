@@ -12,6 +12,13 @@ Revision history for pgTAP
   and `hasnt_check()`. Also changed `has_unique()` argument types from `TEXT`
   to `NAME` so they can share a consistent overload order with the other
   constraint assertions. Thanks to @RampantDespair for the PR (#370).
+* Added missing `schema, table, columns[]` and `schema, table, column` variants
+  of `col_isnt_pk()`, `col_is_fk()`, and `col_isnt_fk()`, and established a
+  consistent overload order for `col_is_pk()`, `col_isnt_pk()`, `col_is_fk()`,
+  `col_isnt_fk()`, and `col_is_unique()`. Added `col_isnt_unique()` with the
+  same consistent overload order. Standardized SQL function comments to use
+  plural `columns[]` for array arguments. Thanks to @RampantDespair for the PR
+  (#369).
 
 1.3.4 2025-10-04T17:20:28Z
 --------------------------

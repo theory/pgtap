@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(140);
+SELECT plan(149);
 --SELECT * from no_plan();
 
 -- These will be rolled back. :-)
@@ -188,6 +188,13 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
+    col_is_fk( 'public', 'fk', 'pk_id'::name ),
+    true,
+    'col_is_fk( schema, table, column )',
+    'Column public.fk(pk_id) should be a foreign key'
+);
+
+SELECT * FROM check_test(
     col_is_fk( 'fk', 'pk_id', 'fk.pk_id should be an fk' ),
     true,
     'col_is_fk( table, column, description )',
@@ -252,21 +259,28 @@ SELECT * FROM check_test(
 SELECT * FROM check_test(
     col_is_fk( 'public', 'fk2', ARRAY['pk2_num', 'pk2_dot'], 'id + pk2_dot should be an fk' ),
     true,
-    'col_is_fk( schema, table, column[], description )',
+    'col_is_fk( schema, table, columns[], description )',
     'id + pk2_dot should be an fk'
+);
+
+SELECT * FROM check_test(
+    col_is_fk( 'public', 'fk2', ARRAY['pk2_num', 'pk2_dot']::name[] ),
+    true,
+    'col_is_fk( schema, table, columns[] )',
+    'Columns public.fk2(pk2_num, pk2_dot) should be a foreign key'
 );
 
 SELECT * FROM check_test(
     col_is_fk( 'fk2', ARRAY['pk2_num', 'pk2_dot'], 'id + pk2_dot should be an fk' ),
     true,
-    'col_is_fk( table, column[], description )',
+    'col_is_fk( table, columns[], description )',
     'id + pk2_dot should be an fk'
 );
 
 SELECT * FROM check_test(
     col_is_fk( 'fk2', ARRAY['pk2_num', 'pk2_dot'] ),
     true,
-    'col_is_fk( table, column[] )',
+    'col_is_fk( table, columns[] )',
     'Columns fk2(pk2_num, pk2_dot) should be a foreign key'
 );
 
@@ -279,6 +293,14 @@ SELECT * FROM check_test(
     'col_isnt_fk( schema, table, column, description )',
     'public.fk.pk_id should not be an fk',
     ''    
+);
+
+SELECT * FROM check_test(
+    col_isnt_fk( 'public', 'fk', 'pk_id'::name ),
+    false,
+    'col_isnt_fk( schema, table, column )',
+    'Column public.fk(pk_id) should not be a foreign key',
+    ''
 );
 
 SELECT * FROM check_test(
@@ -345,21 +367,28 @@ SELECT * FROM check_test(
 SELECT * FROM check_test(
     col_isnt_fk( 'public', 'fk2', ARRAY['pk2_num', 'pk2_dot'], 'id + pk2_dot should not be an fk' ),
     false,
-    'col_isnt_fk( schema, table, column[], description )',
+    'col_isnt_fk( schema, table, columns[], description )',
     'id + pk2_dot should not be an fk'
+);
+
+SELECT * FROM check_test(
+    col_isnt_fk( 'public', 'fk2', ARRAY['pk2_num', 'pk2_dot']::name[] ),
+    false,
+    'col_isnt_fk( schema, table, columns[] )',
+    'Columns public.fk2(pk2_num, pk2_dot) should not be a foreign key'
 );
 
 SELECT * FROM check_test(
     col_isnt_fk( 'fk2', ARRAY['pk2_num', 'pk2_dot'], 'id + pk2_dot should not be an fk' ),
     false,
-    'col_isnt_fk( table, column[], description )',
+    'col_isnt_fk( table, columns[], description )',
     'id + pk2_dot should not be an fk'
 );
 
 SELECT * FROM check_test(
     col_isnt_fk( 'fk2', ARRAY['pk2_num', 'pk2_dot'] ),
     false,
-    'col_isnt_fk( table, column[] )',
+    'col_isnt_fk( table, columns[] )',
     'Columns fk2(pk2_num, pk2_dot) should not be a foreign key'
 );
 
