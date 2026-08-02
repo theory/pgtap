@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(78);
+SELECT plan(114);
 
 -- This will be rolled back. :-)
 SET client_min_messages = warning;
@@ -229,7 +229,7 @@ RESET client_min_messages;
 SELECT * FROM check_test(
     col_is_unique( 'public', 'argh', ARRAY['id', 'name'], 'id + name should be unique' ),
     true,
-    'col_is_unique( schema, table, column[], description )',
+    'col_is_unique( schema, table, columns[], description )',
     'id + name should be unique',
     ''
 );
@@ -237,7 +237,7 @@ SELECT * FROM check_test(
 SELECT * FROM check_test(
     col_is_unique( 'argh', ARRAY['id', 'name'], 'id + name should be unique' ),
     true,
-    'col_is_unique( table, column[], description )',
+    'col_is_unique( table, columns[], description )',
     'id + name should be unique',
     ''
 );
@@ -245,8 +245,110 @@ SELECT * FROM check_test(
 SELECT * FROM check_test(
     col_is_unique( 'argh', ARRAY['id', 'name'] ),
     true,
-    'col_is_unique( table, column[] )',
+    'col_is_unique( table, columns[] )',
     'Columns argh(id, name) should have a unique constraint',
+    ''
+);
+
+/****************************************************************************/
+-- Test col_isnt_unique().
+
+SELECT * FROM check_test(
+    col_isnt_unique( 'public', 'sometab', 'id', 'public.sometab.id should not be unique' ),
+    true,
+    'col_isnt_unique( schema, table, column, description )',
+    'public.sometab.id should not be unique',
+    ''
+);
+
+SELECT * FROM check_test(
+    col_isnt_unique( 'public', 'sometab', 'id'::name ),
+    true,
+    'col_isnt_unique( schema, table, column )',
+    'Column sometab(id) should not have a unique constraint',
+    ''
+);
+
+SELECT * FROM check_test(
+    col_isnt_unique( 'sometab', 'id', 'sometab.id should not be unique' ),
+    true,
+    'col_isnt_unique( table, column, description )',
+    'sometab.id should not be unique',
+    ''
+);
+
+SELECT * FROM check_test(
+    col_isnt_unique( 'sometab', 'id' ),
+    true,
+    'col_isnt_unique( table, column )',
+    'Column sometab(id) should not have a unique constraint',
+    ''
+);
+
+SELECT * FROM check_test(
+    col_isnt_unique( 'public', 'sometab', 'name', 'public.sometab.name should not be unique' ),
+    false,
+    'col_isnt_unique( schema, table, column, description ) fail',
+    'public.sometab.name should not be unique',
+    ''
+);
+
+SELECT * FROM check_test(
+    col_isnt_unique( 'sometab', 'name', 'sometab.name should not be unique' ),
+    false,
+    'col_isnt_unique( table, column, description ) fail',
+    'sometab.name should not be unique',
+    ''
+);
+
+/****************************************************************************/
+-- Test col_isnt_unique() with an array of columns.
+
+SELECT * FROM check_test(
+    col_isnt_unique( 'public', 'argh', ARRAY['id', 'foo'], 'id + foo should not be unique' ),
+    true,
+    'col_isnt_unique( schema, table, columns[], description )',
+    'id + foo should not be unique',
+    ''
+);
+
+SELECT * FROM check_test(
+    col_isnt_unique( 'public', 'argh', ARRAY['id', 'foo']::name[] ),
+    true,
+    'col_isnt_unique( schema, table, columns[] )',
+    'Columns argh(id, foo) should not have a unique constraint',
+    ''
+);
+
+SELECT * FROM check_test(
+    col_isnt_unique( 'argh', ARRAY['id', 'foo'], 'id + foo should not be unique' ),
+    true,
+    'col_isnt_unique( table, columns[], description )',
+    'id + foo should not be unique',
+    ''
+);
+
+SELECT * FROM check_test(
+    col_isnt_unique( 'argh', ARRAY['id', 'foo'] ),
+    true,
+    'col_isnt_unique( table, columns[] )',
+    'Columns argh(id, foo) should not have a unique constraint',
+    ''
+);
+
+SELECT * FROM check_test(
+    col_isnt_unique( 'public', 'argh', ARRAY['id', 'name'], 'id + name should not be unique' ),
+    false,
+    'col_isnt_unique( schema, table, columns[], description ) fail',
+    'id + name should not be unique',
+    ''
+);
+
+SELECT * FROM check_test(
+    col_isnt_unique( 'argh', ARRAY['id', 'name'], 'id + name should not be unique' ),
+    false,
+    'col_isnt_unique( table, columns[], description ) fail',
+    'id + name should not be unique',
     ''
 );
 

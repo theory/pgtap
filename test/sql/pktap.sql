@@ -2,7 +2,7 @@
 \i test/setup.sql
 -- \i sql/pgtap.sql
 
-SELECT plan(102);
+SELECT plan(108);
 --SELECT * FROM no_plan();
 
 -- This will be rolled back. :-)
@@ -228,7 +228,7 @@ RESET client_min_messages;
 SELECT * FROM check_test(
     col_is_pk( 'public', 'argh', ARRAY['id', 'name'], 'id + name should be a pk' ),
     true,
-    'col_is_pk( schema, table, column[], description )',
+    'col_is_pk( schema, table, columns[], description )',
     'id + name should be a pk',
     ''
 );
@@ -236,7 +236,7 @@ SELECT * FROM check_test(
 SELECT * FROM check_test(
     col_is_pk( 'public', 'argh', ARRAY['id', 'name']::name[] ),
     true,
-    'col_is_pk( schema, table, column[] )',
+    'col_is_pk( schema, table, columns[] )',
     'Columns public.argh(id, name) should be a primary key',
     ''
 );
@@ -244,7 +244,7 @@ SELECT * FROM check_test(
 SELECT * FROM check_test(
     col_is_pk( 'argh', ARRAY['id', 'name'], 'id + name should be a pk' ),
     true,
-    'col_is_pk( table, column[], description )',
+    'col_is_pk( table, columns[], description )',
     'id + name should be a pk',
     ''
 );
@@ -252,7 +252,7 @@ SELECT * FROM check_test(
 SELECT * FROM check_test(
     col_is_pk( 'argh', ARRAY['id', 'name'] ),
     true,
-    'col_is_pk( table, column[] )',
+    'col_is_pk( table, columns[] )',
     'Columns argh(id, name) should be a primary key',
     ''
 );
@@ -265,6 +265,15 @@ SELECT * FROM check_test(
     false,
     'col_isnt_pk( schema, table, column, description )',
     'public.sometab.id should not be a pk',
+    '        have: {id}
+        want: anything else'
+);
+
+SELECT * FROM check_test(
+    col_isnt_pk( 'public', 'sometab', 'id'::name ),
+    false,
+    'col_isnt_pk( schema, table, column )',
+    'Column public.sometab(id) should not be a primary key',
     '        have: {id}
         want: anything else'
 );
@@ -309,15 +318,23 @@ SELECT * FROM check_test(
 SELECT * FROM check_test(
     col_isnt_pk( 'public', 'argh', ARRAY['id', 'foo'], 'id + foo should not be a pk' ),
     true,
-    'col_isnt_pk( schema, table, column[], description )',
+    'col_isnt_pk( schema, table, columns[], description )',
     'id + foo should not be a pk',
+    ''
+);
+
+SELECT * FROM check_test(
+    col_isnt_pk( 'public', 'argh', ARRAY['id', 'foo']::name[] ),
+    true,
+    'col_isnt_pk( schema, table, columns[] )',
+    'Columns public.argh(id, foo) should not be a primary key',
     ''
 );
 
 SELECT * FROM check_test(
     col_isnt_pk( 'argh', ARRAY['id', 'foo'], 'id + foo should not be a pk' ),
     true,
-    'col_isnt_pk( table, column[], description )',
+    'col_isnt_pk( table, columns[], description )',
     'id + foo should not be a pk',
     ''
 );
@@ -325,7 +342,7 @@ SELECT * FROM check_test(
 SELECT * FROM check_test(
     col_isnt_pk( 'argh', ARRAY['id', 'foo'] ),
     true,
-    'col_isnt_pk( table, column[] )',
+    'col_isnt_pk( table, columns[] )',
     'Columns argh(id, foo) should not be a primary key',
     ''
 );

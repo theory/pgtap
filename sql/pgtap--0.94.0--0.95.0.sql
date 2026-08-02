@@ -384,7 +384,7 @@ RETURNS TEXT AS $$
     SELECT ok( NOT _strict($1), 'Function ' || quote_ident($1) || '() should not be strict' );
 $$ LANGUAGE sql;
 
--- col_is_unique( schema, table, column[] )
+-- col_is_unique( schema, table, columns[] )
 CREATE OR REPLACE FUNCTION col_is_unique ( NAME, NAME, NAME[] )
 RETURNS TEXT AS $$
     SELECT col_is_unique( $1, $2, $3, 'Columns ' || quote_ident($2) || '(' || _ident_array_to_string($3, ', ') || ') should have a unique constraint' );
