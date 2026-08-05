@@ -8794,6 +8794,38 @@ missing policy command, like so:
     #         have: INSERT
     #         want: ALL
 
+### `has_rls()` ###
+
+```sql
+SELECT has_rls( :schema, :table, :description );
+SELECT has_rls( :schema, :table );
+SELECT has_rls( :table, :description );
+SELECT has_rls( :table );
+```
+
+**Parameters**
+
+`:schema`
+: Name of a schema in which to find the table.
+
+`:table`
+: Name of a table.
+
+`:description`
+: A short description of the test.
+
+This function tests whether or not row-level security is enabled for a table.
+The first argument is a schema name, the second is a table name, and the third
+is the test description. If you omit the schema, the table must be visible in
+the search path. Example:
+
+```sql
+SELECT has_rls('myschema'::name, 'sometable'::name);
+```
+
+If you omit the test description, it will be set to "Table `:table` should
+have row-level security enabled".
+
 No Test for the Wicked
 ======================
 

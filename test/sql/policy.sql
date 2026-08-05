@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(180);
+SELECT plan(204);
 --SELECT * FROM no_plan();
 
 -- This will be rolled back. :-)
@@ -577,6 +577,72 @@ SELECT * FROM check_test(
     'Policy root_all for table passwd should apply to DELETE command',
     '        have: ALL
         want: DELETE'
+);
+
+/****************************************************************************/
+-- Test has_rls().
+SELECT * FROM check_test(
+    has_rls( 'public', 'passwd', 'whatever' ),
+    true,
+    'has_rls(schema, table, desc)',
+    'whatever',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_rls( 'public', 'passwd'::NAME ),
+    true,
+    'has_rls(schema, table)',
+    'Table public.passwd should have row-level security enabled',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_rls( 'passwd', 'whatever' ),
+    true,
+    'has_rls(table, desc)',
+    'whatever',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_rls( 'passwd' ),
+    true,
+    'has_rls(table)',
+    'Table passwd should have row-level security enabled',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_rls( 'pg_catalog', 'pg_type', 'whatever' ),
+    false,
+    'has_rls(schema, table, desc) without RLS',
+    'whatever',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_rls( 'pg_catalog', 'pg_type'::NAME ),
+    false,
+    'has_rls(schema, table) without RLS',
+    'Table pg_catalog.pg_type should have row-level security enabled',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_rls( 'pg_type', 'whatever' ),
+    false,
+    'has_rls(table, desc) without RLS',
+    'whatever',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_rls( 'pg_type' ),
+    false,
+    'has_rls(table) without RLS',
+    'Table pg_type should have row-level security enabled',
+    ''
 );
 
 /****************************************************************************/

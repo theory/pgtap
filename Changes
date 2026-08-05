@@ -12,6 +12,8 @@ Revision history for pgTAP
   and `hasnt_check()`. Also changed `has_unique()` argument types from `TEXT`
   to `NAME` so they can share a consistent overload order with the other
   constraint assertions. Thanks to @RampantDespair for the PR (#370).
+* Added `has_rls()` to test whether row-level security is enabled on a table.
+  Thanks to @RampantDespair for the PR (#371).
 
 1.3.4 2025-10-04T17:20:28Z
 --------------------------
