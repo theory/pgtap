@@ -252,3 +252,58 @@
  /******************** INHERITANCE ***********************************************/
  /*
   * Internal function to test whether the specified table in the specified schema
+@@ -11596,54 +11369,3 @@
+         'Function ' || quote_ident($1) || '() should not be a procedure'
+     );
+ $$ LANGUAGE sql;
+-
+--- has_rls( schema, table, description )
+-CREATE OR REPLACE FUNCTION has_rls( NAME, NAME, TEXT )
+-RETURNS TEXT AS $$
+-    SELECT ok(
+-        EXISTS(
+-            SELECT true
+-              FROM pg_catalog.pg_class c
+-              JOIN pg_catalog.pg_namespace n ON c.relnamespace = n.oid
+-             WHERE n.nspname = $1
+-               AND c.relname = $2
+-               AND c.relrowsecurity = TRUE
+-        ),
+-        $3
+-    );
+-$$ LANGUAGE SQL;
+-
+--- has_rls( schema, table )
+-CREATE OR REPLACE FUNCTION has_rls( NAME, NAME )
+-RETURNS TEXT AS $$
+-    SELECT has_rls(
+-        $1,
+-        $2,
+-        'Table ' || quote_ident($1) || '.' || quote_ident($2)
+-        || ' should have row-level security enabled'
+-    );
+-$$ LANGUAGE SQL;
+-
+--- has_rls( table, description )
+-CREATE OR REPLACE FUNCTION has_rls( NAME, TEXT )
+-RETURNS TEXT AS $$
+-    SELECT ok(
+-        EXISTS(
+-            SELECT true
+-              FROM pg_catalog.pg_class c
+-             WHERE pg_catalog.pg_table_is_visible(c.oid)
+-               AND c.relname = $1
+-               AND c.relrowsecurity = TRUE
+-        ),
+-        $2
+-    );
+-$$ LANGUAGE SQL;
+-
+--- has_rls( table )
+-CREATE OR REPLACE FUNCTION has_rls( NAME )
+-RETURNS TEXT AS $$
+-    SELECT has_rls(
+-        $1,
+-        'Table ' || quote_ident($1) || ' should have row-level security enabled'
+-    );
+-$$ LANGUAGE SQL;
