@@ -2968,13 +2968,11 @@ SELECT extension_requires_are( :extension, :requires );
 `:description`
 : A short description of the test.
 
-This function tests the exact set of extensions that `:extension` requires.
-It checks what PostgreSQL recorded as a dependency when `:extension` was
-created (via `pg_depend`), not `:extension`'s control file's `requires`
-field, which can differ if the control file was edited after the extension
-was installed. If `:extension` itself does not exist, the test fails the
-same way `has_extension()` does. If the description is omitted, a
-generally useful default description will be generated. Example:
+This function tests the exact set of extensions that `:extension` requires,
+based on what PostgreSQL recorded when `:extension` was created. If
+`:extension` itself does not exist, the test fails the same way
+`has_extension()` does. If the description is omitted, a generally useful
+default description will be generated. Example:
 
 ```sql
 SELECT extension_requires_are( 'earthdistance', ARRAY[ 'cube' ] );
@@ -4765,12 +4763,11 @@ SELECT extension_requires( :extension, :required_extension );
 `:description`
 : A short description of the test.
 
-This function tests whether `:extension` requires `:required_extension` (as
-recorded by PostgreSQL when `:extension` was created, not merely what
-`:extension`'s control file on disk declares). If `:extension` itself does
-not exist, the test fails the same way `has_extension()` does. If the test
-description is omitted, it will be set to "Extension `:extension` should
-require extension `:required_extension`". Example:
+This function tests whether `:extension` requires `:required_extension`, as
+recorded by PostgreSQL when `:extension` was created. If `:extension`
+itself does not exist, the test fails the same way `has_extension()` does.
+If the test description is omitted, it will be set to "Extension
+`:extension` should require extension `:required_extension`". Example:
 
 ```sql
 SELECT extension_requires('earthdistance', 'cube');
