@@ -2950,6 +2950,45 @@ missing extensions, like so:
     #         citext
     #         isn
 
+### `extension_requires_are()` ###
+
+```sql
+SELECT extension_requires_are( :extension, :requires, :description );
+SELECT extension_requires_are( :extension, :requires );
+```
+
+**Parameters**
+
+`:extension`
+: Name of an extension.
+
+`:requires`
+: An array of the names of the extensions `:extension` should require.
+
+`:description`
+: A short description of the test.
+
+This function tests the exact set of extensions that `:extension` requires.
+It checks what PostgreSQL recorded as a dependency when `:extension` was
+created (via `pg_depend`), not `:extension`'s control file's `requires`
+field, which can differ if the control file was edited after the extension
+was installed. If `:extension` itself does not exist, the test fails the
+same way `has_extension()` does. If the description is omitted, a
+generally useful default description will be generated. Example:
+
+```sql
+SELECT extension_requires_are( 'earthdistance', ARRAY[ 'cube' ] );
+```
+
+In the event of a failure, you'll see diagnostics listing the extra and/or
+missing required extensions, like so:
+
+    # Failed test 91: "Extension earthdistance should require the correct extensions"
+    #     Extra required extensions:
+    #         cube
+    #     Missing required extensions:
+    #         citext
+
 To Have or Have Not
 -------------------
 
@@ -4707,6 +4746,35 @@ SELECT hasnt_extension( :extension );
 
 This function is the inverse of `has_extension()`. The test passes if the
 specified extension does *not* exist.
+
+### `extension_requires()` ###
+
+```sql
+SELECT extension_requires( :extension, :required_extension, :description );
+SELECT extension_requires( :extension, :required_extension );
+```
+
+**Parameters**
+
+`:extension`
+: Name of an extension.
+
+`:required_extension`
+: Name of the extension that `:extension` should require.
+
+`:description`
+: A short description of the test.
+
+This function tests whether `:extension` requires `:required_extension` (as
+recorded by PostgreSQL when `:extension` was created, not merely what
+`:extension`'s control file on disk declares). If `:extension` itself does
+not exist, the test fails the same way `has_extension()` does. If the test
+description is omitted, it will be set to "Extension `:extension` should
+require extension `:required_extension`". Example:
+
+```sql
+SELECT extension_requires('earthdistance', 'cube');
+```
 
 Table For One
 -------------
