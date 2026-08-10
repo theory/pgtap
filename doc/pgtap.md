@@ -2925,7 +2925,7 @@ SELECT extensions_are( :extensions );
 
 This function tests all of the extensions that should be present. If `:schema`
 is specified, it will test only for extensions associated the named schema (via
-the `schema` parameter in the extension's control file, ov the `WITH SCHEMA`
+the `schema` parameter in the extension's control file, or the `WITH SCHEMA`
 clause of the
 [CREATE EXTENSION](https://www.postgresql.org/docs/current/static/extend-extensions.html)
 statement). Otherwise it will check for all extension in the database,
