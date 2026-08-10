@@ -2928,7 +2928,7 @@ is specified, it will test only for extensions associated the named schema (via
 the `schema` parameter in the extension's control file, or the `WITH SCHEMA`
 clause of the
 [CREATE EXTENSION](https://www.postgresql.org/docs/current/static/extend-extensions.html)
-statement). Otherwise it will check for all extension in the database,
+statement). Otherwise it will check for all extensions in the database,
 including pgTAP itself. If the description is omitted, a generally useful
 default description will be generated. Example:
 
