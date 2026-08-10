@@ -2978,15 +2978,6 @@ default description will be generated. Example:
 SELECT extension_requires_are( 'earthdistance', ARRAY[ 'cube' ] );
 ```
 
-In the event of a failure, you'll see diagnostics listing the extra and/or
-missing required extensions, like so:
-
-    # Failed test 91: "Extension earthdistance should require the correct extensions"
-    #     Extra required extensions:
-    #         cube
-    #     Missing required extensions:
-    #         citext
-
 To Have or Have Not
 -------------------
 
