@@ -10339,6 +10339,70 @@ RETURNS TEXT AS $$
         'Extension ' || quote_ident($1) || ' should not exist' );
 $$ LANGUAGE SQL;
 
+-- Get the extensions a given extension requires
+CREATE OR REPLACE FUNCTION _extension_requires( NAME )
+RETURNS SETOF NAME AS $$
+    SELECT req.extname
+      FROM pg_catalog.pg_depend d
+      JOIN pg_catalog.pg_extension ext ON d.classid    = 'pg_catalog.pg_extension'::regclass
+                                       AND d.objid      = ext.oid
+      JOIN pg_catalog.pg_extension req ON d.refclassid = 'pg_catalog.pg_extension'::regclass
+                                       AND d.refobjid   = req.oid
+     WHERE ext.extname = $1
+       AND d.deptype    = 'n'
+$$ LANGUAGE SQL;
+
+-- extension_requires_are( extension, requires, description )
+CREATE OR REPLACE FUNCTION extension_requires_are( NAME, NAME[], TEXT )
+RETURNS TEXT AS $$
+BEGIN
+    IF NOT _ext_exists($1) THEN
+        RETURN fail($3) || E'\n' || diag(
+            '    Extension ' || quote_ident($1) || ' does not exist'
+        );
+    END IF;
+
+    RETURN _are(
+        'required extensions',
+        ARRAY( SELECT _extension_requires($1) EXCEPT SELECT unnest($2) ),
+        ARRAY( SELECT unnest($2) EXCEPT SELECT _extension_requires($1) ),
+        $3
+    );
+END;
+$$ LANGUAGE plpgsql;
+
+-- extension_requires_are( extension, requires )
+CREATE OR REPLACE FUNCTION extension_requires_are( NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT extension_requires_are(
+        $1, $2,
+        'Extension ' || quote_ident($1) || ' should require the correct extensions'
+    );
+$$ LANGUAGE SQL;
+
+-- extension_requires( extension, required_extension, description )
+CREATE OR REPLACE FUNCTION extension_requires( NAME, NAME, TEXT )
+RETURNS TEXT AS $$
+BEGIN
+    IF NOT _ext_exists($1) THEN
+        RETURN fail($3) || E'\n' || diag(
+            '    Extension ' || quote_ident($1) || ' does not exist'
+        );
+    END IF;
+
+    RETURN ok( $2 = ANY( ARRAY( SELECT _extension_requires($1) ) ), $3 );
+END;
+$$ LANGUAGE plpgsql;
+
+-- extension_requires( extension, required_extension )
+CREATE OR REPLACE FUNCTION extension_requires( NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT extension_requires(
+        $1, $2,
+        'Extension ' || quote_ident($1) || ' should require extension ' || quote_ident($2)
+    );
+$$ LANGUAGE SQL;
+
 -- is_partitioned( schema, table, description )
 CREATE OR REPLACE FUNCTION is_partitioned ( NAME, NAME, TEXT )
 RETURNS TEXT AS $$

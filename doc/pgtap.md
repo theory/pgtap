@@ -2925,10 +2925,10 @@ SELECT extensions_are( :extensions );
 
 This function tests all of the extensions that should be present. If `:schema`
 is specified, it will test only for extensions associated the named schema (via
-the `schema` parameter in the extension's control file, ov the `WITH SCHEMA`
+the `schema` parameter in the extension's control file, or the `WITH SCHEMA`
 clause of the
 [CREATE EXTENSION](https://www.postgresql.org/docs/current/static/extend-extensions.html)
-statement). Otherwise it will check for all extension in the database,
+statement). Otherwise it will check for all extensions in the database,
 including pgTAP itself. If the description is omitted, a generally useful
 default description will be generated. Example:
 
@@ -2949,6 +2949,34 @@ missing extensions, like so:
     #     Missing extensions:
     #         citext
     #         isn
+
+### `extension_requires_are()` ###
+
+```sql
+SELECT extension_requires_are( :extension, :requires, :description );
+SELECT extension_requires_are( :extension, :requires );
+```
+
+**Parameters**
+
+`:extension`
+: Name of an extension.
+
+`:requires`
+: An array of the names of the extensions `:extension` should require.
+
+`:description`
+: A short description of the test.
+
+This function tests the exact set of extensions that `:extension` requires,
+based on what PostgreSQL recorded when `:extension` was created. If
+`:extension` itself does not exist, the test fails the same way
+`has_extension()` does. If the description is omitted, a generally useful
+default description will be generated. Example:
+
+```sql
+SELECT extension_requires_are( 'earthdistance', ARRAY[ 'cube' ] );
+```
 
 To Have or Have Not
 -------------------
@@ -4707,6 +4735,34 @@ SELECT hasnt_extension( :extension );
 
 This function is the inverse of `has_extension()`. The test passes if the
 specified extension does *not* exist.
+
+### `extension_requires()` ###
+
+```sql
+SELECT extension_requires( :extension, :required_extension, :description );
+SELECT extension_requires( :extension, :required_extension );
+```
+
+**Parameters**
+
+`:extension`
+: Name of an extension.
+
+`:required_extension`
+: Name of the extension that `:extension` should require.
+
+`:description`
+: A short description of the test.
+
+This function tests whether `:extension` requires `:required_extension`, as
+recorded by PostgreSQL when `:extension` was created. If `:extension`
+itself does not exist, the test fails the same way `has_extension()` does.
+If the test description is omitted, it will be set to "Extension
+`:extension` should require extension `:required_extension`". Example:
+
+```sql
+SELECT extension_requires('earthdistance', 'cube');
+```
 
 Table For One
 -------------
