@@ -1,0 +1,5 @@
+\unset ECHO
+1..3
+ok 1 - mock scalar_function should pass
+ok 2 - mock sql function returning a set should pass
+ok 3 - mock plpgsql function returning a set should pass

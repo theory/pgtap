@@ -1,5 +1,8 @@
-pgTAP 1.3.5
+pgSQLTest 0.1.0
 ===========
+This is a fork of highly popular unit testing framework pgTap designed to provide mocking and faking capabilities similar 
+to those found in many modern high-level programming languages. It extends pgTap and always includes the latest pgTap version.
+Please, see more details at [wiki page](https://github.com/v-maliutin/Extended-pgTap/wiki). Regarding pgTap details are provided below.
 
 [pgTAP](https://pgtap.org) is a unit testing framework for PostgreSQL written
 in PL/pgSQL and PL/SQL. It includes a comprehensive collection of
@@ -129,7 +132,7 @@ CREATE EXTENSION pgtap SCHEMA tap;
 Dependencies
 ------------
 
-pgTAP requires PostgreSQL 9.1 or higher.
+pgSQLTest and pgTAP requires PostgreSQL 9.1 or higher.
 
 Copyright and License
 ---------------------
