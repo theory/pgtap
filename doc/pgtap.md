@@ -50,8 +50,8 @@ SELECT pass(:test_description);
 SELECT fail(:test_description);
 ```
 
-    -- Finish the tests and clean up.
-    SELECT * FROM finish();
+-- Finish the tests and clean up.
+SELECT * FROM finish();
 
 Installation
 ============
