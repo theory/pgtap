@@ -1,0 +1,29 @@
+name: 🚀 Release
+on:
+  push:
+    tags: [v*]
+jobs:
+  release:
+    name: 🚀 Release on GitHub and PGXN
+    runs-on: ubuntu-latest
+    container: pgxn/pgxn-tools
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PGXN_USERNAME: ${{ secrets.PGXN_USERNAME }}
+      PGXN_PASSWORD: ${{ secrets.PGXN_PASSWORD }}
+    steps:
+    - name: Check out the repo
+      uses: actions/checkout@v6
+    - name: Bundle the Release
+      id: bundle
+      run: pgxn-bundle
+    - name: Release on PGXN
+      run: pgxn-release
+    - name: Generate Release Changes
+      run: make latest-changes.md
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        name: "Release ${{ github.ref_name }}"
+        body_path: latest-changes.md
+        files: ${{ steps.bundle.outputs.bundle }}

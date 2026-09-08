@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(78);
+SELECT plan(90);
 --SELECT * FROM no_plan();
 
 /****************************************************************************/
@@ -182,10 +182,44 @@ SELECT * FROM check_test(
 );
 
 /****************************************************************************/
+-- Test isnt_member_of().
+SELECT * FROM check_test(
+    isnt_member_of('meanies', ARRAY[current_user], 'whatever' ),
+    true,
+    'isnt_member_of(meanies, [current_user], desc)',
+    'whatever',
+    ''
+);
+
+SELECT * FROM check_test(
+    isnt_member_of('meanies', ARRAY[current_user] ),
+    true,
+    'isnt_member_of(meanies, [current_user])',
+    'Should not have members of role meanies',
+    ''
+);
+
+SELECT * FROM check_test(
+    isnt_member_of('meanies', current_user, 'whatever' ),
+    true,
+    'isnt_member_of(meanies, current_user, desc)',
+    'whatever',
+    ''
+);
+
+SELECT * FROM check_test(
+    isnt_member_of('meanies', current_user ),
+    true,
+    'isnt_member_of(meanies, current_user)',
+    'Should not have members of role meanies',
+    ''
+);
+
+/****************************************************************************/
 -- Test is_member_of().
 CREATE OR REPLACE FUNCTION addmember() RETURNS SETOF TEXT AS $$
 BEGIN
-    EXECUTE 'ALTER GROUP meanies ADD USER ' || current_user;
+    EXECUTE 'ALTER GROUP meanies ADD USER ' || quote_ident(current_user);
     RETURN;
 END;
 $$ LANGUAGE PLPGSQL;    

@@ -1,7 +1,8 @@
 \unset ECHO
 \i test/setup.sql
+-- \i sql/pgtap.sql
 
-SELECT plan(84);
+SELECT plan(102);
 --SELECT * FROM no_plan();
 
 -- This will be rolled back. :-)
@@ -11,6 +12,10 @@ CREATE TABLE public.sometab(
     name  TEXT DEFAULT '',
     numb  NUMERIC(10, 2),
     myint NUMERIC(8)
+);
+-- This table has no pk
+CREATE TABLE public.pkless(
+    id INT NOT NULL UNIQUE
 );
 CREATE SCHEMA hide;
 CREATE TABLE hide.hidesometab(
@@ -34,10 +39,26 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
+    has_pk( 'public', 'sometab'::name ),
+    true,
+    'has_pk( schema, table )',
+    'Table public.sometab should have a primary key',
+    ''
+);
+
+SELECT * FROM check_test(
     has_pk( 'hide', 'hidesometab', 'hide.sometab should have a pk' ),
     true,
     'has_pk( hideschema, hidetable, description )',
     'hide.sometab should have a pk',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_pk( 'hide', 'hidesometab'::name ),
+    true,
+    'has_pk( hideschema, hidetable )',
+    'Table hide.hidesometab should have a primary key',
     ''
 );
 
@@ -66,18 +87,18 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    has_pk( 'pg_catalog', 'pg_class', 'pg_catalog.pg_class should have a pk' ),
+    has_pk( 'public', 'pkless', 'public.pkless should have a pk' ),
     false,
     'has_pk( schema, table, description ) fail',
-    'pg_catalog.pg_class should have a pk',
+    'public.pkless should have a pk',
     ''
 );
 
 SELECT * FROM check_test(
-    has_pk( 'pg_class', 'pg_class should have a pk' ),
+    has_pk( 'pkless', 'pkless should have a pk' ),
     false,
     'has_pk( table, description ) fail',
-    'pg_class should have a pk',
+    'pkless should have a pk',
     ''
 );
 
@@ -89,6 +110,14 @@ SELECT * FROM check_test(
     false,
     'hasnt_pk( schema, table, description )',
     'public.sometab should not have a pk',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_pk( 'public', 'sometab'::name ),
+    false,
+    'hasnt_pk( schema, table )',
+    'Table public.sometab should not have a primary key',
     ''
 );
 
@@ -109,18 +138,26 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    hasnt_pk( 'pg_catalog', 'pg_class', 'pg_catalog.pg_class should not have a pk' ),
+    hasnt_pk( 'public', 'pkless', 'public.pkless should not have a pk' ),
     true,
     'hasnt_pk( schema, table, description ) pass',
-    'pg_catalog.pg_class should not have a pk',
+    'public.pkless should not have a pk',
     ''
 );
 
 SELECT * FROM check_test(
-    hasnt_pk( 'pg_class', 'pg_class should not have a pk' ),
+    hasnt_pk( 'public', 'pkless'::name ),
+    true,
+    'hasnt_pk( schema, table ) pass',
+    'Table public.pkless should not have a primary key',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_pk( 'pkless', 'pkless should not have a pk' ),
     true,
     'hasnt_pk( table, description ) pass',
-    'pg_class should not have a pk',
+    'pkless should not have a pk',
     ''
 );
 
@@ -132,6 +169,14 @@ SELECT * FROM check_test(
     true,
     'col_is_pk( schema, table, column, description )',
     'public.sometab.id should be a pk',
+    ''
+);
+
+SELECT * FROM check_test(
+    col_is_pk( 'public', 'sometab', 'id'::name ),
+    true,
+    'col_is_pk( schema, table, column )',
+    'Column public.sometab(id) should be a primary key',
     ''
 );
 
@@ -185,6 +230,14 @@ SELECT * FROM check_test(
     true,
     'col_is_pk( schema, table, column[], description )',
     'id + name should be a pk',
+    ''
+);
+
+SELECT * FROM check_test(
+    col_is_pk( 'public', 'argh', ARRAY['id', 'name']::name[] ),
+    true,
+    'col_is_pk( schema, table, column[] )',
+    'Columns public.argh(id, name) should be a primary key',
     ''
 );
 

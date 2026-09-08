@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(542);
+SELECT plan(545);
 --SELECT * FROM no_plan();
 
 -- This will be rolled back. :-)
@@ -20,7 +20,7 @@ CREATE TABLE someat (
 
 RESET client_min_messages;
 
--- Top 100 boy an 100 girl names in 2005. http://www.ssa.gov/OACT/babynames/
+-- Top 100 boy an 100 girl names in 2005. https://www.ssa.gov/OACT/babynames/
 INSERT INTO names (name) VALUES ('Jacob');
 INSERT INTO names (name) VALUES ('Emily');
 INSERT INTO names (name) VALUES ('Michael');
@@ -981,78 +981,74 @@ SELECT * FROM check_test(
     false,
     'results_eq(values, values) mismatch',
     '',
-    CASE WHEN pg_version_num() < 80400 THEN '    Results differ beginning at row 1:' ELSE '    Number of columns or their types differ between the queries:' END || '
+    CASE WHEN pg_version_num() >= 90200 THEN
+      '    Number of columns or their types differ between the queries:
         have: (1,foo)
-        want: (foo,1)'
+        want: (foo,1)
+        ERROR: cannot compare dissimilar column types integer and text at record column 1'
+    ELSE
+      '    Number of columns or their types differ between the queries:
+        have: (1,foo)
+        want: (foo,1)
+        ERROR: details not available in pg <= 9.1'
+    END
 );
 
--- Handle failure due to more subtle column mismatch, valid only on 8.4.
-CREATE OR REPLACE FUNCTION subtlefail() RETURNS SETOF TEXT AS $$
-DECLARE
-    tap record;
-BEGIN
-    IF pg_version_num() < 80400 THEN
-        -- 8.3 and earlier cast records to text, so subtlety is out.
-        -- Fake out pg_regress by running equivalent tests with fail().
-        FOR tap IN SELECT * FROM check_test(
-            fail('whatever'),
-            false,
-            'results_eq(values, values) subtle mismatch',
-            'whatever',
-            ''
-        ) AS a(b) LOOP RETURN NEXT tap.b; END LOOP;
-
-        FOR tap IN SELECT * FROM check_test(
-            fail('whatever'),
-            false,
-            'results_eq(values, values) integer type mismatch',
-            'whatever',
-            ''
-        ) AS a(b) LOOP RETURN NEXT tap.b; END LOOP;
-
+-- Handle failure due to more subtle column mismatch
+SELECT * FROM check_test(
+    results_eq(
+        'VALUES (1, ''foo''::varchar), (2, ''bar''::varchar)',
+        'VALUES (1, ''foo''), (2, ''bar'')'
+    ),
+    false,
+    'results_eq(values, values) subtle mismatch',
+    '',
+    CASE WHEN pg_version_num() >= 90200 THEN
+      '    Number of columns or their types differ between the queries
+        ERROR: cannot compare dissimilar column types character varying and text at record column 2'
     ELSE
-        -- 8.4 does true record comparisions, yay!
-        FOR tap IN SELECT * FROM check_test(
-            results_eq(
-                'VALUES (1, ''foo''::varchar), (2, ''bar''::varchar)',
-                'VALUES (1, ''foo''), (2, ''bar'')'
-            ),
-            false,
-            'results_eq(values, values) subtle mismatch',
-            '',
-            '    Number of columns or their types differ between the queries' ) AS a(b) LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
+      '    Number of columns or their types differ between the queries
+        ERROR: details not available in pg <= 9.1'
+    END
+);
 
-        FOR tap IN SELECT * FROM check_test(
-            results_eq(
-                'VALUES (1::int), (2::int)',
-                'VALUES (1::bigint), (2::bigint)'
-            ),
-            false,
-            'results_eq(values, values) integer type mismatch',
-            '',
-            '    Number of columns or their types differ between the queries' ) AS a(b) LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-    END IF;
-    RETURN;
-END;
-$$ LANGUAGE plpgsql;
-SELECT * FROM subtlefail();
+SELECT * FROM check_test(
+    results_eq(
+        'VALUES (1::int), (2::int)',
+        'VALUES (1::bigint), (2::bigint)'
+    ),
+    false,
+    'results_eq(values, values) integer type mismatch',
+    '',
+    CASE WHEN pg_version_num() >= 90200 THEN
+      '    Number of columns or their types differ between the queries
+        ERROR: cannot compare dissimilar column types integer and bigint at record column 1'
+    ELSE
+      '    Number of columns or their types differ between the queries
+        ERROR: details not available in pg <= 9.1'
+    END
+);
 
 -- Handle failure due to column count mismatch.
 SELECT * FROM check_test(
     results_eq(
         'SELECT pk from dubs ORDER BY pk LIMIT 2',
-        'SELECT name, pk from dubs ORDER BY pk LIMIT 2'
+        'SELECT pk, name from dubs ORDER BY pk LIMIT 2'
     ),
     false,
     'results_eq(values, values) fail column count',
     '',
-    CASE WHEN pg_version_num() < 80400 THEN '    Results differ beginning at row 1:' ELSE '    Number of columns or their types differ between the queries:' END || '
+    CASE WHEN pg_version_num() >= 90200 THEN
+      '    Number of columns or their types differ between the queries:
         have: (1)
-        want: (foo,1)'
+        want: (1,foo)
+        ERROR: cannot compare record types with different numbers of columns'
+    ELSE
+      '    Number of columns or their types differ between the queries:
+        have: (1)
+        want: (1,foo)
+        ERROR: details not available in pg <= 9.1'
+    END
 );
 
 -- Compare with cursors.
@@ -2162,71 +2158,61 @@ SELECT * FROM check_test(
     ''
 );
 
--- Handle failure due to more subtle column mismatch, valid only on 8.4.
-CREATE OR REPLACE FUNCTION subtlefail() RETURNS SETOF TEXT AS $$
-DECLARE
-    tap record;
-BEGIN
-    IF pg_version_num() < 80400 THEN
-        -- 8.3 and earlier cast records to text, so subtlety is out.
-        RETURN NEXT pass('results_ne(values, values) mismatch should fail');
-        RETURN NEXT pass('results_ne(values, values) mismatch should have the proper description');
-        RETURN NEXT pass('results_ne(values, values) mismatch should have the proper diagnostics');
-        RETURN NEXT pass('results_ne(values, values) subtle mismatch should fail');
-        RETURN NEXT pass('results_ne(values, values) subtle mismatch should have the proper description');
-        RETURN NEXT pass('results_ne(values, values) subtle mismatch should have the proper diagnostics');
-        RETURN NEXT pass('results_ne(values, values) fail column count should fail');
-        RETURN NEXT pass('results_ne(values, values) fail column count should have the proper description');
-        RETURN NEXT pass('results_ne(values, values) fail column count should have the proper diagnostics');
+-- Handle failure due to column mismatch.
+SELECT * FROM check_test(
+    results_ne( 'VALUES (1, ''foo''), (2, ''bar'')', 'VALUES (''foo'', 1), (''bar'', 2)' ),
+    false,
+    'results_ne(values, values) mismatch',
+    '',
+    CASE WHEN pg_version_num() >= 90200 THEN
+      '    Number of columns or their types differ between the queries:
+        have: (1,foo)
+        want: (foo,1)
+        ERROR: cannot compare dissimilar column types integer and text at record column 1'
     ELSE
-        -- 8.4 does true record comparisions, yay!
-        -- Handle failure due to column mismatch.
-        FOR tap IN SELECT * FROM check_test(
-            results_ne( 'VALUES (1, ''foo''), (2, ''bar'')', 'VALUES (''foo'', 1), (''bar'', 2)' ),
-            false,
-            'results_ne(values, values) mismatch',
-            '',
-            '    Columns differ between queries:
+      '    Number of columns or their types differ between the queries:
         have: (1,foo)
-        want: (foo,1)'
-        ) AS a(b) LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
+        want: (foo,1)
+        ERROR: details not available in pg <= 9.1'
+    END
+);
 
-        -- Handle failure due to subtle column mismatch.
-        FOR tap IN SELECT * FROM check_test(
-            results_ne(
-                'VALUES (1, ''foo''::varchar), (2, ''bar''::varchar)',
-                'VALUES (1, ''foo''), (2, ''bar'')'
-            ),
-            false,
-            'results_ne(values, values) subtle mismatch',
-            '',
-            '    Columns differ between queries:
-        have: (1,foo)
-        want: (1,foo)' ) AS a(b) LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
+-- Handle failure due to subtle column mismatch.
+SELECT * FROM check_test(
+    results_ne(
+        'VALUES (1, ''foo''::varchar), (2, ''bar''::varchar)',
+        'VALUES (1, ''foo''), (2, ''bar'')'
+    ),
+    false,
+    'results_ne(values, values) subtle mismatch',
+    '',
+    CASE WHEN pg_version_num() >= 90200 THEN
+      '    Number of columns or their types differ between the queries
+        ERROR: cannot compare dissimilar column types character varying and text at record column 2'
+    ELSE
+      '    Number of columns or their types differ between the queries
+        ERROR: details not available in pg <= 9.1'
+    END
+);
 
-        -- Handle failure due to column count mismatch.
-        FOR tap IN SELECT * FROM check_test(
-            results_ne( 'VALUES (1), (2)', 'VALUES (''foo'', 1), (''bar'', 2)' ),
-            false,
-            'results_ne(values, values) fail column count',
-            '',
-            '    Columns differ between queries:
+-- Handle failure due to column count mismatch.
+SELECT * FROM check_test(
+    results_ne( 'VALUES (1), (2)', 'VALUES (1, ''foo''), (2, ''bar'')' ),
+    false,
+    'results_ne(values, values) fail column count',
+    '',
+    CASE WHEN pg_version_num() >= 90200 THEN
+      '    Number of columns or their types differ between the queries:
         have: (1)
-        want: (foo,1)'
-        )  AS a(b) LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-    END IF;
-    RETURN;
-END;
-$$ LANGUAGE plpgsql;
-SELECT * FROM subtlefail();
-
+        want: (1,foo)
+        ERROR: cannot compare record types with different numbers of columns'
+    ELSE
+      '    Number of columns or their types differ between the queries:
+        have: (1)
+        want: (1,foo)
+        ERROR: details not available in pg <= 9.1'
+    END
+);
 
 -- Compare with cursors.
 CLOSE cwant;
@@ -2321,41 +2307,31 @@ CREATE FUNCTION test_empty_fail() RETURNS SETOF TEXT AS $$
 DECLARE
     tap record;
 BEGIN
-    IF pg_version_num() < 80100 THEN
-        -- Can't do shit with records on 8.0
-        RETURN NEXT pass('is_empty(prepared, desc) fail should fail');
-        RETURN NEXT pass('is_empty(prepared, desc) fail should have the proper description');
-        RETURN NEXT pass('is_empty(prepared, desc) fail should have the proper diagnostics');
-        RETURN NEXT pass('is_empty(prepared) fail should fail');
-        RETURN NEXT pass('is_empty(prepared) fail should have the proper description');
-        RETURN NEXT pass('is_empty(prepared) fail should have the proper diagnostics');
-    ELSE
-        PREPARE notempty AS SELECT id, name FROM names WHERE name IN ('Jacob', 'Emily')
-          ORDER BY ID;
-        FOR tap IN SELECT * FROM check_test(
-            is_empty( 'notempty', 'whatever' ),
-            false,
-            'is_empty(prepared, desc) fail',
-            'whatever',
-            '    Unexpected records:
+    PREPARE notempty AS SELECT id, name FROM names WHERE name IN ('Jacob', 'Emily')
+        ORDER BY ID;
+    FOR tap IN SELECT * FROM check_test(
+        is_empty( 'notempty', 'whatever' ),
+        false,
+        'is_empty(prepared, desc) fail',
+        'whatever',
+        '    Unexpected records:
         (1,Jacob)
         (2,Emily)'
-        ) AS a(b) LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
+    ) AS a(b) LOOP
+        RETURN NEXT tap.b;
+    END LOOP;
 
-        FOR tap IN SELECT * FROM check_test(
-            is_empty( 'notempty' ),
-            false,
-            'is_empty(prepared) fail',
-            '',
-            '    Unexpected records:
+    FOR tap IN SELECT * FROM check_test(
+        is_empty( 'notempty' ),
+        false,
+        'is_empty(prepared) fail',
+        '',
+        '    Unexpected records:
         (1,Jacob)
         (2,Emily)'
-        ) AS a(b) LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-    END IF;
+    ) AS a(b) LOOP
+        RETURN NEXT tap.b;
+    END LOOP;
     RETURN;
 END;
 $$ LANGUAGE PLPGSQL;
@@ -2440,106 +2416,90 @@ CREATE FUNCTION test_row_eq() RETURNS SETOF TEXT AS $$
 DECLARE
     tap record;
 BEGIN
-    IF pg_version_num() < 80100 THEN
-        -- Can't do shit with records on 8.0
-        RETURN NEXT pass('row_eq(prepared, record, desc) should pass');
-        RETURN NEXT pass('row_eq(prepared, record, desc) should have the proper description');
-        RETURN NEXT pass('row_eq(prepared, record, desc) should have the proper diagnostics');
-        RETURN NEXT pass('row_eq(sql, record, desc) should pass');
-        RETURN NEXT pass('row_eq(sql, record, desc) should have the proper description');
-        RETURN NEXT pass('row_eq(sql, record, desc) should have the proper diagnostics');
-        RETURN NEXT pass('row_eq(prepared, record, desc) should pass');
-        RETURN NEXT pass('row_eq(prepared, record, desc) should have the proper description');
-        RETURN NEXT pass('row_eq(prepared, record, desc) should have the proper diagnostics');
-        RETURN NEXT pass('row_eq(prepared, record, desc) should fail');
-        RETURN NEXT pass('row_eq(prepared, record, desc) should have the proper description');
-        RETURN NEXT pass('row_eq(prepared, record, desc) should have the proper diagnostics');
-        RETURN NEXT pass('row_eq(prepared, sometype, desc) should pass');
-        RETURN NEXT pass('row_eq(prepared, sometype, desc) should have the proper description');
-        RETURN NEXT pass('row_eq(prepared, sometype, desc) should have the proper diagnostics');
-        RETURN NEXT pass('row_eq(sqlrow, sometype, desc) should pass');
-        RETURN NEXT pass('row_eq(sqlrow, sometype, desc) should have the proper description');
-        RETURN NEXT pass('row_eq(sqlrow, sometype, desc) should have the proper diagnostics');
-        RETURN NEXT pass('threw 0A000');
-    ELSE
-        FOR tap IN SELECT * FROM check_test(
-            row_eq('arow', ROW(1, 'Jacob')::names, 'whatever'),
-            true,
-            'row_eq(prepared, record, desc)',
-            'whatever',
-            ''
-        ) AS a(b) LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
+    FOR tap IN SELECT * FROM check_test(
+        row_eq('arow', ROW(1, 'Jacob')::names, 'whatever'),
+        true,
+        'row_eq(prepared, record, desc)',
+        'whatever',
+        ''
+    ) AS a(b) LOOP
+        RETURN NEXT tap.b;
+    END LOOP;
 
-        FOR tap IN SELECT * FROM check_test(
-            row_eq('SELECT id, name FROM names WHERE id = 1', ROW(1, 'Jacob')::names, 'whatever'),
-            true,
-            'row_eq(sql, record, desc)',
-            'whatever',
-            ''
-        ) AS a(b) LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
+    FOR tap IN SELECT * FROM check_test(
+        row_eq('SELECT id, name FROM names WHERE id = 1', ROW(1, 'Jacob')::names, 'whatever'),
+        true,
+        'row_eq(sql, record, desc)',
+        'whatever',
+        ''
+    ) AS a(b) LOOP
+        RETURN NEXT tap.b;
+    END LOOP;
 
-        FOR tap IN SELECT * FROM check_test(
-            row_eq('arow', ROW(1, 'Jacob')::names),
-            true,
-            'row_eq(prepared, record, desc)',
-            '',
-            ''
-        ) AS a(b) LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
+    FOR tap IN SELECT * FROM check_test(
+        row_eq('arow', ROW(1, 'Jacob')::names),
+        true,
+        'row_eq(prepared, record, desc)',
+        '',
+        ''
+    ) AS a(b) LOOP
+        RETURN NEXT tap.b;
+    END LOOP;
 
-        FOR tap IN SELECT * FROM check_test(
-            row_eq('arow', ROW(1, 'Larry')::names),
-            false,
-            'row_eq(prepared, record, desc)',
-            '',
-            '        have: (1,Jacob)
+    FOR tap IN SELECT * FROM check_test(
+        row_eq('arow', ROW(1, 'Larry')::names),
+        false,
+        'row_eq(prepared, record, desc)',
+        '',
+        '        have: (1,Jacob)
         want: (1,Larry)'
-        ) AS a(b) LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
+    ) AS a(b) LOOP
+        RETURN NEXT tap.b;
+    END LOOP;
 
-        FOR tap IN SELECT * FROM check_test(
-            row_eq('arow', ROW(1, 'Jacob')::sometype),
-            true,
-            'row_eq(prepared, sometype, desc)',
-            '',
-            ''
-        ) AS a(b) LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
+    FOR tap IN SELECT * FROM check_test(
+        row_eq('arow', ROW(1, 'Jacob')::sometype),
+        true,
+        'row_eq(prepared, sometype, desc)',
+        '',
+        ''
+    ) AS a(b) LOOP
+        RETURN NEXT tap.b;
+    END LOOP;
 
-        FOR tap IN SELECT * FROM check_test(
-            row_eq('SELECT 1, ''Jacob''::text', ROW(1, 'Jacob')::sometype),
-            true,
-            'row_eq(sqlrow, sometype, desc)',
-            '',
-            ''
-        ) AS a(b) LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
+    FOR tap IN SELECT * FROM check_test(
+        row_eq('SELECT 1, ''Jacob''::text', ROW(1, 'Jacob')::sometype),
+        true,
+        'row_eq(sqlrow, sometype, desc)',
+        '',
+        ''
+    ) AS a(b) LOOP
+        RETURN NEXT tap.b;
+    END LOOP;
 
-        INSERT INTO someat (ts) values ('2009-12-04T07:22:52');
+    INSERT INTO someat (ts) values ('2009-12-04T07:22:52');
+    IF pg_version_num() < 110000 THEN
+        -- Prior to 11, one cannot pass a bare RECORD.
         RETURN NEXT throws_ok(
-            'SELECT row_eq( ''SELECT id, ts FROM someat'', ROW(1, ''2009-12-04T07:22:52'') )',
+            'SELECT row_eq( ''SELECT id, ts FROM someat'', ROW(1, ''2009-12-04T07:22:52''::timestamp) )',
             '0A000'
             --  'PL/pgSQL functions cannot accept type record'
         );
-
-        -- FOR tap IN SELECT * FROM check_test(
-        --     row_eq( 'SELECT id, ts FROM someat', ROW(1, '2009-12-04T07:22:52') ),
-        --     true,
-        --     'row_eq(sql, rec)',
-        --     '',
-        --     ''
-        -- ) AS a(b) LOOP
-        --     RETURN NEXT tap.b;
-        -- END LOOP;
-
+        RETURN NEXT pass('row_eq(qry, record) should pass');
+        RETURN NEXT pass('row_eq(qry, record) should have the proper description');
+        RETURN NEXT pass('row_eq(qry, record) should have the proper diagnostics');
+    ELSE
+        -- Postgres 11 supports record arguments!
+        RETURN NEXT pass('threw 0A000');
+        FOR tap IN SELECT * FROM check_test(
+            row_eq('SELECT id, ts FROM someat', ROW(1, '2009-12-04T07:22:52'::timestamp)),
+            true,
+            'row_eq(qry, record)',
+            '',
+            ''
+        ) AS a(b) LOOP
+            RETURN NEXT tap.b;
+        END LOOP;
     END IF;
     RETURN;
 END;

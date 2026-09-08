@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(128);
+SELECT plan(140);
 --SELECT * from no_plan();
 
 -- These will be rolled back. :-)
@@ -17,7 +17,7 @@ CREATE TABLE public.fk (
 );
 
 CREATE TABLE public.pk2 (
-    num int NOT NULL,
+    num int NOT NULL UNIQUE,
     dot int NOT NULL,
     PRIMARY KEY (num, dot)
 );
@@ -25,7 +25,7 @@ CREATE TABLE public.pk2 (
 CREATE TABLE public.fk2 (
     pk2_num int NOT NULL,
     pk2_dot int NOT NULL,
-    FOREIGN KEY(pk2_num, pk2_dot) REFERENCES pk2( num, dot)
+    FOREIGN KEY(pk2_num, pk2_dot) REFERENCES pk2(num, dot)
 );
 
 CREATE TABLE public.fk3(
@@ -36,6 +36,36 @@ CREATE TABLE public.fk3(
     foo_id INT NOT NULL,
     FOREIGN KEY(pk2_num, pk2_dot) REFERENCES pk2( num, dot)
 );
+
+CREATE TABLE public.pk3(
+    id INT UNIQUE
+);
+
+CREATE TABLE public.fk4 (
+    id INT REFERENCES pk3(id)
+);
+
+CREATE TEMP TABLE temp_pk(
+    id    INT NOT NULL PRIMARY KEY,
+    name  TEXT DEFAULT ''
+);
+
+CREATE TEMP TABLE temp_fk (
+    id    INT NOT NULL PRIMARY KEY,
+    pk_id INT NOT NULL REFERENCES temp_pk(id)
+);
+
+-- Create a funcion to return the temp scheme name.
+DO $F$
+BEGIN
+    IF pg_version_num() >= 95000 THEN
+        EXECUTE 'CREATE FUNCTION tmpns() RETURNS NAME AS $$ SELECT pg_my_temp_schema()::regnamespace::name $$ LANGUAGE SQL;';
+    ELSE
+        EXECUTE 'CREATE FUNCTION tmpns() RETURNS NAME AS $$ SELECT nspname FROM pg_namespace WHERE oid = pg_my_temp_schema() $$ LANGUAGE SQL;';
+    END IF;
+END;
+$F$;
+
 RESET client_min_messages;
 
 /****************************************************************************/
@@ -48,10 +78,31 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
+    has_fk( 'public', 'fk'::name ),
+    true,
+    'has_fk( schema, table )',
+    'Table public.fk should have a foreign key constraint'
+);
+
+SELECT * FROM check_test(
     has_fk( 'fk', 'fk should have an fk' ),
     'true',
     'has_fk( table, description )',
     'fk should have an fk'
+);
+
+SELECT * FROM check_test(
+    has_fk( 'fk4', 'fk4 should have an fk' ),
+    'true',
+    'has_fk( table4, description )',
+    'fk4 should have an fk'
+);
+
+SELECT * FROM check_test(
+    has_fk( 'public', 'fk4', 'fk4 should have an fk' ),
+    'true',
+    'has_fk( schema, table4, description )',
+    'fk4 should have an fk'
 );
 
 SELECT * FROM check_test(
@@ -85,6 +136,13 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
+    hasnt_fk( 'public', 'fk'::name ),
+    false,
+    'hasnt_fk( schema, table )',
+    'Table public.fk should not have a foreign key constraint'
+);
+
+SELECT * FROM check_test(
     hasnt_fk( 'fk', 'fk should not have an fk' ),
     'false',
     'hasnt_fk( table, description )',
@@ -103,6 +161,13 @@ SELECT * FROM check_test(
     true,
     'hasnt_fk( schema, table, description ) pass',
     'pg_catalog.pg_class should not have an fk'
+);
+
+SELECT * FROM check_test(
+    hasnt_fk( 'pg_catalog', 'pg_class'::name ),
+    true,
+    'hasnt_fk( schema, table ) pass',
+    'Table pg_catalog.pg_class should not have a foreign key constraint'
 );
 
 SELECT * FROM check_test(
@@ -304,6 +369,14 @@ SELECT * FROM check_test(
     fk_ok( 'public', 'fk', ARRAY['pk_id'], 'public', 'pk', ARRAY['id'], 'WHATEVER' ),
     true,
     'full fk_ok array',
+    'WHATEVER'
+);
+
+-- Make sure it works with the temp schema.
+SELECT * FROM check_test(
+    fk_ok( tmpns(), 'temp_fk', ARRAY['pk_id'], tmpns(), 'temp_pk', ARRAY['id'], 'WHATEVER' ),
+    true,
+    'pg_my_temp_schema()',
     'WHATEVER'
 );
 

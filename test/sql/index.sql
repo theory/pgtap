@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(270);
+SELECT plan(297);
 --SELECT * FROM no_plan();
 
 -- This will be rolled back. :-)
@@ -21,6 +21,7 @@ CREATE UNIQUE INDEX idx_baz ON public.sometab(LOWER(name));
 CREATE INDEX idx_mul ON public.sometab(numb, LOWER(name));
 CREATE INDEX idx_expr ON public.sometab(UPPER(name), numb, LOWER(name));
 CREATE INDEX idx_double ON public.sometab(numb, myint);
+CREATE INDEX idx_partial ON public.sometab(numb) WHERE numb IS NOT NULL;
 RESET client_min_messages;
 
 /****************************************************************************/
@@ -536,6 +537,79 @@ SELECT * FROM check_test(
     false,
     'index_is_primary() no such index',
     'Index blahblah should be on a primary key',
+    ''
+);
+/****************************************************************************/
+-- Test index_is_partial().
+SELECT * FROM check_test(
+    index_is_partial( 'public', 'sometab', 'idx_partial', 'whatever' ),
+    true,
+    'index_is_partial()',
+    'whatever',
+    ''
+);
+
+SELECT * FROM check_test(
+    index_is_partial( 'public', 'sometab', 'idx_partial' ),
+    true,
+    'index_is_partial() no desc',
+    'Index idx_partial should be partial',
+    ''
+);
+
+SELECT * FROM check_test(
+    index_is_partial( 'sometab', 'idx_partial' ),
+    true,
+    'index_is_partial() no schema',
+    'Index idx_partial should be partial',
+    ''
+);
+
+SELECT * FROM check_test(
+    index_is_partial( 'idx_partial' ),
+    true,
+    'index_is_partial() index only',
+    'Index idx_partial should be partial',
+    ''
+);
+
+SELECT * FROM check_test(
+    index_is_partial( 'public', 'sometab', 'idx_baz', 'whatever' ),
+    false,
+    'index_is_partial() fail',
+    'whatever',
+    ''
+);
+
+SELECT * FROM check_test(
+    index_is_partial( 'public', 'sometab', 'idx_baz' ),
+    false,
+    'index_is_partial() fail no desc',
+    'Index idx_baz should be partial',
+    ''
+);
+
+SELECT * FROM check_test(
+    index_is_partial( 'sometab', 'idx_baz' ),
+    false,
+    'index_is_partial() fail no schema',
+    'Index idx_baz should be partial',
+    ''
+);
+
+SELECT * FROM check_test(
+    index_is_partial( 'idx_baz' ),
+    false,
+    'index_is_partial() fail index only',
+    'Index idx_baz should be partial',
+    ''
+);
+
+SELECT * FROM check_test(
+    index_is_partial( 'blahblah' ),
+    false,
+    'index_is_partial() no such index',
+    'Index blahblah should be partial',
     ''
 );
 

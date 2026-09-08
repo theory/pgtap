@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(18*3);
+SELECT plan(78);
 
 -- This will be rolled back. :-)
 SET client_min_messages = warning;
@@ -11,6 +11,10 @@ CREATE TABLE public.sometab(
     numb  NUMERIC(10, 2),
     myint NUMERIC(8),
     UNIQUE (numb, myint)
+);
+-- This table has no unique index
+CREATE TABLE public.uniqueless(
+    id INT PRIMARY KEY
 );
 RESET client_min_messages;
 
@@ -22,6 +26,14 @@ SELECT * FROM check_test(
     true,
     'has_unique( schema, table, description )',
     'public.sometab should have a unique constraint',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_unique( 'public', 'sometab'::name ),
+    true,
+    'has_unique( schema, table )',
+    'Table public.sometab should have a unique constraint',
     ''
 );
 
@@ -42,18 +54,77 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    has_unique( 'pg_catalog', 'pg_class', 'pg_catalog.pg_class should have a unique constraint' ),
+    has_unique( 'public', 'uniqueless', 'public.uniqueless should have a unique constraint' ),
     false,
     'has_unique( schema, table, description ) fail',
-    'pg_catalog.pg_class should have a unique constraint',
+    'public.uniqueless should have a unique constraint',
     ''
 );
 
 SELECT * FROM check_test(
-    has_unique( 'pg_class', 'pg_class should have a unique constraint' ),
+    has_unique( 'uniqueless', 'uniqueless should have a unique constraint' ),
     false,
     'has_unique( table, description ) fail',
-    'pg_class should have a unique constraint',
+    'uniqueless should have a unique constraint',
+    ''
+);
+
+/****************************************************************************/
+-- Test hasnt_unique().
+
+SELECT * FROM check_test(
+    hasnt_unique( 'public', 'sometab', 'public.sometab should not have a unique constraint' ),
+    false,
+    'hasnt_unique( schema, table, description )',
+    'public.sometab should not have a unique constraint',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_unique( 'public', 'sometab'::name ),
+    false,
+    'hasnt_unique( schema, table )',
+    'Table public.sometab should not have a unique constraint',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_unique( 'sometab', 'sometab should not have a unique constraint' ),
+    false,
+    'hasnt_unique( table, description )',
+    'sometab should not have a unique constraint',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_unique( 'sometab' ),
+    false,
+    'hasnt_unique( table )',
+    'Table sometab should not have a unique constraint',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_unique( 'public', 'uniqueless', 'public.uniqueless should not have a unique constraint' ),
+    true,
+    'hasnt_unique( schema, table, description ) pass',
+    'public.uniqueless should not have a unique constraint',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_unique( 'public', 'uniqueless'::name ),
+    true,
+    'hasnt_unique( schema, table ) pass',
+    'Table public.uniqueless should not have a unique constraint',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_unique( 'uniqueless', 'uniqueless should not have a unique constraint' ),
+    true,
+    'hasnt_unique( table, description ) pass',
+    'uniqueless should not have a unique constraint',
     ''
 );
 

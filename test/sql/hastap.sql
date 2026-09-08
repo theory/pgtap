@@ -1,7 +1,8 @@
 \unset ECHO
 \i test/setup.sql
+-- \i sql/pgtap.sql
 
-SELECT plan(884);
+SELECT plan(1013);
 --SELECT * FROM no_plan();
 
 -- This will be rolled back. :-)
@@ -49,7 +50,6 @@ CREATE DOMAIN public."myDomain" AS TEXT CHECK(TRUE);
 CREATE SEQUENCE public.someseq;
 
 CREATE SCHEMA someschema;
-
 RESET client_min_messages;
 
 /****************************************************************************/
@@ -375,6 +375,22 @@ SELECT * FROM check_test(
     ''
 );
 
+SELECT * FROM check_test(
+    has_view( 'information_schema', 'tables'::name ),
+    true,
+    'has_view(sch, view)',
+    'View information_schema.tables should exist',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_view( 'foo', '__SDFSDFD__'::name ),
+    false,
+    'has_view(sch, non-existent view, desc)',
+    'View foo."__SDFSDFD__" should exist',
+    ''
+);
+
 /****************************************************************************/
 -- Test hasnt_view().
 
@@ -415,6 +431,22 @@ SELECT * FROM check_test(
     false,
     'hasnt_view(sch, view, desc)',
     'desc',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_view( 'information_schema', 'tables'::name ),
+    false,
+    'hasnt_view(sch, view)',
+    'View information_schema.tables should not exist',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_view( 'foo', '__SDFSDFD__'::name ),
+    true,
+    'hasnt_view(sch, non-existent view)',
+    'View foo."__SDFSDFD__" should not exist',
     ''
 );
 
@@ -548,6 +580,23 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
+    has_composite( 'public'::name, '__SDFSDFD__'::name ),
+    false,
+    'has_composite(schema, type)',
+    'Composite type public."__SDFSDFD__" should exist',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_composite( 'public'::name, 'sometype'::name ),
+    true,
+    'has_composite(schema, type)',
+    'Composite type public.sometype should exist',
+    ''
+);
+
+
+SELECT * FROM check_test(
     has_composite( 'public', 'sometype', 'desc' ),
     true,
     'has_composite(sch, tab, desc)',
@@ -607,6 +656,15 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
+    hasnt_composite( 'public'::name, '__SDFSDFD__'::name ),
+    true,
+    'hasnt_composite(schema, non-existent type',
+    'Composite type public."__SDFSDFD__" should not exist',
+    ''
+);
+
+
+SELECT * FROM check_test(
     hasnt_composite( 'public', 'sometype', 'desc' ),
     false,
     'hasnt_composite(sch, tab, desc)',
@@ -633,7 +691,7 @@ SELECT * FROM check_test(
 SELECT * FROM check_test(
     has_type( 'public'::name, 'sometype'::name ),
     true,
-    'has_type(scheam, type)',
+    'has_type(schema, type)',
     'Type public.sometype should exist',
     ''
 );
@@ -1077,10 +1135,10 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    has_cast( 'integer', 'bigint', 'pg_catalog', 'int8'::name),
+    has_cast( 'int4', 'BIGINT', 'pg_catalog', 'int8'::name),
     true,
     'has_cast( src, targ, schema, func )',
-    'Cast ("integer" AS "bigint") WITH FUNCTION pg_catalog.int8() should exist',
+    'Cast (int4 AS "BIGINT") WITH FUNCTION pg_catalog.int8() should exist',
     ''
 );
 
@@ -1093,10 +1151,10 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    has_cast( 'integer', 'bigint', 'int8'::name),
+    has_cast( 'INT4', 'BIGINT', 'int8'::name),
     true,
     'has_cast( src, targ, func)',
-    'Cast ("integer" AS "bigint") WITH FUNCTION int8() should exist',
+    'Cast ("INT4" AS "BIGINT") WITH FUNCTION int8() should exist',
     ''
 );
 
@@ -1109,10 +1167,10 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    has_cast( 'integer', 'bigint' ),
+    has_cast( 'int4', 'BIGINT' ),
     true,
     'has_cast( src, targ )',
-    'Cast ("integer" AS "bigint") should exist',
+    'Cast (int4 AS "BIGINT") should exist',
     ''
 );
 
@@ -1125,7 +1183,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    has_cast( 'integer', 'bigint', 'foo', 'desc' ),
+    has_cast( 'INT4', 'BIGINT', 'foo', 'desc' ),
     false,
     'has_cast( src, targ, func, desc ) fail',
     'desc',
@@ -1152,10 +1210,10 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    hasnt_cast( 'integer', 'bigint', 'pg_catalog', 'int8'::name),
+    hasnt_cast( 'int4', 'int8', 'pg_catalog', 'int8'::name),
     false,
     'hasnt_cast( src, targ, schema, func )',
-    'Cast ("integer" AS "bigint") WITH FUNCTION pg_catalog.int8() should not exist',
+    'Cast (int4 AS int8) WITH FUNCTION pg_catalog.int8() should not exist',
     ''
 );
 
@@ -1168,10 +1226,10 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    hasnt_cast( 'integer', 'bigint', 'int8'::name),
+    hasnt_cast( 'INT4', 'INT8', 'int8'::name),
     false,
     'hasnt_cast( src, targ, func)',
-    'Cast ("integer" AS "bigint") WITH FUNCTION int8() should not exist',
+    'Cast ("INT4" AS "INT8") WITH FUNCTION int8() should not exist',
     ''
 );
 
@@ -1184,10 +1242,10 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    hasnt_cast( 'integer', 'bigint' ),
+    hasnt_cast( 'int4', 'int8' ),
     false,
     'hasnt_cast( src, targ )',
-    'Cast ("integer" AS "bigint") should not exist',
+    'Cast (int4 AS int8) should not exist',
     ''
 );
 
@@ -1200,7 +1258,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    hasnt_cast( 'integer', 'bigint', 'foo', 'desc' ),
+    hasnt_cast( 'INT4', 'INT8', 'foo', 'desc' ),
     true,
     'hasnt_cast( src, targ, func, desc ) fail',
     'desc',
@@ -1227,10 +1285,10 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    cast_context_is( 'integer', 'bigint', 'implicit' ),
+    cast_context_is( 'int4', 'int8', 'implicit' ),
     true,
     'cast_context_is( src, targ, context )',
-    'Cast ("integer" AS "bigint") context should be implicit',
+    'Cast (int4 AS int8) context should be implicit',
     ''
 );
 
@@ -1243,7 +1301,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    cast_context_is( 'integer', 'bigint', 'IMPL', 'desc' ),
+    cast_context_is( 'INT4', 'INT8', 'IMPL', 'desc' ),
     true,
     'cast_context_is( src, targ, IMPL, desc )',
     'desc',
@@ -1259,7 +1317,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    cast_context_is( 'bigint', 'smallint', 'a', 'desc' ),
+    cast_context_is( 'int4', 'int2', 'a', 'desc' ),
     true,
     'cast_context_is( src, targ, a, desc )',
     'desc',
@@ -1275,7 +1333,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    cast_context_is( 'bit', 'integer', 'explicit', 'desc' ),
+    cast_context_is( 'bit(128)', 'integer', 'explicit', 'desc' ),
     true,
     'cast_context_is( src, targ, explicit, desc )',
     'desc',
@@ -1283,7 +1341,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    cast_context_is( 'bit', 'integer', 'e', 'desc' ),
+    cast_context_is( 'bit', 'int4', 'e', 'desc' ),
     true,
     'cast_context_is( src, targ, e, desc )',
     'desc',
@@ -1299,7 +1357,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    cast_context_is( 'integer', 'bigint', 'ex', 'desc' ),
+    cast_context_is( 'integer', 'int8', 'ex', 'desc' ),
     false,
     'cast_context_is( src, targ, context, desc ) fail',
     'desc',
@@ -1308,10 +1366,10 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    cast_context_is( 'integer', 'bigint', 'ex' ),
+    cast_context_is( 'INT4', 'INT8', 'ex' ),
     false,
     'cast_context_is( src, targ, context ) fail',
-    'Cast ("integer" AS "bigint") context should be explicit',
+    'Cast ("INT4" AS "INT8") context should be explicit',
     '        have: implicit
         want: explicit'
 );
@@ -1328,7 +1386,7 @@ SELECT * FROM check_test(
 -- Test has_operator().
 
 SELECT * FROM check_test(
-  has_operator( 'integer', 'pg_catalog', '<=', 'integer', 'boolean', 'desc' ),
+  has_operator( 'integer', 'pg_catalog', '<=', 'int', 'bool', 'desc' ),
   true,
   'has_operator( left, schema, name, right, result, desc )',
   'desc',
@@ -1336,15 +1394,15 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-  has_operator( 'integer', 'pg_catalog', '<=', 'integer', 'boolean'::name ),
+  has_operator( 'int4', 'pg_catalog', '<=', 'integer', 'boolean'::name ),
   true,
   'has_operator( left, schema, name, right, result )',
-  'Operator pg_catalog.<=(integer,integer) RETURNS boolean should exist',
+  'Operator pg_catalog.<=(int4,integer) RETURNS boolean should exist',
   ''
 );
 
 SELECT * FROM check_test(
-  has_operator( 'integer', '<=', 'integer', 'boolean', 'desc' ),
+  has_operator( 'integer', '<=', 'int', 'bool', 'desc' ),
   true,
   'has_operator( left, name, right, result, desc )',
   'desc',
@@ -1352,15 +1410,15 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-  has_operator( 'integer', '<=', 'integer', 'boolean'::name ),
+  has_operator( 'integer', '<=', 'int4', 'boolean'::name ),
   true,
   'has_operator( left, name, right, result )',
-  'Operator <=(integer,integer) RETURNS boolean should exist',
+  'Operator <=(integer,int4) RETURNS boolean should exist',
   ''
 );
 
 SELECT * FROM check_test(
-  has_operator( 'integer', '<=', 'integer', 'desc' ),
+  has_operator( 'integer', '<=', 'int', 'desc' ),
   true,
   'has_operator( left, name, right, desc )',
   'desc',
@@ -1368,15 +1426,15 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-  has_operator( 'integer', '<=', 'integer'::name ),
+  has_operator( 'integer', '<=', 'int4'::name ),
   true,
   'has_operator( left, name, right )',
-  'Operator <=(integer,integer) should exist',
+  'Operator <=(integer,int4) should exist',
   ''
 );
 
 SELECT * FROM check_test(
-  has_operator( 'integer', 'pg_catalog', '<=', 'text', 'boolean', 'desc' ),
+  has_operator( 'integer', 'pg_catalog', '<=', 'text', 'bool', 'desc' ),
   false,
   'has_operator( left, schema, name, right, result, desc ) fail',
   'desc',
@@ -1392,7 +1450,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-  has_operator( 'integer', '<=', 'text', 'boolean', 'desc' ),
+  has_operator( 'integer', '<=', 'text', 'bool', 'desc' ),
   false,
   'has_operator( left, name, right, result, desc ) fail',
   'desc',
@@ -1424,10 +1482,109 @@ SELECT * FROM check_test(
 );
 
 /****************************************************************************/
+-- Test hasnt_operator().
+
+SELECT * FROM check_test(
+  hasnt_operator( 'integer', 'pg_catalog', '<=', 'integer', 'boolean', 'desc' ),
+  false,
+  'hasnt_operator( left, schema, name, right, result, desc ) fail',
+  'desc',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_operator( 'integer', 'pg_catalog', '<=', 'int', 'bool'::name ),
+  false,
+  'hasnt_operator( left, schema, name, right, result ) fail',
+  'Operator pg_catalog.<=(integer,int) RETURNS bool should not exist',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_operator( 'integer', '<=', 'integer', 'boolean', 'desc' ),
+  false,
+  'hasnt_operator( left, name, right, result, desc ) fail',
+  'desc',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_operator( 'integer', '<=', 'int', 'bool'::name ),
+  false,
+  'hasnt_operator( left, name, right, result ) fail',
+  'Operator <=(integer,int) RETURNS bool should not exist',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_operator( 'integer', '<=', 'integer', 'desc' ),
+  false,
+  'hasnt_operator( left, name, right, desc ) fail',
+  'desc',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_operator( 'integer', '<=', 'int'::name ),
+  false,
+  'hasnt_operator( left, name, right ) fail',
+  'Operator <=(integer,int) should not exist',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_operator( 'integer', 'pg_catalog', '<=', 'text', 'boolean', 'desc' ),
+  true,
+  'hasnt_operator( left, schema, name, right, result, desc )',
+  'desc',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_operator( 'integer', 'pg_catalog', '<=', 'text', 'bool'::name ),
+  true,
+  'hasnt_operator( left, schema, name, right, result )',
+  'Operator pg_catalog.<=(integer,text) RETURNS bool should not exist',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_operator( 'integer', '<=', 'text', 'boolean', 'desc' ),
+  true,
+  'hasnt_operator( left, name, right, result, desc )',
+  'desc',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_operator( 'integer', '<=', 'text', 'bool'::name ),
+  true,
+  'hasnt_operator( left, name, right, result )',
+  'Operator <=(integer,text) RETURNS bool should not exist',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_operator( 'integer', '<=', 'text', 'desc' ),
+  true,
+  'hasnt_operator( left, name, right, desc )',
+  'desc',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_operator( 'integer', '<=', 'text'::name ),
+  true,
+  'hasnt_operator( left, name, right )',
+  'Operator <=(integer,text) should not exist',
+  ''
+);
+
+/****************************************************************************/
 -- Test has_leftop().
 
 SELECT * FROM check_test(
-  has_leftop( 'pg_catalog', '!!', 'bigint', 'numeric', 'desc' ),
+  has_leftop( 'pg_catalog', '+', 'bigint', 'int8', 'desc' ),
   true,
   'has_leftop( schema, name, right, result, desc )',
   'desc',
@@ -1435,15 +1592,15 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-  has_leftop( 'pg_catalog', '!!', 'bigint', 'numeric'::name ),
+  has_leftop( 'pg_catalog', '+', 'bigint', 'bigint'::name ),
   true,
   'has_leftop( schema, name, right, result )',
-  'Left operator pg_catalog.!!(NONE,bigint) RETURNS numeric should exist',
+  'Left operator pg_catalog.+(NONE,bigint) RETURNS bigint should exist',
   ''
 );
 
 SELECT * FROM check_test(
-  has_leftop( '!!', 'bigint', 'numeric', 'desc' ),
+  has_leftop( '+', 'bigint', 'int8', 'desc' ),
   true,
   'has_leftop( name, right, result, desc )',
   'desc',
@@ -1451,15 +1608,15 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-  has_leftop( '!!', 'bigint', 'numeric'::name ),
+  has_leftop( '+', 'bigint', 'int8'::name ),
   true,
   'has_leftop( name, right, result )',
-  'Left operator !!(NONE,bigint) RETURNS numeric should exist',
+  'Left operator +(NONE,bigint) RETURNS int8 should exist',
   ''
 );
 
 SELECT * FROM check_test(
-  has_leftop( '!!', 'bigint', 'desc' ),
+  has_leftop( '+', 'bigint', 'desc' ),
   true,
   'has_leftop( name, right, desc )',
   'desc',
@@ -1467,15 +1624,15 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-  has_leftop( '!!', 'bigint' ),
+  has_leftop( '+', 'int8' ),
   true,
   'has_leftop( name, right )',
-  'Left operator !!(NONE,bigint) should exist',
+  'Left operator +(NONE,int8) should exist',
   ''
 );
 
 SELECT * FROM check_test(
-  has_leftop( 'pg_catalog', '!!', 'text', 'numeric', 'desc' ),
+  has_leftop( 'pg_catalog', '+', 'text', 'numeric', 'desc' ),
   false,
   'has_leftop( schema, name, right, result, desc ) fail',
   'desc',
@@ -1483,15 +1640,15 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-  has_leftop( 'pg_catalog', '!!', 'text', 'numeric'::name ),
+  has_leftop( 'pg_catalog', '+', 'text', 'numeric'::name ),
   false,
   'has_leftop( schema, name, right, result ) fail',
-  'Left operator pg_catalog.!!(NONE,text) RETURNS numeric should exist',
+  'Left operator pg_catalog.+(NONE,text) RETURNS numeric should exist',
   ''
 );
 
 SELECT * FROM check_test(
-  has_leftop( '!!', 'text', 'numeric', 'desc' ),
+  has_leftop( '+', 'text', 'inte', 'desc' ),
   false,
   'has_leftop( name, right, result, desc ) fail',
   'desc',
@@ -1499,15 +1656,15 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-  has_leftop( '!!', 'text', 'numeric'::name ),
+  has_leftop( '+', 'text', 'int'::name ),
   false,
   'has_leftop( name, right, result ) fail',
-  'Left operator !!(NONE,text) RETURNS numeric should exist',
+  'Left operator +(NONE,text) RETURNS int should exist',
   ''
 );
 
 SELECT * FROM check_test(
-  has_leftop( '!!', 'text', 'desc' ),
+  has_leftop( '+', 'text', 'desc' ),
   false,
   'has_leftop( name, right, desc ) fail',
   'desc',
@@ -1515,111 +1672,409 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-  has_leftop( '!!', 'text' ),
+  has_leftop( '+', 'text' ),
   false,
   'has_leftop( name, right ) fail',
-  'Left operator !!(NONE,text) should exist',
+  'Left operator +(NONE,text) should exist',
+  ''
+);
+
+/****************************************************************************/
+-- Test hasnt_leftop().
+
+SELECT * FROM check_test(
+  hasnt_leftop( 'pg_catalog', '+', 'bigint', 'int8', 'desc' ),
+  false,
+  'hasnt_leftop( schema, name, right, result, desc ) fail',
+  'desc',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_leftop( 'pg_catalog', '+', 'bigint', 'int8'::name ),
+  false,
+  'hasnt_leftop( schema, name, right, result ) fail',
+  'Left operator pg_catalog.+(NONE,bigint) RETURNS int8 should not exist',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_leftop( '+', 'bigint', 'bigint', 'desc' ),
+  false,
+  'hasnt_leftop( name, right, result, desc ) fail',
+  'desc',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_leftop( '+', 'int8', 'int8'::name ),
+  false,
+  'hasnt_leftop( name, right, result ) fail',
+  'Left operator +(NONE,int8) RETURNS int8 should not exist',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_leftop( '+', 'bigint', 'desc' ),
+  false,
+  'hasnt_leftop( name, right, desc ) fail',
+  'desc',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_leftop( '+', 'int8' ),
+  false,
+  'hasnt_leftop( name, right ) fail',
+  'Left operator +(NONE,int8) should not exist',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_leftop( 'pg_catalog', '+', 'text', 'bigint', 'desc' ),
+  true,
+  'hasnt_leftop( schema, name, right, result, desc )',
+  'desc',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_leftop( 'pg_catalog', '+', 'text', 'bigint'::name ),
+  true,
+  'hasnt_leftop( schema, name, right, result )',
+  'Left operator pg_catalog.+(NONE,text) RETURNS bigint should not exist',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_leftop( '+', 'text', 'bigint', 'desc' ),
+  true,
+  'hasnt_leftop( name, right, result, desc )',
+  'desc',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_leftop( '+', 'text', 'int8'::name ),
+  true,
+  'hasnt_leftop( name, right, result )',
+  'Left operator +(NONE,text) RETURNS int8 should not exist',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_leftop( '+', 'text', 'desc' ),
+  true,
+  'hasnt_leftop( name, right, desc )',
+  'desc',
+  ''
+);
+
+SELECT * FROM check_test(
+  hasnt_leftop( '+', 'text' ),
+  true,
+  'hasnt_leftop( name, right )',
+  'Left operator +(NONE,text) should not exist',
   ''
 );
 
 /****************************************************************************/
 -- Test has_rightop().
 
-SELECT * FROM check_test(
-  has_rightop( 'bigint', 'pg_catalog', '!', 'numeric', 'desc' ),
-  true,
-  'has_rightop( left, schema, name, result, desc )',
-  'desc',
-  ''
-);
+CREATE FUNCTION test_has_rightop() RETURNS SETOF TEXT LANGUAGE plpgsql AS $$
+DECLARE
+    tap record;
+BEGIN
+    IF pg_version_num() < 140000 THEN
+        FOR tap IN SELECT * FROM check_test(
+            has_rightop( 'bigint', 'pg_catalog', '!', 'numeric', 'desc' ),
+            true,
+            'has_rightop( left, schema, name, result, desc )',
+            'desc',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
 
-SELECT * FROM check_test(
-  has_rightop( 'bigint', 'pg_catalog', '!', 'numeric'::name ),
-  true,
-  'has_rightop( left, schema, name, result )',
-  'Right operator pg_catalog.!(bigint,NONE) RETURNS numeric should exist',
-  ''
-);
+        FOR tap IN SELECT * FROM check_test(
+            has_rightop( 'bigint', 'pg_catalog', '!', 'numeric'::name ),
+            true,
+            'has_rightop( left, schema, name, result )',
+            'Right operator pg_catalog.!(bigint,NONE) RETURNS numeric should exist',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
 
-SELECT * FROM check_test(
-  has_rightop( 'bigint', '!', 'numeric', 'desc' ),
-  true,
-  'has_rightop( left, name, result, desc )',
-  'desc',
-  ''
-);
+        FOR tap IN SELECT * FROM check_test(
+            has_rightop( 'bigint', '!', 'numeric', 'desc' ),
+            true,
+            'has_rightop( left, name, result, desc )',
+            'desc',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
 
-SELECT * FROM check_test(
-  has_rightop( 'bigint', '!', 'numeric'::name ),
-  true,
-  'has_rightop( left, name, result )',
-  'Right operator !(bigint,NONE) RETURNS numeric should exist',
-  ''
-);
+        FOR tap IN SELECT * FROM check_test(
+            has_rightop( 'bigint', '!', 'numeric'::name ),
+            true,
+            'has_rightop( left, name, result )',
+            'Right operator !(bigint,NONE) RETURNS numeric should exist',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
 
-SELECT * FROM check_test(
-  has_rightop( 'bigint', '!', 'desc' ),
-  true,
-  'has_rightop( left, name, desc )',
-  'desc',
-  ''
-);
+        FOR tap IN SELECT * FROM check_test(
+            has_rightop( 'int8', '!', 'desc' ),
+            true,
+            'has_rightop( left, name, desc )',
+            'desc',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
 
-SELECT * FROM check_test(
-  has_rightop( 'bigint', '!' ),
-  true,
-  'has_rightop( left, name )',
-  'Right operator !(bigint,NONE) should exist',
-  ''
-);
+        FOR tap IN SELECT * FROM check_test(
+            has_rightop( 'int8', '!' ),
+            true,
+            'has_rightop( left, name )',
+            'Right operator !(int8,NONE) should exist',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
 
-SELECT * FROM check_test(
-  has_rightop( 'text', 'pg_catalog', '!', 'numeric', 'desc' ),
-  false,
-  'has_rightop( left, schema, name, result, desc ) fail',
-  'desc',
-  ''
-);
+        FOR tap IN SELECT * FROM check_test(
+            has_rightop( 'text', 'pg_catalog', '!', 'numeric', 'desc' ),
+            false,
+            'has_rightop( left, schema, name, result, desc ) fail',
+            'desc',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
 
-SELECT * FROM check_test(
-  has_rightop( 'text', 'pg_catalog', '!', 'numeric'::name ),
-  false,
-  'has_rightop( left, schema, name, result ) fail',
-  'Right operator pg_catalog.!(text,NONE) RETURNS numeric should exist',
-  ''
-);
+        FOR tap IN SELECT * FROM check_test(
+            has_rightop( 'text', 'pg_catalog', '!', 'numeric'::name ),
+            false,
+            'has_rightop( left, schema, name, result ) fail',
+            'Right operator pg_catalog.!(text,NONE) RETURNS numeric should exist',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
 
-SELECT * FROM check_test(
-  has_rightop( 'text', '!', 'numeric', 'desc' ),
-  false,
-  'has_rightop( left, name, result, desc ) fail',
-  'desc',
-  ''
-);
+        FOR tap IN SELECT * FROM check_test(
+            has_rightop( 'text', '!', 'numeric', 'desc' ),
+            false,
+            'has_rightop( left, name, result, desc ) fail',
+            'desc',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
 
-SELECT * FROM check_test(
-  has_rightop( 'text', '!', 'numeric'::name ),
-  false,
-  'has_rightop( left, name, result ) fail',
-  'Right operator !(text,NONE) RETURNS numeric should exist',
-  ''
-);
+        FOR tap IN SELECT * FROM check_test(
+            has_rightop( 'text', '!', 'numeric'::name ),
+            false,
+            'has_rightop( left, name, result ) fail',
+            'Right operator !(text,NONE) RETURNS numeric should exist',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
 
-SELECT * FROM check_test(
-  has_rightop( 'text', '!', 'desc' ),
-  false,
-  'has_rightop( left, name, desc ) fail',
-  'desc',
-  ''
-);
+        FOR tap IN SELECT * FROM check_test(
+            has_rightop( 'text', '!', 'desc' ),
+            false,
+            'has_rightop( left, name, desc ) fail',
+            'desc',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
 
-SELECT * FROM check_test(
-  has_rightop( 'text', '!' ),
-  false,
-  'has_rightop( left, name ) fail',
-  'Right operator !(text,NONE) should exist',
-  ''
-);
+        FOR tap IN SELECT * FROM check_test(
+            has_rightop( 'text', '!' ),
+            false,
+            'has_rightop( left, name ) fail',
+            'Right operator !(text,NONE) should exist',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+    ELSE
+        -- PostgreSQL 14 dropped support for postfix operators, so mock the
+        -- output for the tests to pass.
+        FOR tap IN SELECT * FROM (VALUES
+            ('has_rightop( left, schema, name, result, desc ) should pass'),
+            ('has_rightop( left, schema, name, result, desc ) should have the proper description'),
+            ('has_rightop( left, schema, name, result, desc ) should have the proper diagnostics'),
+            ('has_rightop( left, schema, name, result ) should pass'),
+            ('has_rightop( left, schema, name, result ) should have the proper description'),
+            ('has_rightop( left, schema, name, result ) should have the proper diagnostics'),
+            ('has_rightop( left, name, result, desc ) should pass'),
+            ('has_rightop( left, name, result, desc ) should have the proper description'),
+            ('has_rightop( left, name, result, desc ) should have the proper diagnostics'),
+            ('has_rightop( left, name, result ) should pass'),
+            ('has_rightop( left, name, result ) should have the proper description'),
+            ('has_rightop( left, name, result ) should have the proper diagnostics'),
+            ('has_rightop( left, name, desc ) should pass'),
+            ('has_rightop( left, name, desc ) should have the proper description'),
+            ('has_rightop( left, name, desc ) should have the proper diagnostics'),
+            ('has_rightop( left, name ) should pass'),
+            ('has_rightop( left, name ) should have the proper description'),
+            ('has_rightop( left, name ) should have the proper diagnostics'),
+            ('has_rightop( left, schema, name, result, desc ) fail should fail'),
+            ('has_rightop( left, schema, name, result, desc ) fail should have the proper description'),
+            ('has_rightop( left, schema, name, result, desc ) fail should have the proper diagnostics'),
+            ('has_rightop( left, schema, name, result ) fail should fail'),
+            ('has_rightop( left, schema, name, result ) fail should have the proper description'),
+            ('has_rightop( left, schema, name, result ) fail should have the proper diagnostics'),
+            ('has_rightop( left, name, result, desc ) fail should fail'),
+            ('has_rightop( left, name, result, desc ) fail should have the proper description'),
+            ('has_rightop( left, name, result, desc ) fail should have the proper diagnostics'),
+            ('has_rightop( left, name, result ) fail should fail'),
+            ('has_rightop( left, name, result ) fail should have the proper description'),
+            ('has_rightop( left, name, result ) fail should have the proper diagnostics'),
+            ('has_rightop( left, name, desc ) fail should fail'),
+            ('has_rightop( left, name, desc ) fail should have the proper description'),
+            ('has_rightop( left, name, desc ) fail should have the proper diagnostics'),
+            ('has_rightop( left, name ) fail should fail'),
+            ('has_rightop( left, name ) fail should have the proper description'),
+            ('has_rightop( left, name ) fail should have the proper diagnostics')
+        ) AS A(b) LOOP RETURN NEXT pass(tap.b); END LOOP;
+    END IF;
+END;
+$$;
+SELECT * FROM test_has_rightop();
+
+/****************************************************************************/
+-- Test hasnt_rightop().
+
+CREATE FUNCTION test_hasnt_rightop() RETURNS SETOF TEXT LANGUAGE plpgsql AS $$
+DECLARE
+    tap record;
+BEGIN
+    IF pg_version_num() < 140000 THEN
+        FOR tap IN SELECT * FROM check_test(
+            hasnt_rightop( 'int8', 'pg_catalog', '!', 'numeric', 'desc' ),
+            false,
+            'hasnt_rightop( left, schema, name, result, desc ) fail',
+            'desc',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            hasnt_rightop( 'bigint', 'pg_catalog', '!', 'numeric'::name ),
+            false,
+            'hasnt_rightop( left, schema, name, result ) fail',
+            'Right operator pg_catalog.!(bigint,NONE) RETURNS numeric should not exist',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            hasnt_rightop( 'int8', '!', 'numeric', 'desc' ),
+            false,
+            'hasnt_rightop( left, name, result, desc ) fail',
+            'desc',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            hasnt_rightop( 'bigint', '!', 'numeric'::name ),
+            false,
+            'hasnt_rightop( left, name, result ) fail',
+            'Right operator !(bigint,NONE) RETURNS numeric should not exist',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            hasnt_rightop( 'int8', '!', 'desc' ),
+            false,
+            'hasnt_rightop( left, name, desc ) fail',
+            'desc',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            hasnt_rightop( 'bigint', '!' ),
+            false,
+            'hasnt_rightop( left, name ) fail',
+            'Right operator !(bigint,NONE) should not exist',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            hasnt_rightop( 'text', 'pg_catalog', '!', 'numeric', 'desc' ),
+            true,
+            'hasnt_rightop( left, schema, name, result, desc )',
+            'desc',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            hasnt_rightop( 'text', 'pg_catalog', '!', 'numeric'::name ),
+            true,
+            'hasnt_rightop( left, schema, name, result )',
+            'Right operator pg_catalog.!(text,NONE) RETURNS numeric should not exist',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            hasnt_rightop( 'text', '!', 'numeric', 'desc' ),
+            true,
+            'hasnt_rightop( left, name, result, desc )',
+            'desc',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            hasnt_rightop( 'text', '!', 'numeric'::name ),
+            true,
+            'hasnt_rightop( left, name, result )',
+            'Right operator !(text,NONE) RETURNS numeric should not exist',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            hasnt_rightop( 'text', '!', 'desc' ),
+            true,
+            'hasnt_rightop( left, name, desc )',
+            'desc',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+
+        FOR tap IN SELECT * FROM check_test(
+            hasnt_rightop( 'text', '!' ),
+            true,
+            'hasnt_rightop( left, name )',
+            'Right operator !(text,NONE) should not exist',
+            ''
+        ) AS b LOOP RETURN NEXT tap.b; END LOOP;
+    ELSE
+        -- PostgreSQL 14 dropped support for postfix operators, so mock the
+        -- output for the tests to pass.
+        FOR tap IN SELECT * FROM (VALUES
+            ('hasnt_rightop( left, schema, name, result, desc ) fail should fail'),
+            ('hasnt_rightop( left, schema, name, result, desc ) fail should have the proper description'),
+            ('hasnt_rightop( left, schema, name, result, desc ) fail should have the proper diagnostics'),
+            ('hasnt_rightop( left, schema, name, result ) fail should fail'),
+            ('hasnt_rightop( left, schema, name, result ) fail should have the proper description'),
+            ('hasnt_rightop( left, schema, name, result ) fail should have the proper diagnostics'),
+            ('hasnt_rightop( left, name, result, desc ) fail should fail'),
+            ('hasnt_rightop( left, name, result, desc ) fail should have the proper description'),
+            ('hasnt_rightop( left, name, result, desc ) fail should have the proper diagnostics'),
+            ('hasnt_rightop( left, name, result ) fail should fail'),
+            ('hasnt_rightop( left, name, result ) fail should have the proper description'),
+            ('hasnt_rightop( left, name, result ) fail should have the proper diagnostics'),
+            ('hasnt_rightop( left, name, desc ) fail should fail'),
+            ('hasnt_rightop( left, name, desc ) fail should have the proper description'),
+            ('hasnt_rightop( left, name, desc ) fail should have the proper diagnostics'),
+            ('hasnt_rightop( left, name ) fail should fail'),
+            ('hasnt_rightop( left, name ) fail should have the proper description'),
+            ('hasnt_rightop( left, name ) fail should have the proper diagnostics'),
+            ('hasnt_rightop( left, schema, name, result, desc ) should pass'),
+            ('hasnt_rightop( left, schema, name, result, desc ) should have the proper description'),
+            ('hasnt_rightop( left, schema, name, result, desc ) should have the proper diagnostics'),
+            ('hasnt_rightop( left, schema, name, result ) should pass'),
+            ('hasnt_rightop( left, schema, name, result ) should have the proper description'),
+            ('hasnt_rightop( left, schema, name, result ) should have the proper diagnostics'),
+            ('hasnt_rightop( left, name, result, desc ) should pass'),
+            ('hasnt_rightop( left, name, result, desc ) should have the proper description'),
+            ('hasnt_rightop( left, name, result, desc ) should have the proper diagnostics'),
+            ('hasnt_rightop( left, name, result ) should pass'),
+            ('hasnt_rightop( left, name, result ) should have the proper description'),
+            ('hasnt_rightop( left, name, result ) should have the proper diagnostics'),
+            ('hasnt_rightop( left, name, desc ) should pass'),
+            ('hasnt_rightop( left, name, desc ) should have the proper description'),
+            ('hasnt_rightop( left, name, desc ) should have the proper diagnostics'),
+            ('hasnt_rightop( left, name ) should pass'),
+            ('hasnt_rightop( left, name ) should have the proper description'),
+            ('hasnt_rightop( left, name ) should have the proper diagnostics')
+        ) AS A(b) LOOP RETURN NEXT pass(tap.b); END LOOP;
+    END IF;
+END;
+$$;
+SELECT * FROM test_hasnt_rightop();
 
 /****************************************************************************/
 -- Test has_language() and hasnt_language().
@@ -1840,7 +2295,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    domain_type_is( 'public', 'us_postal_code', 'pg_catalog', 'integer', 'whatever'),
+    domain_type_is( 'public', 'us_postal_code', 'pg_catalog', 'int4', 'whatever'),
     false,
     'domain_type_is(schema, domain, schema, type, desc) fail',
     'whatever',
@@ -1849,7 +2304,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    domain_type_is( 'public', 'zip_code', 'pg_catalog', 'integer', 'whatever'),
+    domain_type_is( 'public', 'zip_code', 'pg_catalog', 'int', 'whatever'),
     false,
     'domain_type_is(schema, nondomain, schema, type, desc)',
     'whatever',
@@ -1857,7 +2312,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    domain_type_is( 'public', 'integer', 'pg_catalog', 'integer', 'whatever'),
+    domain_type_is( 'public', 'integer', 'pg_catalog', 'int', 'whatever'),
     false,
     'domain_type_is(schema, type, schema, type, desc) fail',
     'whatever',
@@ -1876,12 +2331,12 @@ SELECT * FROM check_test(
     domain_type_is( 'public'::name, 'us_postal_code', 'text'),
     true,
     'domain_type_is(schema, domain, type)',
-    'Domain public.us_postal_code should extend type text', 
+    'Domain public.us_postal_code should extend type text',
     ''
 );
 
 SELECT * FROM check_test(
-    domain_type_is( 'public', 'us_postal_code', 'integer', 'whatever'),
+    domain_type_is( 'public', 'us_postal_code', 'int', 'whatever'),
     false,
     'domain_type_is(schema, domain, type, desc) fail',
     'whatever',
@@ -1890,7 +2345,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    domain_type_is( 'public', 'zip_code', 'integer', 'whatever'),
+    domain_type_is( 'public', 'zip_code', 'int', 'whatever'),
     false,
     'domain_type_is(schema, nondomain, type, desc)',
     'whatever',
@@ -1898,7 +2353,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    domain_type_is( 'public', 'integer', 'integer', 'whatever'),
+    domain_type_is( 'public', 'integer', 'int', 'whatever'),
     false,
     'domain_type_is(schema, type, type, desc) fail',
     'whatever',
@@ -1917,12 +2372,12 @@ SELECT * FROM check_test(
     domain_type_is( 'us_postal_code', 'text'),
     true,
     'domain_type_is(domain, type)',
-    'Domain us_postal_code should extend type text', 
+    'Domain us_postal_code should extend type text',
     ''
 );
 
 SELECT * FROM check_test(
-    domain_type_is( 'us_postal_code', 'integer', 'whatever'),
+    domain_type_is( 'us_postal_code', 'int', 'whatever'),
     false,
     'domain_type_is(domain, type, desc) fail',
     'whatever',
@@ -1931,7 +2386,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    domain_type_is( 'zip_code', 'integer', 'whatever'),
+    domain_type_is( 'zip_code', 'int', 'whatever'),
     false,
     'domain_type_is(nondomain, type, desc)',
     'whatever',
@@ -1939,7 +2394,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    domain_type_is( 'integer', 'integer', 'whatever'),
+    domain_type_is( 'integer', 'int', 'whatever'),
     false,
     'domain_type_is(type, type, desc) fail',
     'whatever',
@@ -1947,7 +2402,7 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    domain_type_isnt( 'public', 'us_postal_code', 'public', 'integer', 'whatever'),
+    domain_type_isnt( 'public', 'us_postal_code', 'public', 'int', 'whatever'),
     true,
     'domain_type_isnt(schema, domain, schema, type, desc)',
     'whatever',
@@ -1955,10 +2410,10 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    domain_type_isnt( 'public', 'us_postal_code', 'pg_catalog'::name, 'integer'),
+    domain_type_isnt( 'public', 'us_postal_code', 'pg_catalog'::name, 'int4'),
     true,
     'domain_type_isnt(schema, domain, schema, type)',
-    'Domain public.us_postal_code should not extend type pg_catalog.integer',
+    'Domain public.us_postal_code should not extend type pg_catalog.int4',
     ''
 );
 
@@ -1996,10 +2451,10 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    domain_type_isnt( 'public'::name, 'us_postal_code', 'integer'),
+    domain_type_isnt( 'public'::name, 'us_postal_code', 'int'),
     true,
     'domain_type_isnt(schema, domain, type)',
-    'Domain public.us_postal_code should not extend type integer', 
+    'Domain public.us_postal_code should not extend type int',
     ''
 );
 
@@ -2037,10 +2492,10 @@ SELECT * FROM check_test(
 );
 
 SELECT * FROM check_test(
-    domain_type_isnt( 'us_postal_code', 'integer'),
+    domain_type_isnt( 'us_postal_code', 'int'),
     true,
     'domain_type_isnt(domain, type)',
-    'Domain us_postal_code should not extend type integer', 
+    'Domain us_postal_code should not extend type int',
     ''
 );
 
@@ -2074,7 +2529,7 @@ SELECT * FROM check_test(
 CREATE FUNCTION test_fdw() RETURNS SETOF TEXT AS $$
 DECLARE
     tap record;
-BEGIN   
+BEGIN
     IF pg_version_num() >= 90100 THEN
         EXECUTE $E$
             CREATE FOREIGN DATA WRAPPER dummy;
@@ -2843,7 +3298,7 @@ BEGIN
         ) AS b LOOP
             RETURN NEXT tap.b;
         END LOOP;
-        
+
         FOR tap IN SELECT * FROM check_test(
             has_view( 'pg_tables' ),
             true,

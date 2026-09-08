@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(48);
+SELECT plan(72);
 
 -- This will be rolled back. :-)
 SET client_min_messages = warning;
@@ -22,6 +22,14 @@ SELECT * FROM check_test(
     true,
     'has_check( schema, table, desc )',
     'public.sometab should have a check constraint',
+    ''
+);
+
+SELECT * FROM check_test(
+    has_check( 'public', 'sometab'::name ),
+    true,
+    'has_check( schema, table )',
+    'Table public.sometab should have a check constraint',
     ''
 );
 
@@ -54,6 +62,65 @@ SELECT * FROM check_test(
     false,
     'has_check( table, desc ) fail',
     'pg_class should have a check constraint',
+    ''
+);
+
+/****************************************************************************/
+-- Test hasnt_check().
+
+SELECT * FROM check_test(
+    hasnt_check( 'public', 'sometab', 'public.sometab should not have a check constraint' ),
+    false,
+    'hasnt_check( schema, table, description )',
+    'public.sometab should not have a check constraint',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_check( 'public', 'sometab'::name ),
+    false,
+    'hasnt_check( schema, table )',
+    'Table public.sometab should not have a check constraint',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_check( 'sometab', 'sometab should not have a check constraint' ),
+    false,
+    'hasnt_check( table, description )',
+    'sometab should not have a check constraint',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_check( 'sometab' ),
+    false,
+    'hasnt_check( table )',
+    'Table sometab should not have a check constraint',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_check( 'pg_catalog', 'pg_class', 'pg_catalog.pg_class should not have a check constraint' ),
+    true,
+    'hasnt_check( schema, table, description ) pass',
+    'pg_catalog.pg_class should not have a check constraint',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_check( 'pg_catalog', 'pg_class'::name ),
+    true,
+    'hasnt_check( schema, table ) pass',
+    'Table pg_catalog.pg_class should not have a check constraint',
+    ''
+);
+
+SELECT * FROM check_test(
+    hasnt_check( 'pg_class', 'pg_class should not have a check constraint' ),
+    true,
+    'hasnt_check( table, description ) pass',
+    'pg_class should not have a check constraint',
     ''
 );
 

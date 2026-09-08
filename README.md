@@ -1,96 +1,140 @@
-pgTAP 0.99.0
-============
+pgTAP 1.3.5
+===========
 
-[pgTAP](http://pgtap.org) is a unit testing framework for PostgreSQL written
+[pgTAP](https://pgtap.org) is a unit testing framework for PostgreSQL written
 in PL/pgSQL and PL/SQL. It includes a comprehensive collection of
-[TAP](http://testanything.org)-emitting assertion functions, as well as the
+[TAP](https://testanything.org)-emitting assertion functions, as well as the
 ability to integrate with other TAP-emitting test frameworks. It can also be
 used in the xUnit testing style. For detailed documentation, see the
-documentation in `doc/pgtap.mmd` or
-[online](http://pgtap.org/documentation.html "Complete pgTAP Documentation").
+documentation in `doc/pgtap.md` or
+[online](https://pgtap.org/documentation.html "Complete pgTAP Documentation").
 
 [![PGXN version](https://badge.fury.io/pg/pgtap.svg)](https://badge.fury.io/pg/pgtap)
-[![Build Status](https://travis-ci.org/theory/pgtap.png)](https://travis-ci.org/theory/pgtap)
+[![🐘 Postgres](https://github.com/theory/pgtap/actions/workflows/test.yml/badge.svg)](https://github.com/theory/pgtap/actions/workflows/test.yml)
+
+pgTAP must be installed on a host with PostgreSQL server running; it cannot
+be installed remotely.
 
 To build it, just do this:
 
-    make
-    make installcheck
-    make install
+```sh
+make
+make install
+make installcheck
+```
 
 If you encounter an error such as:
 
-    "Makefile", line 8: Need an operator
+```
+"Makefile", line 8: Need an operator
+```
 
 You need to use GNU make, which may well be installed on your system as
 `gmake`:
 
-    gmake
-    gmake install
-    gmake installcheck
+```sh
+gmake
+gmake install
+gmake installcheck
+```
 
 If you encounter an error such as:
 
-    make: pg_config: Command not found
-
+```
+make: pg_config: Command not found
+```
 Or:
 
-    Makefile:52: *** pgTAP requires PostgreSQL 8.1 or later. This is .  Stop.
+```
+Makefile:52: *** pgTAP requires PostgreSQL 9.1 or later. This is .  Stop.
+```
 
 Be sure that you have `pg_config` installed and in your path. If you used a
 package management system such as RPM to install PostgreSQL, be sure that the
 `-devel` package is also installed. If necessary tell the build process where
 to find it:
 
-    env PG_CONFIG=/path/to/pg_config make && make install && make installcheck
+```sh
+env PG_CONFIG=/path/to/pg_config make && make install && make installcheck
+```
 
-And finally, if all that fails (and if you're on PostgreSQL 8.1, it likely
-will), copy the entire distribution directory to the `contrib/` subdirectory
-of the PostgreSQL source tree and try it there without `pg_config`:
+And finally, if all that fails, copy the entire distribution directory to the
+`contrib/` subdirectory of the PostgreSQL source tree and try it there without
+`pg_config`:
 
-    env NO_PGXS=1 make && make install && make installcheck
+```sh
+env NO_PGXS=1 make && make install && make installcheck
+```
 
 If you encounter an error such as:
 
-    ERROR:  must be owner of database regression
+```
+ERROR:  must be owner of database regression
+```
 
 You need to run the test suite using a super user, such as the default
 "postgres" super user:
 
-    make installcheck PGUSER=postgres
+```
+make installcheck PGUSER=postgres
+```
 
-Once pgTAP is installed, you can add it to a database. If you're running
-PostgreSQL 9.1.0 or greater, it's a simple as connecting to a database as a
-super user and running:
+If you encounter an error such as:
 
-    CREATE EXTENSION pgtap;
+```
+ERROR: Missing extensions required for testing: citext isn ltree
+```
+
+Install the PostgreSQL
+[Additional Supplied Modules](https://www.postgresql.org/docs/current/contrib.html),
+which are required to run the tests. If you used a package management system
+such as RPM to install PostgreSQL, install the `-contrib` package.
+
+To install the extension in a custom prefix on PostgreSQL 18 or later, pass
+the `prefix` argument to `install` (but no other `make` targets):
+
+```sh
+make install prefix=/usr/local/extras
+```
+
+Then ensure that the prefix is included in the following [`postgresql.conf`
+parameters]:
+
+```ini
+extension_control_path = '/usr/local/extras/postgresql/share:$system'
+dynamic_library_path   = '/usr/local/extras/postgresql/lib:$libdir'
+```
+
+Once pgTAP is installed, you can add it to a database by connecting as a super
+user and running:
+
+```sql
+CREATE EXTENSION pgtap;
+```
 
 If you've upgraded your cluster to PostgreSQL 9.1 and already had pgTAP
 installed, you can upgrade it to a properly packaged extension with:
 
-    CREATE EXTENSION pgtap FROM unpackaged;
+```sql
+CREATE EXTENSION pgtap FROM unpackaged;
+```
 
-For versions of PostgreSQL less than 9.1.0, you'll need to run the
-installation script:
+If you want to install pgTAP and all of its supporting objects into a specific
+schema, use the `SCHEMA` clause to specify the schema, like so:
 
-    psql -d mydb -f /path/to/pgsql/share/contrib/pgtap.sql
-
-If you want to install pgTAP and all of its supporting objects into a
-specific schema, use the `PGOPTIONS` environment variable to specify the
-schema, like so:
-
-    PGOPTIONS=--search_path=tap psql -d mydb -f pgTAP.sql
+```sql
+CREATE EXTENSION pgtap SCHEMA tap;
+```
 
 Dependencies
 ------------
 
-pgTAP requires PostgreSQL 8.1 or higher, with 8.4 or higher recommended for
-full use of its API. It also requires PL/pgSQL.
+pgTAP requires PostgreSQL 9.1 or higher.
 
 Copyright and License
 ---------------------
 
-Copyright (c) 2008-2017 David E. Wheeler. Some rights reserved.
+Copyright (c) 2008-2026 David E. Wheeler. Some rights reserved.
 
 Permission to use, copy, modify, and distribute this software and its
 documentation for any purpose, without fee, and without a written agreement is

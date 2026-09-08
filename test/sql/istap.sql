@@ -61,103 +61,37 @@ CREATE TABLE mumble ( id int, name text );
 RESET client_min_messages;
 INSERT INTO mumble VALUES (1, 'hey');
 
-CREATE FUNCTION test_records() RETURNS SETOF TEXT AS $$
-DECLARE
-    tap record;
-BEGIN
-    IF pg_version_num() < 80100 THEN
-        -- Can't do shit with records on 8.0
-        RETURN NEXT pass('with records!');
-        RETURN NEXT pass( 'is(mumble, row) fail should fail');
-        RETURN NEXT pass( 'is(mumble, row) fail should have the proper description');
-        RETURN NEXT pass( 'is(mumble, row) fail should have the proper diagnostics');
-        RETURN NEXT pass( 'is(mumble, row) fail with NULL should fail');
-        RETURN NEXT pass( 'is(mumble, row) fail with NULL should have the proper description');
-        RETURN NEXT pass( 'is(mumble, row) fail with NULL should have the proper diagnostics');
-        RETURN NEXT pass( 'is(mumble, NULL) should fail');
-        RETURN NEXT pass( 'is(mumble, NULL) should have the proper description');
-        RETURN NEXT pass( 'is(mumble, NULL) should have the proper diagnostics');
-    ELSIF pg_version_num() >= 80400 THEN
-        RETURN NEXT is( mumble.*, ROW(1, 'hey')::mumble, 'with records!' )
-          FROM mumble;
+SELECT is( mumble.*, ROW(1, 'hey')::mumble, 'with records!' )
+FROM mumble;
 
-        -- Before 8.3, have to cast to text.
-        FOR tap IN SELECT check_test(
-            is( mumble.*, ROW(1, 'HEY')::mumble ),
-            false,
-            'is(mumble, row) fail',
-            '',
-            '        have: (1,hey)
+SELECT check_test(
+    is( mumble.*, ROW(1, 'HEY')::mumble ),
+    false,
+    'is(mumble, row) fail',
+    '',
+    '        have: (1,hey)
         want: (1,HEY)'
-        ) AS b FROM mumble LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
+) FROM mumble;
 
-        FOR tap IN SELECT check_test(
-            is( mumble.*, ROW(1, NULL)::mumble ),
-            false,
-            'is(mumble, row) fail with NULL',
-            '',
-            '        have: (1,hey)
+SELECT check_test(
+    is( mumble.*, ROW(1, NULL)::mumble ),
+    false,
+    'is(mumble, row) fail with NULL',
+    '',
+    '        have: (1,hey)
         want: (1,)'
-        ) AS b FROM mumble LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
+) FROM mumble;
 
-        FOR tap IN SELECT check_test(
-            is( mumble.*, NULL::mumble ),
-            false,
-            'is(mumble, NULL)',
-            '',
-            '        have: (1,hey)
+SELECT check_test(
+    is( mumble.*, NULL::mumble ),
+    false,
+    'is(mumble, NULL)',
+    '',
+    '        have: (1,hey)
         want: NULL'
-        ) AS b FROM mumble LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-    ELSE
-        RETURN NEXT is( textin(record_out(mumble.*)), textin(record_out(ROW(1, 'hey'))), 'with records!' )
-          FROM mumble;
-
-        FOR tap IN SELECT check_test(
-            is( textin(record_out(mumble.*)), textin(record_out(ROW(1, 'HEY')))),
-            false,
-            'is(mumble, row) fail',
-            '',
-            '        have: (1,hey)
-        want: (1,HEY)'
-        ) AS b FROM mumble LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT check_test(
-            is( textin(record_out(mumble.*)), textin(record_out(ROW(1, NULL))) ),
-            false,
-            'is(mumble, row) fail with NULL',
-            '',
-            '        have: (1,hey)
-        want: (1,)'
-        ) AS b FROM mumble LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-
-        FOR tap IN SELECT check_test(
-            is( textin(record_out(mumble.*)), NULL::text ),
-            false,
-            'is(mumble, NULL)',
-            '',
-            '        have: (1,hey)
-        want: NULL'
-        ) AS b FROM mumble LOOP
-            RETURN NEXT tap.b;
-        END LOOP;
-    END IF;
-    RETURN;
-END;
-$$ LANGUAGE PLPGSQL;
-
-SELECT * FROM test_records();
+) FROM mumble;
 
 /****************************************************************************/
 -- Finish the tests and clean up.
-SELECT * FROM finish();
+SELECT * FROM finish(false); -- Arbitrarily decided to test `finish(false)` here... :)
 ROLLBACK;

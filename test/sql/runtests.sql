@@ -5,6 +5,18 @@ SET client_min_messages = warning;
 CREATE SCHEMA whatever;
 CREATE TABLE whatever.foo ( id serial primary key );
 
+/*
+
+Expected output:
+
+runtests.out:   9.6 and up
+runtests_1.out: 9.5
+runtests_2.out: 9.3 - 9.4
+runtests_3.out: 9.2
+runtests_4.out: 9.1
+
+*/
+
 -- Make sure we get test function names.
 SET client_min_messages = notice;
 
@@ -61,8 +73,8 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION whatever.testplpgsqldie() RETURNS SETOF TEXT AS $$
 BEGIN
-    RETURN NEXT pass( 'plpgsql simple' );
-    RETURN NEXT pass( 'plpgsql simple 2' );
+    RETURN NEXT pass( 'plpgsql simple' );   -- Won't appear in results.
+    RETURN NEXT pass( 'plpgsql simple 2' ); -- Won't appear in results.
     INSERT INTO whatever.foo VALUES(1);
     RETURN NEXT is( MAX(id), 1, 'Should be a 1 in the test table') FROM whatever.foo;
     IF pg_version_num() >= 90300 THEN
@@ -98,6 +110,10 @@ Note that in some cases we get what appears to be a duplicate context message, b
     END IF;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION whatever.testdividebyzero() RETURNS SETOF TEXT AS $$
+    select cast(1/0 as text)
+$$ LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION whatever.testy() RETURNS SETOF TEXT AS $$
     SELECT fail('this test intentionally fails');
