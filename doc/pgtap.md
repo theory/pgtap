@@ -48,6 +48,9 @@ SELECT is( foo(42), 23, :test_description);
 -- Simple pass/fail.
 SELECT pass(:test_description);
 SELECT fail(:test_description);
+
+-- Finish the tests and clean up.
+SELECT * FROM finish();
 ```
 
 Installation
