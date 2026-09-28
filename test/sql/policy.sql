@@ -1,7 +1,7 @@
 \unset ECHO
 \i test/setup.sql
 
-SELECT plan(180);
+SELECT plan(192);
 --SELECT * FROM no_plan();
 
 -- This will be rolled back. :-)
@@ -577,6 +577,108 @@ SELECT * FROM check_test(
     'Policy root_all for table passwd should apply to DELETE command',
     '        have: ALL
         want: DELETE'
+);
+
+/****************************************************************************/
+-- Test policy_is_permissive().
+
+SELECT * FROM check_test(
+    policy_is_permissive( 'public', 'passwd', 'root_all'::NAME ),
+    true,
+    'policy_is_permissive(schema, table, policy)',
+    'Policy root_all for table public.passwd should be permissive, not restrictive',
+    ''
+);
+
+SELECT * FROM check_test(
+    policy_is_permissive( 'public', 'passwd', 'doesnt_exist'::NAME ),
+    true,
+    'policy_is_permissive(schema, table, policy) for nonexistent policy',
+    'Policy root_all for table public.passwd should be permissive, not restrictive',
+    '(test result was NULL)'
+);
+
+SELECT * FROM check_test(
+    policy_is_permissive( 'public', 'passwd', 'root_all', 'whatever' ),
+    true,
+    'policy_is_permissive(schema, table, policy, desc)',
+    'whatever',
+    ''
+);
+
+SELECT * FROM check_test(
+    policy_is_permissive( 'passwd', 'root_all' ),
+    true,
+    'policy_is_permissive(table, policy)',
+    'Policy root_all for table passwd should be permissive, not restrictive',
+    ''
+);
+
+SELECT * FROM check_test(
+    policy_is_permissive( 'passwd', 'doesnt_exist' ),
+    true,
+    'policy_is_permissive(table, policy) for nonexistent policy',
+    'Policy root_all for table passwd should be permissive, not restrictive',
+    '(test result was NULL)'
+);
+
+SELECT * FROM check_test(
+    policy_is_permissive( 'passwd', 'root_all', 'whatever' ),
+    true,
+    'policy_is_permissive(table, policy, desc)',
+    'whatever',
+    ''
+);
+
+/****************************************************************************/
+-- Test policy_is_restrictive().
+
+SELECT * FROM check_test(
+    policy_is_restrictive( 'public', 'passwd', 'root_all'::NAME ),
+    false,
+    'policy_is_permissive(schema, table, policy)',
+    'Policy root_all for table public.passwd should be permissive, not restrictive',
+    ''
+);
+
+SELECT * FROM check_test(
+    policy_is_restrictive( 'public', 'passwd', 'doesnt_exist'::NAME ),
+    false,
+    'policy_is_permissive(schema, table, policy) for nonexistent policy',
+    'Policy doesnt_exist for table public.passwd should be permissive, not restrictive',
+    '(test result was NULL)'
+);
+
+SELECT * FROM check_test(
+    policy_is_restrictive( 'public', 'passwd', 'root_all', 'whatever' ),
+    false,
+    'policy_is_permissive(schema, table, policy, desc)',
+    'whatever',
+    ''
+);
+
+SELECT * FROM check_test(
+    policy_is_restrictive( 'passwd', 'root_all' ),
+    false,
+    'policy_is_permissive(table, policy)',
+    'Policy root_all for table passwd should be permissive, not restrictive',
+    ''
+);
+
+SELECT * FROM check_test(
+    policy_is_restrictive( 'passwd', 'doesnt_exist' ),
+    false,
+    'policy_is_permissive(table, policy) for nonexistent policy',
+    'Policy doesnt_exist for table passwd should be permissive, not restrictive',
+    '(test result was NULL)'
+);
+
+SELECT * FROM check_test(
+    policy_is_restrictive( 'passwd', 'root_all', 'whatever' ),
+    false,
+    'policy_is_permissive(table, policy, desc)',
+    'whatever',
+    ''
 );
 
 /****************************************************************************/
