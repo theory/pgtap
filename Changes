@@ -3,6 +3,9 @@ Revision history for pgTAP
 
 1.3.5 Not Yet Released
 --------------------------
+* Made `is_definer()`, `isnt_definer()`, `is_strict()`, and `isnt_strict()`
+  report a missing function instead of `(test result was NULL)`. Thanks to
+  Jim Nasby for the report (#356).
 * Converted the documentation from MultiMarkdown to Markdown, now that PGXN
   has upgraded its Markdown parser.
 * Added an example of an empty array, `'{}'::name[]`, to each mention in the

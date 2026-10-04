@@ -139,3 +139,158 @@ BEGIN
     RETURN '1..' || $1;
 END;
 $$ LANGUAGE plpgsql strict;
+
+-- is_definer() / isnt_definer() / is_strict() / isnt_strict(): report missing
+-- functions instead of a NULL test result.
+
+-- is_definer( schema, function, args[] )
+CREATE OR REPLACE FUNCTION is_definer( NAME, NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT _func_compare(
+        $1, $2, $3, _definer($1, $2, $3),
+        'Function ' || quote_ident($1) || '.' || quote_ident($2) || '(' ||
+        array_to_string($3, ', ') || ') should be security definer'
+    );
+$$ LANGUAGE sql;
+
+-- is_definer( schema, function )
+CREATE OR REPLACE FUNCTION is_definer( NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT _func_compare(
+        $1, $2, _definer($1, $2),
+        'Function ' || quote_ident($1) || '.' || quote_ident($2) || '() should be security definer'
+    );
+$$ LANGUAGE sql;
+
+-- is_definer( function, args[] )
+CREATE OR REPLACE FUNCTION is_definer( NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT _func_compare(
+        NULL, $1, $2, _definer($1, $2),
+        'Function ' || quote_ident($1) || '(' ||
+        array_to_string($2, ', ') || ') should be security definer'
+    );
+$$ LANGUAGE sql;
+
+-- is_definer( function )
+CREATE OR REPLACE FUNCTION is_definer( NAME )
+RETURNS TEXT AS $$
+    SELECT _func_compare(
+        NULL, $1, _definer($1),
+        'Function ' || quote_ident($1) || '() should be security definer'
+    );
+$$ LANGUAGE sql;
+
+-- isnt_definer( schema, function, args[] )
+CREATE OR REPLACE FUNCTION isnt_definer( NAME, NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT _func_compare(
+        $1, $2, $3, NOT _definer($1, $2, $3),
+        'Function ' || quote_ident($1) || '.' || quote_ident($2) || '(' ||
+        array_to_string($3, ', ') || ') should not be security definer'
+    );
+$$ LANGUAGE sql;
+
+-- isnt_definer( schema, function )
+CREATE OR REPLACE FUNCTION isnt_definer( NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT _func_compare(
+        $1, $2, NOT _definer($1, $2),
+        'Function ' || quote_ident($1) || '.' || quote_ident($2) || '() should not be security definer'
+    );
+$$ LANGUAGE sql;
+
+-- isnt_definer( function, args[] )
+CREATE OR REPLACE FUNCTION isnt_definer( NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT _func_compare(
+        NULL, $1, $2, NOT _definer($1, $2),
+        'Function ' || quote_ident($1) || '(' ||
+        array_to_string($2, ', ') || ') should not be security definer'
+    );
+$$ LANGUAGE sql;
+
+-- isnt_definer( function )
+CREATE OR REPLACE FUNCTION isnt_definer( NAME )
+RETURNS TEXT AS $$
+    SELECT _func_compare(
+        NULL, $1, NOT _definer($1),
+        'Function ' || quote_ident($1) || '() should not be security definer'
+    );
+$$ LANGUAGE sql;
+
+-- is_strict( schema, function, args[] )
+CREATE OR REPLACE FUNCTION is_strict( NAME, NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT _func_compare(
+        $1, $2, $3, _strict($1, $2, $3),
+        'Function ' || quote_ident($1) || '.' || quote_ident($2) || '(' ||
+        array_to_string($3, ', ') || ') should be strict'
+    );
+$$ LANGUAGE sql;
+
+-- is_strict( schema, function )
+CREATE OR REPLACE FUNCTION is_strict( NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT _func_compare(
+        $1, $2, _strict($1, $2),
+        'Function ' || quote_ident($1) || '.' || quote_ident($2) || '() should be strict'
+    );
+$$ LANGUAGE sql;
+
+-- is_strict( function, args[] )
+CREATE OR REPLACE FUNCTION is_strict( NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT _func_compare(
+        NULL, $1, $2, _strict($1, $2),
+        'Function ' || quote_ident($1) || '(' ||
+        array_to_string($2, ', ') || ') should be strict'
+    );
+$$ LANGUAGE sql;
+
+-- is_strict( function )
+CREATE OR REPLACE FUNCTION is_strict( NAME )
+RETURNS TEXT AS $$
+    SELECT _func_compare(
+        NULL, $1, _strict($1),
+        'Function ' || quote_ident($1) || '() should be strict'
+    );
+$$ LANGUAGE sql;
+
+-- isnt_strict( schema, function, args[] )
+CREATE OR REPLACE FUNCTION isnt_strict( NAME, NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT _func_compare(
+        $1, $2, $3, NOT _strict($1, $2, $3),
+        'Function ' || quote_ident($1) || '.' || quote_ident($2) || '(' ||
+        array_to_string($3, ', ') || ') should not be strict'
+    );
+$$ LANGUAGE sql;
+
+-- isnt_strict( schema, function )
+CREATE OR REPLACE FUNCTION isnt_strict( NAME, NAME )
+RETURNS TEXT AS $$
+    SELECT _func_compare(
+        $1, $2, NOT _strict($1, $2),
+        'Function ' || quote_ident($1) || '.' || quote_ident($2) || '() should not be strict'
+    );
+$$ LANGUAGE sql;
+
+-- isnt_strict( function, args[] )
+CREATE OR REPLACE FUNCTION isnt_strict( NAME, NAME[] )
+RETURNS TEXT AS $$
+    SELECT _func_compare(
+        NULL, $1, $2, NOT _strict($1, $2),
+        'Function ' || quote_ident($1) || '(' ||
+        array_to_string($2, ', ') || ') should not be strict'
+    );
+$$ LANGUAGE sql;
+
+-- isnt_strict( function )
+CREATE OR REPLACE FUNCTION isnt_strict( NAME )
+RETURNS TEXT AS $$
+    SELECT _func_compare(
+        NULL, $1, NOT _strict($1),
+        'Function ' || quote_ident($1) || '() should not be strict'
+    );
+$$ LANGUAGE sql;

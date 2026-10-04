@@ -2,7 +2,7 @@
 \i test/setup.sql
 -- \i sql/pgtap.sql
 
-SELECT plan(1105);
+SELECT plan(1165);
 -- SELECT * FROM no_plan();
 
 CREATE SCHEMA someschema;
@@ -1165,6 +1165,87 @@ SELECT * FROM check_test(
     'isnt_definer(proc)',
     'Function someproc() should not be security definer',
     ''
+);
+
+-- Missing functions should name the object, not report a NULL result.
+SELECT * FROM check_test(
+    is_definer( 'someschema', 'nonesuch', '{}'::name[], 'whatever' ),
+    false,
+    'is_definer(schema, nofunc, 0 args, desc)',
+    'whatever',
+    '    Function someschema.nonesuch() does not exist'
+);
+
+SELECT * FROM check_test(
+    isnt_definer( 'someschema', 'nonesuch', '{}'::name[], 'whatever' ),
+    false,
+    'isnt_definer(schema, nofunc, 0 args, desc)',
+    'whatever',
+    '    Function someschema.nonesuch() does not exist'
+);
+
+SELECT * FROM check_test(
+    is_definer( 'someschema', 'nonesuch', '{}'::name[] ),
+    false,
+    'is_definer(schema, nofunc, 0 args)',
+    'Function someschema.nonesuch() should be security definer',
+    '    Function someschema.nonesuch() does not exist'
+);
+
+SELECT * FROM check_test(
+    isnt_definer( 'someschema', 'nonesuch', '{}'::name[] ),
+    false,
+    'isnt_definer(schema, nofunc, 0 args)',
+    'Function someschema.nonesuch() should not be security definer',
+    '    Function someschema.nonesuch() does not exist'
+);
+
+SELECT * FROM check_test(
+    is_definer( 'someschema', 'nonesuch'::name ),
+    false,
+    'is_definer(schema, nofunc)',
+    'Function someschema.nonesuch() should be security definer',
+    '    Function someschema.nonesuch() does not exist'
+);
+
+SELECT * FROM check_test(
+    isnt_definer( 'someschema', 'nonesuch'::name ),
+    false,
+    'isnt_definer(schema, nofunc)',
+    'Function someschema.nonesuch() should not be security definer',
+    '    Function someschema.nonesuch() does not exist'
+);
+
+SELECT * FROM check_test(
+    is_definer( 'nonesuch', ARRAY['int', 'text'] ),
+    false,
+    'is_definer(nofunc, args)',
+    'Function nonesuch(int, text) should be security definer',
+    '    Function nonesuch(int, text) does not exist'
+);
+
+SELECT * FROM check_test(
+    isnt_definer( 'nonesuch', ARRAY['int', 'text'] ),
+    false,
+    'isnt_definer(nofunc, args)',
+    'Function nonesuch(int, text) should not be security definer',
+    '    Function nonesuch(int, text) does not exist'
+);
+
+SELECT * FROM check_test(
+    is_definer( 'nonesuch'::name ),
+    false,
+    'is_definer(nofunc)',
+    'Function nonesuch() should be security definer',
+    '    Function nonesuch() does not exist'
+);
+
+SELECT * FROM check_test(
+    isnt_definer( 'nonesuch'::name ),
+    false,
+    'isnt_definer(nofunc)',
+    'Function nonesuch() should not be security definer',
+    '    Function nonesuch() does not exist'
 );
 
 /****************************************************************************/
@@ -2961,6 +3042,87 @@ SELECT * FROM check_test(
     'isnt_strict(proc)',
     'Function someproc() should not be strict',
     ''
+);
+
+-- Missing functions should name the object, not report a NULL result.
+SELECT * FROM check_test(
+    is_strict( 'someschema', 'nonesuch', '{}'::name[], 'whatever' ),
+    false,
+    'is_strict(schema, nofunc, 0 args, desc)',
+    'whatever',
+    '    Function someschema.nonesuch() does not exist'
+);
+
+SELECT * FROM check_test(
+    isnt_strict( 'someschema', 'nonesuch', '{}'::name[], 'whatever' ),
+    false,
+    'isnt_strict(schema, nofunc, 0 args, desc)',
+    'whatever',
+    '    Function someschema.nonesuch() does not exist'
+);
+
+SELECT * FROM check_test(
+    is_strict( 'someschema', 'nonesuch', '{}'::name[] ),
+    false,
+    'is_strict(schema, nofunc, 0 args)',
+    'Function someschema.nonesuch() should be strict',
+    '    Function someschema.nonesuch() does not exist'
+);
+
+SELECT * FROM check_test(
+    isnt_strict( 'someschema', 'nonesuch', '{}'::name[] ),
+    false,
+    'isnt_strict(schema, nofunc, 0 args)',
+    'Function someschema.nonesuch() should not be strict',
+    '    Function someschema.nonesuch() does not exist'
+);
+
+SELECT * FROM check_test(
+    is_strict( 'someschema', 'nonesuch'::name ),
+    false,
+    'is_strict(schema, nofunc)',
+    'Function someschema.nonesuch() should be strict',
+    '    Function someschema.nonesuch() does not exist'
+);
+
+SELECT * FROM check_test(
+    isnt_strict( 'someschema', 'nonesuch'::name ),
+    false,
+    'isnt_strict(schema, nofunc)',
+    'Function someschema.nonesuch() should not be strict',
+    '    Function someschema.nonesuch() does not exist'
+);
+
+SELECT * FROM check_test(
+    is_strict( 'nonesuch', ARRAY['int', 'text'] ),
+    false,
+    'is_strict(nofunc, args)',
+    'Function nonesuch(int, text) should be strict',
+    '    Function nonesuch(int, text) does not exist'
+);
+
+SELECT * FROM check_test(
+    isnt_strict( 'nonesuch', ARRAY['int', 'text'] ),
+    false,
+    'isnt_strict(nofunc, args)',
+    'Function nonesuch(int, text) should not be strict',
+    '    Function nonesuch(int, text) does not exist'
+);
+
+SELECT * FROM check_test(
+    is_strict( 'nonesuch'::name ),
+    false,
+    'is_strict(nofunc)',
+    'Function nonesuch() should be strict',
+    '    Function nonesuch() does not exist'
+);
+
+SELECT * FROM check_test(
+    isnt_strict( 'nonesuch'::name ),
+    false,
+    'isnt_strict(nofunc)',
+    'Function nonesuch() should not be strict',
+    '    Function nonesuch() does not exist'
 );
 
 /****************************************************************************/
